@@ -1,0 +1,60 @@
+:root {
+  --assal-primary: #f39c12;
+  --assal-primary-dark: #9c5a00;
+  --assal-primary-light: #ffa94d;
+  --assal-secondary: #8b5a2b;
+  --assal-deep-brown: #4f2e1f;
+  --assal-honey: #f39c12;
+  --assal-honey-light: #fff0d6;
+  --assal-cream: #f8f4ec;
+  --assal-background: #fcfaf7;
+  --assal-surface: #ffffff;
+  --assal-surface-variant: #f4eee5;
+  --assal-text-primary: #342118;
+  --assal-text-secondary: #6f5b4c;
+  --assal-text-muted: #9a897d;
+  --assal-border: #e8dccb;
+  --assal-success: #4f7a45;
+  --assal-warning: #b86b1e;
+  --assal-error: #a64232;
+  --assal-info: #6b675c;
+
+  --assal-space-xs: 4px;
+  --assal-space-sm: 8px;
+  --assal-space-md: 12px;
+  --assal-space-lg: 16px;
+  --assal-space-xl: 24px;
+  --assal-space-2xl: 32px;
+  --assal-space-3xl: 40px;
+  --assal-space-4xl: 48px;
+  --assal-space-5xl: 64px;
+
+  --assal-radius-small: 8px;
+  --assal-radius-medium: 12px;
+  --assal-radius-large: 18px;
+  --assal-radius-extra-large: 28px;
+  --assal-radius-pill: 999px;
+
+  --assal-shadow-soft: 0 8px 24px rgba(79, 46, 31, 0.08);
+  --assal-shadow-raised: 0 14px 36px rgba(79, 46, 31, 0.12);
+
+  --assal-font-family: "IBM Plex Sans Arabic", sans-serif;
+  --assal-font-size-display: 36px;
+  --assal-font-size-heading-1: 30px;
+  --assal-font-size-heading-2: 24px;
+  --assal-font-size-heading-3: 20px;
+  --assal-font-size-title: 18px;
+  --assal-font-size-subtitle: 16px;
+  --assal-font-size-body: 14px;
+  --assal-font-size-caption: 11px;
+  --assal-font-size-button: 14px;
+  --assal-font-weight-regular: 400;
+  --assal-font-weight-medium: 500;
+  --assal-font-weight-semibold: 600;
+  --assal-font-weight-bold: 700;
+  --assal-line-height-button: 22px;
+}
+
+html[dir="rtl"] {
+  font-family: var(--assal-font-family);
+}
