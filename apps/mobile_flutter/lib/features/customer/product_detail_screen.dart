@@ -41,7 +41,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 const SizedBox(height: AssalSpacing.lg),
                 Text(product.nameAr, style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
                 const SizedBox(height: AssalSpacing.sm),
-                Row(children: [const Icon(Icons.star, color: AssalColors.primaryDark), const SizedBox(width: 4), Text('${product.ratingAverage.toStringAsFixed(1)} من 5'), const SizedBox(width: AssalSpacing.md), Text('${product.reviewCount} مراجعات', style: AssalTypography.body.copyWith(color: AssalColors.textSecondary))]),
+                Row(children: [const Icon(Icons.verified_user_outlined, color: AssalColors.primaryDark), const SizedBox(width: 6), Text('المراجعات تظهر عند توفر بيانات موثقة', style: AssalTypography.body.copyWith(color: AssalColors.textSecondary))]),
                 const SizedBox(height: AssalSpacing.lg),
                 if (product.description != null) Text(product.description!, style: AssalTypography.bodyLarge),
                 const SizedBox(height: AssalSpacing.xl),

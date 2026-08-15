@@ -1,4 +1,5 @@
-{
+// Design: دار العسل التحريرية — Demo data only; do not connect to Supabase here.
+export const demoCatalog = {
   "demo_only": true,
   "source": {
     "title": "Yemeni Honey Master Database (Official Application Schema)",
@@ -1011,4 +1012,4 @@
       "read_at": null
     }
   ]
-}
+} as const;

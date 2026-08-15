@@ -25,6 +25,12 @@ for product in catalog["products"]:
         raise SystemExit(f"non-demo product id: {product['id']}")
     if product["status"] != "active":
         raise SystemExit(f"unexpected demo product status: {product['status']}")
+    if "rating_average" in product or "review_count" in product:
+        raise SystemExit("Demo catalog must not contain fabricated ratings or review counts")
+
+for store in catalog["stores"]:
+    if "rating_average" in store or "review_count" in store:
+        raise SystemExit("Demo catalog must not contain fabricated store ratings or review counts")
 
 text = (root / "packages/demo_data/data/demo_catalog.json").read_text(encoding="utf-8").lower()
 for forbidden in ["service_role", "supabase_key", "postgresql://", "https://gvalqfgxrkibuydoiuiz"]:

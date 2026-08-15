@@ -25,8 +25,6 @@ stores = [
         "cover_url": "assets/brand/logo-internal.svg",
         "is_verified": True,
         "status": "active",
-        "rating_average": 4.9,
-        "review_count": 18,
         "followers_count": 126,
     },
     {
@@ -40,8 +38,6 @@ stores = [
         "cover_url": "assets/brand/logo-internal.svg",
         "is_verified": True,
         "status": "active",
-        "rating_average": 4.7,
-        "review_count": 11,
         "followers_count": 87,
     },
     {
@@ -55,8 +51,6 @@ stores = [
         "cover_url": "assets/brand/logo-internal.svg",
         "is_verified": False,
         "status": "active",
-        "rating_average": 4.5,
-        "review_count": 7,
         "followers_count": 54,
     },
 ]
@@ -91,8 +85,6 @@ for category in source["categories"]:
             "forms": product.get("forms", []),
             "is_featured": bool(product.get("badges")),
             "primary_image_url": "assets/brand/logo-internal.svg",
-            "rating_average": round(4.3 + ((store_index % 4) * 0.15), 1),
-            "review_count": 3 + (store_index % 6),
         })
         store_index += 1
 

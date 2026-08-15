@@ -1,0 +1,38 @@
+/* Design: دار العسل التحريرية — warm Yemeni honey editorial palette; ivory field, cocoa rail, gold actions. */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@font-face { font-family: "AssalArabic"; src: url("/manus-storage/assalkom-ibm-plex-arabic-regular_4db59b2b.ttf") format("truetype"); font-weight: 400 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "AssalArabic"; src: url("/manus-storage/assalkom-ibm-plex-arabic-bold_a884a404.ttf") format("truetype"); font-weight: 600 800; font-style: normal; font-display: swap; }
+
+@theme inline {
+  --font-sans: "AssalArabic", ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root { --radius: 1rem; --background: #fbf8f2; --foreground: #342118; --card: #ffffff; --card-foreground: #342118; --primary: #9c5a00; --primary-foreground: #fffaf0; --border: #eadcc9; --input: #eadcc9; --ring: #f3c26c; }
+
+* { border-color: var(--border); }
+html { min-width: 320px; background: var(--background); }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: "AssalArabic", ui-sans-serif, system-ui, sans-serif; }
+button, input, select { font: inherit; }
+
+.admin-card { border: 1px solid #eee1d0; border-radius: 1.25rem; background: rgba(255,255,255,.92); box-shadow: 0 12px 32px rgba(79,46,31,.055); transition: transform 180ms cubic-bezier(.23,1,.32,1), box-shadow 180ms cubic-bezier(.23,1,.32,1); }
+.admin-card:hover { box-shadow: 0 17px 38px rgba(79,46,31,.085); }
+.section-kicker { display: inline-flex; align-items: center; gap: .55rem; color: #a06b25; font-size: 10px; font-weight: 800; letter-spacing: .16em; }
+.section-kicker::before { content: ""; display: inline-block; height: .8rem; width: 3px; border-radius: 99px; background: #f39c12; }
+
+@media (prefers-reduced-motion: no-preference) { .admin-card { animation: card-in 360ms cubic-bezier(.23,1,.32,1) both; } @keyframes card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } } }
+@media (max-width: 640px) { .admin-card { border-radius: 1rem; } }

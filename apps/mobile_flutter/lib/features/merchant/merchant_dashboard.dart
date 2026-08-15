@@ -35,7 +35,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         Row(children: [
           Expanded(child: _MetricCard(icon: Icons.inventory_2_outlined, label: 'المنتجات', value: '12')),
           const SizedBox(width: AssalSpacing.md),
-          Expanded(child: _MetricCard(icon: Icons.star_outline, label: 'التقييم', value: '4.9')),
+          Expanded(child: _MetricCard(icon: Icons.mail_outline, label: 'طلبات جديدة', value: '1')),
         ]),
         const SizedBox(height: AssalSpacing.xl),
         Text('طلبات التواصل', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
@@ -49,7 +49,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         const SizedBox(height: AssalSpacing.md),
         FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(future: productsFuture, builder: (context, snapshot) {
           if (!snapshot.hasData) return const SizedBox(height: 110, child: Center(child: CircularProgressIndicator()));
-          return AssalStateView<List<AssalProductSummary>>(state: snapshot.data!, builder: (products) => Column(children: products.take(5).map((product) => Card(child: ListTile(title: Text(product.nameAr), subtitle: Text('${product.ratingAverage.toStringAsFixed(1)} ★  •  ${product.status.name}'), trailing: const Icon(Icons.edit_outlined))).toList()));
+          return AssalStateView<List<AssalProductSummary>>(state: snapshot.data!, builder: (products) => Column(children: products.take(5).map((product) => Card(child: ListTile(title: Text(product.nameAr), subtitle: Text('حالة المنتج: ${product.status.name}'), trailing: const Icon(Icons.edit_outlined))).toList()));
         }),
         const SizedBox(height: 96),
       ]);

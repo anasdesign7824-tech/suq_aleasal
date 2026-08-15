@@ -104,7 +104,7 @@ class ProductCard extends StatelessWidget {
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(product.nameAr, maxLines: 2, overflow: TextOverflow.ellipsis, style: AssalTypography.title),
                 const SizedBox(height: AssalSpacing.xs),
-                Text('${product.ratingAverage.toStringAsFixed(1)} ★  •  ${product.reviewCount} مراجعات', style: AssalTypography.bodySmall.copyWith(color: AssalColors.textSecondary)),
+                Text('بيانات المصدر والمنتج متاحة', style: AssalTypography.bodySmall.copyWith(color: AssalColors.textSecondary)),
                 const SizedBox(height: AssalSpacing.sm),
                 Row(children: [
                   if (product.isFeatured) const _Badge(label: 'مختار'),

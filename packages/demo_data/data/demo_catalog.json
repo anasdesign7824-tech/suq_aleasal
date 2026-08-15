@@ -127,8 +127,6 @@
       "cover_url": "assets/brand/logo-internal.svg",
       "is_verified": true,
       "status": "active",
-      "rating_average": 4.9,
-      "review_count": 18,
       "followers_count": 126
     },
     {
@@ -142,8 +140,6 @@
       "cover_url": "assets/brand/logo-internal.svg",
       "is_verified": true,
       "status": "active",
-      "rating_average": 4.7,
-      "review_count": 11,
       "followers_count": 87
     },
     {
@@ -157,8 +153,6 @@
       "cover_url": "assets/brand/logo-internal.svg",
       "is_verified": false,
       "status": "active",
-      "rating_average": 4.5,
-      "review_count": 7,
       "followers_count": 54
     }
   ],
@@ -198,9 +192,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 3
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-sidr-osaimi",
@@ -234,9 +226,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 4
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-sidr-jardani",
@@ -268,9 +258,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.6,
-      "review_count": 5
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-sidr-jabali",
@@ -300,9 +288,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.8,
-      "review_count": 6
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-sumur-hadrami",
@@ -334,9 +320,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 7
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-talh-najdi",
@@ -362,9 +346,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 8
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-shoka",
@@ -391,9 +373,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.6,
-      "review_count": 3
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-magra",
@@ -422,9 +402,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.8,
-      "review_count": 4
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-white-jabali",
@@ -450,9 +428,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 5
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-russian-white",
@@ -478,9 +454,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 6
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-sal",
@@ -508,9 +482,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.6,
-      "review_count": 7
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-salam",
@@ -537,9 +509,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.8,
-      "review_count": 8
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-soreb",
@@ -564,9 +534,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 3
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-prod-billa",
@@ -591,9 +559,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 4
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-wax-sidr-doani",
@@ -619,9 +585,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.6,
-      "review_count": 5
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-wax-sidr-osaimi",
@@ -646,9 +610,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.8,
-      "review_count": 6
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-wax-sumur",
@@ -673,9 +635,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 7
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-wax-marai",
@@ -701,9 +661,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 8
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-wax-meshat",
@@ -726,9 +684,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.6,
-      "review_count": 3
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-mix-groom",
@@ -757,9 +713,7 @@
       "purpose": "طاقة وخصوبة",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.8,
-      "review_count": 4
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-mix-immunity",
@@ -786,9 +740,7 @@
       "purpose": "تقوية الجهاز المناعي",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 5
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-mix-fat",
@@ -811,9 +763,7 @@
       "purpose": "زيادة الوزن وفتح الشهية",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 6
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-mix-nuts",
@@ -841,9 +791,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.6,
-      "review_count": 7
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-bee-royal",
@@ -872,9 +820,7 @@
         "بودرة"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.8,
-      "review_count": 8
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-bee-pollen",
@@ -900,9 +846,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 3
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-bee-propolis",
@@ -929,9 +873,7 @@
         "سائل"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 4
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-bee-wax-raw",
@@ -954,9 +896,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.6,
-      "review_count": 5
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-gift-bag-groom",
@@ -979,9 +919,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.8,
-      "review_count": 6
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-gift-box-royal",
@@ -1004,9 +942,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.3,
-      "review_count": 7
+      "primary_image_url": "assets/brand/logo-internal.svg"
     },
     {
       "id": "demo-gift-pottery",
@@ -1029,9 +965,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg",
-      "rating_average": 4.5,
-      "review_count": 8
+      "primary_image_url": "assets/brand/logo-internal.svg"
     }
   ],
   "reviews": [],
