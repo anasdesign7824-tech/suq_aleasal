@@ -2,7 +2,7 @@
 
 ## البيانات
 
-نجح `tools/check_demo_catalog.py`. تم تثبيت نسخة Honey Master `5.0.0`، وتوليد 30 منتجًا و3 متاجر و3 مراجعات، مع وسم `demo_only=true` والتحقق من عدم وجود service role أو Supabase URL أو PostgreSQL URL داخل Catalog.
+نجح `tools/check_demo_catalog.py`. تم تثبيت نسخة Honey Master `5.0.0`، وتوليد 30 منتجًا و3 متاجر، مع وسم `demo_only=true` والتحقق من عدم وجود service role أو Supabase URL أو PostgreSQL URL داخل Catalog. المراجعات فارغة عمدًا لأن المشروع لا يختلق محتوى العملاء أو تقييماتهم.
 
 ## العقود
 

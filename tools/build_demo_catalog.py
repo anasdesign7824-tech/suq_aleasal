@@ -96,11 +96,9 @@ for category in source["categories"]:
         })
         store_index += 1
 
-reviews = [
-    {"id": "demo-review-001", "product_id": "demo-prod-sidr-doani", "store_id": "demo-store-doani", "author_id": "demo-user-001", "rating": 5, "status": "approved", "body": "طعم أصيل وتغليف مرتب."},
-    {"id": "demo-review-002", "product_id": "demo-prod-sidr-osaimi", "store_id": "demo-store-amran", "author_id": "demo-user-002", "rating": 4, "status": "approved", "body": "مذاق قوي ومعلومات المنتج واضحة."},
-    {"id": "demo-review-003", "product_id": "demo-mix-immunity", "store_id": "demo-store-sanaa", "author_id": "demo-user-003", "rating": 5, "status": "approved", "body": "خلطة مناسبة كهدية وتجربة مختلفة."},
-]
+# Customer reviews are deliberately empty in Demo Mode. The project must not
+# fabricate user-generated reviews, ratings, or testimonials.
+reviews = []
 
 catalog = {
     "demo_only": True,

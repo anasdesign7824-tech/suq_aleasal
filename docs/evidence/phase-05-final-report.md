@@ -6,7 +6,7 @@
 
 ## Implemented
 
-تم إنشاء Demo Catalog حتمي من Honey Master، مع 30 منتجًا و3 متاجر و3 مراجعات وطلبات وإشعارات تجريبية. جميع المعرفات التجريبية تبدأ بـ `demo-`، والملف موسوم `demo_only=true`. تم إنشاء Repository Contracts وDemo Repository وProduction Repository adapters في Dart وTypeScript، مع Factory صريح لا يختار Production إلا عند حقن Gateway صريح.
+تم إنشاء Demo Catalog حتمي من Honey Master، مع 30 منتجًا و3 متاجر وطلبات وإشعارات تجريبية. جميع المعرفات التجريبية تبدأ بـ `demo-`، والملف موسوم `demo_only=true`. تبقى المراجعات فارغة عمدًا، إذ لا يسمح المشروع باختلاق محتوى العملاء أو تقييماتهم. تم إنشاء Repository Contracts وDemo Repository وProduction Repository adapters في Dart وTypeScript، مع Factory صريح لا يختار Production إلا عند حقن Gateway صريح.
 
 ## Files
 

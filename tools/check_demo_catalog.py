@@ -13,8 +13,8 @@ if len(catalog.get("stores", [])) != 3:
     raise SystemExit("Demo catalog must contain exactly three deterministic stores")
 if len(catalog.get("products", [])) != 30:
     raise SystemExit("Demo catalog product count must remain 30")
-if len(catalog.get("reviews", [])) != 3:
-    raise SystemExit("Demo catalog review fixtures must remain three")
+if catalog.get("reviews", []) != []:
+    raise SystemExit("Demo catalog must not contain fabricated customer reviews")
 
 required_product_keys = {"id", "store_id", "category_id", "name_ar", "product_type", "status", "grade_levels", "badges", "tags"}
 for product in catalog["products"]:
