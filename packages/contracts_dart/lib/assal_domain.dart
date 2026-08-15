@@ -188,6 +188,17 @@ class AssalReviewSummary {
   final ReviewStatus status;
   final String? body;
   final DateTime? createdAt;
+
+  factory AssalReviewSummary.fromJson(Map<String, Object?> json) => AssalReviewSummary(
+        id: json['id']! as String,
+        productId: json['product_id']! as String,
+        storeId: json['store_id']! as String,
+        authorId: json['author_id']! as String,
+        rating: json['rating']! as int,
+        status: _reviewStatus(json['status'] as String? ?? 'pending'),
+        body: json['body'] as String?,
+        createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      );
 }
 
 class AssalRequestSummary {
@@ -210,6 +221,17 @@ class AssalRequestSummary {
   final String? body;
   final String? preferredHandoffOption;
   final DateTime? createdAt;
+
+  factory AssalRequestSummary.fromJson(Map<String, Object?> json) => AssalRequestSummary(
+        id: json['id']! as String,
+        requesterId: json['requester_id']! as String,
+        storeId: json['store_id']! as String,
+        subject: json['subject']! as String,
+        status: _requestStatus(json['status'] as String? ?? 'open'),
+        body: json['body'] as String?,
+        preferredHandoffOption: json['preferred_handoff_option'] as String?,
+        createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      );
 }
 
 class AssalNotificationSummary {
@@ -230,6 +252,16 @@ class AssalNotificationSummary {
   final String? bodyAr;
   final Map<String, Object?> payload;
   final DateTime? readAt;
+
+  factory AssalNotificationSummary.fromJson(Map<String, Object?> json) => AssalNotificationSummary(
+        id: json['id']! as String,
+        userId: json['user_id']! as String,
+        notificationType: json['notification_type']! as String,
+        titleAr: json['title_ar']! as String,
+        bodyAr: json['body_ar'] as String?,
+        payload: (json['payload'] as Map?)?.cast<String, Object?>() ?? const <String, Object?>{},
+        readAt: DateTime.tryParse(json['read_at'] as String? ?? ''),
+      );
 }
 
 sealed class AssalLoadState<T> {
