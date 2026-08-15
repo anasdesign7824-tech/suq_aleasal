@@ -1,0 +1,212 @@
+{
+  "database_info": {
+    "title": "Yemeni Honey Master Database (Official Application Schema)",
+    "version": "5.0.0",
+    "description": "قاعدة البيانات المركزية الشاملة لكافة تصنيفات ومنتجات العسل في السوق اليمني والعالمي، مرتبة هرمياً لتسهيل الاستخدام البرمجي والتجاري.",
+    "last_updated": "2026-08-05"
+  },
+  "global_settings": {
+    "grading_system": [
+      { "level": 1, "label_ar": "ملكي فاخر (Royal)", "description": "أعلى معايير الجودة، نخب أول، قطفة أولى" },
+      { "level": 2, "label_ar": "درجة أولى (First Class)", "description": "جودة عالية جداً، نقي 100%" },
+      { "level": 3, "label_ar": "درجة ثانية (Standard)", "description": "جودة جيدة، مناسب للاستهلاك اليومي" },
+      { "level": 4, "label_ar": "تجاري (Commercial)", "description": "سعر اقتصادي، للاستخدام العام" }
+    ],
+    "badges_and_awards": [
+      { "id": "GOLD-MEDAL", "label_ar": "فائز بالميدالية الذهبية", "icon": "medal_gold" },
+      { "id": "LAB-TESTED", "label_ar": "مفحوص مخبرياً", "icon": "microscope" },
+      { "id": "GUARANTEED", "label_ar": "بلدي مضمون (على الشرط)", "icon": "verified" },
+      { "id": "SEASONAL", "label_ar": "إنتاج موسمي حديث", "icon": "calendar" },
+      { "id": "ORGANIC", "label_ar": "عضوي طبيعي 100%", "icon": "leaf" }
+    ],
+    "packaging_units": [
+      { "id": "UNIT-KG", "label_ar": "كيلو", "weight_grams": 1000 },
+      { "id": "UNIT-HALF-KG", "label_ar": "نصف كيلو", "weight_grams": 500 },
+      { "id": "UNIT-QUARTER-KG", "label_ar": "ربع كيلو", "weight_grams": 250 },
+      { "id": "UNIT-GALLON", "label_ar": "جالون (7 كيلو)", "weight_grams": 7000 },
+      { "id": "UNIT-DABBA", "label_ar": "دبة (25 كيلو)", "weight_grams": 25000 },
+      { "id": "UNIT-TABLET", "label_ar": "قرص شمع", "weight_grams": null }
+    ]
+  },
+  "categories": [
+    {
+      "id": "CAT-001",
+      "name_ar": "قسم العسل السائل (المصفى)",
+      "name_en": "Liquid Honey Section",
+      "sub_categories": [
+        {
+          "id": "SUB-SIDR",
+          "name_ar": "عسل السدر والعلب",
+          "products": [
+            {
+              "id": "PROD-SIDR-DOANI",
+              "name_ar": "سدر دوعني (حضرموت)",
+              "regions": ["وادي دوعن", "وديان حضرموت"],
+              "grades": [1, 2, 3],
+              "badges": ["GOLD-MEDAL", "GUARANTEED", "LAB-TESTED"],
+              "tags": ["الأكثر شهرة", "علاجي"]
+            },
+            {
+              "id": "PROD-SIDR-OSAIMI",
+              "name_ar": "سدر عصيمي (عمران)",
+              "regions": ["العصيمات", "قفلة عذر"],
+              "grades": [1, 2],
+              "badges": ["GUARANTEED", "LAB-TESTED"],
+              "tags": ["قوي المذاق"]
+            },
+            {
+              "id": "PROD-SIDR-JARDANI",
+              "name_ar": "سدر جرداني (شبوة)",
+              "regions": ["وادي جردان"],
+              "grades": [1, 2],
+              "badges": ["GOLD-MEDAL"],
+              "tags": ["نادر"]
+            },
+            {
+              "id": "PROD-SIDR-JABALI",
+              "name_ar": "سدر جبلي (عام)",
+              "grades": [1, 2, 3, 4],
+              "badges": ["SEASONAL"]
+            }
+          ]
+        },
+        {
+          "id": "SUB-SUMUR",
+          "name_ar": "عسل السمر والطلح (أعسال الشوكيات)",
+          "products": [
+            {
+              "id": "PROD-SUMUR-HADRAMI",
+              "name_ar": "سمر حضرمي (الطلح)",
+              "grades": [1, 2, 3],
+              "badges": ["LAB-TESTED"],
+              "tags": ["غني بالحديد", "مرضى السكري"]
+            },
+            {
+              "id": "PROD-TALH-NAJDI",
+              "name_ar": "طلح نجدي / شمالي",
+              "grades": [2, 3]
+            },
+            {
+              "id": "PROD-SHOKA",
+              "name_ar": "عسل الشوكة (المنوعة)",
+              "grades": [2, 3, 4]
+            }
+          ]
+        },
+        {
+          "id": "SUB-WHITE",
+          "name_ar": "الأعسال البيضاء والباردة",
+          "products": [
+            {
+              "id": "PROD-MAGRA",
+              "name_ar": "عسل المجرى (المنفوش)",
+              "description": "عسل أبيض ثقيل القوام متبلور طبيعياً",
+              "grades": [1, 2],
+              "badges": ["GOLD-MEDAL", "SEASONAL"]
+            },
+            {
+              "id": "PROD-WHITE-JABALI",
+              "name_ar": "العسل الجبلي الأبيض",
+              "grades": [1, 2]
+            },
+            {
+              "id": "PROD-RUSSIAN-WHITE",
+              "name_ar": "عسل أبيض (مستورد - روسي/قرغيزي)",
+              "grades": [2, 3]
+            }
+          ]
+        },
+        {
+          "id": "SUB-SPECIAL",
+          "name_ar": "أعسال تخصصية ونادرة",
+          "products": [
+            {
+              "id": "PROD-SAL",
+              "name_ar": "عسل الصال (الحراق)",
+              "description": "يتميز بطعمه اللاذع وحرقة الحلق",
+              "grades": [1, 2],
+              "tags": ["منشط"]
+            },
+            {
+              "id": "PROD-SALAM",
+              "name_ar": "عسل السلام (السلم)",
+              "grades": [1, 2, 3]
+            },
+            {
+              "id": "PROD-SOREB",
+              "name_ar": "عسل الصورب (موسمي)",
+              "grades": [2]
+            },
+            {
+              "id": "PROD-BILLA",
+              "name_ar": "عسل البلة",
+              "grades": [2]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CAT-002",
+      "name_ar": "قسم عسل الشمع (الجبوح)",
+      "name_en": "Honeycomb Section",
+      "products": [
+        { "id": "WAX-SIDR-DOANI", "name_ar": "شمع سدر دوعني ملكي", "grades": [1, 2] },
+        { "id": "WAX-SIDR-OSAIMI", "name_ar": "شمع سدر عصيمي فاخر", "grades": [1] },
+        { "id": "WAX-SUMUR", "name_ar": "شمع سمر بلدي", "grades": [2] },
+        { "id": "WAX-MARAI", "name_ar": "شمع مراعي (أقراص)", "grades": [2, 3] },
+        { "id": "WAX-MESHAT", "name_ar": "مشط عسل كامل", "description": "شمع بكيانه الطبيعي" }
+      ]
+    },
+    {
+      "id": "CAT-003",
+      "name_ar": "قسم الخلطات العلاجية (المركبات)",
+      "name_en": "Therapeutic Mixes",
+      "products": [
+        {
+          "id": "MIX-GROOM",
+          "name_ar": "خلطة العريس (الملكية)",
+          "components": ["عسل سدر", "غذاء ملكات", "جنسنج", "حبوب لقاح", "عكبر"],
+          "purpose": "طاقة وخصوبة"
+        },
+        {
+          "id": "MIX-IMMUNITY",
+          "name_ar": "خلطة المناعة (الوقائية)",
+          "components": ["عسل سمر", "حبة سوداء", "عكبر"],
+          "purpose": "تقوية الجهاز المناعي"
+        },
+        {
+          "id": "MIX-FAT",
+          "name_ar": "خلطة التسمين (طبيعية)",
+          "purpose": "زيادة الوزن وفتح الشهية"
+        },
+        {
+          "id": "MIX-NUTS",
+          "name_ar": "عسل بالمكسرات الفاخرة",
+          "components": ["كاجو", "لوز", "فستق", "بندق"]
+        }
+      ]
+    },
+    {
+      "id": "CAT-004",
+      "name_ar": "منتجات النحل الخام",
+      "name_en": "Bee Raw Products",
+      "products": [
+        { "id": "BEE-ROYAL", "name_ar": "غذاء ملكات النحل", "forms": ["سائل طازج", "بودرة"], "grades": ["بلدي", "مستورد"] },
+        { "id": "BEE-POLLEN", "name_ar": "حبوب لقاح النحل", "grades": ["يمني", "صيني فاخر"] },
+        { "id": "BEE-PROPOLIS", "name_ar": "العكبر (البروبوليس)", "forms": ["خام", "بودرة", "سائل"] },
+        { "id": "BEE-WAX-RAW", "name_ar": "شمع النحل الخام (للتصنيع)" }
+      ]
+    },
+    {
+      "id": "CAT-005",
+      "name_ar": "قسم الهدايا والباكجات",
+      "name_en": "Gifts & Packaging",
+      "products": [
+        { "id": "GIFT-BAG-GROOM", "name_ar": "شنطة العريس المتكاملة" },
+        { "id": "GIFT-BOX-ROYAL", "name_ar": "صندوق الهدايا الملكي (خشبي)" },
+        { "id": "GIFT-POTTERY", "name_ar": "عسل في جرار فخارية (تراثي)" }
+      ]
+    }
+  ]
+}

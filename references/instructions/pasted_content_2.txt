@@ -1,0 +1,358 @@
+EXECUTION AUTHORITY — NON-NEGOTIABLE PROJECT RULES
+هذه الوثيقة هي المصدر الأعلى والمرجع الملزم الوحيد للتنفيذ.
+أي خطة تنفيذية أو تقرير أو اقتراح أو إعادة صياغة لاحقة يجب أن تلتزم بهذه القواعد، ولا يجوز أن تستبدلها أو تخففها أو تعيد تفسيرها بما يغير معناها.
+1. ثوابت المشروع غير القابلة للتغيير
+لا يجوز للوكيل تغيير أي من الثوابت التالية من تلقاء نفسه:
+Product Vision.
+طبيعة المنتج كمنصة اجتماعية/تجارية متخصصة بالعسل اليمني.
+Greenfield Architecture.
+Demo-First Architecture.
+Repository Abstraction.
+Design System Contract.
+Arabic-First + RTL.
+Product Model الغني.
+Social Marketplace Experience.
+Merchant Experience.
+Admin Architecture.
+Security Model وRLS.
+الفصل بين UI وDomain وData Sources.
+الفصل بين Demo Mode وProduction Mode.
+ترتيب التنفيذ المرحلي.
+Acceptance Gates.
+Gate-by-Gate Execution.
+No Premature Completion.
+Feature Completeness.
+Evidence-Based Acceptance.
+إذا احتاج قرار هندسي إلى تغيير أحد هذه الثوابت، لا يجوز اتخاذ القرار تلقائيًا؛ يجب تسجيل التعارض وأثره والخيارات وطلب قرار المستخدم عندما يكون التغيير خارج السلطة الهندسية.
+2. قاعدة الاسم والهوية — BRAND / ENGINEERING NAME CONTRACT
+هذه القاعدة إلزامية وغير قابلة للالتباس:
+الاسم الهندسي/البرمجي
+الاسم الداخلي الثابت للمشروع هو:
+Souq Al Assal / سوق العسل
+ويُستخدم في:
+Repository.
+Folder names.
+Package identifiers.
+Internal project identifiers.
+Backend identifiers.
+Supabase internal configuration.
+Code identifiers عند الحاجة.
+Documentation الداخلية.
+Database/technical naming عند الحاجة.
+Environment/configuration identifiers.
+Git/project references.
+الاسم التجاري الظاهر للمستخدم
+الاسم التجاري الرسمي الذي يراه المستخدم النهائي هو:
+عسلكم
+ويجب استخدام عسلكم باعتباره الاسم التجاري الأساسي في:
+اسم التطبيق الظاهر.
+App label.
+Splash Screen.
+Onboarding.
+Header.
+Navigation حيث يظهر اسم المنتج.
+Login/Register.
+Empty States.
+Notifications.
+Dialogs.
+صفحات Customer.
+صفحات Merchant.
+Admin-facing marketing references عند الحاجة.
+Landing Website.
+Hero.
+SEO Title.
+Metadata.
+Open Graph.
+Favicon/branding context.
+النصوص التسويقية.
+Support/Contact copy.
+أي نص آخر موجه للمستخدم.
+يمكن استخدام الوصف:
+«عسلكم — منصة العسل اليمني»
+عندما تكون هناك حاجة إلى وصف المنتج، لكن:
+«عسلكم» هو الاسم التجاري الأساسي.
+
+ولا يجوز استخدام:
+«سوق العسل اليمني»
+
+كاسم تجاري أساسي بديل عن «عسلكم».
+قاعدة الفصل
+Souq Al Assal / سوق العسل = Engineering/Internal Identity
+عسلكم = User-Facing Commercial Identity
+وجود الاسمين معًا ليس تعارضًا، بل هو قرار رسمي في هوية المشروع.
+لا يجوز للوكيل:
+استبدال Souq Al Assal بـ عسلكم في المعرفات الهندسية.
+أو استبدال عسلكم بـ Souq Al Assal في الواجهة التجارية.
+أو اعتبار أحد الاسمين بديلًا عن الآخر.
+أو إعادة تسمية المشروع هندسيًا لمجرد أن الاسم التجاري أصبح «عسلكم».
+3. قاعدة عدم تغيير المفهوم
+إذا وجد الوكيل أثناء التنفيذ أن تنفيذًا معينًا أصعب أو أن هناك طريقة تقنية مختلفة، فعليه تغيير طريقة التنفيذ وليس مفهوم المنتج.
+مثال:
+مسموح:
+تغيير مكتبة
+تغيير Implementation
+تحسين Repository
+تحسين State Management
+تحسين Query
+تحسين Performance
+إعادة تنظيم ملفات داخل الطبقة نفسها
+لكن:
+غير مسموح تلقائيًا:
+تحويل Social Marketplace إلى Checkout Store
+تحويل Demo-First إلى Backend-First
+تغيير Flutter إلى تقنية أخرى
+تغيير هوية عسلكم
+تغيير Design System
+إلغاء Merchant Experience
+إلغاء Social Features
+إلغاء Requests/Messaging
+إلغاء Admin
+تغيير Security Model
+تغيير Product Vision
+إذا كان التغيير الأخير ضروريًا فعلًا، يجب تصعيده كقرار بدل تنفيذه من تلقاء نفسه.
+4. قاعدة Demo-First
+أثناء بناء وتجربة المنتج:
+UI
+↓
+ViewModel / Controller
+↓
+Use Case
+↓
+Repository Interface
+↓
+Demo Repository
+↓
+Demo Data + Demo State
+لا يجوز لأي Widget أو Screen الاتصال مباشرة بـ Supabase.
+ولا يجوز جعل Supabase شرطًا لكي:
+تظهر الشاشة.
+تعمل الشاشة.
+تعمل تجربة البحث.
+تعمل الفلاتر.
+تعمل المفضلة.
+تعمل المتابعة.
+تعمل التعليقات.
+تعمل التقييمات.
+تعمل الطلبات.
+تعمل الرسائل.
+تعمل تجربة Merchant.
+تعمل تجربة Admin.
+5. قاعدة Production Switching
+عند الوصول إلى مرحلة الإنتاج:
+UI
+↓
+ViewModel / Controller
+↓
+Use Case
+↓
+Repository Interface
+↓
+Supabase Repository
+↓
+Supabase
+يجب أن يكون الانتقال:
+Demo Repository
+        ↓
+Supabase Repository
+ولا يتطلب:
+إعادة تصميم UI.
+إعادة كتابة Domain.
+تغيير User Journey.
+تغيير Product Vision.
+تغيير Design System.
+6. قاعدة Design System
+Design System هو Contract وليس اقتراحًا.
+يجب أن تكون:
+الألوان.
+Typography.
+IBM Plex Sans Arabic.
+Font Weights.
+Spacing.
+Radius.
+Shadows.
+Buttons.
+Cards.
+Icons.
+AppBars.
+Navigation.
+Inputs.
+Search.
+Filters.
+Badges.
+Chips.
+Dialogs.
+Empty States.
+Loading States.
+Error States.
+مبنية على Tokens وShared Components.
+لا يجوز إدخال قيم عشوائية Hard-coded داخل الشاشات إلا باستثناء موثق.
+7. قاعدة Feature Completeness
+لا تُعتبر Feature مكتملة لمجرد أن الشاشة تظهر.
+Feature مكتملة يجب أن تحتوي، بحسب طبيعتها، على:
+UI
++
+State
++
+Domain Behavior
++
+Repository Contract
++
+Demo Implementation
++
+Demo Data
++
+Loading/Empty/Error States
++
+Tests
++
+Evidence
+وعند وصولها إلى مرحلة Production:
++
+Production Data Source
+لا يجوز تمرير Feature شكلية إلى المرحلة التالية.
+8. قاعدة No Dead UI
+كل زر ظاهر يجب أن:
+ينفذ فعلًا، أو
+يكون Disabled مع سبب واضح، أو
+لا يظهر أصلًا.
+ممنوع:
+onPressed: () {}
+أو أي Placeholder يخفي عدم التنفيذ.
+9. قاعدة Gate-by-Gate
+كل Phase تمر إلزاميًا:
+PLAN
+↓
+IMPLEMENT
+↓
+RUN
+↓
+VERIFY
+↓
+TEST
+↓
+VISUAL CHECK
+↓
+ARCHITECTURE CHECK
+↓
+FIX
+↓
+RETEST
+↓
+EVIDENCE
+↓
+GIT COMMIT
+↓
+ACCEPTANCE GATE
+↓
+NEXT PHASE
+إذا فشلت المرحلة:
+لا تنتقل إلى المرحلة التالية.
+
+10. قاعدة Evidence
+لا يعتبر:
+إنشاء الملفات.
+اكتمال المجلدات.
+نجاح build.
+ظهور شاشة.
+دليلًا كافيًا على الإنجاز.
+يجب إثبات السلوك الفعلي بالتشغيل والاختبار والفحص البصري والمراجعة المعمارية.
+كل تقرير Phase يجب أن يحتوي:
+Phase:
+Implemented:
+Files:
+Tests:
+Build:
+Visual verification:
+Architecture verification:
+Known issues:
+Fixes:
+Acceptance status:
+Git commit:
+11. قاعدة Greenfield
+المشروع Greenfield من الصفر.
+ممنوع:
+استيراد مشروع سابق.
+إعادة تسمية مشروع سابق.
+استخدام قالب متجر سابق.
+نسخ Architecture قديمة.
+تعديل مشروع قديم وإطلاقه باسم عسلكم.
+يمكن الاستفادة من المعرفة والأفكار العامة، لكن ليس من كود أو مشروع سابق باعتباره أساس المنتج.
+12. قاعدة Authority عند إعادة صياغة الخطة
+إذا قام الوكيل لاحقًا بإنتاج:
+خطة جديدة.
+Roadmap.
+Implementation Plan.
+Technical Plan.
+Phase Summary.
+Architecture Summary.
+فإن هذه المخرجات ليست أعلى من هذه الوثيقة.
+يجب أن تكون مجرد تفسير تنفيذي لها.
+إذا حدث تعارض:
+EXECUTION AUTHORITY
+        ↑
+        |
+PHASE PLAN
+        ↑
+IMPLEMENTATION DETAILS
+وليس العكس.
+أي خطة جديدة تخالف هذه القواعد تعتبر غير معتمدة تلقائيًا ويجب تصحيحها قبل التنفيذ.
+13. قاعدة التغيير
+الوكيل مستقل في التفاصيل الهندسية التي لا تغير الثوابت.
+مسموح له اتخاذ قرارات مستقلة في:
+أسماء الملفات الداخلية.
+اختيار المكتبات.
+تنظيم الملفات.
+أسلوب الاختبار.
+تحسين الأداء.
+Refactoring.
+تفاصيل Implementation.
+لكن أي قرار يغير:
+Product Vision
+Brand Identity
+User Journey
+Demo-First
+Design System
+Security Model
+Architecture Boundaries
+Technology Requirement
+يُعامل كـ Major Decision وليس كقرار تقني صغير.
+14. قاعدة عدم الاختصار
+لا يجوز:
+دمج مراحل إلزامية.
+حذف مرحلة.
+تخطي Gate.
+اعتبار نجاح Build دليلًا على اكتمال المشروع.
+إعلان المشروع Done مبكرًا.
+إخفاء Known Issues.
+تحويل Feature غير مكتملة إلى Feature مكتملة في التقرير.
+يمكن تحسين طريقة التنفيذ داخليًا، لكن لا يجوز تقليل متطلبات القبول.
+15. قاعدة التصعيد
+عند وجود تعارض حقيقي:
+CONFLICT
+↓
+ROOT CAUSE
+↓
+IMPACT
+↓
+OPTIONS
+↓
+RECOMMENDATION
+↓
+USER DECISION IF REQUIRED
+لا يجوز حل تعارض يمس الثوابت بالتخمين.
+وفي الوقت نفسه لا يجوز إيقاف المشروع بالكامل إذا كانت هناك أجزاء مستقلة يمكن تنفيذها دون التأثير على القرار.
+FINAL AUTHORITY STATEMENT
+هذه القواعد أعلى من أي خطة لاحقة أو اقتراح أو إعادة صياغة أو قرار تقني.
+الاسم الهندسي الداخلي الثابت: Souq Al Assal / سوق العسل.
+الاسم التجاري الظاهر للمستخدم: عسلكم.
+المنتج: منصة اجتماعية/تجارية متخصصة بالعسل اليمني، وليس متجر Checkout تقليديًا.
+المشروع Greenfield.
+التطوير Demo-First.
+UI لا يتصل مباشرة بمصدر البيانات.
+Supabase Production Data Source قابل للاستبدال خلف Repository Contracts.
+Design System Contract إلزامي.
+RTL والعربية أولًا إلزاميان.
+كل Feature يجب أن تكون حقيقية وليست شكلية.
+كل Phase يجب أن تجتاز Gate قبل الانتقال.
+لا يجوز للوكيل تغيير هذه الثوابت من تلقاء نفسه.
+إذا تعارضت خطة لاحقة مع هذه القواعد، فهذه القواعد هي الصحيحة، والخطة اللاحقة هي التي يجب تعديلها.

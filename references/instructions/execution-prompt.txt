@@ -1,0 +1,2610 @@
+أنت الآن المسؤول الهندسي الرئيسي عن بناء منتج برمجي جديد بالكامل من الصفر.
+
+هذه المهمة ليست صيانة مشروع قديم.
+هذه المهمة ليست إعادة تسمية تطبيق موجود.
+هذه المهمة ليست تعديل قالب متجر إلكتروني موجود.
+هذه المهمة ليست إعادة استخدام هوية أو معمارية مشروع سابق.
+
+اعتبر نفسك تبدأ مشروعًا جديدًا تمامًا لأول مرة.
+
+اسم المنتج:
+
+سوق العسل اليمني
+Souq Al Assal
+
+============================================================
+0. قاعدة البداية الصفرية — ZERO-ASSUMPTION GREENFIELD RULE
+============================================================
+
+ابدأ من الصفر.
+
+لا تفترض وجود:
+- مستودع سابق.
+- تطبيق سابق.
+- كود سابق.
+- OSMEA.
+- Storefront.
+- StoreMollie.
+- WooCommerce.
+- Shopify.
+- MasterFabric.
+- أي قالب تجارة إلكترونية سابق.
+- أي Design System سابق.
+- أي قاعدة بيانات سابقة.
+- أي API سابق.
+- أي نموذج بيانات سابق.
+
+لا تحاول إعادة بناء منتج سابق.
+
+لا تبحث عن حلول في مشاريع قديمة لمجرد أنها موجودة في البيئة.
+
+لا تنسخ معماريات جاهزة من مشروع سابق.
+
+لا تستخدم أسماء أو مفاهيم أو semantics مرتبطة بمتجر إلكتروني تقليدي.
+
+أنشئ المنتج باعتباره Greenfield Product حقيقيًا.
+
+إذا كانت هناك خدمات خارجية متصلة ببيئة التنفيذ مثل:
+- GitHub
+- Supabase
+- Cloudflare
+- APIs
+- local development environment
+
+فهي أدوات بنية تحتية متاحة لك، وليست مصدرًا لفكرة المنتج أو معماريته.
+
+ابدأ المشروع والكود والهيكل من الصفر.
+
+أنشئ مستودع Git جديدًا للمشروع عند الحاجة.
+أنشئ مشروع Flutter جديدًا عند الحاجة.
+أنشئ بنية Web Admin جديدة.
+أنشئ Landing Website جديدًا.
+أنشئ Database schema جديدًا.
+أنشئ API/data contracts جديدة.
+
+لا تستورد مشروعًا قديمًا لتعديله.
+
+============================================================
+1. الرؤية الحقيقية للمنتج
+============================================================
+
+سوق العسل اليمني ليس متجرًا إلكترونيًا تقليديًا.
+
+هذه أهم قاعدة في المشروع.
+
+لا تبنِ:
+- سلة شراء تقليدية باعتبارها محور التطبيق.
+- Checkout تقليدي.
+- متجر يشبه Amazon.
+- متجر يشبه Shopify.
+- تجربة شراء مباشرة باعتبارها الفكرة الأساسية.
+
+المنتج هو:
+
+منصة اجتماعية/تجارية متخصصة في العسل اليمني.
+
+المنصة تربط:
+
+العميل
+↕
+التاجر / النحال
+↕
+منتجات العسل
+↕
+المتاجر
+↕
+التواصل
+↕
+الطلبات/طلبات التواصل
+↕
+التقييمات
+↕
+التعليقات
+↕
+المتابعة
+↕
+الإعجابات
+↕
+المراسلة
+↕
+التوثيق
+↕
+طرق الاستلام والتوصيل
+
+الهدف هو أن يشعر المستخدم أنه دخل إلى:
+"مجتمع وسوق متخصص بالعسل اليمني"
+
+وليس:
+"موقع دفع وشحن".
+
+============================================================
+2. هوية المنتج
+============================================================
+
+الاسم العربي الرسمي:
+
+سوق العسل اليمني
+
+الاسم الإنجليزي:
+
+Souq Al Assal
+
+المنتج عربي أولًا.
+
+Arabic First.
+
+RTL First.
+
+يجب أن تكون اللغة العربية هي اللغة الأساسية للتجربة.
+
+لا تبنِ واجهة إنجليزية ثم تعرّبها.
+
+ابنِ التصميم من البداية ليكون:
+- RTL
+- عربي
+- واضح
+- فخم
+- هادئ
+- احترافي
+- سهل القراءة
+- مناسب للهواتف
+- قابل للتوسع للويب.
+
+============================================================
+3. الهوية البصرية
+============================================================
+
+أنت ستستلم مني ملفات:
+- الخطوط.
+- التصميمات المرجعية.
+- الصور المرجعية.
+- وربما ملفات هوية أخرى.
+
+يجب عليك تحليل هذه الملفات قبل اتخاذ قرارات التصميم.
+
+لا تستبدل الخطوط التي سأرسلها بخط افتراضي إذا كانت مناسبة للمنتج.
+
+وحّد الخط في جميع أجزاء المنتج.
+
+ممنوع أن تستخدم:
+- خطًا مختلفًا للعناوين بدون سبب.
+- خطًا مختلفًا للبطاقات.
+- خطًا مختلفًا للأزرار.
+- خطًا مختلفًا لبعض الشاشات.
+- أوزانًا عشوائية.
+
+أنشئ Typography System موحدًا:
+
+Display
+Heading 1
+Heading 2
+Heading 3
+Title
+Subtitle
+Body Large
+Body
+Body Small
+Caption
+Button
+Label
+Navigation
+
+وحدد:
+- font family
+- font weight
+- font size
+- line height
+- letter spacing
+- hierarchy
+
+واجعل جميع الشاشات تستخدم هذه الطبقة.
+
+============================================================
+4. الألوان
+============================================================
+
+الهوية يجب أن تعكس:
+- العسل.
+- الدفء.
+- الفخامة.
+- الطبيعة.
+- اليمن.
+- النحل.
+- الجودة.
+- الثقة.
+
+الاتجاه البصري الأساسي:
+
+Dark Fuchsia / Deep Magenta
++
+Light Honey Orange
++
+Cream / Warm Neutral
++
+Earth tones عند الحاجة.
+
+لا تستخدم ألوانًا دخيلة عشوائية.
+
+لا تستخدم:
+- أحمر صارخًا عشوائيًا.
+- أزرقًا لا علاقة له بالهوية.
+- أخضرًا غير مبرر.
+- ألوان Material الافتراضية.
+
+كل لون يجب أن يكون Token.
+
+أنشئ Color System مثل:
+
+primary
+primaryDark
+primaryLight
+secondary
+honey
+honeyLight
+cream
+surface
+surfaceVariant
+background
+textPrimary
+textSecondary
+textMuted
+border
+success
+warning
+error
+info
+
+لكن حتى الألوان الوظيفية يجب أن تكون متناسقة مع الهوية.
+
+============================================================
+5. التصميم العام
+============================================================
+
+الهدف:
+
+Premium Arabic Marketplace / Social Commerce Experience.
+
+أريد واجهة:
+- فخمة.
+- نظيفة.
+- متوازنة.
+- حديثة.
+- غير مزدحمة.
+- ذات بطاقات ناعمة.
+- ذات حواف دائرية.
+- ذات hierarchy واضح.
+- تستغل المساحات البيضاء.
+- لا ترمي العناصر فوق بعضها.
+- لا تستخدم layouts بدائية.
+
+استخدم:
+- rounded cards
+- soft elevation
+- subtle borders
+- balanced spacing
+- consistent radii
+- visual grouping
+- clear hierarchy.
+
+لا تستخدم حواف حادة إلا إذا كان هناك سبب تصميمي قوي.
+
+أنشئ Radius System موحد:
+
+small
+medium
+large
+extraLarge
+pill
+
+وSpacing System موحد.
+
+============================================================
+6. التطبيق الأساسي
+============================================================
+
+أنشئ تطبيقًا Flutter حديثًا وقابلًا للتوسع.
+
+يجب أن تكون المعمارية قابلة للنمو.
+
+اقترح ونفذ بنية واضحة مثل:
+
+core/
+  config/
+  theme/
+  typography/
+  routing/
+  networking/
+  storage/
+  errors/
+  utils/
+  widgets/
+
+features/
+  auth/
+  home/
+  discovery/
+  categories/
+  search/
+  products/
+  stores/
+  favorites/
+  profile/
+  requests/
+  messaging/
+  notifications/
+  merchant/
+  settings/
+
+لا تجعل جميع الملفات في مجلدات عشوائية.
+
+استخدم Feature-First Architecture.
+
+افصل:
+Presentation
+Domain
+Data
+
+حيث يكون ذلك مفيدًا.
+
+============================================================
+7. قاعدة مهمة جدًا — DEMO FIRST
+============================================================
+
+في مرحلة التطوير الأولى:
+
+لا تجعل واجهات التطبيق تعتمد مباشرة على Supabase.
+
+هذه نقطة إلزامية.
+
+يجب أن تعمل كل الواجهات مباشرة عند تشغيل التطبيق.
+
+حتى بدون:
+- اتصال بالإنترنت.
+- Database.
+- Supabase.
+- API.
+
+يجب أن يرى المطور المنتج كاملًا.
+
+لذلك أنشئ:
+
+Demo Data Layer
+
+مثل:
+
+DemoProductRepository
+DemoStoreRepository
+DemoCategoryRepository
+DemoUserRepository
+DemoRequestRepository
+DemoReviewRepository
+DemoMessageRepository
+DemoNotificationRepository
+DemoBannerRepository
+
+ولا تجعل UI تعرف أن البيانات Demo.
+
+الواجهة تتعامل مع interfaces/contracts.
+
+مثل:
+
+ProductRepository
+StoreRepository
+RequestRepository
+MessageRepository
+
+ثم:
+
+DemoProductRepository
+SupabaseProductRepository
+
+لاحقًا.
+
+نفس الأمر لكل feature.
+
+الهدف:
+
+تغيير مصدر البيانات لا يتطلب إعادة بناء الواجهة.
+
+============================================================
+8. Backend-Ready Architecture
+============================================================
+
+صمم المشروع من البداية بحيث يكون جاهزًا للربط الحقيقي.
+
+الـ UI لا يستدعي Supabase مباشرة.
+
+ممنوع:
+
+Widget → Supabase
+
+الصحيح:
+
+Widget
+→ ViewModel / Controller
+→ Use Case
+→ Repository
+→ Data Source
+→ Supabase/API
+
+وعند Demo:
+
+Widget
+→ ViewModel
+→ Use Case
+→ Repository
+→ Demo Data Source
+
+بهذا يمكن تبديل:
+
+Demo
+
+إلى:
+
+Production Backend
+
+بدون إعادة كتابة التطبيق.
+
+============================================================
+9. قاعدة البيانات
+============================================================
+
+أنشئ قاعدة بيانات Supabase جديدة من الصفر.
+
+لا تفترض schema قديمًا.
+
+صمم قاعدة البيانات وفق المنتج نفسه.
+
+يجب أن تدعم على الأقل:
+
+users
+profiles
+merchant_profiles
+stores
+store_followers
+products
+product_images
+categories
+product_categories
+honey_taxonomy
+regions
+certifications
+product_certifications
+reviews
+review_likes
+comments
+comment_likes
+favorites
+requests
+request_items
+request_messages
+notifications
+banners
+delivery_methods
+merchant_pickup_locations
+merchant_delivery_options
+handoff_options
+social_links
+store_gallery
+store_statistics
+admin_users
+admin_roles
+audit_logs
+
+ولا تنشئ جداول لا تحتاجها.
+
+============================================================
+10. المستخدم
+============================================================
+
+المستخدم الأساسي Customer.
+
+يجب أن يمتلك:
+
+profile
+avatar
+name
+bio
+phone
+email
+location
+preferences
+created_at
+updated_at
+
+تسجيل الدخول:
+
+Email / Password
+Google Sign-In
+
+ولا تضف أنظمة تسجيل دخول أخرى إلا إذا طلبت ذلك لاحقًا.
+
+============================================================
+11. التحول إلى تاجر
+============================================================
+
+هذه من أهم أجزاء المنتج.
+
+المستخدم العادي يستطيع الانتقال إلى:
+
+"إنشاء ملف تاجر"
+
+لكن لا يتحول مباشرة إلى متجر بدائي.
+
+يجب أن تكون هناك تجربة احترافية:
+
+ابدأ كتاجر
+↓
+معلومات شخصية
+↓
+معلومات النشاط
+↓
+اسم المتجر
+↓
+الشعار
+↓
+صورة الغلاف
+↓
+نبذة
+↓
+الموقع
+↓
+سنوات الخبرة
+↓
+نوع العسل
+↓
+مناطق الإنتاج
+↓
+طرق الاستلام
+↓
+طرق التوصيل
+↓
+بيانات التواصل
+↓
+معرض المتجر
+↓
+الشهادات
+↓
+طلب التوثيق
+↓
+مراجعة الإدارة
+↓
+Merchant Profile
+↓
+Merchant Dashboard
+
+============================================================
+12. صفحة التاجر
+============================================================
+
+صفحة التاجر يجب ألا تكون مجرد:
+
+صورة + اسم + منتجات.
+
+بل يجب أن تكون Social Store Profile.
+
+صممها مثل مزيج احترافي بين:
+- متجر متخصص.
+- ملف شخصي اجتماعي.
+- صفحة نشاط تجاري موثوق.
+
+يجب أن تحتوي على:
+
+Cover Banner
+Store Logo
+Merchant/Profile Image
+Store Name
+Verified Badge
+Follow Button
+Followers Count
+Following Count
+Rating
+Reviews Count
+Years of Experience
+Location
+Bio
+Honey Specialties
+Certifications
+Gallery
+Products
+Categories
+Customer Reviews
+Comments
+Social Links
+Delivery Options
+Pickup Options
+Contact
+Message
+Send Request
+
+============================================================
+13. Banner التاجر
+============================================================
+
+يجب أن يدعم التاجر:
+
+صورة غلاف رئيسية.
+
+ومعرض صور.
+
+يمكن أن تكون هناك عدة صور للمتجر.
+
+لا تجعل صورة المتجر صورة واحدة فقط.
+
+يجب الفصل بين:
+
+Profile Avatar
+Store Logo
+Store Cover
+Store Gallery
+Product Images
+
+============================================================
+14. المتابعة
+============================================================
+
+المستخدم يستطيع:
+
+Follow Store
+Unfollow Store
+
+ويظهر:
+
+متابع
+غير متابع
+
+ويظهر عدد المتابعين.
+
+عند الضغط على المتابعين يمكن لاحقًا فتح قائمة المتابعين حسب الصلاحيات.
+
+============================================================
+15. التقييمات
+============================================================
+
+التقييم ليس رقمًا فقط.
+
+صمم:
+
+Average Rating
+Rating Distribution
+Reviews Count
+Review Cards
+User Avatar
+User Name
+Date
+Stars
+Review Text
+Helpful/Like
+Merchant Reply
+
+ويجب أن يكون تصميمها اجتماعيًا راقيًا.
+
+============================================================
+16. التعليقات
+============================================================
+
+أضف Comments حيث يكون منطقيًا:
+
+Product
+Store
+
+التعليق:
+
+Avatar
+Name
+Time
+Text
+Like
+Reply
+Reply Count
+
+ويمكن للتاجر الرد.
+
+============================================================
+17. الإعجابات
+============================================================
+
+أضف:
+
+Like / Unlike
+
+للعناصر المناسبة.
+
+ويجب أن يكون icon state واضحًا.
+
+لا تجعل الأيقونة مجرد زر عشوائي.
+
+============================================================
+18. المشاركة
+============================================================
+
+Share يجب أن يعمل.
+
+إذا لم يكن هناك Share Sheet فعلي في بيئة Demo، استخدم fallback منطقي.
+
+لا تترك:
+
+onPressed: () {}
+
+أو أزرارًا ميتة.
+
+أي زر ظاهر يجب أن:
+- يعمل.
+- أو يوضح سبب عدم توفره.
+- أو يكون مخفيًا.
+
+============================================================
+19. الصفحة الرئيسية
+============================================================
+
+Home يجب أن تكون أهم واجهة اكتشاف.
+
+الترتيب المقترح:
+
+Header
+↓
+Hero / Promotional Banner
+↓
+Quick Discovery
+↓
+Honey Categories
+↓
+Featured Stores
+↓
+Popular Honey
+↓
+Most Viewed
+↓
+New Products
+↓
+Verified Merchants
+↓
+Recommended
+↓
+Recently Added
+
+لا تضع كل شيء دفعة واحدة.
+
+استخدم sections واضحة.
+
+============================================================
+20. Hero Banner
+============================================================
+
+يجب أن يوجد Banner متحرك.
+
+Carousel.
+
+3 إلى 5 شرائح.
+
+يمكن لاحقًا أن تتحكم لوحة الإدارة في:
+
+الصورة
+العنوان
+الوصف
+CTA
+الترتيب
+التفعيل
+تاريخ البداية
+تاريخ النهاية
+الرابط
+
+في Demo:
+
+استخدم بيانات ثابتة.
+
+في Production:
+
+تأتي من Backend.
+
+============================================================
+21. Header الصفحة الرئيسية
+============================================================
+
+الـ Header الحالي البسيط غير كافٍ.
+
+صمم Header Premium.
+
+يجب أن يتضمن حسب مساحة الشاشة:
+
+Logo / Brand
+Notifications
+Messages
+Profile
+Side Menu / More
+
+ولا تضع اللغة في الـ Header كعنصر رئيسي إذا كانت اللغة ثابتة.
+
+اللغة والإعدادات العامة تكون في Settings.
+
+الرسائل عنصر مهم ويجب أن يكون واضحًا.
+
+Notifications تعرض Badge عند وجود إشعارات.
+
+Messages تعرض Badge عند وجود رسائل غير مقروءة.
+
+============================================================
+22. System Header
+============================================================
+
+في الصفحات الداخلية:
+
+اجعل App Bar واضحًا وفخمًا.
+
+الاتجاه المقترح:
+
+Dark / Deep Fuchsia Gradient Header
+
+مع:
+
+Back
+Title
+Optional Actions
+
+والـ status bar يجب أن يكون منسجمًا.
+
+النصوص في header تكون واضحة وأبيض عند استخدام الخلفية الداكنة.
+
+لا تستخدم Header أبيض بدائيًا في كل صفحة.
+
+============================================================
+23. Navigation
+============================================================
+
+Bottom Navigation يجب أن تكون واضحة.
+
+لا تضع خمسة عناصر عشوائية.
+
+حدد الوظائف الأساسية فقط.
+
+مثلاً:
+
+الرئيسية
+الأقسام
+البحث
+المفضلة
+الملف الشخصي
+
+والرسائل والإشعارات والطلبات تكون في أماكنها المنطقية.
+
+لكن لا تلتزم بهذا حرفيًا إذا أثبت اختبار UX أن ترتيبًا آخر أفضل.
+
+المهم:
+
+Navigation hierarchy عالمي ومنطقي.
+
+============================================================
+24. الأقسام
+============================================================
+
+صفحة الأقسام الحالية غير مقبولة إذا كانت تعرض:
+
+صورًا مكسورة.
+إطارات حمراء.
+فراغات غير مبررة.
+بطاقات بأحجام غير موحدة.
+عرضًا غير مرتب.
+
+أعد تصميم Categories.
+
+يجب أن تحتوي على:
+
+Featured Categories
+All Categories
+Popular Categories
+Categories by Honey Type
+Categories by Region
+Categories by Quality
+Categories by Store
+
+استخدم:
+- Grid
+- Horizontal sections
+- Cards
+- ViewPager/Carousel عندما يكون منطقيًا.
+
+كل Category Card:
+
+Image
+Icon عند الحاجة
+Name
+Product Count
+
+مع صور Demo حقيقية ومتناسقة.
+
+============================================================
+25. البحث
+============================================================
+
+Search تجربة رئيسية.
+
+صمم Search Header جميل.
+
+يجب أن يحتوي على:
+
+Back
+Search Field
+Clear X
+Filter
+Optional Voice/Search Action لاحقًا
+
+Search Field:
+
+Rounded
+Premium Border
+Correct Padding
+Search Icon
+Clear Icon
+Arabic Placeholder
+
+لا تترك مساحات بيضاء ضخمة بلا استخدام.
+
+============================================================
+26. البحث الشائع
+============================================================
+
+أظهر:
+
+عمليات البحث الشائعة
+
+مثلاً:
+
+سدر
+دوعني
+سمرة
+سلام
+عسل
+جبوب لقاح
+عكبر
+شِبوة
+مراعي
+
+لكن اجعلها بيانات Demo قابلة للتبديل لاحقًا.
+
+============================================================
+27. البحث المتقدم
+============================================================
+
+Filters يجب أن تكون Honey-specific.
+
+مثل:
+
+نوع العسل
+المنطقة
+المحافظة
+بلد المنشأ
+درجة السوق
+حالة التوثيق
+الشهادات
+طريقة الاستخراج
+حالة المعالجة
+التعبئة
+التوفر
+التقييم
+المدى السعري عند الحاجة
+التاجر
+المتجر
+
+لا تستخدم Filters خاصة بمتجر عام مثل:
+
+shipping
+cart
+checkout
+
+إذا لم تكن مناسبة للمنتج.
+
+============================================================
+28. المنتج
+============================================================
+
+Product Card يجب أن تكون Premium.
+
+كل منتج يجب أن يحتوي على:
+
+صورة مربعة 1:1
+اسم المنتج
+نوع العسل
+المنطقة
+اسم المتجر
+Verified Badge عند الحاجة
+Rating
+Reviews
+Likes
+Views عند الحاجة
+Availability
+CTA
+
+صورة المنتج:
+
+1:1
+
+ويجب دعم:
+
+3 صور على الأقل للمنتج.
+
+والأفضل:
+
+عدة Product Images.
+
+استخدم Image Gallery في Product Detail.
+
+============================================================
+29. Product Detail
+============================================================
+
+Product Detail يجب أن يكون غنيًا.
+
+الترتيب:
+
+Image Gallery
+Product Title
+Honey Type
+Origin
+Region
+Merchant
+Verification
+Rating
+Reviews
+Availability
+Description
+Honey Identity
+Quality
+Processing
+Packaging
+Production Info
+Expiry / Shelf Life
+Certifications
+Weight / Sizes
+Delivery
+Pickup
+Merchant Info
+Social Actions
+Reviews
+Comments
+Send Request
+
+============================================================
+30. معلومات العسل
+============================================================
+
+يجب أن يعرف النظام العسل كمنتج متخصص.
+
+البيانات الممكنة:
+
+نوع العسل
+الصنف
+الدرجة
+الجودة
+المصدر
+المنطقة
+المحافظة
+بلد المنشأ
+الشكل
+طريقة الاستخراج
+طريقة المعالجة
+حالة المعالجة
+التعبئة
+الوزن
+الأحجام
+تاريخ الإنتاج
+تاريخ التعبئة
+مدة الصلاحية
+التوفر
+الشهادات
+التوثيق
+التقييم
+
+ولا تعرض هذه البيانات ككتلة نصية عشوائية.
+
+استخدم:
+
+Metadata Cards
+Grouped Sections
+Badges
+Chips
+Key/Value Rows
+
+============================================================
+31. الطلب
+============================================================
+
+النظام الأساسي ليس Checkout.
+
+المستخدم يقوم بـ:
+
+Send Request
+
+ثم:
+
+Request Summary
+
+ثم:
+
+Submit Request
+
+ثم:
+
+My Requests
+
+ثم:
+
+Request Detail
+
+ثم:
+
+Messaging
+
+ثم:
+
+Handoff / Contact
+
+الطلب هو طلب تواصل/شراء/استفسار بحسب طبيعة العملية.
+
+لا تفرض semantics متجر تقليدي.
+
+============================================================
+32. طرق الاستلام والتوصيل
+============================================================
+
+التاجر يستطيع تحديد:
+
+Pickup
+Merchant Location
+Delivery
+Courier
+Office
+Available Delivery Points
+Available Pickup Points
+
+ويجب أن يستطيع إدخال بيانات كل طريقة.
+
+مثل:
+
+اسم المكتب
+الموقع
+رقم التواصل
+أوقات العمل
+ملاحظات
+نطاق التوصيل
+
+ويجب أن يظهر ذلك للعميل بطريقة واضحة في Product/Store/Request.
+
+============================================================
+33. Messaging
+============================================================
+
+يجب إنشاء Messaging Architecture حقيقية.
+
+Conversation
+Participants
+Messages
+Read Status
+Attachments لاحقًا
+Timestamps
+Merchant Reply
+Customer Reply
+
+وفي Demo:
+
+يعمل النظام ببيانات محلية.
+
+وفي Production:
+
+Supabase-backed.
+
+============================================================
+34. Handoff
+============================================================
+
+يجب دعم طرق التواصل الخارجية عند الحاجة:
+
+WhatsApp
+Telegram
+Phone
+
+مع fallback واضح إذا لم تتوفر البيئة.
+
+لا تجعل زرًا يظهر بدون وظيفة.
+
+============================================================
+35. المفضلة
+============================================================
+
+Favorites ليست مجرد قائمة نصوص.
+
+قسمها إلى:
+
+Favorite Products
+Favorite Stores
+Favorite Categories
+
+واستخدم Cards.
+
+كل بطاقة واضحة.
+
+Product Card
+Store Card
+
+مع:
+- صورة
+- اسم
+- rating
+- favorite state
+- action
+
+============================================================
+36. الملف الشخصي للعميل
+============================================================
+
+لا تجعل Profile مجرد:
+
+اسم
+صورة
+تسجيل دخول
+
+صمم Social Profile.
+
+يحتوي على:
+
+Avatar
+Name
+Bio
+Location
+Favorites
+Requests
+Following
+Followers
+Reviews
+Activity عند الحاجة
+Settings
+
+============================================================
+37. Demo Mode للملف الشخصي
+============================================================
+
+في مرحلة التطوير:
+
+لا توقف تجربة Profile بسبب Authentication.
+
+استخدم Demo User.
+
+لكن لا تكذب على المستخدم بأن البيانات محفوظة في Production.
+
+Demo state يجب أن يكون واضحًا في architecture فقط.
+
+ويجب أن يكون استبداله بالمستخدم الحقيقي سهلًا.
+
+============================================================
+38. صفحة التاجر
+============================================================
+
+أنشئ Merchant Experience كاملة.
+
+Merchant Dashboard:
+
+Overview
+Products
+Add Product
+Edit Product
+Requests
+Messages
+Followers
+Reviews
+Ratings
+Store Profile
+Analytics
+Delivery
+Pickup
+Certifications
+Verification
+Settings
+
+============================================================
+39. إضافة المنتج للتاجر
+============================================================
+
+Wizard احترافي:
+
+Basic Info
+↓
+Honey Taxonomy
+↓
+Images
+↓
+Description
+↓
+Quality
+↓
+Origin
+↓
+Production
+↓
+Packaging
+↓
+Availability
+↓
+Delivery
+↓
+Review
+↓
+Publish
+
+يجب دعم Demo Creation.
+
+ويجب حفظ البيانات في Repository abstraction.
+
+============================================================
+40. لوحة التحكم Admin Web
+============================================================
+
+أنشئ Web Admin مستقلًا.
+
+Admin يجب أن يتحكم في التطبيق من الألف إلى الياء.
+
+Dashboard:
+
+Users
+Merchants
+Stores
+Products
+Categories
+Honey Taxonomy
+Banners
+Reviews
+Comments
+Reports
+Requests
+Messages Moderation
+Verification
+Certifications
+Delivery Methods
+Settings
+Feature Flags
+Analytics
+Audit Logs
+
+============================================================
+41. Admin Users
+============================================================
+
+Admin يستطيع:
+
+عرض المستخدمين
+البحث
+التصفية
+فتح الملف
+تغيير الحالة
+إدارة الأدوار
+تعليق الحساب
+مراجعة النشاط
+
+============================================================
+42. Merchant Verification
+============================================================
+
+Admin يستطيع:
+
+عرض طلبات التوثيق
+الموافقة
+الرفض
+طلب معلومات إضافية
+إدارة الشهادات
+
+ويظهر:
+
+Verified Badge
+
+للمستخدمين النهائيين.
+
+============================================================
+43. Product Moderation
+============================================================
+
+Admin يستطيع:
+
+مراجعة المنتج
+قبوله
+رفضه
+إخفائه
+تعديله
+تصنيف المنتج
+مراجعة الصور
+مراجعة بيانات العسل
+
+============================================================
+44. Categories / Taxonomy Admin
+============================================================
+
+Admin يستطيع إدارة:
+
+Honey Types
+Regions
+Grades
+Quality
+Extraction Methods
+Processing
+Packaging
+Certifications
+Availability
+
+ويجب أن تكون Taxonomy مركزية.
+
+لا تكرر القيم في عشرات الملفات.
+
+============================================================
+45. Banner Management
+============================================================
+
+Admin يستطيع:
+
+Create Banner
+Edit Banner
+Delete Banner
+Enable/Disable
+Set Order
+Set Schedule
+Set CTA
+Set Image
+
+وهذا يغذي Home Carousel.
+
+============================================================
+46. Landing Website
+============================================================
+
+أنشئ Landing Website احترافي لـ:
+
+سوق العسل اليمني.
+
+هذه ليست لوحة Admin.
+
+هي الموقع التعريفي الرسمي.
+
+يحتوي على:
+
+Hero
+About
+Why Souq Al Assal
+Yemeni Honey
+Features
+For Customers
+For Merchants
+Verified Merchants
+Discovery
+Messaging
+Trust
+Screenshots
+Download App
+Support
+FAQ
+Contact
+Footer
+
+يجب أن يكون:
+
+Arabic-first
+Responsive
+Premium
+Fast
+SEO-friendly
+
+============================================================
+47. Download App
+============================================================
+
+Landing page يجب أن تعرض:
+
+تحميل التطبيق
+
+Android
+iOS لاحقًا عند توفره
+
+مع:
+QR Code
+Store Buttons
+Direct Download إن توفر
+
+============================================================
+48. Cloudflare
+============================================================
+
+استخدم Cloudflare للموقع التعريفي عند الحاجة.
+
+اجعل Deployment واضحًا وقابلًا للتكرار.
+
+لا تجعل Landing Website مرتبطًا بتطبيق Flutter بطريقة هشة.
+
+============================================================
+49. API Architecture
+============================================================
+
+إذا كان هناك API layer:
+
+أنشئ contracts واضحة.
+
+مثل:
+
+/auth
+/users
+/stores
+/products
+/categories
+/search
+/requests
+/messages
+/reviews
+/favorites
+/notifications
+/admin
+
+لكن لا تبنِ API لمجرد كثرة المسارات.
+
+كل endpoint يجب أن يكون له use case حقيقي.
+
+============================================================
+50. Supabase Security
+============================================================
+
+صمم RLS من البداية.
+
+Users:
+يقرأون ما يجب أن يقرأوه فقط.
+
+Users:
+يعدلون بياناتهم فقط.
+
+Merchants:
+يعدلون منتجاتهم ومتجرهم فقط.
+
+Admins:
+صلاحيات إدارية كاملة حسب role.
+
+Requests:
+customer + merchant + authorized admins فقط.
+
+Messages:
+participants فقط.
+
+Reviews:
+وفق الملكية.
+
+Favorites:
+المستخدم نفسه.
+
+Notifications:
+المستخدم نفسه.
+
+Audit Logs:
+Admin فقط.
+
+لا تعتمد على UI لإخفاء الصلاحيات.
+
+Security يجب أن تكون Backend enforced.
+
+============================================================
+51. Notifications
+============================================================
+
+أنشئ:
+
+Notification Center
+
+أنواع مثل:
+
+New Request
+Request Accepted
+New Message
+Merchant Reply
+Review Reply
+New Follower
+Verification
+Admin Announcement
+
+في Demo:
+Demo notifications.
+
+في Production:
+Backend-driven.
+
+============================================================
+52. Settings
+============================================================
+
+الإعدادات تشمل:
+
+Language
+Theme
+Notifications
+Account
+Privacy
+Security
+About
+Support
+
+ولا تجعل:
+Language
+Currency
+Payment
+Shipping
+
+تظهر كعناصر رئيسية في Home.
+
+هذه كانت من الأخطاء التي يجب منعها.
+
+============================================================
+53. لا توجد أزرار ميتة
+============================================================
+
+قاعدة إلزامية:
+
+ممنوع:
+
+onPressed: () {}
+
+ممنوع:
+dead buttons
+dead navigation
+fake controls
+
+كل زر يجب أن:
+
+ينفذ فعلًا
+أو يكون disabled مع سبب واضح
+أو لا يظهر.
+
+============================================================
+54. Loading / Error / Empty States
+============================================================
+
+كل شاشة Data-driven يجب أن تحتوي على:
+
+Loading
+Success
+Empty
+Error
+Retry
+
+لكن في Demo Mode:
+
+يجب ألا نرى Loading Forever.
+
+============================================================
+55. الصور
+============================================================
+
+لا تستخدم صورًا عشوائية أو placeholders سيئة.
+
+في Demo:
+استخدم مجموعة صور متناسقة للعسل والمتاجر.
+
+Product:
+1:1
+
+Store:
+Square avatar/logo
+
+Cover:
+Wide banner
+
+Gallery:
+Multiple images
+
+============================================================
+56. Icons
+============================================================
+
+استخدم Icon System موحد.
+
+الأيقونات يجب أن تكون:
+
+Rounded
+Soft
+Consistent stroke
+Consistent size
+
+لا تستخدم أيقونة لا تتناسب مع معناها.
+
+مثال:
+
+الأقسام يجب أن يكون لها icon واضح يدل على categories.
+
+لا تستخدم icon غريب فقط لأنه متوفر.
+
+============================================================
+57. Accessibility
+============================================================
+
+اهتم بـ:
+
+Contrast
+Touch Targets
+Text Scaling
+RTL
+Semantic Labels
+Keyboard Navigation في Web
+Screen Reader compatibility حيث أمكن.
+
+============================================================
+58. Responsive Design
+============================================================
+
+Mobile First.
+
+لكن:
+
+Tablet
+Desktop Web
+Admin Desktop
+
+يجب أن تعمل بشكل جيد.
+
+لا تمدد واجهة الهاتف حرفيًا إلى سطح المكتب.
+
+============================================================
+59. Architecture of State Management
+============================================================
+
+استخدم state management واضحًا ومتسقًا.
+
+كل Feature لها state.
+
+مثلاً:
+
+Initial
+Loading
+Loaded
+Empty
+Error
+
+ولا تجعل ViewModel يحمل كل منطق التطبيق.
+
+============================================================
+60. Repository Contracts
+============================================================
+
+يجب أن تكون interfaces واضحة.
+
+مثال:
+
+abstract class ProductRepository {
+  Future<List<Product>> getProducts();
+  Future<Product?> getProduct(String id);
+  Future<void> createProduct(Product product);
+  Future<void> updateProduct(Product product);
+}
+
+ثم:
+
+DemoProductRepository
+
+SupabaseProductRepository
+
+نفس الفكرة:
+
+Store
+User
+Category
+Request
+Message
+Review
+Notification
+Banner
+
+============================================================
+61. Feature Flags
+============================================================
+
+أضف configuration:
+
+demoMode
+backendMode
+enableMessaging
+enableReviews
+enableMerchant
+enableAdmin
+etc.
+
+لكن لا تفرط في Feature Flags.
+
+============================================================
+62. Seed Data
+============================================================
+
+أنشئ Demo Dataset غنيًا.
+
+على الأقل:
+
+20+ products
+10+ stores
+10+ categories
+multiple regions
+multiple honey types
+multiple ratings
+reviews
+comments
+followers
+requests
+messages
+notifications
+banners
+
+اجعل البيانات مترابطة.
+
+مثلاً:
+
+Product → Store
+Product → Category
+Product → Honey Type
+Product → Region
+
+Review → Product
+Review → User
+
+Request → User
+Request → Merchant
+Request → Product
+
+Message → Request
+
+============================================================
+63. رحلة العميل
+============================================================
+
+اختبر الرحلة:
+
+Launch
+↓
+Home
+↓
+Browse Categories
+↓
+Search
+↓
+Filter
+↓
+Open Product
+↓
+Open Store
+↓
+Follow Store
+↓
+Favorite Product
+↓
+Review
+↓
+Comment
+↓
+Send Request
+↓
+Request Summary
+↓
+Submit
+↓
+My Requests
+↓
+Request Detail
+↓
+Messaging
+↓
+Handoff
+
+كلها يجب أن تعمل في Demo Mode.
+
+============================================================
+64. رحلة التاجر
+============================================================
+
+اختبر:
+
+Login
+↓
+Profile
+↓
+Become Merchant
+↓
+Create Store
+↓
+Upload Logo
+↓
+Upload Cover
+↓
+Add Gallery
+↓
+Add Product
+↓
+Taxonomy
+↓
+Images
+↓
+Delivery
+↓
+Publish
+↓
+Merchant Dashboard
+↓
+Receive Request
+↓
+Message Customer
+↓
+Reply
+↓
+Manage Store
+
+============================================================
+65. رحلة الإدارة
+============================================================
+
+Admin:
+
+Login
+↓
+Dashboard
+↓
+Users
+↓
+Merchant Verification
+↓
+Products
+↓
+Categories
+↓
+Taxonomy
+↓
+Banners
+↓
+Reviews
+↓
+Reports
+↓
+Settings
+↓
+Audit
+
+============================================================
+66. الربط بين الأنظمة
+============================================================
+
+يجب أن تكون الأنظمة مرتبطة معماريًا:
+
+Mobile App
+↕
+Backend/API
+↕
+Supabase
+↕
+Admin Web
+
+Landing Website
+↕
+Public information / links
+
+لكن أثناء التطوير:
+
+Mobile App
+→ Demo repositories
+
+Admin Web
+→ Demo repositories / controlled mock data
+
+ثم يمكن تبديلها بـ Production repositories.
+
+============================================================
+67. GitHub
+============================================================
+
+أنشئ Git repository جديد للمشروع.
+
+استخدم commits منطقية.
+
+لا تجعل commit واحدًا ضخمًا لكل المشروع.
+
+مثلاً:
+
+chore: initialize greenfield project
+feat: add design system
+feat: add authentication
+feat: add customer discovery
+feat: add merchant experience
+feat: add request workflow
+feat: add messaging
+feat: add admin dashboard
+feat: add landing website
+test: add integration tests
+
+ويجب أن يبقى المشروع قابلًا للتراجع.
+
+============================================================
+68. الاختبارات
+============================================================
+
+لا تعتبر:
+
+flutter analyze
+
+أو:
+
+build successful
+
+دليلًا على اكتمال المنتج.
+
+يجب اختبار:
+
+Unit Tests
+Widget Tests
+Integration Tests
+Navigation Tests
+Repository Tests
+Authentication Tests
+Demo Mode Tests
+Role Tests
+RLS tests عند backend
+Admin tests
+Merchant tests
+Customer journey tests
+
+============================================================
+69. Acceptance Gate
+============================================================
+
+لا تقل:
+
+"Done"
+
+لمجرد أن build نجح.
+
+يجب أن تقدم Acceptance Matrix.
+
+مثال:
+
+Customer Journey | PASS
+Merchant Journey | PASS
+Admin Journey | PASS
+Authentication | PASS
+Search | PASS
+Filters | PASS
+Product | PASS
+Store | PASS
+Favorites | PASS
+Requests | PASS
+Messaging | PASS
+Notifications | PASS
+Demo Mode | PASS
+Backend Contract | PASS
+RLS | PASS
+Landing | PASS
+Responsive | PASS
+
+============================================================
+70. معالجة الأخطاء
+============================================================
+
+إذا ظهر خطأ:
+
+لا تخفِ الخطأ.
+
+لا تعطل الميزة.
+
+لا تضف workaround عشوائيًا.
+
+حدد:
+
+Root Cause
+Impact
+Fix
+Regression Test
+
+ثم اختبر من جديد.
+
+============================================================
+71. لا تعيد اختراع التصميم كل مرحلة
+============================================================
+
+أنشئ Design System أولًا.
+
+ثم اجعل كل التطبيق يستخدمه.
+
+لا يحدث:
+
+Screen A → radius 12
+Screen B → radius 20
+Screen C → radius 8
+
+بدون سبب.
+
+نفس الأمر للألوان والخطوط والأزرار والأيقونات.
+
+============================================================
+72. لا تضخم المشروع
+============================================================
+
+لا تنشئ abstraction فقط لتبدو المعمارية جميلة.
+
+كل abstraction يجب أن يحل مشكلة حقيقية.
+
+لكن في نفس الوقت:
+
+لا تربط UI مباشرة بـ database.
+
+التوازن مطلوب.
+
+============================================================
+73. قاعدة الصور المرجعية
+============================================================
+
+سأرسل لك صورًا متعددة من التطبيق/التصميم.
+
+عند استلام الصور:
+
+لا تكتفِ بوصفها.
+
+حلل:
+
+Spacing
+Alignment
+Typography
+Color
+Card Radius
+Icon placement
+Navigation
+Image ratios
+Hierarchy
+Whitespace
+Visual weight
+UX issues
+
+ثم قارنها بالمواصفات الموجودة في هذا البرومبت.
+
+إذا وجدت خطأ في الصور:
+
+قم بإصلاحه في الكود.
+
+============================================================
+74. مبدأ التحسين المستمر
+============================================================
+
+لا تنتظر أن أخبرك بكل خطأ صغير.
+
+إذا رأيت:
+
+misalignment
+broken image
+empty red box
+bad spacing
+wrong font
+wrong weight
+bad icon
+dead button
+duplicate label
+wrong RTL
+overflow
+bad hierarchy
+poor card
+bad navigation
+
+فأصلحه ضمن نطاق المهمة.
+
+لكن لا تغير Product Vision.
+
+============================================================
+75. ما يجب ألا يحدث
+============================================================
+
+ممنوع:
+
+- بناء متجر إلكتروني تقليدي.
+- جعل Checkout محور التطبيق.
+- جعل Supabase شرطًا لعرض Demo.
+- ربط UI مباشرة بقاعدة البيانات.
+- استعمال ألوان عشوائية.
+- استعمال خطوط مختلفة.
+- أزرار ميتة.
+- صفحات Placeholder.
+- شاشة Loading لا تنتهي.
+- Fake backend persistence بدون توضيح معماري.
+- نسخ مشروع قديم.
+- استيراد semantics قديمة.
+- تجاهل RTL.
+- بناء Admin شكلي فقط.
+- بناء Merchant Experience ناقصة.
+- إعلان المشروع Done بعد build فقط.
+
+============================================================
+76. ترتيب التنفيذ الإلزامي
+============================================================
+
+قسّم التنفيذ إلى مراحل واضحة.
+
+PHASE 0
+Product Architecture & Requirements
+
+PHASE 1
+Greenfield Project Initialization
+
+PHASE 2
+Design System
+
+PHASE 3
+Core Architecture
+
+PHASE 4
+Demo Data Architecture
+
+PHASE 5
+Authentication
+
+PHASE 6
+Customer Home & Discovery
+
+PHASE 7
+Categories
+
+PHASE 8
+Search & Filters
+
+PHASE 9
+Products
+
+PHASE 10
+Stores / Merchant Profiles
+
+PHASE 11
+Favorites / Social Features
+
+PHASE 12
+Requests
+
+PHASE 13
+Messaging / Handoff
+
+PHASE 14
+Customer Profile
+
+PHASE 15
+Merchant Onboarding
+
+PHASE 16
+Merchant Dashboard
+
+PHASE 17
+Merchant Product Management
+
+PHASE 18
+Admin Web
+
+PHASE 19
+Supabase Database
+
+PHASE 20
+RLS / Security
+
+PHASE 21
+Production Data Sources
+
+PHASE 22
+Landing Website
+
+PHASE 23
+Cloudflare Deployment
+
+PHASE 24
+Integration
+
+PHASE 25
+Testing
+
+PHASE 26
+UX Refinement
+
+PHASE 27
+Performance
+
+PHASE 28
+Final Acceptance
+
+لا تنتقل عشوائيًا بين المراحل.
+
+كل مرحلة لها:
+
+Goal
+Tasks
+Implementation
+Verification
+Tests
+Acceptance Gate
+
+============================================================
+77. MULTI-AGENT EXECUTION
+============================================================
+
+إذا كانت بيئة الوكيل تدعم تعدد المهام/الوكلاء:
+
+قسّم العمل إلى مسارات مستقلة.
+
+Agent A:
+Core + Architecture
+
+Agent B:
+Design System + UI
+
+Agent C:
+Customer Experience
+
+Agent D:
+Merchant Experience
+
+Agent E:
+Admin Web
+
+Agent F:
+Backend/Supabase
+
+Agent G:
+Testing/QA
+
+لكن:
+
+شخص واحد يجب أن يحافظ على Architectural Authority.
+
+لا تسمح لوكلاء متعددين بإنشاء معماريات متعارضة.
+
+كل Agent يجب أن يلتزم بهذه الوثيقة.
+
+============================================================
+78. REQUIREMENTS TRACEABILITY
+============================================================
+
+أنشئ ملفًا مثل:
+
+docs/requirements_traceability.md
+
+يسجل:
+
+Requirement
+Implementation
+Files
+Tests
+Status
+
+حتى لا تضيع المتطلبات.
+
+============================================================
+79. PRODUCT DOCUMENTATION
+============================================================
+
+أنشئ:
+
+docs/
+  product_vision.md
+  architecture.md
+  design_system.md
+  database.md
+  api_contracts.md
+  customer_journey.md
+  merchant_journey.md
+  admin_journey.md
+  testing.md
+  deployment.md
+  requirements_traceability.md
+
+============================================================
+80. FINAL PRODUCT
+============================================================
+
+في النهاية يجب أن يكون لدينا:
+
+1. Mobile Flutter Application
+2. Merchant Experience
+3. Admin Web Dashboard
+4. Official Landing Website
+5. Supabase Database
+6. Authentication
+7. Demo Data
+8. Production Data Architecture
+9. Messaging
+10. Requests
+11. Reviews
+12. Comments
+13. Likes
+14. Follows
+15. Notifications
+16. Product Management
+17. Store Management
+18. Honey Taxonomy
+19. Banner Management
+20. Delivery/Pickup Management
+21. Verification
+22. Security/RLS
+23. Tests
+24. Documentation
+25. Git History
+26. Deployment Configuration
+
+============================================================
+81. طريقة العمل
+============================================================
+
+لا تنتظر مني أن أقودك خطوة بخطوة.
+
+أنت المسؤول عن التنفيذ.
+
+إذا كانت المعلومة موجودة في هذه الوثيقة:
+نفذها.
+
+إذا كانت هناك تفاصيل ناقصة لكنها لا تمنع التنفيذ:
+اتخذ قرارًا هندسيًا منطقيًا وسجله.
+
+إذا كانت هناك معلومة ضرورية فعلًا ولا يمكن اتخاذ قرار آمن بدونها:
+اسألني سؤالًا محددًا واحدًا أو مجموعة أسئلة قصيرة.
+
+لا توقف المشروع بسبب تفاصيل تجميلية.
+
+============================================================
+82. عند كل مرحلة
+============================================================
+
+قبل التنفيذ:
+
+اكتب خطة قصيرة.
+
+ثم نفذ.
+
+ثم اختبر.
+
+ثم أصلح.
+
+ثم أعد الاختبار.
+
+ثم سجل النتيجة.
+
+لا تكتفِ بقول:
+
+"تم تعديل الملفات".
+
+يجب أن تقول:
+
+What changed
+Why
+Verification
+Tests
+Remaining
+
+============================================================
+83. DEFINITION OF DONE
+============================================================
+
+المشروع لا يعتبر Done حتى:
+
+- التطبيق يعمل.
+- التصميم متناسق.
+- الخط موحد.
+- RTL يعمل.
+- الألوان موحدة.
+- Customer journey تعمل.
+- Merchant journey تعمل.
+- Admin journey تعمل.
+- Demo mode يعمل.
+- Authentication يعمل.
+- Email login يعمل.
+- Google login يعمل.
+- Search يعمل.
+- Filters تعمل.
+- Categories تعمل.
+- Product details تعمل.
+- Store profile تعمل.
+- Follow تعمل.
+- Favorites تعمل.
+- Reviews تعمل.
+- Comments تعمل.
+- Requests تعمل.
+- Messaging تعمل.
+- Handoff يعمل.
+- Notifications تعمل.
+- Merchant product creation تعمل.
+- Admin controls تعمل.
+- Supabase schema يعمل.
+- RLS محكم.
+- Landing website يعمل.
+- Cloudflare deployment جاهز.
+- Git repository منظم.
+- Tests تمر.
+- Build ينجح.
+- لا توجد أزرار ميتة.
+- لا توجد صفحات Placeholder غير مقصودة.
+- لا توجد أخطاء Runtime حرجة.
+- لا توجد مشاكل RTL حرجة.
+- لا توجد عناصر تصميم عشوائية.
+
+============================================================
+84. FINAL COMMAND
+============================================================
+
+ابدأ الآن.
+
+لا تبحث عن مشروع سابق لتعديله.
+
+لا تحاول استعادة تطبيق قديم.
+
+لا تفترض أن هناك كودًا سابقًا.
+
+أنشئ سوق العسل اليمني من الصفر.
+
+ابدأ أولًا بـ:
+
+PHASE 0 — PRODUCT ARCHITECTURE & REQUIREMENTS
+
+قم بتحليل هذه الوثيقة.
+
+استخرج منها:
+
+- Product Vision
+- Actors
+- Features
+- User Journeys
+- Data Model
+- Design System Requirements
+- Backend Requirements
+- Security Requirements
+- Admin Requirements
+- Merchant Requirements
+- Customer Requirements
+- Testing Requirements
+
+ثم أنشئ:
+
+docs/product_vision.md
+docs/architecture.md
+docs/requirements_traceability.md
+
+بعد ذلك انتقل إلى PHASE 1.
+
+لا تبدأ بكتابة عشرات الشاشات عشوائيًا.
+
+ابنِ الأساس أولًا.
+
+ثم Design System.
+
+ثم Demo Data.
+
+ثم Features.
+
+ثم Backend.
+
+ثم Admin.
+
+ثم Landing.
+
+ثم Integration.
+
+ثم QA.
+
+ثم Final Acceptance.
+
+تذكر:
+
+أنت لا تبني "واجهة متجر".
+
+أنت تبني منصة متخصصة للعسل اليمني تجمع:
+
+الاكتشاف
++
+الثقة
++
+التوثيق
++
+التجارة
++
+التواصل
++
+المجتمع
++
+التاجر
++
+العميل
++
+الإدارة.
+
+المنتج النهائي يجب أن يشعر المستخدم بأنه:
+
+"المكان المتخصص الذي أستطيع من خلاله اكتشاف العسل اليمني، معرفة مصدره وجودته، اكتشاف النحالين والتجار الموثوقين، متابعة متاجرهم، التفاعل معهم، السؤال والتواصل معهم، إرسال الطلبات، ومتابعة العلاقة معهم."
+
+ابدأ التنفيذ الآن.
