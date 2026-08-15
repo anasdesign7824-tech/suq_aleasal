@@ -123,8 +123,8 @@
       "slug": "manahil-doan-alaseela",
       "description": "عسل سدر يمني أصيل من وادي دوعن، مع توثيق المصدر ومعلومات القطفة.",
       "region_id": "region-hadramout",
-      "logo_url": "assets/brand/logo-mark.svg",
-      "cover_url": "assets/brand/logo-wordmark.svg",
+      "logo_url": "assets/brand/logo-internal.svg",
+      "cover_url": "assets/brand/logo-internal.svg",
       "is_verified": true,
       "status": "active",
       "rating_average": 4.9,
@@ -138,8 +138,8 @@
       "slug": "souq-alasal-osaimi",
       "description": "منتجات نحلية يمنية مختارة من العصيمات وقَفلة عذر، للذوق اليومي والهدايا.",
       "region_id": "region-amran",
-      "logo_url": "assets/brand/logo-mark.svg",
-      "cover_url": "assets/brand/logo-wordmark.svg",
+      "logo_url": "assets/brand/logo-internal.svg",
+      "cover_url": "assets/brand/logo-internal.svg",
       "is_verified": true,
       "status": "active",
       "rating_average": 4.7,
@@ -153,8 +153,8 @@
       "slug": "bait-alasal-mixes",
       "description": "خلطات نحلية وهدايا تراثية تُجهز محليًا مع خيارات استلام وتواصل مباشرة.",
       "region_id": "region-sanaa",
-      "logo_url": "assets/brand/logo-mark.svg",
-      "cover_url": "assets/brand/logo-wordmark.svg",
+      "logo_url": "assets/brand/logo-internal.svg",
+      "cover_url": "assets/brand/logo-internal.svg",
       "is_verified": false,
       "status": "active",
       "rating_average": 4.5,
@@ -198,7 +198,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 3
     },
@@ -234,7 +234,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 4
     },
@@ -268,7 +268,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.6,
       "review_count": 5
     },
@@ -300,7 +300,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.8,
       "review_count": 6
     },
@@ -334,7 +334,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 7
     },
@@ -362,7 +362,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 8
     },
@@ -391,7 +391,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.6,
       "review_count": 3
     },
@@ -422,7 +422,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.8,
       "review_count": 4
     },
@@ -450,7 +450,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 5
     },
@@ -478,7 +478,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 6
     },
@@ -508,7 +508,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.6,
       "review_count": 7
     },
@@ -537,7 +537,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.8,
       "review_count": 8
     },
@@ -564,7 +564,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 3
     },
@@ -591,7 +591,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 4
     },
@@ -619,7 +619,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.6,
       "review_count": 5
     },
@@ -646,7 +646,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.8,
       "review_count": 6
     },
@@ -673,7 +673,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 7
     },
@@ -701,7 +701,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 8
     },
@@ -726,7 +726,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.6,
       "review_count": 3
     },
@@ -757,7 +757,7 @@
       "purpose": "طاقة وخصوبة",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.8,
       "review_count": 4
     },
@@ -786,7 +786,7 @@
       "purpose": "تقوية الجهاز المناعي",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 5
     },
@@ -811,7 +811,7 @@
       "purpose": "زيادة الوزن وفتح الشهية",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 6
     },
@@ -841,7 +841,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.6,
       "review_count": 7
     },
@@ -872,7 +872,7 @@
         "بودرة"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.8,
       "review_count": 8
     },
@@ -900,7 +900,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 3
     },
@@ -929,7 +929,7 @@
         "سائل"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 4
     },
@@ -954,7 +954,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.6,
       "review_count": 5
     },
@@ -979,7 +979,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.8,
       "review_count": 6
     },
@@ -1004,7 +1004,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.3,
       "review_count": 7
     },
@@ -1029,7 +1029,7 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-mark.svg",
+      "primary_image_url": "assets/brand/logo-internal.svg",
       "rating_average": 4.5,
       "review_count": 8
     }

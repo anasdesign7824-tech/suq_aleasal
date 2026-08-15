@@ -1,20 +1,22 @@
-# عسلكم — Mobile Flutter
+# عسلكم — Flutter/Dart App
 
-المشروع الجوال الرسمي لتجربة **عسلكم**، والاسم الهندسي الداخلي للمسار هو `mobile_flutter` ضمن `Souq Al Assal`.
+هذا هو تطبيق الهاتف الهندسي **Souq Al Assal / سوق العسل** والاسم التجاري الظاهر **عسلكم**. التطبيق يستخدم Flutter/Dart وIBM Plex Sans Arabic وDesign System المشترك.
 
-## قواعد البناء
+## Demo Mode
 
-يُبنى التطبيق بـ Flutter/Dart، عربي أولًا وRTL، وبمعمارية Feature-First تفصل Presentation وDomain وData. يبدأ التطبيق بـ Demo Repository وDemo Data ولا يتطلب Supabase لتشغيل Demo Mode.
+يبدأ التطبيق من `DemoRepository` و`assets/demo_catalog.json`، ولا يتصل بـ Supabase. يظهر وسم «نسخة تجريبية» داخل الواجهة. يتيح التطبيق مسار العميل لاكتشاف المنتجات وتفاصيلها وطلب التواصل، ومسار التاجر لمراجعة المنتجات والطلبات التجريبية.
 
-## المسار المعتمد
+## Production
 
-```text
-UI → ViewModel / Controller → Use Case → Repository Interface
-→ Demo Repository → Demo Data + Demo State
+Production Repository موجود كـ adapter قابل للحقن من خلال Gateway صريح. لا يوجد اتصال تلقائي أو fallback صامت، ولن يُفعّل قبل مرحلة Production Data Sources المحددة في الخطة.
+
+## تشغيل محلي عند توفر Flutter
+
+```bash
+flutter pub get
+flutter analyze
+flutter test
+flutter run
 ```
 
-سيُضاف Supabase Repository لاحقًا خلف العقد نفسه في مرحلة Production Data Sources. لا تتصل أي Widget مباشرة بمصدر بيانات.
-
-## بنية Phase 1
-
-تم تثبيت مجلدات `lib/core` للطبقات المشتركة ومجلد `lib/features` للميزات المستقبلية. لا تُعتبر هذه المجلدات ميزات مكتملة، ولا يجوز الانتقال إلى اعتبار أي Feature مكتملة قبل متطلبات Evidence الواردة في وثائق المشروع.
+قيد البيئة الحالي: Flutter/Dart CLI غير متوفر في Sandbox، لذلك تُسجل الأدلة المصدرية الآن وتُعاد هذه الأوامر عند توفر toolchain.
