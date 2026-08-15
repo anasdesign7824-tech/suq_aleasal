@@ -34,3 +34,6 @@ Thumbs.db
 
 # Local machine outputs
 *.local
+
+# Generated MCP payloads are temporary and not source-of-truth
+database/migrations/*.mcp.json
