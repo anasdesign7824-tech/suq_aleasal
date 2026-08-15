@@ -1,0 +1,22 @@
+database_version= 5.0.0
+categories= 5
+subcategories= 4
+products= 30
+unique_ids= 39
+duplicate_ids= []
+missing_product_ids= []
+product_fields=
+  badges: 6
+  components: 3
+  description: 3
+  forms: 2
+  grades: 20
+  id: 30
+  name_ar: 30
+  purpose: 3
+  regions: 3
+  tags: 5
+global_settings=
+  grading_system: 4
+  badges_and_awards: 5
+  packaging_units: 6
