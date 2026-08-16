@@ -5,6 +5,7 @@ import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
 import 'customer_account.dart';
+import 'customer_social.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key, required this.repository, required this.productId});

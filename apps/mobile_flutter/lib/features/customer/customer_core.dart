@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import '../../core/assal_widgets.dart';
 import 'customer_account.dart';
