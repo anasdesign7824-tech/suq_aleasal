@@ -302,7 +302,7 @@ class AssalProductSummary {
 }
 
 class AssalReviewSummary {
-  const AssalReviewSummary({required this.id, required this.productId, required this.storeId, required this.authorId, required this.rating, required this.status, this.authorName, this.body, this.createdAt, this.isLocal = false});
+  const AssalReviewSummary({required this.id, required this.productId, required this.storeId, required this.authorId, required this.rating, required this.status, this.authorName, this.body, this.createdAt, this.updatedAt, this.helpfulCount = 0, this.merchantReply, this.isLocal = false});
   final String id;
   final String productId;
   final String storeId;
@@ -312,6 +312,9 @@ class AssalReviewSummary {
   final String? authorName;
   final String? body;
   final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final int helpfulCount;
+  final String? merchantReply;
   final bool isLocal;
 
   factory AssalReviewSummary.fromJson(Map<String, Object?> json) => AssalReviewSummary(
@@ -323,13 +326,16 @@ class AssalReviewSummary {
         status: _reviewStatus(_string(json['status'], fallback: 'approved')),
         authorName: _stringOrNull(json['author_name']),
         body: _stringOrNull(json['body']),
-        createdAt: DateTime.tryParse(_string(json['created_at'])),
+        createdAt: _dateOrNull(json['created_at']),
+        updatedAt: _dateOrNull(json['updated_at']),
+        helpfulCount: _int(json['helpful_count']),
+        merchantReply: _stringOrNull(json['merchant_reply']),
         isLocal: json['is_local'] as bool? ?? false,
       );
 }
 
 class AssalCommentSummary {
-  const AssalCommentSummary({required this.id, required this.targetId, required this.authorId, required this.authorName, required this.body, this.parentId, this.createdAt, this.isLocal = false});
+  const AssalCommentSummary({required this.id, required this.targetId, required this.authorId, required this.authorName, required this.body, this.parentId, this.createdAt, this.updatedAt, this.likeCount = 0, this.replyCount = 0, this.isLiked = false, this.isLocal = false});
   final String id;
   final String targetId;
   final String authorId;
@@ -337,7 +343,25 @@ class AssalCommentSummary {
   final String body;
   final String? parentId;
   final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final int likeCount;
+  final int replyCount;
+  final bool isLiked;
   final bool isLocal;
+
+  factory AssalCommentSummary.fromJson(Map<String, Object?> json) => AssalCommentSummary(
+        id: _string(json['id']),
+        targetId: _string(json['target_id']),
+        authorId: _string(json['author_id']),
+        authorName: _string(json['author_name'], fallback: 'عميل عسلكم'),
+        body: _string(json['body']),
+        parentId: _stringOrNull(json['parent_id']),
+        createdAt: _dateOrNull(json['created_at']),
+        updatedAt: _dateOrNull(json['updated_at']),
+        likeCount: _int(json['like_count']),
+        replyCount: _int(json['reply_count']),
+        isLiked: json['is_liked'] as bool? ?? false,
+      );
 }
 
 class AssalRequestSummary {
@@ -439,6 +463,22 @@ class AssalUserProfile {
   final int followersCount;
   final int followingCount;
   final AssalRole role;
+
+  factory AssalUserProfile.fromJson(Map<String, Object?> json) => AssalUserProfile(
+        id: _string(json['id']),
+        nameAr: _string(json['name_ar'], fallback: 'عميل عسلكم'),
+        email: _stringOrNull(json['email']),
+        avatarUrl: _stringOrNull(json['avatar_url']),
+        bio: _stringOrNull(json['bio']),
+        phone: _stringOrNull(json['phone']),
+        location: _stringOrNull(json['location']),
+        preferences: _map(json['preferences']),
+        createdAt: _dateOrNull(json['created_at']),
+        updatedAt: _dateOrNull(json['updated_at']),
+        followersCount: _int(json['followers_count']),
+        followingCount: _int(json['following_count']),
+        role: _role(_string(json['role'], fallback: 'customer')),
+      );
 }
 
 class AssalSession {
@@ -459,6 +499,17 @@ class AssalConversationSummary {
   final List<String> participantIds;
   final int unreadCount;
   final DateTime? lastReadAt;
+
+  factory AssalConversationSummary.fromJson(Map<String, Object?> json) => AssalConversationSummary(
+        id: _string(json['id']),
+        storeId: _string(json['store_id']),
+        storeName: _string(json['store_name'], fallback: 'متجر عسلكم'),
+        lastMessage: _string(json['last_message']),
+        updatedAt: _dateOrNull(json['updated_at']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+        participantIds: _strings(json['participant_ids']),
+        unreadCount: _int(json['unread_count']),
+        lastReadAt: _dateOrNull(json['last_read_at']),
+      );
 }
 
 class AssalMessageSummary {
@@ -471,6 +522,17 @@ class AssalMessageSummary {
   final bool isMine;
   final DateTime? readAt;
   final List<String> attachments;
+
+  factory AssalMessageSummary.fromJson(Map<String, Object?> json) => AssalMessageSummary(
+        id: _string(json['id']),
+        conversationId: _string(json['conversation_id']),
+        senderId: _string(json['sender_id']),
+        body: _string(json['body']),
+        sentAt: _dateOrNull(json['sent_at']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+        isMine: json['is_mine'] as bool? ?? false,
+        readAt: _dateOrNull(json['read_at']),
+        attachments: _strings(json['attachments']),
+      );
 }
 
 sealed class AssalLoadState<T> { const AssalLoadState(); }
