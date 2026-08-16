@@ -1,12 +1,13 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
-import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/demo_repository.dart';
-import '../lib/core/demo_loader.dart';
 
 void main() {
   test('real demo catalog has rich linked discovery data', () async {
-    final repository = DemoRepository(loader: const RootBundleDemoCatalogLoader());
+    TestWidgetsFlutterBinding.ensureInitialized();
+    final catalog = await rootBundle.loadString('assets/demo_catalog.json');
+    final repository = DemoRepository(loader: InMemoryDemoCatalogLoader(catalog));
     final regions = await repository.listRegions();
     final stores = await repository.listStores();
     final products = await repository.listProducts();
