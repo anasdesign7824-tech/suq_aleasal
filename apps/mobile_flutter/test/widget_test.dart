@@ -6,6 +6,9 @@ void main() {
   testWidgets('customer app boots into guest discovery', (tester) async {
     await tester.pumpWidget(const AssalApp());
     await tester.pump();
+    final bootException = tester.takeException();
+    if (bootException != null) print('BOOT_EXCEPTION: $bootException');
+    expect(bootException, isNull);
     expect(find.text('اكتشف العسل من مصدره'), findsOneWidget);
     expect(find.text('تصفح'), findsNothing);
   });
