@@ -122,6 +122,7 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<bool>> toggleFavorite(String userId, String targetId);
   Future<AssalLoadState<bool>> toggleLike(String userId, String targetId);
   Future<AssalLoadState<AssalSession>> signIn(String email, String password);
+  Future<AssalLoadState<AssalSession>> signInWithGoogle();
   Future<AssalLoadState<AssalSession>> register(String name, String email, String password);
   Future<AssalLoadState<void>> signOut();
 }

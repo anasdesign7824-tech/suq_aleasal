@@ -178,6 +178,9 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<AssalSession>> signIn(String email, String password) async => const AssalError('المصادقة الإنتاجية موكلة إلى مزود المصادقة.', code: 'production_auth_not_configured');
   @override
+  Future<AssalLoadState<AssalSession>> signInWithGoogle() async => const AssalError('مصادقة Google تحتاج تهيئة مزود OAuth الإنتاجي.', code: 'production_google_auth_not_configured');
+
+  @override
   Future<AssalLoadState<AssalSession>> register(String name, String email, String password) async => const AssalError('المصادقة الإنتاجية موكلة إلى مزود المصادقة.', code: 'production_auth_not_configured');
   @override
   Future<AssalLoadState<void>> signOut() async => const AssalData(null);
