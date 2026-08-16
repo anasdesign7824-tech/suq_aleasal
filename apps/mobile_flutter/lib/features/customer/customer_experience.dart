@@ -317,22 +317,94 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => FutureBuilder<AssalSession>(future: repository.getSession(), builder: (context, snapshot) { final session = snapshot.data ?? AssalSession.guest; return ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [const AssalBrandMark(), const SizedBox(height: AssalSpacing.xl), if (!session.isAuthenticated) _guest(context) else _authenticated(context, session), const SizedBox(height: AssalSpacing.lg), Card(child: Column(children: [ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('الإشعارات'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => NotificationsScreen(repository: repository)))), ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('الإعدادات'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()))), ListTile(leading: const Icon(Icons.help_outline), title: const Text('الدعم والتعريف بعسلكم'), trailing: const Icon(Icons.chevron_left), onTap: () => showAboutDialog(context: context, applicationName: 'عسلكم', applicationVersion: 'Demo', children: [const Text('منصة اكتشاف وتواصل للعسل اليمني من مصدره.')]))]))]); });
   Widget _guest(BuildContext context) => Card(color: AssalColors.cream, child: Padding(padding: const EdgeInsets.all(AssalSpacing.xl), child: Column(children: [const CircleAvatar(radius: 34, backgroundColor: AssalColors.honeyLight, child: Icon(Icons.person_outline, size: 36, color: AssalColors.primaryDark)), const SizedBox(height: AssalSpacing.md), Text('تصفح كزائر', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)), const SizedBox(height: AssalSpacing.sm), const Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'), const SizedBox(height: AssalSpacing.lg), FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول أو إنشاء حساب'))]));
-  Widget _authenticated(BuildContext context, AssalSession session) => Column(children: [CircleAvatar(radius: 38, backgroundColor: AssalColors.honeyLight, child: Text(session.user?.nameAr.characters.first ?? 'ع', style: AssalTypography.heading1.copyWith(color: AssalColors.primaryDark))), const SizedBox(height: AssalSpacing.md), Text(session.user?.nameAr ?? 'عميل عسلكم', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)), Text(session.user?.email ?? '', style: AssalTypography.body.copyWith(color: AssalColors.textSecondary)), const SizedBox(height: AssalSpacing.lg), Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [_metric('0', 'المتابعات'), _metric('0', 'المحفوظات'), _metric('0', 'الطلبات')]), const SizedBox(height: AssalSpacing.lg), Row(children: [Expanded(child: OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => RequestsScreen(repository: repository))), icon: const Icon(Icons.assignment_outlined), label: const Text('طلباتي'))), const SizedBox(width: AssalSpacing.sm), Expanded(child: FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BecomeMerchantScreen())), icon: const Icon(Icons.storefront_outlined), label: const Text('كن تاجرًا')))]), const SizedBox(height: AssalSpacing.sm), OutlinedButton.icon(onPressed: () async { await repository.signOut(); if (context.mounted) (context as Element).markNeedsBuild(); }, icon: const Icon(Icons.logout), label: const Text('تسجيل الخروج'))]);
+  Widget _authenticated(BuildContext context, AssalSession session) => Column(children: [CircleAvatar(radius: 38, backgroundColor: AssalColors.honeyLight, child: Text((session.user?.nameAr ?? 'ع').substring(0, 1), style: AssalTypography.heading1.copyWith(color: AssalColors.primaryDark))), const SizedBox(height: AssalSpacing.md), Text(session.user?.nameAr ?? 'عميل عسلكم', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)), Text(session.user?.email ?? '', style: AssalTypography.body.copyWith(color: AssalColors.textSecondary)), const SizedBox(height: AssalSpacing.lg), Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [_metric('0', 'المتابعات'), _metric('0', 'المحفوظات'), _metric('0', 'الطلبات')]), const SizedBox(height: AssalSpacing.lg), Row(children: [Expanded(child: OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => RequestsScreen(repository: repository))), icon: const Icon(Icons.assignment_outlined), label: const Text('طلباتي'))), const SizedBox(width: AssalSpacing.sm), Expanded(child: FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BecomeMerchantScreen())), icon: const Icon(Icons.storefront_outlined), label: const Text('كن تاجرًا')))]), const SizedBox(height: AssalSpacing.sm), OutlinedButton.icon(onPressed: () async { await repository.signOut(); if (context.mounted) (context as Element).markNeedsBuild(); }, icon: const Icon(Icons.logout), label: const Text('تسجيل الخروج'))]);
   Widget _metric(String value, String label) => Column(children: [Text(value, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)), Text(label, style: AssalTypography.caption.copyWith(color: AssalColors.textMuted))]);
 }
 
 class RequestsScreen extends StatelessWidget {
   const RequestsScreen({super.key, required this.repository});
   final AssalRepository repository;
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('طلباتي')), body: FutureBuilder<AssalSession>(future: repository.getSession(), builder: (context, sessionSnapshot) { final session = sessionSnapshot.data ?? AssalSession.guest; if (!session.isAuthenticated) return Center(child: FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول لمتابعة الطلبات'))); return FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(future: repository.listRequests(session.user!.id), builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<List<AssalRequestSummary>>(state: snapshot.data!, builder: (requests) => ListView.separated(padding: const EdgeInsets.all(AssalSpacing.lg), itemCount: requests.length, separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm), itemBuilder: (_, index) => Card(child: ListTile(leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.assignment_outlined, color: AssalColors.primaryDark)), title: Text(requests[index].subject), subtitle: Text('${requests[index].storeName ?? requests[index].storeId} · ${requests[index].preferredHandoffOption ?? 'تواصل مباشر'}'), trailing: Chip(label: Text(requests[index].status.labelAr)))))); }); }));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('طلباتي')),
+      body: FutureBuilder<AssalSession>(
+        future: repository.getSession(),
+        builder: (context, sessionSnapshot) {
+          final session = sessionSnapshot.data ?? AssalSession.guest;
+          if (!session.isAuthenticated) {
+            return Center(child: FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول لمتابعة الطلبات')));
+          }
+          return FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
+            future: repository.listRequests(session.user!.id),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              return AssalStateView<List<AssalRequestSummary>>(
+                state: snapshot.data!,
+                builder: (requests) => ListView.separated(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  itemCount: requests.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
+                  itemBuilder: (_, index) {
+                    final request = requests[index];
+                    return Card(
+                      child: ListTile(
+                        leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.assignment_outlined, color: AssalColors.primaryDark)),
+                        title: Text(request.subject),
+                        subtitle: Text('${request.storeName ?? request.storeId} · ${request.preferredHandoffOption ?? 'تواصل مباشر'}'),
+                        trailing: Chip(label: Text(request.status.labelAr)),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key, required this.repository});
   final AssalRepository repository;
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('الإشعارات')), body: FutureBuilder<AssalSession>(future: repository.getSession(), builder: (context, sessionSnapshot) { final session = sessionSnapshot.data ?? AssalSession.guest; if (!session.isAuthenticated) return Center(child: FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول لعرض إشعاراتك'))); return FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(future: repository.listNotifications(session.user!.id), builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<List<AssalNotificationSummary>>(state: snapshot.data!, builder: (items) => ListView.separated(padding: const EdgeInsets.all(AssalSpacing.lg), itemCount: items.length, separatorBuilder: (_, __) => const Divider(), itemBuilder: (_, index) => ListTile(leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.notifications_none, color: AssalColors.primaryDark)), title: Text(items[index].titleAr), subtitle: Text(items[index].bodyAr ?? ''))); }); }));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('الإشعارات')),
+      body: FutureBuilder<AssalSession>(
+        future: repository.getSession(),
+        builder: (context, sessionSnapshot) {
+          final session = sessionSnapshot.data ?? AssalSession.guest;
+          if (!session.isAuthenticated) {
+            return Center(child: FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول لعرض إشعاراتك')));
+          }
+          return FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(
+            future: repository.listNotifications(session.user!.id),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              return AssalStateView<List<AssalNotificationSummary>>(
+                state: snapshot.data!,
+                builder: (items) => ListView.separated(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const Divider(),
+                  itemBuilder: (_, index) => ListTile(
+                    leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.notifications_none, color: AssalColors.primaryDark)),
+                    title: Text(items[index].titleAr),
+                    subtitle: Text(items[index].bodyAr ?? ''),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
 class ConversationScreen extends StatefulWidget {
