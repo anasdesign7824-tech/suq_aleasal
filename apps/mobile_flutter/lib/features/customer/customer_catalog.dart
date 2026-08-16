@@ -21,6 +21,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late Future<AssalLoadState<AssalProductSummary>> productFuture;
   bool liked = false;
   bool favorite = false;
+  int galleryIndex = 0;
   @override
   void initState() { super.initState(); productFuture = widget.repository.getProduct(widget.productId); }
   @override
@@ -28,10 +29,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Widget _content(AssalProductSummary product) => FutureBuilder<AssalLoadState<AssalStoreSummary>>(future: widget.repository.getStore(product.storeId), builder: (context, storeSnapshot) {
     final store = storeSnapshot.data is AssalData<AssalStoreSummary> ? (storeSnapshot.data! as AssalData<AssalStoreSummary>).value : null;
+    final gallery = product.imageUrls.isEmpty ? <String?>[product.primaryImageUrl, product.primaryImageUrl, product.primaryImageUrl] : product.imageUrls;
     return ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
-      SizedBox(height: 260, child: PageView(children: [AssalImageTile(imageUrl: product.primaryImageUrl, height: 260), AssalImageTile(imageUrl: product.primaryImageUrl, height: 260, icon: Icons.wb_sunny_outlined), AssalImageTile(imageUrl: product.primaryImageUrl, height: 260, icon: Icons.hive_outlined)])),
+      SizedBox(height: 260, child: PageView.builder(controller: PageController(initialPage: galleryIndex), itemCount: gallery.length, onPageChanged: (index) => setState(() => galleryIndex = index), itemBuilder: (_, index) => AssalImageTile(imageUrl: gallery[index], height: 260, icon: index.isEven ? Icons.wb_sunny_outlined : Icons.hive_outlined))),
       const SizedBox(height: AssalSpacing.md),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(3, (index) => Container(width: 8, height: 8, margin: const EdgeInsets.symmetric(horizontal: 3), decoration: BoxDecoration(color: index == 0 ? AssalColors.primaryDark : AssalColors.border, shape: BoxShape.circle)))),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(gallery.length, (index) => AnimatedContainer(duration: const Duration(milliseconds: 180), width: index == galleryIndex ? 22 : 8, height: 8, margin: const EdgeInsets.symmetric(horizontal: 3), decoration: BoxDecoration(color: index == galleryIndex ? AssalColors.primaryDark : AssalColors.border, borderRadius: BorderRadius.circular(AssalRadius.pill))))),
       const SizedBox(height: AssalSpacing.lg),
       Text(product.nameAr, style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
       const SizedBox(height: AssalSpacing.sm),
@@ -62,10 +64,41 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 class _MetadataCard extends StatelessWidget {
   const _MetadataCard({required this.product});
   final AssalProductSummary product;
+
   @override
-  Widget build(BuildContext context) => Card(color: AssalColors.cream, child: Padding(padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('بيانات المصدر والجودة', style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)), const SizedBox(height: AssalSpacing.md), _row('نوع المنتج', _productTypeLabel(product.productType)), _row('المنطقة', product.regionNameAr ?? 'غير محددة'), _row('التصنيف', product.subcategoryNameAr ?? 'غير محدد'), _row('التوفر', product.availability), if (product.weightLabel != null) _row('الوزن', product.weightLabel!), if (product.harvestLabel != null) _row('الإنتاج', product.harvestLabel!)])));
-  Widget _row(String label, String value) => Padding(padding: const EdgeInsets.symmetric(vertical: AssalSpacing.xs), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 92, child: Text(label, style: AssalTypography.bodySmall.copyWith(color: AssalColors.textMuted))), Expanded(child: Text(value, style: AssalTypography.body.copyWith(color: AssalColors.textPrimary)))]));
+  Widget build(BuildContext context) => Card(
+        color: AssalColors.cream,
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('بيانات المصدر والجودة', style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)),
+            const SizedBox(height: AssalSpacing.md),
+            _row('نوع المنتج', _productTypeLabel(product.productType)),
+            if (product.honeyIdentity != null) _row('هوية العسل', product.honeyIdentity!),
+            _row('المنطقة', product.regionNameAr ?? 'غير محددة'),
+            if (product.provinceNameAr != null) _row('المحافظة', product.provinceNameAr!),
+            if (product.originCountry != null) _row('بلد الأصل', product.originCountry!),
+            _row('التصنيف', product.subcategoryNameAr ?? 'غير محدد'),
+            if (product.qualityLabelAr != null) _row('الجودة', product.qualityLabelAr!),
+            if (product.processingMethodAr != null) _row('المعالجة', product.processingMethodAr!),
+            if (product.processingStatusAr != null) _row('حالة المعالجة', product.processingStatusAr!),
+            if (product.packagingLabelAr != null) _row('التعبئة', product.packagingLabelAr!),
+            if (product.productionDate != null) _row('تاريخ الإنتاج', _dateLabel(product.productionDate)),
+            if (product.packagedDate != null) _row('تاريخ التعبئة', _dateLabel(product.packagedDate)),
+            if (product.shelfLifeLabelAr != null) _row('الصلاحية', product.shelfLifeLabelAr!),
+            _row('التوفر', product.availability),
+            if (product.weightLabel != null) _row('الوزن', product.weightLabel!),
+            if (product.harvestLabel != null) _row('القطفة', product.harvestLabel!),
+            if (product.deliveryOptions.isNotEmpty) _row('التسليم', product.deliveryOptions.join('، ')),
+            if (product.pickupLocations.isNotEmpty) _row('الاستلام', product.pickupLocations.join('، ')),
+          ]),
+        ),
+      );
+
+  Widget _row(String label, String value) => Padding(padding: const EdgeInsets.symmetric(vertical: AssalSpacing.xs), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [SizedBox(width: 96, child: Text(label, style: AssalTypography.bodySmall.copyWith(color: AssalColors.textMuted))), Expanded(child: Text(value, style: AssalTypography.body.copyWith(color: AssalColors.textPrimary)))]));
 }
+
+String _dateLabel(DateTime? date) => date == null ? 'غير محدد' : '${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}';
 
 class StoreProfileScreen extends StatefulWidget {
   const StoreProfileScreen({super.key, required this.repository, required this.storeId});
