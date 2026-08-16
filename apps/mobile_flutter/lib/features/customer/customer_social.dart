@@ -5,14 +5,14 @@ import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
 
-class _ReviewsSection extends StatefulWidget {
-  const _ReviewsSection({required this.repository, required this.product});
+class ReviewsSection extends StatefulWidget {
+  const ReviewsSection({required this.repository, required this.product});
   final AssalRepository repository;
   final AssalProductSummary product;
   @override
-  State<_ReviewsSection> createState() => _ReviewsSectionState();
+  State<ReviewsSection> createState() => _ReviewsSectionState();
 }
-class _ReviewsSectionState extends State<_ReviewsSection> {
+class _ReviewsSectionState extends State<ReviewsSection> {
   late Future<AssalLoadState<List<AssalReviewSummary>>> future;
 
   @override
@@ -75,14 +75,14 @@ class _ReviewsSectionState extends State<_ReviewsSection> {
   }
 }
 
-class _CommentsSection extends StatefulWidget {
-  const _CommentsSection({required this.repository, required this.targetId});
+class CommentsSection extends StatefulWidget {
+  const CommentsSection({required this.repository, required this.targetId});
   final AssalRepository repository;
   final String targetId;
   @override
-  State<_CommentsSection> createState() => _CommentsSectionState();
+  State<CommentsSection> createState() => _CommentsSectionState();
 }
-class _CommentsSectionState extends State<_CommentsSection> {
+class _CommentsSectionState extends State<CommentsSection> {
   late Future<AssalLoadState<List<AssalCommentSummary>>> future;
   final controller = TextEditingController();
 

@@ -45,9 +45,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       const SizedBox(height: AssalSpacing.md),
       SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: () => _request(product, store), icon: const Icon(Icons.chat_bubble_outline), label: const Text('إرسال طلب تواصل'))),
       const SizedBox(height: AssalSpacing.xl),
-      _ReviewsSection(repository: widget.repository, product: product),
+      ReviewsSection(repository: widget.repository, product: product),
       const SizedBox(height: AssalSpacing.xl),
-      _CommentsSection(repository: widget.repository, targetId: product.id),
+      CommentsSection(repository: widget.repository, targetId: product.id),
       const SizedBox(height: AssalSpacing.xl),
     ]);
   });
