@@ -106,6 +106,17 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<List<AssalTaxonomy>>> listFavoriteTaxonomies(String userId) async {
+    final productsState = await listFavoriteProducts(userId);
+    final taxonomyState = await listTaxonomy();
+    if (productsState is AssalData<List<AssalProductSummary>> && taxonomyState is AssalData<List<AssalTaxonomy>>) {
+      final ids = productsState.value.map((product) => product.taxonomyId).whereType<String>().toSet();
+      return _listState(taxonomyState.value.where((taxonomy) => ids.contains(taxonomy.id)).toList(growable: false), 'لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
+    }
+    return const AssalEmpty('لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
+  }
+
+  @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(String userId) async {
     final state = await listStores();
     if (state is AssalData<List<AssalStoreSummary>>) {

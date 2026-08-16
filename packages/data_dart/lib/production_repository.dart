@@ -58,6 +58,17 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<List<AssalTaxonomy>>> listFavoriteTaxonomies(String userId) async {
+    final favoriteRows = await _gateway.select('favorites', filters: {'user_id': userId, 'target_type': 'product'});
+    final productIds = favoriteRows.map((row) => row['target_id']).whereType<String>().toSet();
+    if (productIds.isEmpty) return const AssalEmpty('لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
+    final products = await _gateway.select('products', filters: const {'status': 'active'});
+    final taxonomyIds = products.where((row) => productIds.contains(row['id'])).map((row) => row['subcategory_id'] ?? row['category_id']).whereType<String>().toSet();
+    final taxonomies = await _gateway.select('taxonomies', filters: const {'status': 'active'});
+    return _state(taxonomies.where((row) => taxonomyIds.contains(row['id'])).map(AssalTaxonomy.fromJson).toList(growable: false), 'لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
+  }
+
+  @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(String userId) async {
     final rows = await _gateway.select('store_follows', filters: {'user_id': userId});
     final ids = rows.map((row) => row['store_id']).whereType<String>().toSet();
