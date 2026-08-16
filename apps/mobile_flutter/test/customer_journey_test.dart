@@ -59,6 +59,10 @@ void main() {
 
     final notifications = await repository.listNotifications(session.user!.id);
     expect(notifications, isA<AssalData<List<AssalNotificationSummary>>>());
-    expect((notifications as AssalData<List<AssalNotificationSummary>>).value.any((item) => item.notificationType == 'merchant_application'), isTrue);
+    final notificationValues = (notifications as AssalData<List<AssalNotificationSummary>>).value;
+    expect(notificationValues.any((item) => item.notificationType == 'merchant_application'), isTrue);
+    await repository.markNotificationRead(session.user!.id, notificationValues.first.id);
+    final afterRead = await repository.listNotifications(session.user!.id);
+    expect((afterRead as AssalData<List<AssalNotificationSummary>>).value.first.readAt, isNotNull);
   });
 }
