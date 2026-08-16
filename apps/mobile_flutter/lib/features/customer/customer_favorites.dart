@@ -59,7 +59,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
             onRetry: () => setState(_load),
             builder: (items) => GridView.builder(
               padding: const EdgeInsets.all(AssalSpacing.lg),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 220, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68),
               itemCount: items.length,
               itemBuilder: (_, index) => ProductCard(product: items[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ProductDetailScreen(repository: widget.repository, productId: items[index].id)))),
             ),
