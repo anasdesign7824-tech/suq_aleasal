@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../../../packages/design_system/dart/lib/assal_tokens.dart';
+import 'package:assalkom_design/assal_tokens.dart';
 
 ThemeData buildAssalTheme() {
   final scheme = ColorScheme.fromSeed(
