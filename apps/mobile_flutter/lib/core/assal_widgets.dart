@@ -129,6 +129,10 @@ class ProductCard extends StatelessWidget {
                   Text(product.nameAr, maxLines: 2, overflow: TextOverflow.ellipsis, style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
                   const SizedBox(height: AssalSpacing.xs),
                   Text(product.subcategoryNameAr ?? product.categoryNameAr ?? 'منتج نحلي يمني', maxLines: 1, overflow: TextOverflow.ellipsis, style: AssalTypography.bodySmall.copyWith(color: AssalColors.textSecondary)),
+                  const SizedBox(height: AssalSpacing.xs),
+                  if (product.price != null) Text('${product.price!.toStringAsFixed(0)} ${product.currencyCode}', style: AssalTypography.bodySmall.copyWith(color: AssalColors.primaryDark, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: AssalSpacing.xs),
+                  Row(children: [RatingStars(rating: product.ratingAverage), const SizedBox(width: AssalSpacing.xs), Text('(${product.reviewCount})', style: AssalTypography.caption.copyWith(color: AssalColors.textMuted)), const Spacer(), if (product.availability.isNotEmpty) Flexible(child: Text(product.availability, overflow: TextOverflow.ellipsis, style: AssalTypography.caption.copyWith(color: AssalColors.textSecondary)))]),
                   const SizedBox(height: AssalSpacing.sm),
                   Row(children: [
                     if (product.gradeLevel != null) InfoChip(label: 'درجة ${product.gradeLevel}'),
