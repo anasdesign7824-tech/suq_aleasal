@@ -150,7 +150,7 @@ class StoreCard extends StatelessWidget {
   Widget build(BuildContext context) => Card(
         clipBehavior: Clip.antiAlias,
         child: InkWell(onTap: onTap, child: Padding(padding: const EdgeInsets.all(AssalSpacing.lg), child: Row(children: [
-          CircleAvatar(radius: 30, backgroundColor: AssalColors.honeyLight, child: const Icon(Icons.storefront_outlined, color: AssalColors.primaryDark, size: 28)),
+          const CircleAvatar(radius: 30, backgroundColor: AssalColors.honeyLight, child: Icon(Icons.storefront_outlined, color: AssalColors.primaryDark, size: 28)),
           const SizedBox(width: AssalSpacing.md),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [Expanded(child: Text(store.nameAr, maxLines: 1, overflow: TextOverflow.ellipsis, style: AssalTypography.title.copyWith(color: AssalColors.deepBrown))), if (store.isVerified) const Icon(Icons.verified, color: AssalColors.primaryDark, size: 18)]),

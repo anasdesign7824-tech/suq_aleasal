@@ -12,6 +12,7 @@ Future<void> openAuth(BuildContext context, AssalRepository repository) async {
 Future<bool> requireAuth(BuildContext context, AssalRepository repository) async {
   final session = await repository.getSession();
   if (session.isAuthenticated) return true;
+  if (!context.mounted) return false;
   final wantsLogin = await showAuthPrompt(context);
   if (wantsLogin && context.mounted) await openAuth(context, repository);
   return (await repository.getSession()).isAuthenticated;
