@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
@@ -19,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<AssalLoadState<List<AssalProductSummary>>> featuredFuture;
   late Future<AssalLoadState<List<AssalTaxonomy>>> taxonomyFuture;
   late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
+  late Future<AssalLoadState<List<AssalBannerSummary>>> bannersFuture;
   final searchController = TextEditingController();
 
   @override
@@ -37,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     featuredFuture = widget.repository.listProducts(query: const AssalProductQuery(featuredOnly: true));
     taxonomyFuture = widget.repository.listTaxonomy();
     storesFuture = widget.repository.listStores();
+    bannersFuture = widget.repository.listBanners();
   }
 
   void _refresh() => setState(_load);
@@ -53,7 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: AssalSpacing.lg),
             TextField(controller: searchController, readOnly: true, onTap: widget.onOpenSearch, decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'ابحث عن سدر، سمر، شمع أو هدية', suffixIcon: Icon(Icons.tune_rounded))),
           ]))),
-          SliverPadding(padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg), sliver: SliverToBoxAdapter(child: _HeroBanner(onExplore: widget.onOpenSearch))),
+          SliverPadding(padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg), sliver: SliverToBoxAdapter(child: FutureBuilder<AssalLoadState<List<AssalBannerSummary>>>(future: bannersFuture, builder: (context, snapshot) {
+            if (!snapshot.hasData) return const SizedBox(height: 210, child: Center(child: CircularProgressIndicator()));
+            return AssalStateView<List<AssalBannerSummary>>(state: snapshot.data!, onRetry: _refresh, builder: (banners) => _BannersCarousel(banners: banners, onExplore: widget.onOpenSearch));
+          }))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: SectionHeader(title: 'استكشف حسب التصنيف', actionLabel: 'كل التصنيفات', onAction: widget.onOpenSearch))),
           SliverToBoxAdapter(child: SizedBox(height: 92, child: FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(future: taxonomyFuture, builder: (context, snapshot) {
             if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
@@ -89,6 +95,82 @@ class _Header extends StatelessWidget {
   final VoidCallback onOpenNotifications;
   @override
   Widget build(BuildContext context) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const AssalBrandMark(), Row(children: [IconButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())), icon: const Icon(Icons.settings_outlined), tooltip: 'الإعدادات'), IconButton(onPressed: onOpenNotifications, icon: const Icon(Icons.notifications_none_rounded), tooltip: 'الإشعارات')])]);
+}
+
+class _BannersCarousel extends StatefulWidget {
+  const _BannersCarousel({required this.banners, required this.onExplore});
+  final List<AssalBannerSummary> banners;
+  final VoidCallback onExplore;
+
+  @override
+  State<_BannersCarousel> createState() => _BannersCarouselState();
+}
+
+class _BannersCarouselState extends State<_BannersCarousel> {
+  late final PageController controller;
+  Timer? timer;
+  int currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = PageController();
+    if (widget.banners.length > 1) {
+      timer = Timer.periodic(const Duration(seconds: 5), (_) {
+        if (!mounted || !controller.hasClients) return;
+        final next = (currentIndex + 1) % widget.banners.length;
+        controller.animateToPage(next, duration: const Duration(milliseconds: 400), curve: Curves.easeOutCubic);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.banners.isEmpty) return _HeroBanner(onExplore: widget.onExplore);
+    return Column(children: [
+      SizedBox(
+        height: 210,
+        child: PageView.builder(
+          controller: controller,
+          itemCount: widget.banners.length,
+          onPageChanged: (index) => setState(() => currentIndex = index),
+          itemBuilder: (_, index) => _BannerCard(item: widget.banners[index], onExplore: widget.onExplore),
+        ),
+      ),
+      const SizedBox(height: AssalSpacing.sm),
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(widget.banners.length, (index) => AnimatedContainer(duration: const Duration(milliseconds: 220), width: index == currentIndex ? 22 : 8, height: 8, margin: const EdgeInsets.symmetric(horizontal: 3), decoration: BoxDecoration(color: index == currentIndex ? AssalColors.primaryDark : AssalColors.border, borderRadius: BorderRadius.circular(AssalRadius.pill))))),
+    ]);
+  }
+}
+
+class _BannerCard extends StatelessWidget {
+  const _BannerCard({required this.item, required this.onExplore});
+  final AssalBannerSummary item;
+  final VoidCallback onExplore;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(AssalSpacing.xl),
+        decoration: BoxDecoration(gradient: const LinearGradient(colors: [AssalColors.deepBrown, AssalColors.secondary]), borderRadius: BorderRadius.circular(AssalRadius.extraLarge)),
+        child: Row(children: [
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(item.titleAr, maxLines: 2, overflow: TextOverflow.ellipsis, style: AssalTypography.heading2.copyWith(color: AssalColors.cream)),
+            const SizedBox(height: AssalSpacing.sm),
+            Text(item.descriptionAr, maxLines: 2, overflow: TextOverflow.ellipsis, style: AssalTypography.body.copyWith(color: AssalColors.cream)),
+            const SizedBox(height: AssalSpacing.md),
+            FilledButton.tonal(onPressed: onExplore, child: Text(item.ctaLabelAr)),
+          ])),
+          const SizedBox(width: AssalSpacing.md),
+          const Icon(Icons.local_florist_rounded, size: 68, color: AssalColors.primaryLight),
+        ]),
+      );
 }
 
 class _HeroBanner extends StatelessWidget {
@@ -162,6 +244,7 @@ class _SearchScreenState extends State<SearchScreen> {
   AssalSort sort = AssalSort.featured;
   late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
   late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
+  late Future<AssalLoadState<List<String>>> popularSearchesFuture;
 
   @override
   void initState() {
@@ -180,6 +263,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final query = AssalProductQuery(search: controller.text, subcategoryId: subcategoryId, gradeLevel: gradeLevel, productType: productType, verifiedStoresOnly: verifiedOnly, sort: sort);
     productsFuture = widget.repository.listProducts(query: query);
     storesFuture = widget.repository.listStores();
+    popularSearchesFuture = widget.repository.listPopularSearches();
   }
 
   void _applySearch() => setState(_search);
@@ -202,6 +286,23 @@ class _SearchScreenState extends State<SearchScreen> {
               suffixIcon: IconButton(onPressed: () { controller.clear(); _applySearch(); }, icon: const Icon(Icons.clear), tooltip: 'مسح'),
             ),
           ),
+        ),
+        FutureBuilder<AssalLoadState<List<String>>>(
+          future: popularSearchesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.data is! AssalData<List<String>>) return const SizedBox.shrink();
+            final terms = (snapshot.data! as AssalData<List<String>>).value;
+            return SizedBox(
+              height: 42,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+                scrollDirection: Axis.horizontal,
+                itemCount: terms.length,
+                separatorBuilder: (_, __) => const SizedBox(width: AssalSpacing.sm),
+                itemBuilder: (_, index) => ActionChip(label: Text(terms[index]), onPressed: () { controller.text = terms[index]; _applySearch(); }),
+              ),
+            );
+          },
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg, vertical: AssalSpacing.sm),
