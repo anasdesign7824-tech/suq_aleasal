@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_design/assal_tokens.dart';
+import 'assal_assets.dart';
 
 class AssalBrandMark extends StatelessWidget {
   const AssalBrandMark({super.key, this.size = 44, this.showName = true});
@@ -16,7 +17,7 @@ class AssalBrandMark extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset('assets/logo-internal.svg', width: size, height: size),
+            SvgPicture.asset(AssalAssets.logoInternal, width: size, height: size),
             if (showName) ...[
               const SizedBox(width: AssalSpacing.sm),
               Text('عسلكم', style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)),
