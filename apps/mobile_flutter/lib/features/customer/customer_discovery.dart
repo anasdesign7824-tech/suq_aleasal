@@ -213,7 +213,7 @@ class _ProductRail extends StatelessWidget {
         SectionHeader(title: title, actionLabel: 'عرض الكل', onAction: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: repository)))),
         const SizedBox(height: AssalSpacing.sm),
         SizedBox(
-          height: 292,
+          height: 340,
           child: FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
             future: future,
             builder: (context, snapshot) {
