@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/assal_app.dart';
 import 'app/assal_runtime_config.dart';
-import 'core/demo_loader.dart';
 import 'core/supabase_auth_gateway.dart';
 import 'core/supabase_query_gateway.dart';
 import 'package:assalkom_data/assal_repository.dart';

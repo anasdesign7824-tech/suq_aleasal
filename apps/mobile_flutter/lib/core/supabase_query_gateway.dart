@@ -10,7 +10,9 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
   Future<List<Map<String, Object?>>> select(String table, {Map<String, Object?> filters = const <String, Object?>{}}) async {
     var query = client.from(table).select();
     for (final entry in filters.entries) {
-      query = query.eq(entry.key, entry.value);
+      final value = entry.value;
+      if (value == null) continue;
+      query = query.eq(entry.key, value);
     }
     final rows = await query;
     return rows.map((row) => Map<String, Object?>.from(row)).toList(growable: false);
