@@ -101,6 +101,8 @@ docs/
 
 يشترك Web وAPK في domain/data/presentation contracts، وتختلف طبقة shell responsive فقط. على Web يجب دعم keyboard navigation، viewport واسع، focus states وURL/deep-link strategy. على APK يجب دعم touch targets، back handling، share/handoff adapters، وAndroid host ثابت قابل لإعادة البناء من GitHub. لا يعتبر بناء APK من نسخة محلية غير متتبعة دليلًا على تكامل المشروع.
 
-## حدود الحزم اللاحقة
+## حدود الإصدار الحالي والحزم اللاحقة
 
-Admin Web، Supabase/RLS، Landing/Cloudflare، وfull end-to-end production acceptance هي حزم لاحقة. لن تُضاف استدعاءات Admin أو SQL مباشرة إلى Customer UI أثناء هذه المرحلة؛ ستُضاف العقود المشتركة فقط عندما يكون ذلك ضروريًا للتكامل اللاحق.
+أصبح **Admin Web المحلي المحمي** وSupabase/RLS وStorage وfull end-to-end acceptance جزءًا من الإصدار التشغيلي الحالي وفق الخطة الموحدة المعتمدة. يُنفّذ Admin عبر React/Vite shell وRepository/Data Source وSupabase Auth/RLS، ولا تُضاف استدعاءات Admin أو SQL مباشرة إلى Customer Widgets.
+
+تبقى **Landing Website العام وCloudflare وPublic Web marketing deployment** حزمًا لاحقة. يبقى Flutter Web Customer artifact داخل المستودع وقابلًا للبناء والاختبار، لكن لا يُعلن نشره العام أو إطلاق Landing قبل اجتياز Customer + Merchant + Admin local acceptance.

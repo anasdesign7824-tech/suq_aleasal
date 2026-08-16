@@ -1,4 +1,4 @@
-# Requirements Traceability — Customer Web/APK Package
+# Requirements Traceability — Unified Customer / Merchant / Admin Package
 
 > Status values are intentionally conservative. `Partial` means the current repository has an implementation or contract but the requirement has not yet passed the new Web/APK acceptance gate. `Deferred` means it belongs to a later package.
 
@@ -35,17 +35,27 @@
 | R-029 | Notifications center | Prompt 1585–1607 | Request/message/follower/verification/announcement notifications and badges | notifications screen, unread badge, `markNotificationRead` | Notification lifecycle test | Partial — implementation and Demo lifecycle pass |
 | R-030 | Settings | Prompt 1610–1632 | Language/theme/notifications/account/privacy/security/about/support | `SettingsScreen` | Settings widget test | Partial |
 | R-031 | Merchant conversion in customer package | Prompt 522–574, 1894–1932 | Professional onboarding and Demo repository persistence | typed application contract, form, Demo notification | Merchant conversion journey | Partial — Demo persistence pass; Production provider pending |
-| R-032 | Merchant dashboard | Prompt 1278–1335 | Full merchant management | `merchant_dashboard.dart` placeholder/demo | Deferred from current forensic package | Deferred |
+| R-032 | Merchant dashboard | Prompt 1278–1335, Amendment Tasks 26–35 | Full merchant management and capability mode | `merchant_dashboard.dart` current Stub; target Store Wizard/Dashboard contracts | Merchant journey, role/ownership, visual audit | In progress |
 | R-033 | Rich seed dataset | Prompt 1810–1848 | 20+ products, 10+ stores, 10+ categories, linked social/request data | `apps/mobile_flutter/assets/demo_catalog.json` | Dataset count/relationship test | Partial |
 | R-034 | Accessibility | Prompt 1714–1725 | Contrast, target sizes, semantics, text scaling, Web keyboard | shared widgets and responsive shell | Accessibility audit | Partial |
 | R-035 | Responsive Web | Prompt 1728–1742 | Mobile/tablet/desktop layouts with Web keyboard/focus behavior | `NavigationBar` narrow + `NavigationRail` wide, max-extent grids | Widget boot; manual browser visual audit pending | Partial — code and build pass |
 | R-036 | Android host and reproducible APK | Prompt 2390–2420, 2475–2515 | Tracked `android/`, Gradle, APK artifact, install/runtime smoke | tracked Android host, debug/release APK, Mimo install | Release build/install/MainActivity/no FATAL | Partial — runtime pass; store signing pending |
 | R-037 | Flutter Web build | User scope + Prompt 66 | Customer Web build from same contracts and data | `flutter build web --release`, `build/web` | HTTP 200 for index and main.dart.js via static server | Partial — build/HTTP pass; visual browser audit pending |
 | R-038 | Production repository boundary | Prompt 410–446, 1964–1989 | Supabase/API adapter without UI changes | `production_repository.dart` currently gateway boundary | Production contract tests | Partial |
-| R-039 | Supabase schema/RLS | Prompt 1545–1582, 2274–2281 | Backend-enforced ownership and participant policies | Later package | RLS advisor/security tests | Deferred |
-| R-040 | Admin Web | Prompt 1337–1450, 1934–1962 | Independent admin interface | Later package | Admin audit | Deferred |
+| R-039 | Supabase schema/RLS | Prompt 1545–1582, 2274–2281, Amendment 25 | Backend-enforced ownership, participant, Admin, Storage policies | `database/migrations/0001–0006`; additive migrations and RLS matrix target | RLS/IDOR/privilege tests on isolated fixtures | In progress |
+| R-040 | Admin Web المحلي | Prompt 1337–1450, 1934–1962, approved scope | Authenticated local operational dashboard connected to Supabase | `apps/admin_web` current demo shell/Home; target repository/CRUD/Storage/Banners/Notifications | Admin journey, role guard, CRUD and sync tests | In progress |
 | R-041 | Landing/Cloudflare | Prompt 1452–1515, 2283–2287 | Independent public site and deployment | Later package | Landing/Cloudflare audit | Deferred |
-| R-042 | Formal acceptance | Prompt 2017–2096, 2472–2515 | Acceptance matrix, root-cause logs, regression evidence | `docs/evidence`, this file | Customer Web/APK GO gate | In progress |
+| R-042 | Formal acceptance | Prompt 2017–2096, 2472–2515 | Acceptance matrix, root-cause logs, regression evidence | `docs/evidence`, this file | Customer/Merchant/Admin local acceptance and release gate | In progress |
+| R-043 | Facebook authentication | Amendment 504–506, 730–803 | Provider boundary, callback, error, identity linking | Auth contract target; provider configuration gate | Facebook success/cancel/error/session tests | In progress |
+| R-044 | Session synchronization | Amendment 508–530 | Restore profile/favorites/follows/history/store/products/messages/notifications/settings | Production repository/session boundary target | Web/APK/browser restart and cache-first tests | In progress |
+| R-045 | Storage media pipeline | Amendment 585–621, Prompt 1672–1691 | Public media upload and private verification documents with ownership policies | `sok1` bucket exists; path/policy/repository target | Real upload/replace/delete/retry/RLS tests | In progress |
+| R-046 | Store Creation Wizard | Amendment 585–621, 899–905 | Draft/resume, validation, media, location, delivery/pickup, review/submit | `BecomeMerchantScreen` current one-step form; target wizard feature | Wizard journey, form/error/kill-resume tests | In progress |
+| R-047 | Verification workflow | Amendment 725–793, 901–905 | Identity/business documents, PDF/images, staged verification | Current generic status only; target evidence/state contracts | Status transition/private-file/Admin review tests | In progress |
+| R-048 | Generic product management | Prompt 1303–1335, Amendment 726–727 | Add/edit/publish products using canonical taxonomy | Read-only `AssalProductSummary` exists; target ProductDraft/CRUD | Product wizard/ownership/moderation tests | In progress |
+| R-049 | Views analytics and buffering | Amendment 738–739, Prompt 1794–1807 | Event contracts, dedupe/throttle/batch/deferred sync, aggregates | `viewsCount` read-only baseline; target analytics repository | Deterministic event and performance tests | In progress |
+| R-050 | Admin-to-customer synchronization | Prompt 1435–1450, 1585–1607 | Banner upload→DB→Home and notification DB→Customer Center | Admin demo banner/request shell; target Production data source | Cross-system sync tests on isolated fixtures | In progress |
+| R-051 | Battle-Test validation | Approved user requirement | Real Web/APK/Admin/Mimo operation, failure, security, stress, performance evidence | `docs/evidence/battle_test_validation_plan.md` | `battle_test_report`, RLS, Storage, Auth, performance, cleanup evidence | In progress |
+| R-052 | Landing/Cloudflare public release | Prompt 1452–1515, 2283–2287 | Independent public marketing site and deployment | `apps/landing_web/README.md` only at baseline | Landing/Cloudflare audit | Deferred |
 
 ## Status policy
 
