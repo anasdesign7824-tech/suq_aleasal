@@ -221,6 +221,8 @@ class AssalProductSummary {
     this.pickupLocations = const <String>[],
     this.viewsCount = 0,
     this.likesCount = 0,
+    this.price,
+    this.currencyCode = 'YER',
     this.ratingAverage = 0,
     this.reviewCount = 0,
     this.tags = const <String>[],
@@ -264,6 +266,8 @@ class AssalProductSummary {
   final List<String> pickupLocations;
   final int viewsCount;
   final int likesCount;
+  final double? price;
+  final String currencyCode;
   final double ratingAverage;
   final int reviewCount;
   final List<String> tags;
@@ -309,6 +313,8 @@ class AssalProductSummary {
       pickupLocations: _strings(json['pickup_locations']),
       viewsCount: _int(json['views_count']),
       likesCount: _int(json['likes_count']),
+      price: _numberOrNull(json['price']),
+      currencyCode: _string(json['currency_code'], fallback: 'YER'),
       ratingAverage: _number(json['rating_average']),
       reviewCount: _int(json['review_count']),
       tags: _strings(json['tags']),
@@ -569,6 +575,7 @@ String? _stringOrNull(Object? value) => value is String && value.trim().isNotEmp
 int _int(Object? value) => value is num ? value.toInt() : int.tryParse('$value') ?? 0;
 int? _intOrNull(Object? value) => value == null ? null : _int(value);
 double _number(Object? value) => value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+double? _numberOrNull(Object? value) => value is num ? value.toDouble() : double.tryParse('$value');
 List<String> _strings(Object? value) => value is List ? value.whereType<String>().toList(growable: false) : const <String>[];
 List<int> _ints(Object? value) => value is List ? value.whereType<num>().map((item) => item.toInt()).toList(growable: false) : const <int>[];
 Map<String, Object?> _map(Object? value) => value is Map ? value.cast<String, Object?>() : const <String, Object?>{};

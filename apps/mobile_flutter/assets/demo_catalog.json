@@ -584,7 +584,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 18000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sidr-osaimi",
@@ -653,7 +655,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 20500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sidr-jardani",
@@ -719,7 +723,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 23000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sidr-jabali",
@@ -783,7 +789,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 25500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sumur-hadrami",
@@ -849,7 +857,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 28000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-talh-najdi",
@@ -907,7 +917,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 18000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-shoka",
@@ -966,7 +978,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 20500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-magra",
@@ -1030,7 +1044,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 23000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-white-jabali",
@@ -1088,7 +1104,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 25500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-russian-white",
@@ -1146,7 +1164,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 28000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sal",
@@ -1206,7 +1226,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 18000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-salam",
@@ -1265,7 +1287,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 20500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-soreb",
@@ -1322,7 +1346,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 23000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-billa",
@@ -1379,7 +1405,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 25500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-wax-sidr-doani",
@@ -1437,7 +1465,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 22000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-wax-sidr-osaimi",
@@ -1494,7 +1524,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 12000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-wax-sumur",
@@ -1551,7 +1583,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 14500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-wax-marai",
@@ -1609,7 +1643,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 17000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-wax-meshat",
@@ -1664,7 +1700,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 19500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-mix-groom",
@@ -1725,7 +1763,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 26000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-mix-immunity",
@@ -1784,7 +1824,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 16000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-mix-fat",
@@ -1839,7 +1881,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 18500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-mix-nuts",
@@ -1899,7 +1943,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 21000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-bee-royal",
@@ -1960,7 +2006,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 21500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-bee-pollen",
@@ -2018,7 +2066,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 24000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-bee-propolis",
@@ -2077,7 +2127,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 14000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-bee-wax-raw",
@@ -2132,7 +2184,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 16500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-gift-bag-groom",
@@ -2187,7 +2241,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 27000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-gift-box-royal",
@@ -2242,7 +2298,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 29500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-gift-pottery",
@@ -2297,7 +2355,9 @@
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg",
         "assets/brand/logo-internal-runtime.svg"
-      ]
+      ],
+      "price": 32000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-citrus-ibb",
@@ -2366,7 +2426,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 18000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sidr-tihama",
@@ -2435,7 +2497,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 20500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sidr-midi",
@@ -2499,7 +2563,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 23000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sumur-marib",
@@ -2568,7 +2634,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 25500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-coffee-honey",
@@ -2633,7 +2701,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 28000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-sesame-jawf",
@@ -2697,7 +2767,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 18000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-mountain-flower",
@@ -2766,7 +2838,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 20500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-zahr-wax",
@@ -2827,7 +2901,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 17000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-wax-hadrami",
@@ -2893,7 +2969,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 19500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-mix-blackseed",
@@ -2955,7 +3033,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 26000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-mix-ginger",
@@ -3017,7 +3097,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 16000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-mix-royal",
@@ -3085,7 +3167,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 18500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-royal-fresh",
@@ -3149,7 +3233,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 19000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-pollen-local",
@@ -3208,7 +3294,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 21500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-propolis-yemeni",
@@ -3268,7 +3356,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 24000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-honey-soap",
@@ -3327,7 +3417,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 14000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-beeswax-cream",
@@ -3386,7 +3478,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 16500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-guest-box",
@@ -3450,7 +3544,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [
         "LAB-TESTED"
-      ]
+      ],
+      "price": 27000,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-bride-bundle",
@@ -3510,7 +3606,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 29500,
+      "currency_code": "YER"
     },
     {
       "id": "demo-prod-mini-jars",
@@ -3570,7 +3668,9 @@
       "availability": "متاح للاستفسار",
       "weight_label": "500 غرام",
       "harvest_label": "قطفة ربيع 2026",
-      "certifications": []
+      "certifications": [],
+      "price": 32000,
+      "currency_code": "YER"
     }
   ],
   "reviews": [

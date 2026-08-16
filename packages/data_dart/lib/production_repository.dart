@@ -75,14 +75,45 @@ class ProductionRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({AssalProductQuery query = const AssalProductQuery()}) async {
-    final rows = await _gateway.select('products', filters: {'status': 'active', if (query.storeId != null) 'store_id': query.storeId, if (query.categoryId != null) 'category_id': query.categoryId});
+    final rows = await _gateway.select('products', filters: {
+      'status': 'active',
+      if (query.storeId != null) 'store_id': query.storeId,
+      if (query.categoryId != null) 'category_id': query.categoryId,
+      if (query.regionId != null) 'region_id': query.regionId,
+      if (query.provinceId != null) 'province_id': query.provinceId,
+      if (query.merchantId != null) 'merchant_id': query.merchantId,
+      if (query.availability != null) 'availability': query.availability,
+      if (query.processingMethod != null) 'processing_method_ar': query.processingMethod,
+      if (query.processingStatus != null) 'processing_status_ar': query.processingStatus,
+      if (query.packaging != null) 'packaging_label_ar': query.packaging,
+    });
     var values = rows.map(AssalProductSummary.fromJson).toList(growable: false);
     if (query.featuredOnly) values = values.where((item) => item.isFeatured).toList(growable: false);
     if (query.subcategoryId != null) values = values.where((item) => item.taxonomyId == query.subcategoryId).toList(growable: false);
     if (query.productType != null) values = values.where((item) => item.productType == query.productType).toList(growable: false);
     if (query.gradeLevel != null) values = values.where((item) => item.gradeLevel == query.gradeLevel).toList(growable: false);
+    if (query.originCountry != null) values = values.where((item) => item.originCountry == query.originCountry).toList(growable: false);
+    if (query.certificateId != null) values = values.where((item) => item.certifications.contains(query.certificateId)).toList(growable: false);
+    if (query.minRating != null) values = values.where((item) => item.ratingAverage >= query.minRating!).toList(growable: false);
+    if (query.minPrice != null) values = values.where((item) => item.price != null && item.price! >= query.minPrice!).toList(growable: false);
+    if (query.maxPrice != null) values = values.where((item) => item.price != null && item.price! <= query.maxPrice!).toList(growable: false);
+    if (query.verifiedStoresOnly) {
+      final stores = await _gateway.select('stores', filters: const {'status': 'active', 'is_verified': true});
+      final ids = stores.map((row) => row['id']).whereType<String>().toSet();
+      values = values.where((item) => ids.contains(item.storeId)).toList(growable: false);
+    }
     final search = query.search?.trim().toLowerCase();
-    if (search != null && search.isNotEmpty) values = values.where((item) => '${item.nameAr} ${item.categoryNameAr} ${item.subcategoryNameAr}'.toLowerCase().contains(search)).toList(growable: false);
+    if (search != null && search.isNotEmpty) values = values.where((item) => '${item.nameAr} ${item.categoryNameAr} ${item.subcategoryNameAr} ${item.honeyIdentity} ${item.regionNameAr} ${item.provinceNameAr}'.toLowerCase().contains(search)).toList(growable: false);
+    switch (query.sort) {
+      case AssalSort.newest:
+        values = values.reversed.toList(growable: false);
+      case AssalSort.popular:
+        values = [...values]..sort((a, b) => b.viewsCount.compareTo(a.viewsCount));
+      case AssalSort.rating:
+        values = [...values]..sort((a, b) => b.ratingAverage.compareTo(a.ratingAverage));
+      case AssalSort.featured:
+        values = [...values]..sort((a, b) => (b.isFeatured ? 1 : 0).compareTo(a.isFeatured ? 1 : 0));
+    }
     return _state(values, 'لا توجد منتجات مطابقة للبحث');
   }
 
