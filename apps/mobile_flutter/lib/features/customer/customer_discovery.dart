@@ -282,6 +282,13 @@ class _SearchScreenState extends State<SearchScreen> {
   int? gradeLevel;
   ProductType? productType;
   bool verifiedOnly = false;
+  String? originCountry;
+  String? processingMethod;
+  String? packaging;
+  String? availability;
+  double? minRating;
+  double? minPrice;
+  double? maxPrice;
   AssalSort sort = AssalSort.featured;
   late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
   late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
@@ -301,7 +308,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _search() {
-    final query = AssalProductQuery(search: controller.text, subcategoryId: subcategoryId, gradeLevel: gradeLevel, productType: productType, verifiedStoresOnly: verifiedOnly, sort: sort);
+    final query = AssalProductQuery(search: controller.text, subcategoryId: subcategoryId, gradeLevel: gradeLevel, productType: productType, verifiedStoresOnly: verifiedOnly, originCountry: originCountry, processingMethod: processingMethod, packaging: packaging, availability: availability, minRating: minRating, minPrice: minPrice, maxPrice: maxPrice, sort: sort);
     productsFuture = widget.repository.listProducts(query: query);
     storesFuture = widget.repository.listStores();
     popularSearchesFuture = widget.repository.listPopularSearches();
@@ -421,6 +428,13 @@ class _SearchScreenState extends State<SearchScreen> {
     var draftGrade = gradeLevel;
     var draftType = productType;
     var draftVerified = verifiedOnly;
+    var draftOrigin = originCountry ?? '';
+    var draftProcessing = processingMethod ?? '';
+    var draftPackaging = packaging ?? '';
+    var draftAvailability = availability ?? '';
+    var draftMinRating = minRating?.toString() ?? '';
+    var draftMinPrice = minPrice?.toString() ?? '';
+    var draftMaxPrice = maxPrice?.toString() ?? '';
     final typeItems = <DropdownMenuItem<ProductType?>>[
       const DropdownMenuItem<ProductType?>(value: null, child: Text('كل الأنواع')),
       ...ProductType.values.map<DropdownMenuItem<ProductType?>>((type) => DropdownMenuItem<ProductType?>(value: type, child: Text(_productTypeLabel(type)))),
@@ -432,17 +446,23 @@ class _SearchScreenState extends State<SearchScreen> {
     final apply = await showModalBottomSheet<bool>(
       context: context,
       showDragHandle: true,
+      isScrollControlled: true,
       builder: (sheetContext) => StatefulBuilder(builder: (context, setModalState) => Padding(
-        padding: const EdgeInsets.all(AssalSpacing.xl),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        padding: EdgeInsets.only(left: AssalSpacing.xl, right: AssalSpacing.xl, top: AssalSpacing.xl, bottom: MediaQuery.viewInsetsOf(context).bottom + AssalSpacing.xl),
+        child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('تصفية النتائج', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
           const SizedBox(height: AssalSpacing.md),
           DropdownButtonFormField<ProductType?>(initialValue: draftType, decoration: const InputDecoration(labelText: 'نوع المنتج'), items: typeItems, onChanged: (value) => setModalState(() => draftType = value)),
           DropdownButtonFormField<int?>(initialValue: draftGrade, decoration: const InputDecoration(labelText: 'درجة الجودة'), items: gradeItems, onChanged: (value) => setModalState(() => draftGrade = value)),
           SwitchListTile(value: draftVerified, onChanged: (value) => setModalState(() => draftVerified = value), title: const Text('المتاجر الموثقة فقط')),
+          TextField(decoration: const InputDecoration(labelText: 'بلد/منطقة الأصل'), onChanged: (value) => draftOrigin = value),
+          TextField(decoration: const InputDecoration(labelText: 'طريقة المعالجة'), onChanged: (value) => draftProcessing = value),
+          TextField(decoration: const InputDecoration(labelText: 'التعبئة'), onChanged: (value) => draftPackaging = value),
+          TextField(decoration: const InputDecoration(labelText: 'التوفر'), onChanged: (value) => draftAvailability = value),
+          Row(children: [Expanded(child: TextField(keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'أدنى تقييم'), onChanged: (value) => draftMinRating = value)), const SizedBox(width: AssalSpacing.sm), Expanded(child: TextField(keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'أدنى سعر'), onChanged: (value) => draftMinPrice = value)), const SizedBox(width: AssalSpacing.sm), Expanded(child: TextField(keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'أقصى سعر'), onChanged: (value) => draftMaxPrice = value))]),
           const SizedBox(height: AssalSpacing.md),
-          SizedBox(width: double.infinity, child: FilledButton(onPressed: () { gradeLevel = draftGrade; productType = draftType; verifiedOnly = draftVerified; Navigator.pop(sheetContext, true); }, child: const Text('تطبيق الفلاتر'))),
-        ]),
+          SizedBox(width: double.infinity, child: FilledButton(onPressed: () { gradeLevel = draftGrade; productType = draftType; verifiedOnly = draftVerified; originCountry = draftOrigin.trim().isEmpty ? null : draftOrigin.trim(); processingMethod = draftProcessing.trim().isEmpty ? null : draftProcessing.trim(); packaging = draftPackaging.trim().isEmpty ? null : draftPackaging.trim(); availability = draftAvailability.trim().isEmpty ? null : draftAvailability.trim(); minRating = double.tryParse(draftMinRating.trim()); minPrice = double.tryParse(draftMinPrice.trim()); maxPrice = double.tryParse(draftMaxPrice.trim()); Navigator.pop(sheetContext, true); }, child: const Text('تطبيق الفلاتر'))),
+        ])),
       )),
     );
     if (apply == true) _applySearch();
