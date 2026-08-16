@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<AssalLoadState<List<AssalProductSummary>>> newProductsFuture;
   late Future<AssalLoadState<List<AssalProductSummary>>> verifiedProductsFuture;
   late Future<AssalLoadState<List<AssalNotificationSummary>>> notificationsFuture;
+  late Future<bool> initialContentFuture;
   final searchController = TextEditingController();
 
   @override
@@ -48,6 +49,16 @@ class _HomeScreenState extends State<HomeScreen> {
     newProductsFuture = widget.repository.listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
     verifiedProductsFuture = widget.repository.listProducts(query: const AssalProductQuery(verifiedStoresOnly: true, sort: AssalSort.rating));
     notificationsFuture = _loadNotifications();
+    initialContentFuture = Future.wait<Object?>(<Future<Object?>>[
+      featuredFuture,
+      taxonomyFuture,
+      storesFuture,
+      bannersFuture,
+      popularFuture,
+      newProductsFuture,
+      verifiedProductsFuture,
+      notificationsFuture,
+    ]).then<bool>((_) => true);
   }
 
   void _refresh() => setState(_load);
@@ -62,7 +73,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) => RefreshIndicator(
         onRefresh: () async => _refresh(),
-        child: CustomScrollView(slivers: [
+        child: FutureBuilder<bool>(
+          future: initialContentFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) return CustomScrollView(slivers: [const SliverFillRemaining(hasScrollBody: false, child: AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تجهيز الصفحة الآن. تحقق من الاتصال ثم أعد المحاولة.'))]);
+            if (snapshot.data != true) return _loadingBody();
+            return CustomScrollView(slivers: [
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.md, AssalSpacing.lg, 0), sliver: SliverToBoxAdapter(child: _Header(repository: widget.repository, notificationsFuture: notificationsFuture, onOpenNotifications: widget.onOpenNotifications))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.md), sliver: SliverToBoxAdapter(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('اكتشف العسل من مصدره', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
@@ -72,25 +88,25 @@ class _HomeScreenState extends State<HomeScreen> {
             TextField(controller: searchController, readOnly: true, onTap: widget.onOpenSearch, decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'ابحث عن سدر، سمر، شمع أو هدية', suffixIcon: Icon(Icons.tune_rounded))),
           ]))),
           SliverPadding(padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg), sliver: SliverToBoxAdapter(child: FutureBuilder<AssalLoadState<List<AssalBannerSummary>>>(future: bannersFuture, builder: (context, snapshot) {
-            if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading(height: 210);
+            if (snapshot.hasError) return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.', onRetry: _refresh); if (!snapshot.hasData) return const AssalGlassLoading(height: 210);
             return AssalStateView<List<AssalBannerSummary>>(state: snapshot.data!, onRetry: _refresh, builder: (banners) => _BannersCarousel(banners: banners, onExplore: widget.onOpenSearch));
           }))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: SectionHeader(title: 'استكشف حسب التصنيف', actionLabel: 'كل التصنيفات', onAction: widget.onOpenSearch))),
           SliverToBoxAdapter(child: SizedBox(height: 92, child: FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(future: taxonomyFuture, builder: (context, snapshot) {
-            if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading(height: 92);
+            if (snapshot.hasError) return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.', onRetry: _refresh); if (!snapshot.hasData) return const AssalGlassLoading(height: 92);
             return AssalStateView<List<AssalTaxonomy>>(state: snapshot.data!, builder: (items) => ListView.separated(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg), itemCount: items.length, separatorBuilder: (_, __) => const SizedBox(width: AssalSpacing.sm), itemBuilder: (_, index) => _CategoryTile(item: items[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: widget.repository, initialSubcategoryId: items[index].id))))));
           }))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: SectionHeader(title: 'منتجات مختارة', actionLabel: 'عرض الكل', onAction: widget.onOpenSearch))),
           SliverPadding(padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg), sliver: SliverToBoxAdapter(child: FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(future: featuredFuture, builder: (context, snapshot) {
-            if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading(height: 300);
+            if (snapshot.hasError) return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.', onRetry: _refresh); if (!snapshot.hasData) return const AssalGlassLoading(height: 300);
             return AssalStateView<List<AssalProductSummary>>(state: snapshot.data!, onRetry: _refresh, builder: (products) => GridView.builder(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 220, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68), itemCount: products.length > 6 ? 6 : products.length, itemBuilder: (_, index) => ProductCard(product: products[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ProductDetailScreen(repository: widget.repository, productId: products[index].id))))));
           }))),
-          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'الأكثر مشاهدة', future: popularFuture))),
-          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'وصل حديثًا', future: newProductsFuture))),
-          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'من متاجر موثقة', future: verifiedProductsFuture))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'الأكثر مشاهدة', future: popularFuture, onRetry: _refresh))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'وصل حديثًا', future: newProductsFuture, onRetry: _refresh))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'من متاجر موثقة', future: verifiedProductsFuture, onRetry: _refresh))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: SectionHeader(title: 'متاجر موثوقة', actionLabel: 'عرض المتاجر', onAction: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StoresScreen(repository: widget.repository)))))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, 0, AssalSpacing.lg, AssalSpacing.xl), sliver: SliverToBoxAdapter(child: FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(future: storesFuture, builder: (context, snapshot) {
-            if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading(height: 100);
+            if (snapshot.hasError) return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.', onRetry: _refresh); if (!snapshot.hasData) return const AssalGlassLoading(height: 100);
             return AssalStateView<List<AssalStoreSummary>>(
               state: snapshot.data!,
               builder: (stores) => Column(
@@ -104,8 +120,15 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }))),
           const SliverToBoxAdapter(child: SizedBox(height: AssalSpacing.xl)),
-        ]),
+            ]);
+          },
+        ),
       );
+
+  Widget _loadingBody() => CustomScrollView(slivers: [
+        SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.md, AssalSpacing.lg, 0), sliver: SliverToBoxAdapter(child: _Header(repository: widget.repository, notificationsFuture: notificationsFuture, onOpenNotifications: widget.onOpenNotifications))),
+        const SliverFillRemaining(hasScrollBody: false, child: Padding(padding: EdgeInsets.all(AssalSpacing.lg), child: AssalGlassLoading(height: 520, label: 'جارٍ تحميل الصفحة والمنتجات...'))),
+      ]);
 }
 
 class _Header extends StatelessWidget {
@@ -210,10 +233,11 @@ class _CategoryTile extends StatelessWidget {
 }
 
 class _ProductRail extends StatelessWidget {
-  const _ProductRail({required this.repository, required this.title, required this.future});
+  const _ProductRail({required this.repository, required this.title, required this.future, this.onRetry});
   final AssalRepository repository;
   final String title;
   final Future<AssalLoadState<List<AssalProductSummary>>> future;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -224,7 +248,7 @@ class _ProductRail extends StatelessWidget {
           child: FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
             future: future,
             builder: (context, snapshot) {
-              if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading();
+              if (snapshot.hasError) return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.', onRetry: onRetry); if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalProductSummary>>(
                 state: snapshot.data!,
                 builder: (products) => ListView.separated(
@@ -251,7 +275,7 @@ class CategoriesScreen extends StatelessWidget {
       body: FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
         future: repository.listTaxonomy(),
         builder: (context, snapshot) {
-          if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading();
+          if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل التصنيفات الآن.'); if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalTaxonomy>>(
             state: snapshot.data!,
             builder: (items) => ListView.separated(
@@ -390,7 +414,7 @@ class _SearchScreenState extends State<SearchScreen> {
               FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
                 future: productsFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading(height: 300);
+                  if (snapshot.hasError) return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل المنتجات الآن. تحقق من الاتصال ثم أعد المحاولة.', onRetry: _applySearch); if (!snapshot.hasData) return const AssalGlassLoading(height: 300);
                   return AssalStateView<List<AssalProductSummary>>(
                     state: snapshot.data!,
                     onRetry: _applySearch,
@@ -415,7 +439,7 @@ class _SearchScreenState extends State<SearchScreen> {
               FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
                 future: storesFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading(height: 120);
+                  if (snapshot.hasError) return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل المتاجر الآن. تحقق من الاتصال ثم أعد المحاولة.', onRetry: _applySearch); if (!snapshot.hasData) return const AssalGlassLoading(height: 120);
                   return AssalStateView<List<AssalStoreSummary>>(
                     state: snapshot.data!,
                     builder: (stores) => Column(
@@ -493,7 +517,7 @@ class StoresScreen extends StatelessWidget {
       body: FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
         future: repository.listStores(),
         builder: (context, snapshot) {
-          if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading();
+          if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل المتاجر الآن.'); if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalStoreSummary>>(
             state: snapshot.data!,
             builder: (stores) => ListView(

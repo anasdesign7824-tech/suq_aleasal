@@ -1,13 +1,16 @@
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:assalkom_data/assal_repository.dart';
 
 class SupabaseAuthGateway implements AssalAuthGateway {
-  SupabaseAuthGateway({required this.client, this.androidRedirect = 'com.assalkom.assalkom://login-callback/'});
+  SupabaseAuthGateway({required this.client, this.androidRedirect = 'com.assalkom.assalkom://login-callback/', this.googleServerClientId = const String.fromEnvironment('ASSALKOM_GOOGLE_WEB_CLIENT_ID')});
 
   final SupabaseClient client;
   final String androidRedirect;
+  final String googleServerClientId;
+  GoogleSignIn? _googleSignIn;
 
   @override
   Future<AssalAuthIdentity?> currentIdentity() async => _identity(client.auth.currentUser);
@@ -43,7 +46,40 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   }
 
   @override
-  Future<AssalAuthIdentity?> signInWithGoogle() => _oauth(OAuthProvider.google, 'Google');
+  Future<AssalAuthIdentity?> signInWithGoogle() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return _oauth(OAuthProvider.google, 'Google');
+    return _nativeGoogleSignIn();
+  }
+
+  Future<AssalAuthIdentity?> _nativeGoogleSignIn() async {
+    if (googleServerClientId.isEmpty) {
+      throw const AssalAuthFailure('إعداد Google native غير مكتمل: أضف Web Client ID في build defines.', code: 'google_server_client_id_missing');
+    }
+    try {
+      final signIn = _googleSignIn ??= GoogleSignIn.instance;
+      await signIn.initialize(serverClientId: googleServerClientId);
+      final account = await signIn.authenticate();
+      final idToken = account.authentication.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        throw const AssalAuthFailure('لم يُرجع Google رمز الهوية. تحقق من Client IDs وبصمة Android.', code: 'google_id_token_missing');
+      }
+      final response = await client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
+      return _identity(response.user);
+    } on AssalAuthFailure {
+      rethrow;
+    } on GoogleSignInException catch (error) {
+      throw AssalAuthFailure(_googleMessage(error), code: error.code.name);
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error), code: error.statusCode ?? error.code);
+    }
+  }
+
+  String _googleMessage(GoogleSignInException error) => switch (error.code) {
+        GoogleSignInExceptionCode.canceled => 'ألغيت عملية اختيار حساب Google.',
+        GoogleSignInExceptionCode.clientConfigurationError => 'إعداد Google Android غير صحيح. تحقق من Client ID وبصمة SHA-1.',
+        GoogleSignInExceptionCode.providerConfigurationError => 'مزود Google غير مهيأ في Supabase.',
+        _ => error.description?.isNotEmpty == true ? error.description! : 'تعذر تسجيل الدخول عبر Google.',
+      };
 
   @override
   Future<AssalAuthIdentity?> signInWithFacebook() => _oauth(OAuthProvider.facebook, 'Facebook');
