@@ -209,7 +209,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68),
                       itemCount: products.length,
-                      itemBuilder: (_, index) => ProductCard(product: products[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ProductDetailScreen(repository: widget.repository, productId: products[index].id))),
+                      itemBuilder: (_, index) {
+                        final product = products[index];
+                        return ProductCard(
+                          product: product,
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ProductDetailScreen(repository: widget.repository, productId: product.id))),
+                        );
+                      },
                     ),
                   );
                 },
@@ -424,11 +430,65 @@ class _ReviewsSection extends StatefulWidget {
 }
 class _ReviewsSectionState extends State<_ReviewsSection> {
   late Future<AssalLoadState<List<AssalReviewSummary>>> future;
+
   @override
-  void initState() { super.initState(); future = widget.repository.listReviews(widget.product.id); }
+  void initState() {
+    super.initState();
+    future = widget.repository.listReviews(widget.product.id);
+  }
+
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [SectionHeader(title: 'المراجعات'), FutureBuilder<AssalLoadState<List<AssalReviewSummary>>>(future: future, builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<List<AssalReviewSummary>>(state: snapshot.data!, builder: (reviews) => Column(children: reviews.map((review) => Card(child: ListTile(leading: const CircleAvatar(child: Icon(Icons.person_outline)), title: Row(children: [Text(review.authorName ?? 'عميل'), const SizedBox(width: AssalSpacing.sm), RatingStars(rating: review.rating.toDouble())]), subtitle: Text(review.body ?? 'تجربة موثقة'))).toList())); }), const SizedBox(height: AssalSpacing.sm), OutlinedButton.icon(onPressed: () => _writeReview(), icon: const Icon(Icons.rate_review_outlined), label: const Text('أضف مراجعتك'))]);
-  Future<void> _writeReview() async { final allowed = await requireAuth(context, widget.repository); if (!allowed || !mounted) return; final body = TextEditingController(); var rating = 5; final submit = await showDialog<bool>(context: context, builder: (dialogContext) => StatefulBuilder(builder: (context, setModal) => AlertDialog(title: const Text('مراجعتك'), content: Column(mainAxisSize: MainAxisSize.min, children: [DropdownButtonFormField<int>(value: rating, items: [1, 2, 3, 4, 5].map((item) => DropdownMenuItem(value: item, child: Text('$item نجوم'))).toList(), onChanged: (value) => setModal(() => rating = value ?? 5)), TextField(controller: body, maxLines: 3, decoration: const InputDecoration(hintText: 'شارك ما يفيد الآخرين'))]), actions: [TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('إلغاء')), FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('نشر'))]))); if (submit == true && body.text.trim().isNotEmpty) { await widget.repository.createReview('demo-customer', AssalReviewDraft(productId: widget.product.id, storeId: widget.product.storeId, rating: rating, body: body.text.trim())); if (mounted) setState(() => future = widget.repository.listReviews(widget.product.id)); } body.dispose(); }
+  Widget build(BuildContext context) {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const SectionHeader(title: 'المراجعات'),
+      FutureBuilder<AssalLoadState<List<AssalReviewSummary>>>(
+        future: future,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          return AssalStateView<List<AssalReviewSummary>>(
+            state: snapshot.data!,
+            builder: (reviews) => Column(
+              children: reviews.map<Widget>((review) => Card(
+                child: ListTile(
+                  leading: const CircleAvatar(child: Icon(Icons.person_outline)),
+                  title: Row(children: [Text(review.authorName ?? 'عميل'), const SizedBox(width: AssalSpacing.sm), RatingStars(rating: review.rating.toDouble())]),
+                  subtitle: Text(review.body ?? 'تجربة موثقة'),
+                ),
+              )).toList(),
+            ),
+          );
+        },
+      ),
+      const SizedBox(height: AssalSpacing.sm),
+      OutlinedButton.icon(onPressed: _writeReview, icon: const Icon(Icons.rate_review_outlined), label: const Text('أضف مراجعتك')),
+    ]);
+  }
+
+  Future<void> _writeReview() async {
+    final allowed = await requireAuth(context, widget.repository);
+    if (!allowed || !mounted) return;
+    final body = TextEditingController();
+    var rating = 5;
+    final submit = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(builder: (context, setModal) => AlertDialog(
+        title: const Text('مراجعتك'),
+        content: Column(mainAxisSize: MainAxisSize.min, children: [
+          DropdownButtonFormField<int>(value: rating, items: [1, 2, 3, 4, 5].map<DropdownMenuItem<int>>((item) => DropdownMenuItem(value: item, child: Text('$item نجوم'))).toList(), onChanged: (value) => setModal(() => rating = value ?? 5)),
+          TextField(controller: body, maxLines: 3, decoration: const InputDecoration(hintText: 'شارك ما يفيد الآخرين')),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('إلغاء')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('نشر')),
+        ],
+      )),
+    );
+    if (submit == true && body.text.trim().isNotEmpty) {
+      await widget.repository.createReview('demo-customer', AssalReviewDraft(productId: widget.product.id, storeId: widget.product.storeId, rating: rating, body: body.text.trim()));
+      if (mounted) setState(() => future = widget.repository.listReviews(widget.product.id));
+    }
+    body.dispose();
+  }
 }
 
 class _CommentsSection extends StatefulWidget {
