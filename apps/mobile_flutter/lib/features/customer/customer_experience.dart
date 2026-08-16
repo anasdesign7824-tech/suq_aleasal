@@ -228,7 +228,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   if (!snapshot.hasData) return const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()));
                   return AssalStateView<List<AssalStoreSummary>>(
                     state: snapshot.data!,
-                    builder: (stores) => Column(children: stores.map<Widget>((store) => StoreCard(store: store, onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StoreProfileScreen(repository: widget.repository, storeId: store.id)))).toList()),
+                    builder: (stores) => Column(
+                      children: stores.map<Widget>((store) {
+                        return StoreCard(
+                          store: store,
+                          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StoreProfileScreen(repository: widget.repository, storeId: store.id))),
+                        );
+                      }).toList(),
+                    ),
                   );
                 },
               ),
@@ -259,8 +266,8 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('تصفية النتائج', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
           const SizedBox(height: AssalSpacing.md),
-          DropdownButtonFormField<ProductType?>(value: draftType, decoration: const InputDecoration(labelText: 'نوع المنتج'), items: typeItems, onChanged: (value) => setModalState(() => draftType = value)),
-          DropdownButtonFormField<int?>(value: draftGrade, decoration: const InputDecoration(labelText: 'درجة الجودة'), items: gradeItems, onChanged: (value) => setModalState(() => draftGrade = value)),
+          DropdownButtonFormField<ProductType?>(initialValue: draftType, decoration: const InputDecoration(labelText: 'نوع المنتج'), items: typeItems, onChanged: (value) => setModalState(() => draftType = value)),
+          DropdownButtonFormField<int?>(initialValue: draftGrade, decoration: const InputDecoration(labelText: 'درجة الجودة'), items: gradeItems, onChanged: (value) => setModalState(() => draftGrade = value)),
           SwitchListTile(value: draftVerified, onChanged: (value) => setModalState(() => draftVerified = value), title: const Text('المتاجر الموثقة فقط')),
           const SizedBox(height: AssalSpacing.md),
           SizedBox(width: double.infinity, child: FilledButton(onPressed: () { gradeLevel = draftGrade; productType = draftType; verifiedOnly = draftVerified; Navigator.pop(sheetContext, true); }, child: const Text('تطبيق الفلاتر'))),
@@ -277,7 +284,29 @@ class StoresScreen extends StatelessWidget {
   const StoresScreen({super.key, required this.repository});
   final AssalRepository repository;
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('المتاجر')), body: FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(future: repository.listStores(), builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<List<AssalStoreSummary>>(state: snapshot.data!, builder: (stores) => ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: stores.map((store) => StoreCard(store: store, onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StoreProfileScreen(repository: repository, storeId: store.id)))).toList())); }));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('المتاجر')),
+      body: FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
+        future: repository.listStores(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          return AssalStateView<List<AssalStoreSummary>>(
+            state: snapshot.data!,
+            builder: (stores) => ListView(
+              padding: const EdgeInsets.all(AssalSpacing.lg),
+              children: stores.map<Widget>((store) {
+                return StoreCard(
+                  store: store,
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StoreProfileScreen(repository: repository, storeId: store.id))),
+                );
+              }).toList(),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class ProductDetailScreen extends StatefulWidget {
@@ -474,7 +503,7 @@ class _ReviewsSectionState extends State<_ReviewsSection> {
       builder: (dialogContext) => StatefulBuilder(builder: (context, setModal) => AlertDialog(
         title: const Text('مراجعتك'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
-          DropdownButtonFormField<int>(value: rating, items: [1, 2, 3, 4, 5].map<DropdownMenuItem<int>>((item) => DropdownMenuItem(value: item, child: Text('$item نجوم'))).toList(), onChanged: (value) => setModal(() => rating = value ?? 5)),
+          DropdownButtonFormField<int>(initialValue: rating, items: [1, 2, 3, 4, 5].map<DropdownMenuItem<int>>((item) => DropdownMenuItem(value: item, child: Text('$item نجوم'))).toList(), onChanged: (value) => setModal(() => rating = value ?? 5)),
           TextField(controller: body, maxLines: 3, decoration: const InputDecoration(hintText: 'شارك ما يفيد الآخرين')),
         ]),
         actions: [
