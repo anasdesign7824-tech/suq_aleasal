@@ -28,6 +28,20 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() async {
+    final rows = await _gateway.select('banners', filters: const {'is_active': true});
+    final values = rows.map(AssalBannerSummary.fromJson).toList(growable: false)..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return _state(values, 'لا توجد حملات استكشاف متاحة');
+  }
+
+  @override
+  Future<AssalLoadState<List<String>>> listPopularSearches() async {
+    final rows = await _gateway.select('popular_searches', filters: const {'is_active': true});
+    final values = rows.map((row) => row['term_ar']).whereType<String>().toList(growable: false);
+    return _state(values, 'لا توجد اقتراحات بحث متاحة');
+  }
+
+  @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listStores({String? regionId}) async {
     final rows = await _gateway.select('stores', filters: {'status': 'active', if (regionId != null) 'region_id': regionId});
     final values = rows.map(AssalStoreSummary.fromJson).toList(growable: false);

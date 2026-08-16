@@ -113,6 +113,42 @@
       "name_ar": "صنعاء",
       "name_en": "Sana'a",
       "code": "SN"
+    },
+    {
+      "id": "region-taiz",
+      "name_ar": "تعز",
+      "name_en": "Taiz",
+      "code": "TZ"
+    },
+    {
+      "id": "region-marib",
+      "name_ar": "مأرب",
+      "name_en": "Marib",
+      "code": "MB"
+    },
+    {
+      "id": "region-hajjah",
+      "name_ar": "حجة",
+      "name_en": "Hajjah",
+      "code": "HJ"
+    },
+    {
+      "id": "region-ibb",
+      "name_ar": "إب",
+      "name_en": "Ibb",
+      "code": "IB"
+    },
+    {
+      "id": "region-dhamar",
+      "name_ar": "ذمار",
+      "name_en": "Dhamar",
+      "code": "DH"
+    },
+    {
+      "id": "region-almahrah",
+      "name_ar": "المهرة",
+      "name_en": "Al Mahrah",
+      "code": "MH"
     }
   ],
   "stores": [
@@ -154,6 +190,326 @@
       "is_verified": false,
       "status": "active",
       "followers_count": 54
+    },
+    {
+      "id": "demo-store-taiz",
+      "merchant_id": "demo-merchant-taiz",
+      "name_ar": "مناحل جبل صبر",
+      "slug": "manahil-jabal-sabr",
+      "description": "عسل جبلي من مدرجات تعز، مع توثيق القطفة وخيارات شحن مرنة.",
+      "region_id": "region-taiz",
+      "logo_url": "assets/brand/logo-internal-runtime.svg",
+      "cover_url": "assets/brand/logo-internal-runtime.svg",
+      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "is_verified": true,
+      "status": "active",
+      "followers_count": 118,
+      "rating_average": 4.6,
+      "review_count": 12,
+      "years_experience": 9,
+      "merchant_name_ar": "فريق مناحل جبل صبر",
+      "specialties": [
+        "سدر جبلي",
+        "عسل حمضيات",
+        "هدايا تعزية"
+      ],
+      "certifications": [
+        "فحص مصدر",
+        "هوية متجر"
+      ],
+      "gallery_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "social_links": {
+        "whatsapp": "+967700000000",
+        "instagram": "@assalkom_demo"
+      },
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "مناحل جبل صبر — نقطة الاستلام"
+      ],
+      "contact_phone": "+967700000000",
+      "contact_whatsapp": "+967700000000"
+    },
+    {
+      "id": "demo-store-marib",
+      "merchant_id": "demo-merchant-marib",
+      "name_ar": "مراعي مأرب للعسل",
+      "slug": "marai-marib-honey",
+      "description": "منتجات سمر ومراعي مأرب من النحال إلى الباحث عن المصدر.",
+      "region_id": "region-marib",
+      "logo_url": "assets/brand/logo-internal-runtime.svg",
+      "cover_url": "assets/brand/logo-internal-runtime.svg",
+      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "is_verified": true,
+      "status": "active",
+      "followers_count": 203,
+      "rating_average": 4.6,
+      "review_count": 15,
+      "years_experience": 12,
+      "merchant_name_ar": "فريق مراعي مأرب للعسل",
+      "specialties": [
+        "سمر مأربي",
+        "خلطات الطاقة",
+        "تجهيز المناسبات"
+      ],
+      "certifications": [
+        "فحص مصدر",
+        "هوية متجر"
+      ],
+      "gallery_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "social_links": {
+        "whatsapp": "+967700000000",
+        "instagram": "@assalkom_demo"
+      },
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "مراعي مأرب للعسل — نقطة الاستلام"
+      ],
+      "contact_phone": "+967700000000",
+      "contact_whatsapp": "+967700000000"
+    },
+    {
+      "id": "demo-store-hajjah",
+      "merchant_id": "demo-merchant-hajjah",
+      "name_ar": "عسل تهامة وحجة",
+      "slug": "honey-tihama-hajjah",
+      "description": "متجر محلي متخصص في الأعسال الساحلية والجبال الغربية.",
+      "region_id": "region-hajjah",
+      "logo_url": "assets/brand/logo-internal-runtime.svg",
+      "cover_url": "assets/brand/logo-internal-runtime.svg",
+      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "is_verified": true,
+      "status": "active",
+      "followers_count": 76,
+      "rating_average": 4.6,
+      "review_count": 10,
+      "years_experience": 7,
+      "merchant_name_ar": "فريق عسل تهامة وحجة",
+      "specialties": [
+        "سدر تهامي",
+        "شمع بلدي",
+        "منتجات النحل الخام"
+      ],
+      "certifications": [
+        "فحص مصدر",
+        "هوية متجر"
+      ],
+      "gallery_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "social_links": {
+        "whatsapp": "+967700000000",
+        "instagram": "@assalkom_demo"
+      },
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "عسل تهامة وحجة — نقطة الاستلام"
+      ],
+      "contact_phone": "+967700000000",
+      "contact_whatsapp": "+967700000000"
+    },
+    {
+      "id": "demo-store-ibb",
+      "merchant_id": "demo-merchant-ibb",
+      "name_ar": "روضة إب للعسل",
+      "slug": "rawdat-ibb-honey",
+      "description": "أعسال الحمضيات والزهور من وديان إب الخضراء.",
+      "region_id": "region-ibb",
+      "logo_url": "assets/brand/logo-internal-runtime.svg",
+      "cover_url": "assets/brand/logo-internal-runtime.svg",
+      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "is_verified": false,
+      "status": "active",
+      "followers_count": 64,
+      "rating_average": 4.2,
+      "review_count": 8,
+      "years_experience": 5,
+      "merchant_name_ar": "فريق روضة إب للعسل",
+      "specialties": [
+        "حمضيات إب",
+        "عسل الزهور",
+        "عبوات الضيافة"
+      ],
+      "certifications": [
+        "بيانات متجر"
+      ],
+      "gallery_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "social_links": {
+        "whatsapp": "+967700000000",
+        "instagram": "@assalkom_demo"
+      },
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "روضة إب للعسل — نقطة الاستلام"
+      ],
+      "contact_phone": "+967700000000",
+      "contact_whatsapp": "+967700000000"
+    },
+    {
+      "id": "demo-store-dhamar",
+      "merchant_id": "demo-merchant-dhamar",
+      "name_ar": "نحالون من ذمار",
+      "slug": "beekeepers-dhamar",
+      "description": "تعاون نحالين يقدم منتجات موثقة وتواصلًا مباشرًا.",
+      "region_id": "region-dhamar",
+      "logo_url": "assets/brand/logo-internal-runtime.svg",
+      "cover_url": "assets/brand/logo-internal-runtime.svg",
+      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "is_verified": true,
+      "status": "active",
+      "followers_count": 91,
+      "rating_average": 4.6,
+      "review_count": 11,
+      "years_experience": 8,
+      "merchant_name_ar": "فريق نحالون من ذمار",
+      "specialties": [
+        "عسل جبلي",
+        "حبوب لقاح",
+        "عكبر"
+      ],
+      "certifications": [
+        "فحص مصدر",
+        "هوية متجر"
+      ],
+      "gallery_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "social_links": {
+        "whatsapp": "+967700000000",
+        "instagram": "@assalkom_demo"
+      },
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نحالون من ذمار — نقطة الاستلام"
+      ],
+      "contact_phone": "+967700000000",
+      "contact_whatsapp": "+967700000000"
+    },
+    {
+      "id": "demo-store-almahrah",
+      "merchant_id": "demo-merchant-almahrah",
+      "name_ar": "كنوز المهرة النحلية",
+      "slug": "almahrah-bee-treasures",
+      "description": "عسل مراعي الشرق اليمني ومنتجات نحلية مختارة.",
+      "region_id": "region-almahrah",
+      "logo_url": "assets/brand/logo-internal-runtime.svg",
+      "cover_url": "assets/brand/logo-internal-runtime.svg",
+      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "is_verified": false,
+      "status": "active",
+      "followers_count": 42,
+      "rating_average": 4.2,
+      "review_count": 7,
+      "years_experience": 4,
+      "merchant_name_ar": "فريق كنوز المهرة النحلية",
+      "specialties": [
+        "أعسال موسمية",
+        "شمع طبيعي",
+        "هدايا تراثية"
+      ],
+      "certifications": [
+        "بيانات متجر"
+      ],
+      "gallery_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "social_links": {
+        "whatsapp": "+967700000000",
+        "instagram": "@assalkom_demo"
+      },
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "كنوز المهرة النحلية — نقطة الاستلام"
+      ],
+      "contact_phone": "+967700000000",
+      "contact_whatsapp": "+967700000000"
+    },
+    {
+      "id": "demo-store-sanhan",
+      "merchant_id": "demo-merchant-sanhan",
+      "name_ar": "مناحل سنحان الحديثة",
+      "slug": "modern-sanhan-apiaries",
+      "description": "مناحل حضرية تجمع بين التوثيق والتعبئة الحديثة.",
+      "region_id": "region-sanaa",
+      "logo_url": "assets/brand/logo-internal-runtime.svg",
+      "cover_url": "assets/brand/logo-internal-runtime.svg",
+      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "is_verified": true,
+      "status": "active",
+      "followers_count": 155,
+      "rating_average": 4.6,
+      "review_count": 13,
+      "years_experience": 10,
+      "merchant_name_ar": "فريق مناحل سنحان الحديثة",
+      "specialties": [
+        "سدر صنعاني",
+        "تعبئة فاخرة",
+        "خلطات عشبية"
+      ],
+      "certifications": [
+        "فحص مصدر",
+        "هوية متجر"
+      ],
+      "gallery_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "social_links": {
+        "whatsapp": "+967700000000",
+        "instagram": "@assalkom_demo"
+      },
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "مناحل سنحان الحديثة — نقطة الاستلام"
+      ],
+      "contact_phone": "+967700000000",
+      "contact_whatsapp": "+967700000000"
     }
   ],
   "products": [
@@ -192,7 +548,43 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "سدر دوعني (حضرموت)",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 298,
+      "likes_count": 18,
+      "rating_average": 4.2,
+      "review_count": 5,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "GOLD-MEDAL",
+        "GUARANTEED",
+        "LAB-TESTED"
+      ],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-sidr-osaimi",
@@ -226,7 +618,42 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "سدر عصيمي (عمران)",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 287,
+      "likes_count": 15,
+      "rating_average": 4.2,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "GUARANTEED",
+        "LAB-TESTED"
+      ],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-sidr-jardani",
@@ -258,7 +685,41 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "سدر جرداني (شبوة)",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 287,
+      "likes_count": 15,
+      "rating_average": 4.2,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "GOLD-MEDAL"
+      ],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-sidr-jabali",
@@ -288,7 +749,41 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "سدر جبلي (عام)",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 254,
+      "likes_count": 12,
+      "rating_average": 4.2,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "SEASONAL"
+      ],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-sumur-hadrami",
@@ -320,7 +815,41 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "سمر حضرمي (الطلح)",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 287,
+      "likes_count": 18,
+      "rating_average": 4.2,
+      "review_count": 5,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-talh-najdi",
@@ -346,7 +875,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "طلح نجدي / شمالي",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 276,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-shoka",
@@ -373,7 +934,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "عسل الشوكة (المنوعة)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 320,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-magra",
@@ -402,7 +995,42 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "عسل المجرى (المنفوش)",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 320,
+      "likes_count": 12,
+      "rating_average": 4.2,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "GOLD-MEDAL",
+        "SEASONAL"
+      ],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-white-jabali",
@@ -428,7 +1056,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "العسل الجبلي الأبيض",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 309,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-russian-white",
@@ -454,7 +1114,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "عسل أبيض (مستورد - روسي/قرغيزي)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 441,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-sal",
@@ -482,7 +1174,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "عسل الصال (الحراق)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 298,
+      "likes_count": 15,
+      "rating_average": 4.0,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-salam",
@@ -509,7 +1233,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "عسل السلام (السلم)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 298,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-soreb",
@@ -534,7 +1290,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "عسل الصورب (موسمي)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 298,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-prod-billa",
@@ -559,7 +1347,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "عسل البلة",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 199,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-wax-sidr-doani",
@@ -585,7 +1405,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "شمع سدر دوعني ملكي",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 298,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-wax-sidr-osaimi",
@@ -610,7 +1462,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "شمع سدر عصيمي فاخر",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 298,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-wax-sumur",
@@ -635,7 +1519,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "شمع سمر بلدي",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 232,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-wax-marai",
@@ -661,7 +1577,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "شمع مراعي (أقراص)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 287,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-wax-meshat",
@@ -684,7 +1632,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "مشط عسل كامل",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 232,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-mix-groom",
@@ -713,7 +1693,39 @@
       "purpose": "طاقة وخصوبة",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "خلطة العريس (الملكية)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 331,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-mix-immunity",
@@ -740,7 +1752,39 @@
       "purpose": "تقوية الجهاز المناعي",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "خلطة المناعة (الوقائية)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 353,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-mix-fat",
@@ -763,7 +1807,39 @@
       "purpose": "زيادة الوزن وفتح الشهية",
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "خلطة التسمين (طبيعية)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 331,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-mix-nuts",
@@ -791,7 +1867,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "عسل بالمكسرات الفاخرة",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 331,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-bee-royal",
@@ -820,7 +1928,39 @@
         "بودرة"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "غذاء ملكات النحل",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 276,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-bee-pollen",
@@ -846,7 +1986,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "حبوب لقاح النحل",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 265,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-bee-propolis",
@@ -873,7 +2045,39 @@
         "سائل"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "العكبر (البروبوليس)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 309,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-bee-wax-raw",
@@ -896,7 +2100,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "شمع النحل الخام (للتصنيع)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 375,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-gift-bag-groom",
@@ -919,7 +2155,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-hadramout",
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "شنطة العريس المتكاملة",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 331,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-gift-box-royal",
@@ -942,7 +2210,39 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-amran",
+      "origin_country": "اليمن",
+      "province_name_ar": "عمران",
+      "honey_identity": "صندوق الهدايا الملكي (خشبي)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 397,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
     },
     {
       "id": "demo-gift-pottery",
@@ -965,10 +2265,1472 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal.svg"
+      "primary_image_url": "assets/brand/logo-internal.svg",
+      "region_id": "region-sanaa",
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "عسل في جرار فخارية (تراثي)",
+      "quality_label_ar": "بيانات مصدر أولية",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-15",
+      "packaged_date": "2026-06-01",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المتجر"
+      ],
+      "views_count": 386,
+      "likes_count": 12,
+      "rating_average": 4.0,
+      "review_count": 3,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [],
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ]
+    },
+    {
+      "id": "demo-prod-citrus-ibb",
+      "source_id": "DEMO-PROD-CITRUS-IBB",
+      "store_id": "demo-store-ibb",
+      "region_id": "region-ibb",
+      "category_id": "CAT-008",
+      "category_name_ar": "قسم أعسال الحمضيات والزهور",
+      "subcategory_id": "SUB-CITRUS",
+      "subcategory_name_ar": "أعسال الحمضيات والزهور",
+      "name_ar": "عسل حمضيات إب",
+      "name_en": null,
+      "description": "عسل حمضيات إب من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "honey",
+      "status": "active",
+      "grade_levels": [
+        1,
+        2
+      ],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "عطري",
+        "قطفة ربيعية"
+      ],
+      "regions": [
+        "إب"
+      ],
+      "components": [],
+      "purpose": "استخدام يومي",
+      "forms": [
+        "سائل"
+      ],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "إب",
+      "honey_identity": "عسل حمضيات إب",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام إب"
+      ],
+      "views_count": 331,
+      "likes_count": 20,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-sidr-tihama",
+      "source_id": "DEMO-PROD-SIDR-TIHAMA",
+      "store_id": "demo-store-hajjah",
+      "region_id": "region-hajjah",
+      "category_id": "CAT-001",
+      "category_name_ar": "قسم العسل الساحلي",
+      "subcategory_id": "SUB-TAHAMA",
+      "subcategory_name_ar": "العسل الساحلي",
+      "name_ar": "سدر تهامي أصيل",
+      "name_en": null,
+      "description": "سدر تهامي أصيل من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "honey",
+      "status": "active",
+      "grade_levels": [
+        1,
+        2
+      ],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "ساحلي",
+        "نادر"
+      ],
+      "regions": [
+        "حجة"
+      ],
+      "components": [],
+      "purpose": "استخدام يومي",
+      "forms": [
+        "سائل"
+      ],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "حجة",
+      "honey_identity": "سدر تهامي أصيل",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام حجة"
+      ],
+      "views_count": 338,
+      "likes_count": 20,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-sidr-midi",
+      "source_id": "DEMO-PROD-SIDR-MIDI",
+      "store_id": "demo-store-hajjah",
+      "region_id": "region-hajjah",
+      "category_id": "CAT-001",
+      "category_name_ar": "قسم العسل الساحلي",
+      "subcategory_id": "SUB-TAHAMA",
+      "subcategory_name_ar": "العسل الساحلي",
+      "name_ar": "سدر ميدي من حجة",
+      "name_en": null,
+      "description": "سدر ميدي من حجة من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "honey",
+      "status": "active",
+      "grade_levels": [
+        2,
+        3
+      ],
+      "badges": [],
+      "tags": [
+        "طعم متوازن"
+      ],
+      "regions": [
+        "حجة"
+      ],
+      "components": [],
+      "purpose": "استخدام يومي",
+      "forms": [
+        "سائل"
+      ],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "حجة",
+      "honey_identity": "سدر ميدي من حجة",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام حجة"
+      ],
+      "views_count": 345,
+      "likes_count": 19,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-sumur-marib",
+      "source_id": "DEMO-PROD-SUMUR-MARIB",
+      "store_id": "demo-store-marib",
+      "region_id": "region-marib",
+      "category_id": "CAT-001",
+      "category_name_ar": "قسم عسل السمر المأربي",
+      "subcategory_id": "SUB-SUMUR-MARIB",
+      "subcategory_name_ar": "عسل السمر المأربي",
+      "name_ar": "سمر مأربي موسمي",
+      "name_en": null,
+      "description": "سمر مأربي موسمي من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "honey",
+      "status": "active",
+      "grade_levels": [
+        1,
+        2
+      ],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "قوي المذاق",
+        "موسمي"
+      ],
+      "regions": [
+        "مأرب"
+      ],
+      "components": [],
+      "purpose": "استخدام يومي",
+      "forms": [
+        "سائل"
+      ],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "مأرب",
+      "honey_identity": "سمر مأربي موسمي",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام مأرب"
+      ],
+      "views_count": 345,
+      "likes_count": 20,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-coffee-honey",
+      "source_id": "DEMO-PROD-COFFEE-HONEY",
+      "store_id": "demo-store-sanhan",
+      "region_id": "region-sanaa",
+      "category_id": "CAT-007",
+      "category_name_ar": "قسم خلطات القهوة والعسل",
+      "subcategory_id": "SUB-COFFEE",
+      "subcategory_name_ar": "خلطات القهوة والعسل",
+      "name_ar": "عسل بنكهة البن اليمني",
+      "name_en": null,
+      "description": "عسل بنكهة البن اليمني من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "honey",
+      "status": "active",
+      "grade_levels": [
+        2,
+        3
+      ],
+      "badges": [],
+      "tags": [
+        "بن يمني",
+        "هدية"
+      ],
+      "regions": [
+        "صنعاء"
+      ],
+      "components": [],
+      "purpose": "استخدام يومي",
+      "forms": [
+        "سائل"
+      ],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "عسل بنكهة البن اليمني",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام صنعاء"
+      ],
+      "views_count": 387,
+      "likes_count": 20,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-sesame-jawf",
+      "source_id": "DEMO-PROD-SESAME-JAWF",
+      "store_id": "demo-store-marib",
+      "region_id": "region-marib",
+      "category_id": "CAT-009",
+      "category_name_ar": "قسم أعسال المراعي الجبلية",
+      "subcategory_id": "SUB-MARAI",
+      "subcategory_name_ar": "أعسال المراعي الجبلية",
+      "name_ar": "عسل سمسم الجوف",
+      "name_en": null,
+      "description": "عسل سمسم الجوف من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "honey",
+      "status": "active",
+      "grade_levels": [
+        2,
+        3
+      ],
+      "badges": [],
+      "tags": [
+        "موسمي"
+      ],
+      "regions": [
+        "مأرب"
+      ],
+      "components": [],
+      "purpose": "استخدام يومي",
+      "forms": [
+        "سائل"
+      ],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "مأرب",
+      "honey_identity": "عسل سمسم الجوف",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام مأرب"
+      ],
+      "views_count": 338,
+      "likes_count": 19,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-mountain-flower",
+      "source_id": "DEMO-PROD-MOUNTAIN-FLOWER",
+      "store_id": "demo-store-taiz",
+      "region_id": "region-taiz",
+      "category_id": "CAT-009",
+      "category_name_ar": "قسم أعسال المراعي الجبلية",
+      "subcategory_id": "SUB-FLOWER",
+      "subcategory_name_ar": "أعسال المراعي الجبلية",
+      "name_ar": "عسل أزهار جبل صبر",
+      "name_en": null,
+      "description": "عسل أزهار جبل صبر من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "honey",
+      "status": "active",
+      "grade_levels": [
+        1,
+        2
+      ],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "زهور برية",
+        "جبلي"
+      ],
+      "regions": [
+        "تعز"
+      ],
+      "components": [],
+      "purpose": "استخدام يومي",
+      "forms": [
+        "سائل"
+      ],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "تعز",
+      "honey_identity": "عسل أزهار جبل صبر",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "مصفى يدويًا",
+      "processing_status_ar": "خام غير مسخن",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام تعز"
+      ],
+      "views_count": 359,
+      "likes_count": 20,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-zahr-wax",
+      "source_id": "DEMO-PROD-ZAHR-WAX",
+      "store_id": "demo-store-almahrah",
+      "region_id": "region-almahrah",
+      "category_id": "CAT-002",
+      "category_name_ar": "قسم الشمع الطبيعي",
+      "subcategory_id": "SUB-WAX-FLOWER",
+      "subcategory_name_ar": "الشمع الطبيعي",
+      "name_ar": "شمع زهر طبيعي",
+      "name_en": null,
+      "description": "شمع زهر طبيعي من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "wax",
+      "status": "active",
+      "grade_levels": [
+        2
+      ],
+      "badges": [],
+      "tags": [
+        "شمع طبيعي"
+      ],
+      "regions": [
+        "المهرة"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "المهرة",
+      "honey_identity": "شمع زهر طبيعي",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المهرة"
+      ],
+      "views_count": 331,
+      "likes_count": 19,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-wax-hadrami",
+      "source_id": "DEMO-PROD-WAX-HADRAMI",
+      "store_id": "demo-store-hajjah",
+      "region_id": "region-hadramout",
+      "category_id": "CAT-002",
+      "category_name_ar": "قسم الشمع الطبيعي",
+      "subcategory_id": "SUB-WAX-LOCAL",
+      "subcategory_name_ar": "الشمع الطبيعي",
+      "name_ar": "شمع بلدي حضرمي",
+      "name_en": null,
+      "description": "شمع بلدي حضرمي من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "wax",
+      "status": "active",
+      "grade_levels": [
+        1,
+        2
+      ],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "بلدي"
+      ],
+      "regions": [
+        "حضرموت"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "حضرموت",
+      "honey_identity": "شمع بلدي حضرمي",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام حضرموت"
+      ],
+      "views_count": 338,
+      "likes_count": 19,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-mix-blackseed",
+      "source_id": "DEMO-PROD-MIX-BLACKSEED",
+      "store_id": "demo-store-sanhan",
+      "region_id": "region-sanaa",
+      "category_id": "CAT-010",
+      "category_name_ar": "قسم الخلطات العشبية",
+      "subcategory_id": "SUB-HERBAL",
+      "subcategory_name_ar": "الخلطات العشبية",
+      "name_ar": "خلطة العسل والحبة السوداء",
+      "name_en": null,
+      "description": "خلطة العسل والحبة السوداء من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "mix",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "وقاية",
+        "خلطة شعبية"
+      ],
+      "regions": [
+        "صنعاء"
+      ],
+      "components": [
+        "عسل يمني"
+      ],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "خلطة العسل والحبة السوداء",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام صنعاء"
+      ],
+      "views_count": 415,
+      "likes_count": 20,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-mix-ginger",
+      "source_id": "DEMO-PROD-MIX-GINGER",
+      "store_id": "demo-store-taiz",
+      "region_id": "region-taiz",
+      "category_id": "CAT-010",
+      "category_name_ar": "قسم الخلطات العشبية",
+      "subcategory_id": "SUB-HERBAL",
+      "subcategory_name_ar": "الخلطات العشبية",
+      "name_ar": "خلطة العسل والزنجبيل والقرفة",
+      "name_en": null,
+      "description": "خلطة العسل والزنجبيل والقرفة من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "mix",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "شتوية",
+        "منشطة"
+      ],
+      "regions": [
+        "تعز"
+      ],
+      "components": [
+        "عسل يمني"
+      ],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "تعز",
+      "honey_identity": "خلطة العسل والزنجبيل والقرفة",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام تعز"
+      ],
+      "views_count": 436,
+      "likes_count": 20,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-mix-royal",
+      "source_id": "DEMO-PROD-MIX-ROYAL",
+      "store_id": "demo-store-marib",
+      "region_id": "region-marib",
+      "category_id": "CAT-010",
+      "category_name_ar": "قسم الخلطات العشبية",
+      "subcategory_id": "SUB-HERBAL",
+      "subcategory_name_ar": "الخلطات العشبية",
+      "name_ar": "خلطة الطاقة الملكية",
+      "name_en": null,
+      "description": "خلطة الطاقة الملكية من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "mix",
+      "status": "active",
+      "grade_levels": [
+        1
+      ],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "غذاء ملكات",
+        "طاقة"
+      ],
+      "regions": [
+        "مأرب"
+      ],
+      "components": [
+        "عسل يمني"
+      ],
+      "purpose": null,
+      "forms": [],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "مأرب",
+      "honey_identity": "خلطة الطاقة الملكية",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام مأرب"
+      ],
+      "views_count": 373,
+      "likes_count": 20,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-royal-fresh",
+      "source_id": "DEMO-PROD-ROYAL-FRESH",
+      "store_id": "demo-store-dhamar",
+      "region_id": "region-dhamar",
+      "category_id": "CAT-011",
+      "category_name_ar": "قسم المكملات النحلية",
+      "subcategory_id": "SUB-SUPPLEMENTS",
+      "subcategory_name_ar": "المكملات النحلية",
+      "name_ar": "غذاء ملكات طازج",
+      "name_en": null,
+      "description": "غذاء ملكات طازج من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "raw",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "طازج",
+        "نحلي"
+      ],
+      "regions": [
+        "ذمار"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "ذمار",
+      "honey_identity": "غذاء ملكات طازج",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام ذمار"
+      ],
+      "views_count": 345,
+      "likes_count": 20,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-pollen-local",
+      "source_id": "DEMO-PROD-POLLEN-LOCAL",
+      "store_id": "demo-store-dhamar",
+      "region_id": "region-dhamar",
+      "category_id": "CAT-011",
+      "category_name_ar": "قسم المكملات النحلية",
+      "subcategory_id": "SUB-SUPPLEMENTS",
+      "subcategory_name_ar": "المكملات النحلية",
+      "name_ar": "حبوب لقاح محلية",
+      "name_en": null,
+      "description": "حبوب لقاح محلية من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "raw",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "يمني"
+      ],
+      "regions": [
+        "ذمار"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "ذمار",
+      "honey_identity": "حبوب لقاح محلية",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام ذمار"
+      ],
+      "views_count": 345,
+      "likes_count": 19,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-propolis-yemeni",
+      "source_id": "DEMO-PROD-PROPOLIS-YEMENI",
+      "store_id": "demo-store-dhamar",
+      "region_id": "region-dhamar",
+      "category_id": "CAT-011",
+      "category_name_ar": "قسم المكملات النحلية",
+      "subcategory_id": "SUB-PROPOLIS",
+      "subcategory_name_ar": "المكملات النحلية",
+      "name_ar": "عكبر يمني خام",
+      "name_en": null,
+      "description": "عكبر يمني خام من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "raw",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "عكبر",
+        "خام"
+      ],
+      "regions": [
+        "ذمار"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "ذمار",
+      "honey_identity": "عكبر يمني خام",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام ذمار"
+      ],
+      "views_count": 331,
+      "likes_count": 20,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-honey-soap",
+      "source_id": "DEMO-PROD-HONEY-SOAP",
+      "store_id": "demo-store-ibb",
+      "region_id": "region-ibb",
+      "category_id": "CAT-006",
+      "category_name_ar": "قسم العناية الطبيعية",
+      "subcategory_id": "SUB-COSMETIC",
+      "subcategory_name_ar": "العناية الطبيعية",
+      "name_ar": "صابون العسل الطبيعي",
+      "name_en": null,
+      "description": "صابون العسل الطبيعي من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "raw",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "عناية بالبشرة"
+      ],
+      "regions": [
+        "إب"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "إب",
+      "honey_identity": "صابون العسل الطبيعي",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام إب"
+      ],
+      "views_count": 373,
+      "likes_count": 19,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-beeswax-cream",
+      "source_id": "DEMO-PROD-BEESWAX-CREAM",
+      "store_id": "demo-store-almahrah",
+      "region_id": "region-almahrah",
+      "category_id": "CAT-006",
+      "category_name_ar": "قسم العناية الطبيعية",
+      "subcategory_id": "SUB-COSMETIC",
+      "subcategory_name_ar": "العناية الطبيعية",
+      "name_ar": "كريم شمع العسل",
+      "name_en": null,
+      "description": "كريم شمع العسل من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "raw",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "ترطيب"
+      ],
+      "regions": [
+        "المهرة"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "المهرة",
+      "honey_identity": "كريم شمع العسل",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام المهرة"
+      ],
+      "views_count": 338,
+      "likes_count": 19,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-guest-box",
+      "source_id": "DEMO-PROD-GUEST-BOX",
+      "store_id": "demo-store-taiz",
+      "region_id": "region-taiz",
+      "category_id": "CAT-005",
+      "category_name_ar": "قسم هدايا الضيافة",
+      "subcategory_id": "SUB-GIFT-HOSPITALITY",
+      "subcategory_name_ar": "هدايا الضيافة",
+      "name_ar": "صندوق ضيافة تعزي",
+      "name_en": null,
+      "description": "صندوق ضيافة تعزي من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "gift",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [
+        "GUARANTEED"
+      ],
+      "tags": [
+        "ضيافة",
+        "تراث"
+      ],
+      "regions": [
+        "تعز"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": true,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "تعز",
+      "honey_identity": "صندوق ضيافة تعزي",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام تعز"
+      ],
+      "views_count": 352,
+      "likes_count": 20,
+      "rating_average": 4.7,
+      "review_count": 4,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": [
+        "LAB-TESTED"
+      ]
+    },
+    {
+      "id": "demo-prod-bride-bundle",
+      "source_id": "DEMO-PROD-BRIDE-BUNDLE",
+      "store_id": "demo-store-marib",
+      "region_id": "region-marib",
+      "category_id": "CAT-005",
+      "category_name_ar": "قسم هدايا المناسبات",
+      "subcategory_id": "SUB-GIFT-WEDDING",
+      "subcategory_name_ar": "هدايا المناسبات",
+      "name_ar": "باقة عروس يمنية",
+      "name_en": null,
+      "description": "باقة عروس يمنية من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "gift",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "زفاف",
+        "هدايا"
+      ],
+      "regions": [
+        "مأرب"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "مأرب",
+      "honey_identity": "باقة عروس يمنية",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام مأرب"
+      ],
+      "views_count": 345,
+      "likes_count": 20,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
+    },
+    {
+      "id": "demo-prod-mini-jars",
+      "source_id": "DEMO-PROD-MINI-JARS",
+      "store_id": "demo-store-sanhan",
+      "region_id": "region-sanaa",
+      "category_id": "CAT-005",
+      "category_name_ar": "قسم هدايا المناسبات",
+      "subcategory_id": "SUB-GIFT-MINI",
+      "subcategory_name_ar": "هدايا المناسبات",
+      "name_ar": "مرطبانات هدايا صغيرة",
+      "name_en": null,
+      "description": "مرطبانات هدايا صغيرة من مصدر يمني موثق ضمن كتالوج Demo.",
+      "product_type": "gift",
+      "status": "active",
+      "grade_levels": [],
+      "badges": [],
+      "tags": [
+        "توزيعات",
+        "هدية"
+      ],
+      "regions": [
+        "صنعاء"
+      ],
+      "components": [],
+      "purpose": null,
+      "forms": [],
+      "is_featured": false,
+      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_urls": [
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg",
+        "assets/brand/logo-internal-runtime.svg"
+      ],
+      "origin_country": "اليمن",
+      "province_name_ar": "صنعاء",
+      "honey_identity": "مرطبانات هدايا صغيرة",
+      "quality_label_ar": "موثق من بيانات Demo",
+      "processing_method_ar": "تجهيز محلي",
+      "processing_status_ar": "جاهز للاستفسار",
+      "packaging_label_ar": "مرطبان زجاجي — نصف كيلو",
+      "production_date": "2026-05-20",
+      "packaged_date": "2026-06-05",
+      "shelf_life_label_ar": "24 شهرًا من تاريخ التعبئة",
+      "delivery_options": [
+        "توصيل محلي",
+        "شركة شحن",
+        "تحديد التفاصيل بالتواصل"
+      ],
+      "pickup_locations": [
+        "نقطة استلام صنعاء"
+      ],
+      "views_count": 380,
+      "likes_count": 20,
+      "rating_average": 4.3,
+      "review_count": 2,
+      "availability": "متاح للاستفسار",
+      "weight_label": "500 غرام",
+      "harvest_label": "قطفة ربيع 2026",
+      "certifications": []
     }
   ],
-  "reviews": [],
+  "reviews": [
+    {
+      "id": "demo-review-001",
+      "product_id": "demo-prod-sidr-doani",
+      "store_id": "demo-store-doani",
+      "author_id": "demo-user-002",
+      "author_name": "محمد النحال",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع سدر دوعني (حضرموت)، أعجبتني معلومات المصدر وسرعة تجاوب مناحل دوعن الأصيلة",
+      "created_at": "2026-07-02T10:00:00Z",
+      "helpful_count": 3,
+      "merchant_reply": "شكرًا لثقتكم، ويسعدنا توضيح أي تفاصيل إضافية."
+    },
+    {
+      "id": "demo-review-002",
+      "product_id": "demo-prod-sidr-osaimi",
+      "store_id": "demo-store-amran",
+      "author_id": "demo-user-003",
+      "author_name": "ليان صنعاء",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع سدر عصيمي (عمران)، أعجبتني معلومات المصدر وسرعة تجاوب سوق العسل العصيمي",
+      "created_at": "2026-07-03T10:00:00Z",
+      "helpful_count": 4,
+      "merchant_reply": null
+    },
+    {
+      "id": "demo-review-003",
+      "product_id": "demo-prod-sidr-jardani",
+      "store_id": "demo-store-sanaa",
+      "author_id": "demo-user-004",
+      "author_name": "أحمد الذوق",
+      "rating": 4,
+      "status": "approved",
+      "body": "تجربة واضحة مع سدر جرداني (شبوة)، أعجبتني معلومات المصدر وسرعة تجاوب بيت العسل والخلطات",
+      "created_at": "2026-07-04T10:00:00Z",
+      "helpful_count": 5,
+      "merchant_reply": "شكرًا لثقتكم، ويسعدنا توضيح أي تفاصيل إضافية."
+    },
+    {
+      "id": "demo-review-004",
+      "product_id": "demo-prod-sidr-jabali",
+      "store_id": "demo-store-doani",
+      "author_id": "demo-user-001",
+      "author_name": "سارة اليمنية",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع سدر جبلي (عام)، أعجبتني معلومات المصدر وسرعة تجاوب مناحل دوعن الأصيلة",
+      "created_at": "2026-07-05T10:00:00Z",
+      "helpful_count": 6,
+      "merchant_reply": null
+    },
+    {
+      "id": "demo-review-005",
+      "product_id": "demo-prod-sumur-hadrami",
+      "store_id": "demo-store-amran",
+      "author_id": "demo-user-002",
+      "author_name": "محمد النحال",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع سمر حضرمي (الطلح)، أعجبتني معلومات المصدر وسرعة تجاوب سوق العسل العصيمي",
+      "created_at": "2026-07-06T10:00:00Z",
+      "helpful_count": 7,
+      "merchant_reply": "شكرًا لثقتكم، ويسعدنا توضيح أي تفاصيل إضافية."
+    },
+    {
+      "id": "demo-review-006",
+      "product_id": "demo-prod-talh-najdi",
+      "store_id": "demo-store-sanaa",
+      "author_id": "demo-user-003",
+      "author_name": "ليان صنعاء",
+      "rating": 4,
+      "status": "approved",
+      "body": "تجربة واضحة مع طلح نجدي / شمالي، أعجبتني معلومات المصدر وسرعة تجاوب بيت العسل والخلطات",
+      "created_at": "2026-07-07T10:00:00Z",
+      "helpful_count": 8,
+      "merchant_reply": null
+    },
+    {
+      "id": "demo-review-007",
+      "product_id": "demo-prod-shoka",
+      "store_id": "demo-store-doani",
+      "author_id": "demo-user-004",
+      "author_name": "أحمد الذوق",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع عسل الشوكة (المنوعة)، أعجبتني معلومات المصدر وسرعة تجاوب مناحل دوعن الأصيلة",
+      "created_at": "2026-07-08T10:00:00Z",
+      "helpful_count": 9,
+      "merchant_reply": "شكرًا لثقتكم، ويسعدنا توضيح أي تفاصيل إضافية."
+    },
+    {
+      "id": "demo-review-008",
+      "product_id": "demo-prod-magra",
+      "store_id": "demo-store-amran",
+      "author_id": "demo-user-001",
+      "author_name": "سارة اليمنية",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع عسل المجرى (المنفوش)، أعجبتني معلومات المصدر وسرعة تجاوب سوق العسل العصيمي",
+      "created_at": "2026-07-09T10:00:00Z",
+      "helpful_count": 10,
+      "merchant_reply": null
+    },
+    {
+      "id": "demo-review-009",
+      "product_id": "demo-prod-white-jabali",
+      "store_id": "demo-store-sanaa",
+      "author_id": "demo-user-002",
+      "author_name": "محمد النحال",
+      "rating": 4,
+      "status": "approved",
+      "body": "تجربة واضحة مع العسل الجبلي الأبيض، أعجبتني معلومات المصدر وسرعة تجاوب بيت العسل والخلطات",
+      "created_at": "2026-07-10T10:00:00Z",
+      "helpful_count": 11,
+      "merchant_reply": "شكرًا لثقتكم، ويسعدنا توضيح أي تفاصيل إضافية."
+    },
+    {
+      "id": "demo-review-010",
+      "product_id": "demo-prod-russian-white",
+      "store_id": "demo-store-doani",
+      "author_id": "demo-user-003",
+      "author_name": "ليان صنعاء",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع عسل أبيض (مستورد - روسي/قرغيزي)، أعجبتني معلومات المصدر وسرعة تجاوب مناحل دوعن الأصيلة",
+      "created_at": "2026-07-11T10:00:00Z",
+      "helpful_count": 12,
+      "merchant_reply": null
+    },
+    {
+      "id": "demo-review-011",
+      "product_id": "demo-prod-sal",
+      "store_id": "demo-store-amran",
+      "author_id": "demo-user-004",
+      "author_name": "أحمد الذوق",
+      "rating": 5,
+      "status": "approved",
+      "body": "تجربة واضحة مع عسل الصال (الحراق)، أعجبتني معلومات المصدر وسرعة تجاوب سوق العسل العصيمي",
+      "created_at": "2026-07-12T10:00:00Z",
+      "helpful_count": 13,
+      "merchant_reply": "شكرًا لثقتكم، ويسعدنا توضيح أي تفاصيل إضافية."
+    },
+    {
+      "id": "demo-review-012",
+      "product_id": "demo-prod-salam",
+      "store_id": "demo-store-sanaa",
+      "author_id": "demo-user-001",
+      "author_name": "سارة اليمنية",
+      "rating": 4,
+      "status": "approved",
+      "body": "تجربة واضحة مع عسل السلام (السلم)، أعجبتني معلومات المصدر وسرعة تجاوب بيت العسل والخلطات",
+      "created_at": "2026-07-13T10:00:00Z",
+      "helpful_count": 14,
+      "merchant_reply": null
+    }
+  ],
   "requests": [
     {
       "id": "demo-request-001",
@@ -987,6 +3749,114 @@
       "body": "أحتاج صندوقًا تراثيًا مع بطاقة تهنئة.",
       "status": "answered",
       "preferred_handoff_option": "merchant_delivery"
+    },
+    {
+      "id": "demo-request-seeded-001",
+      "requester_id": "demo-customer",
+      "requester_name": "عميل عسلكم",
+      "merchant_id": "demo-merchant-doani",
+      "store_id": "demo-store-doani",
+      "store_name": "مناحل دوعن الأصيلة",
+      "product_id": "demo-prod-sidr-doani",
+      "product_name": "سدر دوعني (حضرموت)",
+      "subject": "استفسار عن سدر دوعني (حضرموت)",
+      "body": "أرغب في معرفة التوفر وخيارات الاستلام والتوصيل.",
+      "quantity": 1,
+      "status": "in_progress",
+      "preferred_handoff_option": "delivery",
+      "delivery_note": "التواصل قبل التجهيز",
+      "created_at": "2026-08-01T09:00:00Z",
+      "updated_at": "2026-08-01T12:00:00Z"
+    },
+    {
+      "id": "demo-request-seeded-002",
+      "requester_id": "demo-customer",
+      "requester_name": "عميل عسلكم",
+      "merchant_id": "demo-merchant-amran",
+      "store_id": "demo-store-amran",
+      "store_name": "سوق العسل العصيمي",
+      "product_id": "demo-prod-sidr-osaimi",
+      "product_name": "سدر عصيمي (عمران)",
+      "subject": "استفسار عن سدر عصيمي (عمران)",
+      "body": "أرغب في معرفة التوفر وخيارات الاستلام والتوصيل.",
+      "quantity": 1,
+      "status": "answered",
+      "preferred_handoff_option": "contact",
+      "delivery_note": "التواصل قبل التجهيز",
+      "created_at": "2026-08-02T09:00:00Z",
+      "updated_at": "2026-08-02T12:00:00Z"
+    },
+    {
+      "id": "demo-request-seeded-003",
+      "requester_id": "demo-customer",
+      "requester_name": "عميل عسلكم",
+      "merchant_id": "demo-merchant-sanaa",
+      "store_id": "demo-store-sanaa",
+      "store_name": "بيت العسل والخلطات",
+      "product_id": "demo-prod-sidr-jardani",
+      "product_name": "سدر جرداني (شبوة)",
+      "subject": "استفسار عن سدر جرداني (شبوة)",
+      "body": "أرغب في معرفة التوفر وخيارات الاستلام والتوصيل.",
+      "quantity": 1,
+      "status": "open",
+      "preferred_handoff_option": "pickup",
+      "delivery_note": "التواصل قبل التجهيز",
+      "created_at": "2026-08-03T09:00:00Z",
+      "updated_at": "2026-08-03T12:00:00Z"
+    },
+    {
+      "id": "demo-request-seeded-004",
+      "requester_id": "demo-customer",
+      "requester_name": "عميل عسلكم",
+      "merchant_id": "demo-merchant-doani",
+      "store_id": "demo-store-doani",
+      "store_name": "مناحل دوعن الأصيلة",
+      "product_id": "demo-prod-sidr-jabali",
+      "product_name": "سدر جبلي (عام)",
+      "subject": "استفسار عن سدر جبلي (عام)",
+      "body": "أرغب في معرفة التوفر وخيارات الاستلام والتوصيل.",
+      "quantity": 1,
+      "status": "in_progress",
+      "preferred_handoff_option": "delivery",
+      "delivery_note": "التواصل قبل التجهيز",
+      "created_at": "2026-08-04T09:00:00Z",
+      "updated_at": "2026-08-04T12:00:00Z"
+    },
+    {
+      "id": "demo-request-seeded-005",
+      "requester_id": "demo-customer",
+      "requester_name": "عميل عسلكم",
+      "merchant_id": "demo-merchant-amran",
+      "store_id": "demo-store-amran",
+      "store_name": "سوق العسل العصيمي",
+      "product_id": "demo-prod-sumur-hadrami",
+      "product_name": "سمر حضرمي (الطلح)",
+      "subject": "استفسار عن سمر حضرمي (الطلح)",
+      "body": "أرغب في معرفة التوفر وخيارات الاستلام والتوصيل.",
+      "quantity": 1,
+      "status": "answered",
+      "preferred_handoff_option": "contact",
+      "delivery_note": "التواصل قبل التجهيز",
+      "created_at": "2026-08-05T09:00:00Z",
+      "updated_at": "2026-08-05T12:00:00Z"
+    },
+    {
+      "id": "demo-request-seeded-006",
+      "requester_id": "demo-customer",
+      "requester_name": "عميل عسلكم",
+      "merchant_id": "demo-merchant-sanaa",
+      "store_id": "demo-store-sanaa",
+      "store_name": "بيت العسل والخلطات",
+      "product_id": "demo-prod-talh-najdi",
+      "product_name": "طلح نجدي / شمالي",
+      "subject": "استفسار عن طلح نجدي / شمالي",
+      "body": "أرغب في معرفة التوفر وخيارات الاستلام والتوصيل.",
+      "quantity": 1,
+      "status": "open",
+      "preferred_handoff_option": "pickup",
+      "delivery_note": "التواصل قبل التجهيز",
+      "created_at": "2026-08-06T09:00:00Z",
+      "updated_at": "2026-08-06T12:00:00Z"
     }
   ],
   "notifications": [
@@ -1009,6 +3879,290 @@
         "request_id": "demo-request-001"
       },
       "read_at": null
+    },
+    {
+      "id": "demo-notification-customer-001",
+      "user_id": "demo-customer",
+      "notification_type": "activity",
+      "title_ar": "اقتراح من متجر موثق",
+      "body_ar": "افتح النشاط لمعرفة التفاصيل والانتقال إلى صفحة المصدر.",
+      "payload": {
+        "product_id": "demo-prod-sidr-osaimi"
+      },
+      "read_at": null
+    },
+    {
+      "id": "demo-notification-customer-002",
+      "user_id": "demo-customer",
+      "notification_type": "activity",
+      "title_ar": "تم الرد على طلب التواصل",
+      "body_ar": "افتح النشاط لمعرفة التفاصيل والانتقال إلى صفحة المصدر.",
+      "payload": {
+        "product_id": "demo-prod-sidr-jardani"
+      },
+      "read_at": null
+    },
+    {
+      "id": "demo-notification-customer-003",
+      "user_id": "demo-customer",
+      "notification_type": "activity",
+      "title_ar": "منتج جديد في منطقتك",
+      "body_ar": "افتح النشاط لمعرفة التفاصيل والانتقال إلى صفحة المصدر.",
+      "payload": {
+        "product_id": "demo-prod-sidr-jabali"
+      },
+      "read_at": null
+    },
+    {
+      "id": "demo-notification-customer-004",
+      "user_id": "demo-customer",
+      "notification_type": "activity",
+      "title_ar": "تذكير بالمراجعة",
+      "body_ar": "افتح النشاط لمعرفة التفاصيل والانتقال إلى صفحة المصدر.",
+      "payload": {
+        "product_id": "demo-prod-sumur-hadrami"
+      },
+      "read_at": null
     }
+  ],
+  "comments": [
+    {
+      "id": "demo-comment-001",
+      "target_id": "demo-prod-sidr-jabali",
+      "author_id": "demo-user-001",
+      "author_name": "عبدالله",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-06T12:00:00Z",
+      "like_count": 1,
+      "reply_count": 1
+    },
+    {
+      "id": "demo-comment-002",
+      "target_id": "demo-prod-sumur-hadrami",
+      "author_id": "demo-user-002",
+      "author_name": "نور",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-07T12:00:00Z",
+      "like_count": 2,
+      "reply_count": 0
+    },
+    {
+      "id": "demo-comment-003",
+      "target_id": "demo-prod-talh-najdi",
+      "author_id": "demo-user-003",
+      "author_name": "صالح",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-08T12:00:00Z",
+      "like_count": 3,
+      "reply_count": 1
+    },
+    {
+      "id": "demo-comment-004",
+      "target_id": "demo-prod-shoka",
+      "author_id": "demo-user-004",
+      "author_name": "مها",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-09T12:00:00Z",
+      "like_count": 4,
+      "reply_count": 0
+    },
+    {
+      "id": "demo-comment-005",
+      "target_id": "demo-prod-magra",
+      "author_id": "demo-user-005",
+      "author_name": "عبدالله",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-10T12:00:00Z",
+      "like_count": 5,
+      "reply_count": 1
+    },
+    {
+      "id": "demo-comment-006",
+      "target_id": "demo-prod-white-jabali",
+      "author_id": "demo-user-006",
+      "author_name": "نور",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-11T12:00:00Z",
+      "like_count": 6,
+      "reply_count": 0
+    },
+    {
+      "id": "demo-comment-007",
+      "target_id": "demo-prod-russian-white",
+      "author_id": "demo-user-007",
+      "author_name": "صالح",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-12T12:00:00Z",
+      "like_count": 7,
+      "reply_count": 1
+    },
+    {
+      "id": "demo-comment-008",
+      "target_id": "demo-prod-sal",
+      "author_id": "demo-user-008",
+      "author_name": "مها",
+      "body": "هل تتوفر عبوة أصغر؟ وهل يمكن الاستلام من نقطة المتجر؟",
+      "created_at": "2026-07-13T12:00:00Z",
+      "like_count": 8,
+      "reply_count": 0
+    }
+  ],
+  "conversations": [
+    {
+      "id": "demo-conversation-seeded-001",
+      "store_id": "demo-store-doani",
+      "store_name": "مناحل دوعن الأصيلة",
+      "last_message": "يسعدنا توضيح المصدر وخيارات الاستلام.",
+      "updated_at": "2026-08-01T11:00:00Z",
+      "participant_ids": [
+        "demo-customer",
+        "demo-merchant-doani"
+      ],
+      "unread_count": 1
+    },
+    {
+      "id": "demo-conversation-seeded-002",
+      "store_id": "demo-store-marib",
+      "store_name": "مراعي مأرب للعسل",
+      "last_message": "يسعدنا توضيح المصدر وخيارات الاستلام.",
+      "updated_at": "2026-08-02T11:00:00Z",
+      "participant_ids": [
+        "demo-customer",
+        "demo-merchant-marib"
+      ],
+      "unread_count": 0
+    },
+    {
+      "id": "demo-conversation-seeded-003",
+      "store_id": "demo-store-taiz",
+      "store_name": "مناحل جبل صبر",
+      "last_message": "يسعدنا توضيح المصدر وخيارات الاستلام.",
+      "updated_at": "2026-08-03T11:00:00Z",
+      "participant_ids": [
+        "demo-customer",
+        "demo-merchant-taiz"
+      ],
+      "unread_count": 1
+    }
+  ],
+  "messages": [
+    {
+      "id": "demo-message-seeded-01-01",
+      "conversation_id": "demo-conversation-seeded-001",
+      "sender_id": "demo-customer",
+      "body": "مرحبًا، أريد معرفة تفاصيل المصدر.",
+      "sent_at": "2026-08-01T11:00:00Z",
+      "is_mine": true,
+      "attachments": []
+    },
+    {
+      "id": "demo-message-seeded-01-02",
+      "conversation_id": "demo-conversation-seeded-001",
+      "sender_id": "demo-merchant-doani",
+      "body": "يسعدنا خدمتك وتوضيح خيارات الاستلام.",
+      "sent_at": "2026-08-01T12:00:00Z",
+      "is_mine": false,
+      "attachments": []
+    },
+    {
+      "id": "demo-message-seeded-02-01",
+      "conversation_id": "demo-conversation-seeded-002",
+      "sender_id": "demo-customer",
+      "body": "مرحبًا، أريد معرفة تفاصيل المصدر.",
+      "sent_at": "2026-08-02T11:00:00Z",
+      "is_mine": true,
+      "attachments": []
+    },
+    {
+      "id": "demo-message-seeded-02-02",
+      "conversation_id": "demo-conversation-seeded-002",
+      "sender_id": "demo-merchant-marib",
+      "body": "يسعدنا خدمتك وتوضيح خيارات الاستلام.",
+      "sent_at": "2026-08-02T12:00:00Z",
+      "is_mine": false,
+      "attachments": []
+    },
+    {
+      "id": "demo-message-seeded-03-01",
+      "conversation_id": "demo-conversation-seeded-003",
+      "sender_id": "demo-customer",
+      "body": "مرحبًا، أريد معرفة تفاصيل المصدر.",
+      "sent_at": "2026-08-03T11:00:00Z",
+      "is_mine": true,
+      "attachments": []
+    },
+    {
+      "id": "demo-message-seeded-03-02",
+      "conversation_id": "demo-conversation-seeded-003",
+      "sender_id": "demo-merchant-taiz",
+      "body": "يسعدنا خدمتك وتوضيح خيارات الاستلام.",
+      "sent_at": "2026-08-03T12:00:00Z",
+      "is_mine": false,
+      "attachments": []
+    }
+  ],
+  "banners": [
+    {
+      "id": "banner-source",
+      "title_ar": "الثقة تبدأ من المصدر",
+      "description_ar": "اكتشف النوع والمنطقة والتوثيق قبل أن تتواصل.",
+      "cta_label_ar": "ابدأ الاكتشاف",
+      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "target_query": null,
+      "sort_order": 1,
+      "is_active": true
+    },
+    {
+      "id": "banner-sidr",
+      "title_ar": "سدر يمني من وديانه",
+      "description_ar": "قارن بين دوعن والعصيمات وحجة من مكان واحد.",
+      "cta_label_ar": "اكتشف السدر",
+      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "target_query": "سدر",
+      "sort_order": 2,
+      "is_active": true
+    },
+    {
+      "id": "banner-verified",
+      "title_ar": "متاجر موثقة بالقرب منك",
+      "description_ar": "تواصل مع التاجر واختر طريقة التسليم المناسبة.",
+      "cta_label_ar": "شاهد المتاجر",
+      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "target_query": null,
+      "sort_order": 3,
+      "is_active": true
+    },
+    {
+      "id": "banner-gifts",
+      "title_ar": "هدايا تحمل قصة اليمن",
+      "description_ar": "عبوات تراثية وباقات للمناسبات دون Checkout مفروض.",
+      "cta_label_ar": "تصفح الهدايا",
+      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "target_query": "هدية",
+      "sort_order": 4,
+      "is_active": true
+    },
+    {
+      "id": "banner-season",
+      "title_ar": "قطفة الموسم وصلت",
+      "description_ar": "تعرف على الإنتاج الحديث ومعلومات التعبئة.",
+      "cta_label_ar": "شاهد الجديد",
+      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "target_query": null,
+      "sort_order": 5,
+      "is_active": true
+    }
+  ],
+  "popular_searches": [
+    "سدر دوعني",
+    "سدر عصيمي",
+    "سمر مأربي",
+    "عسل حمضيات",
+    "شمع سدر",
+    "غذاء ملكات",
+    "عكبر يمني",
+    "خلطة المناعة",
+    "هدايا عسل",
+    "متاجر موثقة"
   ]
 }

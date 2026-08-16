@@ -99,6 +99,8 @@ abstract interface class AssalRepository {
   Future<AssalSession> getSession();
   Future<AssalLoadState<List<AssalRegion>>> listRegions();
   Future<AssalLoadState<List<AssalTaxonomy>>> listTaxonomy();
+  Future<AssalLoadState<List<AssalBannerSummary>>> listBanners();
+  Future<AssalLoadState<List<String>>> listPopularSearches();
   Future<AssalLoadState<List<AssalStoreSummary>>> listStores({String? regionId});
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId);
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({AssalProductQuery query = const AssalProductQuery()});

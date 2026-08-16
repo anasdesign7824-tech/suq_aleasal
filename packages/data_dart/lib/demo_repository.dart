@@ -74,6 +74,20 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() async {
+    final values = _list(await _readCatalog(), 'banners').map(AssalBannerSummary.fromJson).where((banner) => banner.isActive).toList(growable: false)..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return _listState(values, 'لا توجد حملات استكشاف متاحة حاليًا');
+  }
+
+  @override
+  Future<AssalLoadState<List<String>>> listPopularSearches() async {
+    final catalog = await _readCatalog();
+    final value = catalog['popular_searches'];
+    final values = value is List ? value.whereType<String>().toList(growable: false) : const <String>[];
+    return _listState(values, 'لا توجد اقتراحات بحث متاحة حاليًا');
+  }
+
+  @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listStores({String? regionId}) async {
     final regions = await _regionNames();
     var rows = _list(await _readCatalog(), 'stores');
@@ -169,7 +183,13 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
-  Future<AssalLoadState<List<AssalCommentSummary>>> listComments(String targetId) async => _listState(_localComments.where((comment) => comment.targetId == targetId).toList(growable: false), 'لا توجد تعليقات بعد.');
+  Future<AssalLoadState<List<AssalCommentSummary>>> listComments(String targetId) async {
+    final values = [
+      ..._list(await _readCatalog(), 'comments').where((item) => item['target_id'] == targetId).map(AssalCommentSummary.fromJson),
+      ..._localComments.where((comment) => comment.targetId == targetId),
+    ];
+    return _listState(values, 'لا توجد تعليقات بعد.');
+  }
 
   @override
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(String requesterId) async {
@@ -213,15 +233,20 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(String userId) async {
-    if (_localConversations.isEmpty && _session.isAuthenticated) {
-      _localConversations.add(AssalConversationSummary(id: 'demo-conversation-doani', storeId: 'demo-store-doani', storeName: 'مناحل دوعن الأصيلة', lastMessage: 'مرحبًا، كيف نساعدك في اختيار العسل؟', updatedAt: DateTime.now()));
+    final seeded = _list(await _readCatalog(), 'conversations').map(AssalConversationSummary.fromJson);
+    final values = [...seeded, ..._localConversations];
+    if (values.isEmpty && _session.isAuthenticated) {
+      values.add(AssalConversationSummary(id: 'demo-conversation-doani', storeId: 'demo-store-doani', storeName: 'مناحل دوعن الأصيلة', lastMessage: 'مرحبًا، كيف نساعدك في اختيار العسل؟', updatedAt: DateTime.now()));
     }
-    return _listState(_localConversations, 'لا توجد محادثات بعد. ابدأ من صفحة المتجر.');
+    return _listState(values, 'لا توجد محادثات بعد. ابدأ من صفحة المتجر.');
   }
 
   @override
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(String conversationId) async {
-    final values = _localMessages.where((message) => message.conversationId == conversationId).toList(growable: false);
+    final values = [
+      ..._list(await _readCatalog(), 'messages').where((item) => item['conversation_id'] == conversationId).map(AssalMessageSummary.fromJson),
+      ..._localMessages.where((message) => message.conversationId == conversationId),
+    ];
     if (values.isEmpty) {
       return AssalData([
         AssalMessageSummary(id: 'demo-message-welcome', conversationId: conversationId, senderId: 'demo-merchant-doani', body: 'مرحبًا بك في عسلكم. يسعدنا مساعدتك في معرفة المصدر والجودة.', sentAt: DateTime.now().subtract(const Duration(minutes: 12))),

@@ -76,6 +76,29 @@ class AssalTaxonomy {
       );
 }
 
+class AssalBannerSummary {
+  const AssalBannerSummary({required this.id, required this.titleAr, required this.descriptionAr, required this.ctaLabelAr, required this.imageUrl, this.targetQuery, this.sortOrder = 0, this.isActive = true});
+  final String id;
+  final String titleAr;
+  final String descriptionAr;
+  final String ctaLabelAr;
+  final String imageUrl;
+  final String? targetQuery;
+  final int sortOrder;
+  final bool isActive;
+
+  factory AssalBannerSummary.fromJson(Map<String, Object?> json) => AssalBannerSummary(
+        id: _string(json['id']),
+        titleAr: _string(json['title_ar']),
+        descriptionAr: _string(json['description_ar']),
+        ctaLabelAr: _string(json['cta_label_ar']),
+        imageUrl: _string(json['image_url']),
+        targetQuery: _stringOrNull(json['target_query']),
+        sortOrder: _int(json['sort_order']),
+        isActive: json['is_active'] as bool? ?? true,
+      );
+}
+
 class AssalStoreSummary {
   const AssalStoreSummary({
     required this.id,
