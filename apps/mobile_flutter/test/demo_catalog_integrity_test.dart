@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
@@ -26,9 +27,12 @@ void main() {
     expect((banners as AssalData<List<AssalBannerSummary>>).value.length, 5);
     expect((searches as AssalData<List<String>>).value.length, greaterThanOrEqualTo(10));
 
-    final reviews = await repository.listReviews(productValues.first.id);
+    final catalogMap = jsonDecode(catalog) as Map<String, dynamic>;
+    final reviewProductId = ((catalogMap['reviews'] as List).first as Map<String, dynamic>)['product_id'] as String;
+    final reviews = await repository.listReviews(reviewProductId);
     expect(reviews, isA<AssalData<List<AssalReviewSummary>>>());
-    final comments = await repository.listComments(productValues[3].id);
+    final commentTargetId = ((catalogMap['comments'] as List).first as Map<String, dynamic>)['target_id'] as String;
+    final comments = await repository.listComments(commentTargetId);
     expect(comments, isA<AssalData<List<AssalCommentSummary>>>());
     await repository.signIn('demo@assalkom.app', 'demo123');
     final requests = await repository.listRequests('demo-customer');
