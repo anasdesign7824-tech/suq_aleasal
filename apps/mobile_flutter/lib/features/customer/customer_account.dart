@@ -182,11 +182,13 @@ class NotificationsScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(AssalSpacing.lg),
                   itemCount: items.length,
                   separatorBuilder: (_, __) => const Divider(),
-                  itemBuilder: (_, index) => ListTile(
-                    leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.notifications_none, color: AssalColors.primaryDark)),
-                    title: Text(items[index].titleAr),
-                    subtitle: Text(items[index].bodyAr ?? ''),
-                  ),
+                  itemBuilder: (_, index) { final item = items[index]; return ListTile(
+                    tileColor: item.readAt == null ? AssalColors.cream : null,
+                    leading: CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(item.readAt == null ? Icons.notifications_active_outlined : Icons.notifications_none, color: AssalColors.primaryDark)),
+                    title: Text(item.titleAr, style: item.readAt == null ? const TextStyle(fontWeight: FontWeight.w700) : null),
+                    subtitle: Text(item.bodyAr ?? ''),
+                    onTap: () async { await repository.markNotificationRead(session.user!.id, item.id); if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تعليم الإشعار كمقروء.'))); },
+                  ); },
                 ),
               );
             },

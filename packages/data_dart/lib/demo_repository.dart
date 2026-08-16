@@ -19,6 +19,7 @@ class DemoRepository implements AssalRepository {
   final Set<String> _followedStores = <String>{};
   final Set<String> _favorites = <String>{};
   final Set<String> _likes = <String>{};
+  final Set<String> _readNotificationIds = <String>{};
   final List<AssalReviewSummary> _localReviews = <AssalReviewSummary>[];
   final List<AssalCommentSummary> _localComments = <AssalCommentSummary>[];
   final List<AssalRequestSummary> _localRequests = <AssalRequestSummary>[];
@@ -254,11 +255,15 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<AssalNotificationSummary>>> listNotifications(String userId) async {
-    final values = [
-      ..._list(await _readCatalog(), 'notifications').where((item) => item['user_id'] == userId).map(AssalNotificationSummary.fromJson),
-      ..._localNotifications.where((notification) => notification.userId == userId),
-    ];
-    return _listState(values, 'لا توجد إشعارات جديدة.');
+    final seeded = _list(await _readCatalog(), 'notifications').where((item) => item['user_id'] == userId).map(AssalNotificationSummary.fromJson).map((notification) => _readNotificationIds.contains(notification.id) ? AssalNotificationSummary(id: notification.id, userId: notification.userId, notificationType: notification.notificationType, titleAr: notification.titleAr, bodyAr: notification.bodyAr, payload: notification.payload, readAt: DateTime.now()) : notification);
+    final local = _localNotifications.where((notification) => notification.userId == userId).map((notification) => _readNotificationIds.contains(notification.id) ? AssalNotificationSummary(id: notification.id, userId: notification.userId, notificationType: notification.notificationType, titleAr: notification.titleAr, bodyAr: notification.bodyAr, payload: notification.payload, readAt: DateTime.now()) : notification);
+    return _listState([...seeded, ...local], 'لا توجد إشعارات جديدة.');
+  }
+
+  @override
+  Future<AssalLoadState<bool>> markNotificationRead(String userId, String notificationId) async {
+    _readNotificationIds.add(notificationId);
+    return const AssalData(true);
   }
 
   @override

@@ -160,6 +160,12 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<bool>> markNotificationRead(String userId, String notificationId) async {
+    await _gateway.update('notifications', {'read_at': DateTime.now().toIso8601String()}, id: notificationId);
+    return const AssalData(true);
+  }
+
+  @override
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(String userId) async => const AssalEmpty('لا توجد محادثات');
   @override
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(String conversationId) async => const AssalEmpty('لا توجد رسائل');

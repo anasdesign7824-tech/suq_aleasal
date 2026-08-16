@@ -113,6 +113,7 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(String requesterId);
   Future<AssalLoadState<AssalRequestSummary>> createRequest(String requesterId, AssalRequestDraft draft);
   Future<AssalLoadState<List<AssalNotificationSummary>>> listNotifications(String userId);
+  Future<AssalLoadState<bool>> markNotificationRead(String userId, String notificationId);
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(String userId);
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(String conversationId);
   Future<AssalLoadState<AssalMessageSummary>> sendMessage(String userId, AssalMessageDraft draft);
