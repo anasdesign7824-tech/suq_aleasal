@@ -29,6 +29,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/demo_catalog.json
+    - assets/yemen_governorates_districts.json
     - assets/logo-internal.svg
     - assets/logo-external.svg
     - assets/logo-internal-runtime.svg

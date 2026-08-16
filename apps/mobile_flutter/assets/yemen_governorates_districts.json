@@ -1,0 +1,3282 @@
+{
+  "schema": "assalkom.yemen_governorates_districts.v1",
+  "country": {
+    "iso2": "YE",
+    "iso3": "YEM",
+    "name_ar": "اليمن",
+    "name_en": "Yemen"
+  },
+  "provenance": {
+    "repository": "https://github.com/YemenOpenSource/Yemen-info",
+    "source_file": "yemen-info.json",
+    "source_file_url": "https://github.com/YemenOpenSource/Yemen-info/blob/f0bd5b523d91861088ddc9c494c11eba1a60336f/yemen-info.json",
+    "source_commit": "f0bd5b523d91861088ddc9c494c11eba1a60336f",
+    "source_sha256": "49e265bc94726e83d6a67107f8195276616aa81b5fa1af028c25dbf2296c5a12",
+    "extraction_scope": "governorates and districts only; uzaal and villages intentionally omitted",
+    "retrieved_at": "2026-08-16",
+    "source_notice": "The upstream README states the dataset was researched in February 2024 and does not guarantee permanent accuracy; it must be reviewed before future regulatory/location changes."
+  },
+  "counts": {
+    "governorates": 22,
+    "districts": 335
+  },
+  "governorates": [
+    {
+      "source_id": 1,
+      "code": "YE-GOV-001",
+      "name_ar": "أمانة العاصمة",
+      "name_ar_tashkeel": "أَمانَة العاصِمَةِ",
+      "name_ar_normalized": "امانه العاصمه",
+      "name_en": "Amant Al-Asmah",
+      "name_en_normalized": "Amant Al Asmah",
+      "districts": [
+        {
+          "source_id": 1,
+          "code": "YE-DST-001-001",
+          "name_ar": "صنعاء القديمة",
+          "name_ar_tashkeel": "صَنْعاء القَدِيمَة",
+          "name_ar_normalized": "صنعاء القديمه",
+          "name_en": "Sana'a Al-qdimah",
+          "name_en_normalized": "Sanaa Al qdimah"
+        },
+        {
+          "source_id": 2,
+          "code": "YE-DST-001-002",
+          "name_ar": "آزَاْل",
+          "name_ar_tashkeel": "آزَاْل",
+          "name_ar_normalized": "ازال",
+          "name_en": "Azal",
+          "name_en_normalized": "Azal"
+        },
+        {
+          "source_id": 3,
+          "code": "YE-DST-001-003",
+          "name_ar": "الصافية",
+          "name_ar_tashkeel": "الصَّافِيَة",
+          "name_ar_normalized": "الصافيه",
+          "name_en": "Al-Safiah",
+          "name_en_normalized": "Al Safiah"
+        },
+        {
+          "source_id": 4,
+          "code": "YE-DST-001-004",
+          "name_ar": "السبعين",
+          "name_ar_tashkeel": "السَّبْعِين",
+          "name_ar_normalized": "السبعين",
+          "name_en": "Al-Sabe'en",
+          "name_en_normalized": "Al Sabeen"
+        },
+        {
+          "source_id": 5,
+          "code": "YE-DST-001-005",
+          "name_ar": "شعوب",
+          "name_ar_tashkeel": "شُعُوْب",
+          "name_ar_normalized": "شعوب",
+          "name_en": "Sh'oob",
+          "name_en_normalized": "Shoob"
+        },
+        {
+          "source_id": 6,
+          "code": "YE-DST-001-006",
+          "name_ar": "الوحدة",
+          "name_ar_tashkeel": "الوِحْدَة",
+          "name_ar_normalized": "الوحده",
+          "name_en": "Al-Wehdah",
+          "name_en_normalized": "Al Wehdah"
+        },
+        {
+          "source_id": 7,
+          "code": "YE-DST-001-007",
+          "name_ar": "التحرير",
+          "name_ar_tashkeel": "التَّحْرِير",
+          "name_ar_normalized": "التحرير",
+          "name_en": "Al-Tahrir",
+          "name_en_normalized": "Al Tahrir"
+        },
+        {
+          "source_id": 8,
+          "code": "YE-DST-001-008",
+          "name_ar": "الثورة",
+          "name_ar_tashkeel": "الثَّوْرَة",
+          "name_ar_normalized": "الثوره",
+          "name_en": "Al-Thowarah",
+          "name_en_normalized": "Al Thowarah"
+        },
+        {
+          "source_id": 9,
+          "code": "YE-DST-001-009",
+          "name_ar": "معين",
+          "name_ar_tashkeel": "مَعَيْن",
+          "name_ar_normalized": "معين",
+          "name_en": "Maeen",
+          "name_en_normalized": "Maeen"
+        },
+        {
+          "source_id": 10,
+          "code": "YE-DST-001-010",
+          "name_ar": "بني الحارث",
+          "name_ar_tashkeel": "بَنِيْ الحَارِث",
+          "name_ar_normalized": "بني الحارث",
+          "name_en": "Bni Al-Harith",
+          "name_en_normalized": "Bni Al Harith"
+        },
+        {
+          "source_id": 11,
+          "code": "YE-DST-001-011",
+          "name_ar": "ضواحي الأمانة سنحان وبني بهلول",
+          "name_ar_tashkeel": "ضَوَاحِي الأمَانَة سَنْحَان وبَنِي بُهْلُول",
+          "name_ar_normalized": "ضواحي الامانه سنحان وبني بهلول",
+          "name_en": "Dwahy Al-Amant Snhan Wbny Bhlwl",
+          "name_en_normalized": "Dwahy Al Amant Snhan Wbny Bhlwl"
+        },
+        {
+          "source_id": 12,
+          "code": "YE-DST-001-012",
+          "name_ar": "ضواحي الأمانة همدان",
+          "name_ar_tashkeel": "ضَوَاحِي الأمَانَة هَمْدَان",
+          "name_ar_normalized": "ضواحي الامانه همدان",
+          "name_en": "Dwahy Al-Amant Hmdan",
+          "name_en_normalized": "Dwahy Al Amant Hmdan"
+        }
+      ]
+    },
+    {
+      "source_id": 2,
+      "code": "YE-GOV-002",
+      "name_ar": "صنعاء",
+      "name_ar_tashkeel": "صَنْعاء",
+      "name_ar_normalized": "صنعاء",
+      "name_en": "Sanaa",
+      "name_en_normalized": "Sanaa",
+      "districts": [
+        {
+          "source_id": 13,
+          "code": "YE-DST-002-013",
+          "name_ar": "همدان",
+          "name_ar_tashkeel": "هَمْدَان",
+          "name_ar_normalized": "همدان",
+          "name_en": "Hamdan",
+          "name_en_normalized": "Hamdan"
+        },
+        {
+          "source_id": 14,
+          "code": "YE-DST-002-014",
+          "name_ar": "أرحب",
+          "name_ar_tashkeel": "أَرْحَب",
+          "name_ar_normalized": "ارحب",
+          "name_en": "Arhab",
+          "name_en_normalized": "Arhab"
+        },
+        {
+          "source_id": 15,
+          "code": "YE-DST-002-015",
+          "name_ar": "جحانة",
+          "name_ar_tashkeel": "جِحانْة",
+          "name_ar_normalized": "جحانه",
+          "name_en": "Jihanah",
+          "name_en_normalized": "Jihanah"
+        },
+        {
+          "source_id": 16,
+          "code": "YE-DST-002-016",
+          "name_ar": "بلاد الروس",
+          "name_ar_tashkeel": "بِلَاد الرُّوْس",
+          "name_ar_normalized": "بلاد الروس",
+          "name_en": "Bilad AL-Roos",
+          "name_en_normalized": "Bilad AL Roos"
+        },
+        {
+          "source_id": 17,
+          "code": "YE-DST-002-017",
+          "name_ar": "سنحان",
+          "name_ar_tashkeel": "سَنْحَان",
+          "name_ar_normalized": "سنحان",
+          "name_en": "Sanhan",
+          "name_en_normalized": "Sanhan"
+        },
+        {
+          "source_id": 18,
+          "code": "YE-DST-002-018",
+          "name_ar": "الحصن",
+          "name_ar_tashkeel": "الحِصْن",
+          "name_ar_normalized": "الحصن",
+          "name_en": "Al-Hisn",
+          "name_en_normalized": "Al Hisn"
+        },
+        {
+          "source_id": 19,
+          "code": "YE-DST-002-019",
+          "name_ar": "صعفان",
+          "name_ar_tashkeel": "صَعْفان",
+          "name_ar_normalized": "صعفان",
+          "name_en": "Sa'fan",
+          "name_en_normalized": "Safan"
+        },
+        {
+          "source_id": 20,
+          "code": "YE-DST-002-020",
+          "name_ar": "بني حشيش",
+          "name_ar_tashkeel": "بَنِي حِشِيْش",
+          "name_ar_normalized": "بني حشيش",
+          "name_en": "Bni Hishaish",
+          "name_en_normalized": "Bni Hishaish"
+        },
+        {
+          "source_id": 21,
+          "code": "YE-DST-002-021",
+          "name_ar": "الطيال",
+          "name_ar_tashkeel": "الطِّيَال",
+          "name_ar_normalized": "الطيال",
+          "name_en": "Al-Tial",
+          "name_en_normalized": "Al Tial"
+        },
+        {
+          "source_id": 22,
+          "code": "YE-DST-002-022",
+          "name_ar": "خولان",
+          "name_ar_tashkeel": "خَوْلَان",
+          "name_ar_normalized": "خولان",
+          "name_en": "Khawlan",
+          "name_en_normalized": "Khawlan"
+        },
+        {
+          "source_id": 23,
+          "code": "YE-DST-002-023",
+          "name_ar": "بني ضبيان",
+          "name_ar_tashkeel": "بَنِيَ ضَبْيَان",
+          "name_ar_normalized": "بني ضبيان",
+          "name_en": "Bni Dhabian",
+          "name_en_normalized": "Bni Dhabian"
+        },
+        {
+          "source_id": 24,
+          "code": "YE-DST-002-024",
+          "name_ar": "الحيمة الخارجية",
+          "name_ar_tashkeel": "الحَيْمَة الخَارِجِيَّة",
+          "name_ar_normalized": "الحيمه الخارجيه",
+          "name_en": "AL-Haimah Al-Kharijiah",
+          "name_en_normalized": "AL Haimah Al Kharijiah"
+        },
+        {
+          "source_id": 25,
+          "code": "YE-DST-002-025",
+          "name_ar": "الحيمة الداخلية",
+          "name_ar_tashkeel": "الحَيْمَة الدَّاخِلِيَّة",
+          "name_ar_normalized": "الحيمه الداخليه",
+          "name_en": "Al-Haimah Al-Dakhiliah",
+          "name_en_normalized": "Al Haimah Al Dakhiliah"
+        },
+        {
+          "source_id": 26,
+          "code": "YE-DST-002-026",
+          "name_ar": "مناخة",
+          "name_ar_tashkeel": "مَنَاخَة",
+          "name_ar_normalized": "مناخه",
+          "name_en": "Manakhah",
+          "name_en_normalized": "Manakhah"
+        },
+        {
+          "source_id": 27,
+          "code": "YE-DST-002-027",
+          "name_ar": "نهم",
+          "name_ar_tashkeel": "نِهْم",
+          "name_ar_normalized": "نهم",
+          "name_en": "Nihm",
+          "name_en_normalized": "Nihm"
+        },
+        {
+          "source_id": 28,
+          "code": "YE-DST-002-028",
+          "name_ar": "بني مطر",
+          "name_ar_tashkeel": "بَنِي مَطَر",
+          "name_ar_normalized": "بني مطر",
+          "name_en": "Bni Matar",
+          "name_en_normalized": "Bni Matar"
+        }
+      ]
+    },
+    {
+      "source_id": 3,
+      "code": "YE-GOV-003",
+      "name_ar": "عدن",
+      "name_ar_tashkeel": "عَدَن",
+      "name_ar_normalized": "عدن",
+      "name_en": "Aden",
+      "name_en_normalized": "Aden",
+      "districts": [
+        {
+          "source_id": 29,
+          "code": "YE-DST-003-029",
+          "name_ar": "دار سعد",
+          "name_ar_tashkeel": "دَار سَعْد",
+          "name_ar_normalized": "دار سعد",
+          "name_en": "Dar Saad",
+          "name_en_normalized": "Dar Saad"
+        },
+        {
+          "source_id": 30,
+          "code": "YE-DST-003-030",
+          "name_ar": "الشيخ عثمان",
+          "name_ar_tashkeel": "الشَّيْخ عُثْمَان",
+          "name_ar_normalized": "الشيخ عثمان",
+          "name_en": "Al-Shaikh Othman",
+          "name_en_normalized": "Al Shaikh Othman"
+        },
+        {
+          "source_id": 31,
+          "code": "YE-DST-003-031",
+          "name_ar": "المنصورة",
+          "name_ar_tashkeel": "المَنْصُورَة",
+          "name_ar_normalized": "المنصوره",
+          "name_en": "Al-Mansorah",
+          "name_en_normalized": "Al Mansorah"
+        },
+        {
+          "source_id": 32,
+          "code": "YE-DST-003-032",
+          "name_ar": "البريقة",
+          "name_ar_tashkeel": "البُرَيْقَة",
+          "name_ar_normalized": "البريقه",
+          "name_en": "Al-Boriqah",
+          "name_en_normalized": "Al Boriqah"
+        },
+        {
+          "source_id": 33,
+          "code": "YE-DST-003-033",
+          "name_ar": "التواهي",
+          "name_ar_tashkeel": "التَّوَّاهِي",
+          "name_ar_normalized": "التواهي",
+          "name_en": "Al-Tawwahi",
+          "name_en_normalized": "Al Tawwahi"
+        },
+        {
+          "source_id": 34,
+          "code": "YE-DST-003-034",
+          "name_ar": "خور مكسر",
+          "name_ar_tashkeel": "خُوْر مَكَسَر",
+          "name_ar_normalized": "خور مكسر",
+          "name_en": "Khoor Maksar",
+          "name_en_normalized": "Khoor Maksar"
+        },
+        {
+          "source_id": 35,
+          "code": "YE-DST-003-035",
+          "name_ar": "صيرة",
+          "name_ar_tashkeel": "صِيْرَة",
+          "name_ar_normalized": "صيره",
+          "name_en": "Seerh",
+          "name_en_normalized": "Seerh"
+        },
+        {
+          "source_id": 36,
+          "code": "YE-DST-003-036",
+          "name_ar": "المعلا",
+          "name_ar_tashkeel": "المُعَلَّا",
+          "name_ar_normalized": "المعلا",
+          "name_en": "Al-Mo'alla",
+          "name_en_normalized": "Al Moalla"
+        }
+      ]
+    },
+    {
+      "source_id": 4,
+      "code": "YE-GOV-004",
+      "name_ar": "الحديدة",
+      "name_ar_tashkeel": "الحُدَيْدَة",
+      "name_ar_normalized": "الحديده",
+      "name_en": "Al-Hodeidah",
+      "name_en_normalized": "Al Hodeidah",
+      "districts": [
+        {
+          "source_id": 37,
+          "code": "YE-DST-004-037",
+          "name_ar": "بيت الفقية",
+          "name_ar_tashkeel": "بَيْت الفَقِيْة",
+          "name_ar_normalized": "بيت الفقيه",
+          "name_en": "Bait Al-Fakih",
+          "name_en_normalized": "Bait Al Fakih"
+        },
+        {
+          "source_id": 38,
+          "code": "YE-DST-004-038",
+          "name_ar": "التحيتا",
+          "name_ar_tashkeel": "التُّحَيْتَا",
+          "name_ar_normalized": "التحيتا",
+          "name_en": "Al-Tohaita",
+          "name_en_normalized": "Al Tohaita"
+        },
+        {
+          "source_id": 39,
+          "code": "YE-DST-004-039",
+          "name_ar": "كمران",
+          "name_ar_tashkeel": "كَمَرَان",
+          "name_ar_normalized": "كمران",
+          "name_en": "Kamaran",
+          "name_en_normalized": "Kamaran"
+        },
+        {
+          "source_id": 40,
+          "code": "YE-DST-004-040",
+          "name_ar": "الخوخة",
+          "name_ar_tashkeel": "الخُوْخُة",
+          "name_ar_normalized": "الخوخه",
+          "name_en": "Al-Khookhah",
+          "name_en_normalized": "Al Khookhah"
+        },
+        {
+          "source_id": 41,
+          "code": "YE-DST-004-041",
+          "name_ar": "الدريهمي",
+          "name_ar_tashkeel": "الدُرَيْهِمِي",
+          "name_ar_normalized": "الدريهمي",
+          "name_en": "Al-Doraihmi",
+          "name_en_normalized": "Al Doraihmi"
+        },
+        {
+          "source_id": 42,
+          "code": "YE-DST-004-042",
+          "name_ar": "اللحية",
+          "name_ar_tashkeel": "اللُّحَيَّة",
+          "name_ar_normalized": "اللحيه",
+          "name_en": "Al-Luhayyah",
+          "name_en_normalized": "Al Luhayyah"
+        },
+        {
+          "source_id": 43,
+          "code": "YE-DST-004-043",
+          "name_ar": "زبيد",
+          "name_ar_tashkeel": "زَبِيْد",
+          "name_ar_normalized": "زبيد",
+          "name_en": "Zabeed",
+          "name_en_normalized": "Zabeed"
+        },
+        {
+          "source_id": 44,
+          "code": "YE-DST-004-044",
+          "name_ar": "جبل راس",
+          "name_ar_tashkeel": "جَبَل رَاس",
+          "name_ar_normalized": "جبل راس",
+          "name_en": "Jabal Raas",
+          "name_en_normalized": "Jabal Raas"
+        },
+        {
+          "source_id": 45,
+          "code": "YE-DST-004-045",
+          "name_ar": "المراوعة",
+          "name_ar_tashkeel": "المَرَاوِعَة",
+          "name_ar_normalized": "المراوعه",
+          "name_en": "Al-Marawiah",
+          "name_en_normalized": "Al Marawiah"
+        },
+        {
+          "source_id": 46,
+          "code": "YE-DST-004-046",
+          "name_ar": "الجراحي",
+          "name_ar_tashkeel": "الجَّرَّاحِي",
+          "name_ar_normalized": "الجراحي",
+          "name_en": "Al-Jarrahi",
+          "name_en_normalized": "Al Jarrahi"
+        },
+        {
+          "source_id": 47,
+          "code": "YE-DST-004-047",
+          "name_ar": "الزهرة",
+          "name_ar_tashkeel": "الزُّهْرَة",
+          "name_ar_normalized": "الزهره",
+          "name_en": "Al-Zuhrah",
+          "name_en_normalized": "Al Zuhrah"
+        },
+        {
+          "source_id": 48,
+          "code": "YE-DST-004-048",
+          "name_ar": "المغلاف",
+          "name_ar_tashkeel": "المِغْلَاف",
+          "name_ar_normalized": "المغلاف",
+          "name_en": "Al-Mighlaf",
+          "name_en_normalized": "Al Mighlaf"
+        },
+        {
+          "source_id": 49,
+          "code": "YE-DST-004-049",
+          "name_ar": "المنصورية",
+          "name_ar_tashkeel": "المَنْصُورِيَّة",
+          "name_ar_normalized": "المنصوريه",
+          "name_en": "Al-Mansoriah",
+          "name_en_normalized": "Al Mansoriah"
+        },
+        {
+          "source_id": 50,
+          "code": "YE-DST-004-050",
+          "name_ar": "الزيدية",
+          "name_ar_tashkeel": "الزَّيْدِيَة",
+          "name_ar_normalized": "الزيديه",
+          "name_en": "Al-Zaydiyah",
+          "name_en_normalized": "Al Zaydiyah"
+        },
+        {
+          "source_id": 51,
+          "code": "YE-DST-004-051",
+          "name_ar": "الحالي",
+          "name_ar_tashkeel": "الحَالِي",
+          "name_ar_normalized": "الحالي",
+          "name_en": "Al-Hali",
+          "name_en_normalized": "Al Hali"
+        },
+        {
+          "source_id": 52,
+          "code": "YE-DST-004-052",
+          "name_ar": "الحجيلة",
+          "name_ar_tashkeel": "الحُجَّيْلَة",
+          "name_ar_normalized": "الحجيله",
+          "name_en": "Al-Hojailah",
+          "name_en_normalized": "Al Hojailah"
+        },
+        {
+          "source_id": 53,
+          "code": "YE-DST-004-053",
+          "name_ar": "السخنة",
+          "name_ar_tashkeel": "السُّخْنَة",
+          "name_ar_normalized": "السخنه",
+          "name_en": "Al-Sokhnah",
+          "name_en_normalized": "Al Sokhnah"
+        },
+        {
+          "source_id": 54,
+          "code": "YE-DST-004-054",
+          "name_ar": "المنيرة",
+          "name_ar_tashkeel": "المُنِيْرَة",
+          "name_ar_normalized": "المنيره",
+          "name_en": "Al-Munirah",
+          "name_en_normalized": "Al Munirah"
+        },
+        {
+          "source_id": 55,
+          "code": "YE-DST-004-055",
+          "name_ar": "الحوك",
+          "name_ar_tashkeel": "الحَوَك",
+          "name_ar_normalized": "الحوك",
+          "name_en": "Al-Hook",
+          "name_en_normalized": "Al Hook"
+        },
+        {
+          "source_id": 56,
+          "code": "YE-DST-004-056",
+          "name_ar": "الصليف",
+          "name_ar_tashkeel": "الصَّلِيْف",
+          "name_ar_normalized": "الصليف",
+          "name_en": "Al-Saleef",
+          "name_en_normalized": "Al Saleef"
+        },
+        {
+          "source_id": 57,
+          "code": "YE-DST-004-057",
+          "name_ar": "الميناء",
+          "name_ar_tashkeel": "المِيْنَاء",
+          "name_ar_normalized": "الميناء",
+          "name_en": "Al-Mena",
+          "name_en_normalized": "Al Mena"
+        },
+        {
+          "source_id": 58,
+          "code": "YE-DST-004-058",
+          "name_ar": "باجل",
+          "name_ar_tashkeel": "بَاجِل",
+          "name_ar_normalized": "باجل",
+          "name_en": "Bajil",
+          "name_en_normalized": "Bajil"
+        },
+        {
+          "source_id": 59,
+          "code": "YE-DST-004-059",
+          "name_ar": "الضحي",
+          "name_ar_tashkeel": "الضَّحِي",
+          "name_ar_normalized": "الضحي",
+          "name_en": "Al-Dhahi",
+          "name_en_normalized": "Al Dhahi"
+        },
+        {
+          "source_id": 60,
+          "code": "YE-DST-004-060",
+          "name_ar": "حيس",
+          "name_ar_tashkeel": "حَيْس",
+          "name_ar_normalized": "حيس",
+          "name_en": "Hais",
+          "name_en_normalized": "Hais"
+        },
+        {
+          "source_id": 61,
+          "code": "YE-DST-004-061",
+          "name_ar": "القناوص",
+          "name_ar_tashkeel": "القَنَاوِص",
+          "name_ar_normalized": "القناوص",
+          "name_en": "Al-Qnawis",
+          "name_en_normalized": "Al Qnawis"
+        },
+        {
+          "source_id": 62,
+          "code": "YE-DST-004-062",
+          "name_ar": "برع",
+          "name_ar_tashkeel": "بُرَع",
+          "name_ar_normalized": "برع",
+          "name_en": "Bora",
+          "name_en_normalized": "Bora"
+        }
+      ]
+    },
+    {
+      "source_id": 5,
+      "code": "YE-GOV-005",
+      "name_ar": "ذمار",
+      "name_ar_tashkeel": "ذَمَار",
+      "name_ar_normalized": "ذمار",
+      "name_en": "Thamar",
+      "name_en_normalized": "Thamar",
+      "districts": [
+        {
+          "source_id": 63,
+          "code": "YE-DST-005-063",
+          "name_ar": "جهران",
+          "name_ar_tashkeel": "جَهْرَان",
+          "name_ar_normalized": "جهران",
+          "name_en": "Jhran",
+          "name_en_normalized": "Jhran"
+        },
+        {
+          "source_id": 64,
+          "code": "YE-DST-005-064",
+          "name_ar": "عتمة",
+          "name_ar_tashkeel": "عُتْمَة",
+          "name_ar_normalized": "عتمه",
+          "name_en": "Otmah",
+          "name_en_normalized": "Otmah"
+        },
+        {
+          "source_id": 65,
+          "code": "YE-DST-005-065",
+          "name_ar": "ميفعة عنس",
+          "name_ar_tashkeel": "مَيْفَعَة عَنْس",
+          "name_ar_normalized": "ميفعه عنس",
+          "name_en": "Mayfa'at Ans",
+          "name_en_normalized": "Mayfaat Ans"
+        },
+        {
+          "source_id": 66,
+          "code": "YE-DST-005-066",
+          "name_ar": "الحداء",
+          "name_ar_tashkeel": "الحَدَاء",
+          "name_ar_normalized": "الحداء",
+          "name_en": "Al-Hada",
+          "name_en_normalized": "Al Hada"
+        },
+        {
+          "source_id": 67,
+          "code": "YE-DST-005-067",
+          "name_ar": "عنس",
+          "name_ar_tashkeel": "عَنْس",
+          "name_ar_normalized": "عنس",
+          "name_en": "Ans",
+          "name_en_normalized": "Ans"
+        },
+        {
+          "source_id": 68,
+          "code": "YE-DST-005-068",
+          "name_ar": "وصاب السافل",
+          "name_ar_tashkeel": "وِصَاب السَّافِل",
+          "name_ar_normalized": "وصاب السافل",
+          "name_en": "Wosab Al-Safil",
+          "name_en_normalized": "Wosab Al Safil"
+        },
+        {
+          "source_id": 69,
+          "code": "YE-DST-005-069",
+          "name_ar": "وصاب العالي",
+          "name_ar_tashkeel": "وِصَاب العَالِي",
+          "name_ar_normalized": "وصاب العالي",
+          "name_en": "Wosab Al-Aali",
+          "name_en_normalized": "Wosab Al Aali"
+        },
+        {
+          "source_id": 70,
+          "code": "YE-DST-005-070",
+          "name_ar": "جبل الشرق",
+          "name_ar_tashkeel": "جَبَل الشَّرْق",
+          "name_ar_normalized": "جبل الشرق",
+          "name_en": "Jabal Al-Sharq",
+          "name_en_normalized": "Jabal Al Sharq"
+        },
+        {
+          "source_id": 71,
+          "code": "YE-DST-005-071",
+          "name_ar": "المنار",
+          "name_ar_tashkeel": "المَنَار",
+          "name_ar_normalized": "المنار",
+          "name_en": "Al-Manar",
+          "name_en_normalized": "Al Manar"
+        },
+        {
+          "source_id": 72,
+          "code": "YE-DST-005-072",
+          "name_ar": "مغرب عنس",
+          "name_ar_tashkeel": "مَغْرِب عَنْس",
+          "name_ar_normalized": "مغرب عنس",
+          "name_en": "Maghrib Ans",
+          "name_en_normalized": "Maghrib Ans"
+        },
+        {
+          "source_id": 73,
+          "code": "YE-DST-005-073",
+          "name_ar": "ضوران آنس",
+          "name_ar_tashkeel": "ضُوْرَان آنِس",
+          "name_ar_normalized": "ضوران انس",
+          "name_en": "Dhoran Aanis",
+          "name_en_normalized": "Dhoran Aanis"
+        },
+        {
+          "source_id": 74,
+          "code": "YE-DST-005-074",
+          "name_ar": "مدينة ذمار",
+          "name_ar_tashkeel": "مَدِيْنَة ذَمَار",
+          "name_ar_normalized": "مدينه ذمار",
+          "name_en": "Thamar City",
+          "name_en_normalized": "Thamar City"
+        }
+      ]
+    },
+    {
+      "source_id": 6,
+      "code": "YE-GOV-006",
+      "name_ar": "عمران",
+      "name_ar_tashkeel": "عَمْران",
+      "name_ar_normalized": "عمران",
+      "name_en": "Amran",
+      "name_en_normalized": "Amran",
+      "districts": [
+        {
+          "source_id": 75,
+          "code": "YE-DST-006-075",
+          "name_ar": "حرف سفيان",
+          "name_ar_tashkeel": "حَرْف سُفْيَان",
+          "name_ar_normalized": "حرف سفيان",
+          "name_en": "Harf Sofian",
+          "name_en_normalized": "Harf Sofian"
+        },
+        {
+          "source_id": 76,
+          "code": "YE-DST-006-076",
+          "name_ar": "حوث",
+          "name_ar_tashkeel": "حُوْث",
+          "name_ar_normalized": "حوث",
+          "name_en": "Hooth",
+          "name_en_normalized": "Hooth"
+        },
+        {
+          "source_id": 77,
+          "code": "YE-DST-006-077",
+          "name_ar": "العشة",
+          "name_ar_tashkeel": "العَشِّة",
+          "name_ar_normalized": "العشه",
+          "name_en": "Al-Ashah",
+          "name_en_normalized": "Al Ashah"
+        },
+        {
+          "source_id": 78,
+          "code": "YE-DST-006-078",
+          "name_ar": "قفلة عذر",
+          "name_ar_tashkeel": "قِفْلَة عِذَر",
+          "name_ar_normalized": "قفله عذر",
+          "name_en": "Qiflt Ethar",
+          "name_en_normalized": "Qiflt Ethar"
+        },
+        {
+          "source_id": 79,
+          "code": "YE-DST-006-079",
+          "name_ar": "شهارة",
+          "name_ar_tashkeel": "شَهَارَة",
+          "name_ar_normalized": "شهاره",
+          "name_en": "Shaharah",
+          "name_en_normalized": "Shaharah"
+        },
+        {
+          "source_id": 80,
+          "code": "YE-DST-006-080",
+          "name_ar": "المدان",
+          "name_ar_tashkeel": "المَدَان",
+          "name_ar_normalized": "المدان",
+          "name_en": "Al-Madan",
+          "name_en_normalized": "Al Madan"
+        },
+        {
+          "source_id": 81,
+          "code": "YE-DST-006-081",
+          "name_ar": "صوير",
+          "name_ar_tashkeel": "صُوَيْر",
+          "name_ar_normalized": "صوير",
+          "name_en": "Sowair",
+          "name_en_normalized": "Sowair"
+        },
+        {
+          "source_id": 82,
+          "code": "YE-DST-006-082",
+          "name_ar": "ظليمة حبور",
+          "name_ar_tashkeel": "ظُلَيْمَة حَبُوْر",
+          "name_ar_normalized": "ظليمه حبور",
+          "name_en": "Dholaimah Haboor",
+          "name_en_normalized": "Dholaimah Haboor"
+        },
+        {
+          "source_id": 83,
+          "code": "YE-DST-006-083",
+          "name_ar": "السودة",
+          "name_ar_tashkeel": "السَّوْدَة",
+          "name_ar_normalized": "السوده",
+          "name_en": "Al-Sawdah",
+          "name_en_normalized": "Al Sawdah"
+        },
+        {
+          "source_id": 84,
+          "code": "YE-DST-006-084",
+          "name_ar": "خمر",
+          "name_ar_tashkeel": "خَمِر",
+          "name_ar_normalized": "خمر",
+          "name_en": "Khamer",
+          "name_en_normalized": "Khamer"
+        },
+        {
+          "source_id": 85,
+          "code": "YE-DST-006-085",
+          "name_ar": "ذيبين",
+          "name_ar_tashkeel": "ذِيْبَيْن",
+          "name_ar_normalized": "ذيبين",
+          "name_en": "Thibain",
+          "name_en_normalized": "Thibain"
+        },
+        {
+          "source_id": 86,
+          "code": "YE-DST-006-086",
+          "name_ar": "خارف",
+          "name_ar_tashkeel": "خَارِف",
+          "name_ar_normalized": "خارف",
+          "name_en": "Kharif",
+          "name_en_normalized": "Kharif"
+        },
+        {
+          "source_id": 87,
+          "code": "YE-DST-006-087",
+          "name_ar": "ريدة",
+          "name_ar_tashkeel": "رَيْدَة",
+          "name_ar_normalized": "ريده",
+          "name_en": "Raidah",
+          "name_en_normalized": "Raidah"
+        },
+        {
+          "source_id": 88,
+          "code": "YE-DST-006-088",
+          "name_ar": "جبل عيال يزيد",
+          "name_ar_tashkeel": "جَبَل عِيَال يَزِيْد",
+          "name_ar_normalized": "جبل عيال يزيد",
+          "name_en": "Eyal Yazeed Mountain",
+          "name_en_normalized": "Eyal Yazeed Mountain"
+        },
+        {
+          "source_id": 89,
+          "code": "YE-DST-006-089",
+          "name_ar": "السود",
+          "name_ar_tashkeel": "السَّوْد",
+          "name_ar_normalized": "السود",
+          "name_en": "Al-Sawd",
+          "name_en_normalized": "Al Sawd"
+        },
+        {
+          "source_id": 90,
+          "code": "YE-DST-006-090",
+          "name_ar": "عمران",
+          "name_ar_tashkeel": "عَمْرَان",
+          "name_ar_normalized": "عمران",
+          "name_en": "Amran",
+          "name_en_normalized": "Amran"
+        },
+        {
+          "source_id": 91,
+          "code": "YE-DST-006-091",
+          "name_ar": "مسور",
+          "name_ar_tashkeel": "مَسْوَر",
+          "name_ar_normalized": "مسور",
+          "name_en": "Maswar",
+          "name_en_normalized": "Maswar"
+        },
+        {
+          "source_id": 92,
+          "code": "YE-DST-006-092",
+          "name_ar": "ثلا",
+          "name_ar_tashkeel": "ثُلَا",
+          "name_ar_normalized": "ثلا",
+          "name_en": "Thula",
+          "name_en_normalized": "Thula"
+        },
+        {
+          "source_id": 93,
+          "code": "YE-DST-006-093",
+          "name_ar": "عيال سريح",
+          "name_ar_tashkeel": "عِيْال سُرَيْح",
+          "name_ar_normalized": "عيال سريح",
+          "name_en": "Eial Sraih",
+          "name_en_normalized": "Eial Sraih"
+        },
+        {
+          "source_id": 94,
+          "code": "YE-DST-006-094",
+          "name_ar": "بني صريم",
+          "name_ar_tashkeel": "بَنِي صُرَيْم",
+          "name_ar_normalized": "بني صريم",
+          "name_en": "Bni Soraim",
+          "name_en_normalized": "Bni Soraim"
+        }
+      ]
+    },
+    {
+      "source_id": 7,
+      "code": "YE-GOV-007",
+      "name_ar": "حجة",
+      "name_ar_tashkeel": "حَجَّة",
+      "name_ar_normalized": "حجه",
+      "name_en": "Hajjah",
+      "name_en_normalized": "Hajjah",
+      "districts": [
+        {
+          "source_id": 95,
+          "code": "YE-DST-007-095",
+          "name_ar": "بكيل المير",
+          "name_ar_tashkeel": "بَكِيْل المِيْر",
+          "name_ar_normalized": "بكيل المير",
+          "name_en": "Bakel Al-Meer",
+          "name_en_normalized": "Bakel Al Meer"
+        },
+        {
+          "source_id": 96,
+          "code": "YE-DST-007-096",
+          "name_ar": "بني العوام",
+          "name_ar_tashkeel": "بَنِي العَوّام",
+          "name_ar_normalized": "بني العوام",
+          "name_en": "Bni Al-Awam",
+          "name_en_normalized": "Bni Al Awam"
+        },
+        {
+          "source_id": 97,
+          "code": "YE-DST-007-097",
+          "name_ar": "أفلح الشام",
+          "name_ar_tashkeel": "أَفْلَح الشَّام",
+          "name_ar_normalized": "افلح الشام",
+          "name_en": "Aflah Al-Sham",
+          "name_en_normalized": "Aflah Al Sham"
+        },
+        {
+          "source_id": 98,
+          "code": "YE-DST-007-098",
+          "name_ar": "أفلح اليمن",
+          "name_ar_tashkeel": "أَفْلَح اليَمَن",
+          "name_ar_normalized": "افلح اليمن",
+          "name_en": "Aflah Al-Yemen",
+          "name_en_normalized": "Aflah Al Yemen"
+        },
+        {
+          "source_id": 99,
+          "code": "YE-DST-007-099",
+          "name_ar": "بني قيس الطور",
+          "name_ar_tashkeel": "بَنِي قَيْس الطَُوْر",
+          "name_ar_normalized": "بني قيس الطور",
+          "name_en": "Bni Qais Al-Tawr",
+          "name_en_normalized": "Bni Qais Al Tawr"
+        },
+        {
+          "source_id": 100,
+          "code": "YE-DST-007-100",
+          "name_ar": "كحلان الشرف",
+          "name_ar_tashkeel": "كُحْلَان الشَّرَف",
+          "name_ar_normalized": "كحلان الشرف",
+          "name_en": "Kohlan Al-Sharaf",
+          "name_en_normalized": "Kohlan Al Sharaf"
+        },
+        {
+          "source_id": 101,
+          "code": "YE-DST-007-101",
+          "name_ar": "كحلان عفار",
+          "name_ar_tashkeel": "كُحْلَان عَفَّار",
+          "name_ar_normalized": "كحلان عفار",
+          "name_en": "Qohlan Affar",
+          "name_en_normalized": "Qohlan Affar"
+        },
+        {
+          "source_id": 102,
+          "code": "YE-DST-007-102",
+          "name_ar": "خيران المحرق",
+          "name_ar_tashkeel": "خَيْرَان المُحَرَّق",
+          "name_ar_normalized": "خيران المحرق",
+          "name_en": "Khiran Al-Mahrraq",
+          "name_en_normalized": "Khiran Al Mahrraq"
+        },
+        {
+          "source_id": 103,
+          "code": "YE-DST-007-103",
+          "name_ar": "حجة",
+          "name_ar_tashkeel": "حَجَّة",
+          "name_ar_normalized": "حجه",
+          "name_en": "Hajjah",
+          "name_en_normalized": "Hajjah"
+        },
+        {
+          "source_id": 104,
+          "code": "YE-DST-007-104",
+          "name_ar": "مدينة حجة",
+          "name_ar_tashkeel": "مَدِيْنَة حَجَّة",
+          "name_ar_normalized": "مدينه حجه",
+          "name_en": "Hajjah City",
+          "name_en_normalized": "Hajjah City"
+        },
+        {
+          "source_id": 105,
+          "code": "YE-DST-007-105",
+          "name_ar": "قفل شمر",
+          "name_ar_tashkeel": "قُفْل شَمَر",
+          "name_ar_normalized": "قفل شمر",
+          "name_en": "Qufl Shamar",
+          "name_en_normalized": "Qufl Shamar"
+        },
+        {
+          "source_id": 106,
+          "code": "YE-DST-007-106",
+          "name_ar": "قارة",
+          "name_ar_tashkeel": "قَارَة",
+          "name_ar_normalized": "قاره",
+          "name_en": "Qarah",
+          "name_en_normalized": "Qarah"
+        },
+        {
+          "source_id": 107,
+          "code": "YE-DST-007-107",
+          "name_ar": "أسلم",
+          "name_ar_tashkeel": "أَسْلَم",
+          "name_ar_normalized": "اسلم",
+          "name_en": "Aslm",
+          "name_en_normalized": "Aslm"
+        },
+        {
+          "source_id": 108,
+          "code": "YE-DST-007-108",
+          "name_ar": "الجميمة",
+          "name_ar_tashkeel": "الجَمِيْمَة",
+          "name_ar_normalized": "الجميمه",
+          "name_en": "Al-Jamimah",
+          "name_en_normalized": "Al Jamimah"
+        },
+        {
+          "source_id": 109,
+          "code": "YE-DST-007-109",
+          "name_ar": "وشحة",
+          "name_ar_tashkeel": "وِشْحَة",
+          "name_ar_normalized": "وشحه",
+          "name_en": "Wishhah",
+          "name_en_normalized": "Wishhah"
+        },
+        {
+          "source_id": 110,
+          "code": "YE-DST-007-110",
+          "name_ar": "الشغادرة",
+          "name_ar_tashkeel": "الشَّغَادِرَة",
+          "name_ar_normalized": "الشغادره",
+          "name_en": "Al-Shaghadrah",
+          "name_en_normalized": "Al Shaghadrah"
+        },
+        {
+          "source_id": 111,
+          "code": "YE-DST-007-111",
+          "name_ar": "المحابشة",
+          "name_ar_tashkeel": "المَحَابِشَة",
+          "name_ar_normalized": "المحابشه",
+          "name_en": "Al-Mahabishah",
+          "name_en_normalized": "Al Mahabishah"
+        },
+        {
+          "source_id": 112,
+          "code": "YE-DST-007-112",
+          "name_ar": "المغربة",
+          "name_ar_tashkeel": "المَغْرِبَة",
+          "name_ar_normalized": "المغربه",
+          "name_en": "Al-Maghribah",
+          "name_en_normalized": "Al Maghribah"
+        },
+        {
+          "source_id": 113,
+          "code": "YE-DST-007-113",
+          "name_ar": "المفتاح",
+          "name_ar_tashkeel": "المِفْتَاح",
+          "name_ar_normalized": "المفتاح",
+          "name_en": "Al-Miftah",
+          "name_en_normalized": "Al Miftah"
+        },
+        {
+          "source_id": 114,
+          "code": "YE-DST-007-114",
+          "name_ar": "حرض",
+          "name_ar_tashkeel": "حَرَض",
+          "name_ar_normalized": "حرض",
+          "name_en": "Haradh",
+          "name_en_normalized": "Haradh"
+        },
+        {
+          "source_id": 115,
+          "code": "YE-DST-007-115",
+          "name_ar": "حيران",
+          "name_ar_tashkeel": "حَيْرَان",
+          "name_ar_normalized": "حيران",
+          "name_en": "Hairan",
+          "name_en_normalized": "Hairan"
+        },
+        {
+          "source_id": 116,
+          "code": "YE-DST-007-116",
+          "name_ar": "كشر",
+          "name_ar_tashkeel": "كُشَر",
+          "name_ar_normalized": "كشر",
+          "name_en": "Koshar",
+          "name_en_normalized": "Koshar"
+        },
+        {
+          "source_id": 117,
+          "code": "YE-DST-007-117",
+          "name_ar": "شرس",
+          "name_ar_tashkeel": "شَرِس",
+          "name_ar_normalized": "شرس",
+          "name_en": "Sharis",
+          "name_en_normalized": "Sharis"
+        },
+        {
+          "source_id": 118,
+          "code": "YE-DST-007-118",
+          "name_ar": "عبس",
+          "name_ar_tashkeel": "عَبْس",
+          "name_ar_normalized": "عبس",
+          "name_en": "Abs",
+          "name_en_normalized": "Abs"
+        },
+        {
+          "source_id": 119,
+          "code": "YE-DST-007-119",
+          "name_ar": "كعيدنة",
+          "name_ar_tashkeel": "كُعَيْدِنَة",
+          "name_ar_normalized": "كعيدنه",
+          "name_en": "Koa'dnah",
+          "name_en_normalized": "Koadnah"
+        },
+        {
+          "source_id": 120,
+          "code": "YE-DST-007-120",
+          "name_ar": "مبين",
+          "name_ar_tashkeel": "مَبْيَن",
+          "name_ar_normalized": "مبين",
+          "name_en": "Mabian",
+          "name_en_normalized": "Mabian"
+        },
+        {
+          "source_id": 121,
+          "code": "YE-DST-007-121",
+          "name_ar": "الشاهل",
+          "name_ar_tashkeel": "الشَّاهِل",
+          "name_ar_normalized": "الشاهل",
+          "name_en": "Al-Shahil",
+          "name_en_normalized": "Al Shahil"
+        },
+        {
+          "source_id": 122,
+          "code": "YE-DST-007-122",
+          "name_ar": "وضرة",
+          "name_ar_tashkeel": "وَضْرَة",
+          "name_ar_normalized": "وضره",
+          "name_en": "Wdhrah",
+          "name_en_normalized": "Wdhrah"
+        },
+        {
+          "source_id": 123,
+          "code": "YE-DST-007-123",
+          "name_ar": "مستباء",
+          "name_ar_tashkeel": "مُسْتَبَاء",
+          "name_ar_normalized": "مستباء",
+          "name_en": "Mostaba'",
+          "name_en_normalized": "Mostaba"
+        },
+        {
+          "source_id": 124,
+          "code": "YE-DST-007-124",
+          "name_ar": "ميدي",
+          "name_ar_tashkeel": "مِيْدِي",
+          "name_ar_normalized": "ميدي",
+          "name_en": "Meedi",
+          "name_en_normalized": "Meedi"
+        },
+        {
+          "source_id": 125,
+          "code": "YE-DST-007-125",
+          "name_ar": "نجرة",
+          "name_ar_tashkeel": "نَجْرَة",
+          "name_ar_normalized": "نجره",
+          "name_en": "Najrah",
+          "name_en_normalized": "Najrah"
+        }
+      ]
+    },
+    {
+      "source_id": 8,
+      "code": "YE-GOV-008",
+      "name_ar": "إب",
+      "name_ar_tashkeel": "إِبْ",
+      "name_ar_normalized": "اب",
+      "name_en": "Ibb",
+      "name_en_normalized": "Ibb",
+      "districts": [
+        {
+          "source_id": 126,
+          "code": "YE-DST-008-126",
+          "name_ar": "العدين",
+          "name_ar_tashkeel": "العُدَيْن",
+          "name_ar_normalized": "العدين",
+          "name_en": "Al-Odain",
+          "name_en_normalized": "Al Odain"
+        },
+        {
+          "source_id": 127,
+          "code": "YE-DST-008-127",
+          "name_ar": "إب",
+          "name_ar_tashkeel": "إِب",
+          "name_ar_normalized": "اب",
+          "name_en": "Ibb",
+          "name_en_normalized": "Ibb"
+        },
+        {
+          "source_id": 128,
+          "code": "YE-DST-008-128",
+          "name_ar": "بعدان",
+          "name_ar_tashkeel": "بَعْدَان",
+          "name_ar_normalized": "بعدان",
+          "name_en": "Ba'dan",
+          "name_en_normalized": "Badan"
+        },
+        {
+          "source_id": 129,
+          "code": "YE-DST-008-129",
+          "name_ar": "جبلة",
+          "name_ar_tashkeel": "جِبْلَة",
+          "name_ar_normalized": "جبله",
+          "name_en": "Jiblah",
+          "name_en_normalized": "Jiblah"
+        },
+        {
+          "source_id": 130,
+          "code": "YE-DST-008-130",
+          "name_ar": "النادرة",
+          "name_ar_tashkeel": "النَّادِرَة",
+          "name_ar_normalized": "النادره",
+          "name_en": "Al-Nadrah",
+          "name_en_normalized": "Al Nadrah"
+        },
+        {
+          "source_id": 131,
+          "code": "YE-DST-008-131",
+          "name_ar": "حبيش",
+          "name_ar_tashkeel": "حُبَيْش",
+          "name_ar_normalized": "حبيش",
+          "name_en": "Hobaish",
+          "name_en_normalized": "Hobaish"
+        },
+        {
+          "source_id": 132,
+          "code": "YE-DST-008-132",
+          "name_ar": "حزم العدين",
+          "name_ar_tashkeel": "حَزْم العُدَيْن",
+          "name_ar_normalized": "حزم العدين",
+          "name_en": "Hazm Al-Odain",
+          "name_en_normalized": "Hazm Al Odain"
+        },
+        {
+          "source_id": 133,
+          "code": "YE-DST-008-133",
+          "name_ar": "ذي السفال",
+          "name_ar_tashkeel": "ذِي السُّفَال",
+          "name_ar_normalized": "ذي السفال",
+          "name_en": "Thi Al-Sufal",
+          "name_en_normalized": "Thi Al Sufal"
+        },
+        {
+          "source_id": 134,
+          "code": "YE-DST-008-134",
+          "name_ar": "الرضمة",
+          "name_ar_tashkeel": "الرَّضْمَة",
+          "name_ar_normalized": "الرضمه",
+          "name_en": "Al-Radhmah",
+          "name_en_normalized": "Al Radhmah"
+        },
+        {
+          "source_id": 135,
+          "code": "YE-DST-008-135",
+          "name_ar": "السبرة",
+          "name_ar_tashkeel": "السَّبْرَة",
+          "name_ar_normalized": "السبره",
+          "name_en": "Al-Sabrah",
+          "name_en_normalized": "Al Sabrah"
+        },
+        {
+          "source_id": 136,
+          "code": "YE-DST-008-136",
+          "name_ar": "السدة",
+          "name_ar_tashkeel": "السَّدَّة",
+          "name_ar_normalized": "السده",
+          "name_en": "Al-Saddah",
+          "name_en_normalized": "Al Saddah"
+        },
+        {
+          "source_id": 137,
+          "code": "YE-DST-008-137",
+          "name_ar": "السياني",
+          "name_ar_tashkeel": "السَّيَّانِي",
+          "name_ar_normalized": "السياني",
+          "name_en": "Al-Syiani",
+          "name_en_normalized": "Al Syiani"
+        },
+        {
+          "source_id": 138,
+          "code": "YE-DST-008-138",
+          "name_ar": "الشعر",
+          "name_ar_tashkeel": "الشَّعِر",
+          "name_ar_normalized": "الشعر",
+          "name_en": "Al-Sha'ir",
+          "name_en_normalized": "Al Shair"
+        },
+        {
+          "source_id": 139,
+          "code": "YE-DST-008-139",
+          "name_ar": "الظهار",
+          "name_ar_tashkeel": "الظَّهَار",
+          "name_ar_normalized": "الظهار",
+          "name_en": "Al-Dhahar",
+          "name_en_normalized": "Al Dhahar"
+        },
+        {
+          "source_id": 140,
+          "code": "YE-DST-008-140",
+          "name_ar": "فرع العدين",
+          "name_ar_tashkeel": "فَرْع العُدَيْن",
+          "name_ar_normalized": "فرع العدين",
+          "name_en": "Fara' Al-Odain",
+          "name_en_normalized": "Fara Al Odain"
+        },
+        {
+          "source_id": 141,
+          "code": "YE-DST-008-141",
+          "name_ar": "القفر",
+          "name_ar_tashkeel": "القَفْر",
+          "name_ar_normalized": "القفر",
+          "name_en": "Al-Qafr",
+          "name_en_normalized": "Al Qafr"
+        },
+        {
+          "source_id": 142,
+          "code": "YE-DST-008-142",
+          "name_ar": "المخادر",
+          "name_ar_tashkeel": "المَخَادِر",
+          "name_ar_normalized": "المخادر",
+          "name_en": "Al-Makhadrh",
+          "name_en_normalized": "Al Makhadrh"
+        },
+        {
+          "source_id": 143,
+          "code": "YE-DST-008-143",
+          "name_ar": "مذيخرة",
+          "name_ar_tashkeel": "مُذَيْخِرَة",
+          "name_ar_normalized": "مذيخره",
+          "name_en": "Mothaikhrah",
+          "name_en_normalized": "Mothaikhrah"
+        },
+        {
+          "source_id": 144,
+          "code": "YE-DST-008-144",
+          "name_ar": "المشنة",
+          "name_ar_tashkeel": "المَشَنَّة",
+          "name_ar_normalized": "المشنه",
+          "name_en": "Al-Mashnnah",
+          "name_en_normalized": "Al Mashnnah"
+        },
+        {
+          "source_id": 145,
+          "code": "YE-DST-008-145",
+          "name_ar": "يريم",
+          "name_ar_tashkeel": "يَرِيْم",
+          "name_ar_normalized": "يريم",
+          "name_en": "Yareem",
+          "name_en_normalized": "Yareem"
+        }
+      ]
+    },
+    {
+      "source_id": 9,
+      "code": "YE-GOV-009",
+      "name_ar": "صعدة",
+      "name_ar_tashkeel": "صَعْدَة",
+      "name_ar_normalized": "صعده",
+      "name_en": "Sa'dah",
+      "name_en_normalized": "Sadah",
+      "districts": [
+        {
+          "source_id": 146,
+          "code": "YE-DST-009-146",
+          "name_ar": "الحشوة",
+          "name_ar_tashkeel": "الحِشْوَة",
+          "name_ar_normalized": "الحشوه",
+          "name_en": "Al-Hishwah",
+          "name_en_normalized": "Al Hishwah"
+        },
+        {
+          "source_id": 147,
+          "code": "YE-DST-009-147",
+          "name_ar": "الصفراء",
+          "name_ar_tashkeel": "الصَّفْرَاء",
+          "name_ar_normalized": "الصفراء",
+          "name_en": "Al-Safra'a",
+          "name_en_normalized": "Al Safraa"
+        },
+        {
+          "source_id": 148,
+          "code": "YE-DST-009-148",
+          "name_ar": "الظاهر",
+          "name_ar_tashkeel": "الظَّاهِر",
+          "name_ar_normalized": "الظاهر",
+          "name_en": "Al-Dhahir",
+          "name_en_normalized": "Al Dhahir"
+        },
+        {
+          "source_id": 149,
+          "code": "YE-DST-009-149",
+          "name_ar": "باقم",
+          "name_ar_tashkeel": "بَاقِم",
+          "name_ar_normalized": "باقم",
+          "name_en": "Baqim",
+          "name_en_normalized": "Baqim"
+        },
+        {
+          "source_id": 150,
+          "code": "YE-DST-009-150",
+          "name_ar": "حيدان",
+          "name_ar_tashkeel": "حَيْدَان",
+          "name_ar_normalized": "حيدان",
+          "name_en": "Haidan",
+          "name_en_normalized": "Haidan"
+        },
+        {
+          "source_id": 151,
+          "code": "YE-DST-009-151",
+          "name_ar": "رازح",
+          "name_ar_tashkeel": "رَازِح",
+          "name_ar_normalized": "رازح",
+          "name_en": "Razih",
+          "name_en_normalized": "Razih"
+        },
+        {
+          "source_id": 152,
+          "code": "YE-DST-009-152",
+          "name_ar": "ساقين",
+          "name_ar_tashkeel": "سَاقَيْن",
+          "name_ar_normalized": "ساقين",
+          "name_en": "Saqain",
+          "name_en_normalized": "Saqain"
+        },
+        {
+          "source_id": 153,
+          "code": "YE-DST-009-153",
+          "name_ar": "سحار",
+          "name_ar_tashkeel": "سَحَار",
+          "name_ar_normalized": "سحار",
+          "name_en": "Sahar",
+          "name_en_normalized": "Sahar"
+        },
+        {
+          "source_id": 154,
+          "code": "YE-DST-009-154",
+          "name_ar": "شداء",
+          "name_ar_tashkeel": "شِدَاء",
+          "name_ar_normalized": "شداء",
+          "name_en": "Shida'a",
+          "name_en_normalized": "Shidaa"
+        },
+        {
+          "source_id": 155,
+          "code": "YE-DST-009-155",
+          "name_ar": "صعدة",
+          "name_ar_tashkeel": "صَعْدَة",
+          "name_ar_normalized": "صعده",
+          "name_en": "Sa'dah",
+          "name_en_normalized": "Sadah"
+        },
+        {
+          "source_id": 156,
+          "code": "YE-DST-009-156",
+          "name_ar": "غمر",
+          "name_ar_tashkeel": "غَمَر",
+          "name_ar_normalized": "غمر",
+          "name_en": "Ghamer",
+          "name_en_normalized": "Ghamer"
+        },
+        {
+          "source_id": 157,
+          "code": "YE-DST-009-157",
+          "name_ar": "قطابر",
+          "name_ar_tashkeel": "قَطَابِر",
+          "name_ar_normalized": "قطابر",
+          "name_en": "Qatabir",
+          "name_en_normalized": "Qatabir"
+        },
+        {
+          "source_id": 158,
+          "code": "YE-DST-009-158",
+          "name_ar": "كتاف والبقع",
+          "name_ar_tashkeel": "كِتَاف وَالبُقْع",
+          "name_ar_normalized": "كتاف والبقع",
+          "name_en": "Kitaf and Bog'",
+          "name_en_normalized": "Kitaf and Bog"
+        },
+        {
+          "source_id": 159,
+          "code": "YE-DST-009-159",
+          "name_ar": "مجز",
+          "name_ar_tashkeel": "مَجْز",
+          "name_ar_normalized": "مجز",
+          "name_en": "Majz",
+          "name_en_normalized": "Majz"
+        },
+        {
+          "source_id": 160,
+          "code": "YE-DST-009-160",
+          "name_ar": "منبه",
+          "name_ar_tashkeel": "مُنَبِّه",
+          "name_ar_normalized": "منبه",
+          "name_en": "Munabbih",
+          "name_en_normalized": "Munabbih"
+        }
+      ]
+    },
+    {
+      "source_id": 10,
+      "code": "YE-GOV-010",
+      "name_ar": "البيضاء",
+      "name_ar_tashkeel": "البَيْضَاء",
+      "name_ar_normalized": "البيضاء",
+      "name_en": "Al-Baidha",
+      "name_en_normalized": "Al Baidha",
+      "districts": [
+        {
+          "source_id": 161,
+          "code": "YE-DST-010-161",
+          "name_ar": "مدينة البيضاء",
+          "name_ar_tashkeel": "مَدِينَة البَيْضَاء",
+          "name_ar_normalized": "مدينه البيضاء",
+          "name_en": "Al-Baidha City",
+          "name_en_normalized": "Al Baidha City"
+        },
+        {
+          "source_id": 162,
+          "code": "YE-DST-010-162",
+          "name_ar": "البيضاء",
+          "name_ar_tashkeel": "البَيْضَاء",
+          "name_ar_normalized": "البيضاء",
+          "name_en": "Al-Baidha",
+          "name_en_normalized": "Al Baidha"
+        },
+        {
+          "source_id": 163,
+          "code": "YE-DST-010-163",
+          "name_ar": "الزاهر",
+          "name_ar_tashkeel": "الزَّاهِر",
+          "name_ar_normalized": "الزاهر",
+          "name_en": "Al-Zaher",
+          "name_en_normalized": "Al Zaher"
+        },
+        {
+          "source_id": 164,
+          "code": "YE-DST-010-164",
+          "name_ar": "ردمان",
+          "name_ar_tashkeel": "رَدْمَان",
+          "name_ar_normalized": "ردمان",
+          "name_en": "Radman",
+          "name_en_normalized": "Radman"
+        },
+        {
+          "source_id": 165,
+          "code": "YE-DST-010-165",
+          "name_ar": "الرياشية",
+          "name_ar_tashkeel": "الرِّيَاشِيَّة",
+          "name_ar_normalized": "الرياشيه",
+          "name_en": "Al-Riashiah",
+          "name_en_normalized": "Al Riashiah"
+        },
+        {
+          "source_id": 166,
+          "code": "YE-DST-010-166",
+          "name_ar": "السوادية",
+          "name_ar_tashkeel": "السُّوَادِيَّة",
+          "name_ar_normalized": "السواديه",
+          "name_en": "Al-Swadiah",
+          "name_en_normalized": "Al Swadiah"
+        },
+        {
+          "source_id": 167,
+          "code": "YE-DST-010-167",
+          "name_ar": "الشرية",
+          "name_ar_tashkeel": "الشَرِيَّة",
+          "name_ar_normalized": "الشريه",
+          "name_en": "Al-Shariah",
+          "name_en_normalized": "Al Shariah"
+        },
+        {
+          "source_id": 168,
+          "code": "YE-DST-010-168",
+          "name_ar": "صباح",
+          "name_ar_tashkeel": "صَبَاح",
+          "name_ar_normalized": "صباح",
+          "name_en": "Sabah",
+          "name_en_normalized": "Sabah"
+        },
+        {
+          "source_id": 169,
+          "code": "YE-DST-010-169",
+          "name_ar": "الصومعة",
+          "name_ar_tashkeel": "الصَّوْمَعَة",
+          "name_ar_normalized": "الصومعه",
+          "name_en": "Al-Sawma'ah",
+          "name_en_normalized": "Al Sawmaah"
+        },
+        {
+          "source_id": 170,
+          "code": "YE-DST-010-170",
+          "name_ar": "الطفة",
+          "name_ar_tashkeel": "الطَّفَّة",
+          "name_ar_normalized": "الطفه",
+          "name_en": "Al-Tiffah",
+          "name_en_normalized": "Al Tiffah"
+        },
+        {
+          "source_id": 171,
+          "code": "YE-DST-010-171",
+          "name_ar": "العرش",
+          "name_ar_tashkeel": "العَرْش",
+          "name_ar_normalized": "العرش",
+          "name_en": "Al-Arsh",
+          "name_en_normalized": "Al Arsh"
+        },
+        {
+          "source_id": 172,
+          "code": "YE-DST-010-172",
+          "name_ar": "القريشية",
+          "name_ar_tashkeel": "القُرَيْشِيَّة",
+          "name_ar_normalized": "القريشيه",
+          "name_en": "Al-Qurishiah",
+          "name_en_normalized": "Al Qurishiah"
+        },
+        {
+          "source_id": 173,
+          "code": "YE-DST-010-173",
+          "name_ar": "ذي ناعم",
+          "name_ar_tashkeel": "ذِي نَاعِم",
+          "name_ar_normalized": "ذي ناعم",
+          "name_en": "Thi Na'em",
+          "name_en_normalized": "Thi Naem"
+        },
+        {
+          "source_id": 174,
+          "code": "YE-DST-010-174",
+          "name_ar": "مسورة",
+          "name_ar_tashkeel": "مَسْوَرَة",
+          "name_ar_normalized": "مسوره",
+          "name_en": "Maswarah",
+          "name_en_normalized": "Maswarah"
+        },
+        {
+          "source_id": 175,
+          "code": "YE-DST-010-175",
+          "name_ar": "مكيراس",
+          "name_ar_tashkeel": "مُكَيْرَاس",
+          "name_ar_normalized": "مكيراس",
+          "name_en": "Mukiras",
+          "name_en_normalized": "Mukiras"
+        },
+        {
+          "source_id": 176,
+          "code": "YE-DST-010-176",
+          "name_ar": "الملاجم",
+          "name_ar_tashkeel": "المَلَاجِم",
+          "name_ar_normalized": "الملاجم",
+          "name_en": "Al-Malajim",
+          "name_en_normalized": "Al Malajim"
+        },
+        {
+          "source_id": 177,
+          "code": "YE-DST-010-177",
+          "name_ar": "ناطع",
+          "name_ar_tashkeel": "نَاطِع",
+          "name_ar_normalized": "ناطع",
+          "name_en": "Nati'",
+          "name_en_normalized": "Nati"
+        },
+        {
+          "source_id": 178,
+          "code": "YE-DST-010-178",
+          "name_ar": "نعمان",
+          "name_ar_tashkeel": "نَعْمَان",
+          "name_ar_normalized": "نعمان",
+          "name_en": "Na'man",
+          "name_en_normalized": "Naman"
+        },
+        {
+          "source_id": 179,
+          "code": "YE-DST-010-179",
+          "name_ar": "ولد ربيع",
+          "name_ar_tashkeel": "وِلْد رَبِيْع",
+          "name_ar_normalized": "ولد ربيع",
+          "name_en": "Wild Rabee'",
+          "name_en_normalized": "Wild Rabee"
+        },
+        {
+          "source_id": 180,
+          "code": "YE-DST-010-180",
+          "name_ar": "رداع",
+          "name_ar_tashkeel": "رَدَاع",
+          "name_ar_normalized": "رداع",
+          "name_en": "Rada'",
+          "name_en_normalized": "Rada"
+        }
+      ]
+    },
+    {
+      "source_id": 11,
+      "code": "YE-GOV-011",
+      "name_ar": "شبوة",
+      "name_ar_tashkeel": "شَبْوَة",
+      "name_ar_normalized": "شبوه",
+      "name_en": "Shabwah",
+      "name_en_normalized": "Shabwah",
+      "districts": [
+        {
+          "source_id": 181,
+          "code": "YE-DST-011-181",
+          "name_ar": "الروضة",
+          "name_ar_tashkeel": "الرَّوْضَة",
+          "name_ar_normalized": "الروضه",
+          "name_en": "Al-Rawdhah",
+          "name_en_normalized": "Al Rawdhah"
+        },
+        {
+          "source_id": 182,
+          "code": "YE-DST-011-182",
+          "name_ar": "بيحان",
+          "name_ar_tashkeel": "بَيْحَان",
+          "name_ar_normalized": "بيحان",
+          "name_en": "Bayhan",
+          "name_en_normalized": "Bayhan"
+        },
+        {
+          "source_id": 183,
+          "code": "YE-DST-011-183",
+          "name_ar": "جردان",
+          "name_ar_tashkeel": "جَرْدَان",
+          "name_ar_normalized": "جردان",
+          "name_en": "Jardan",
+          "name_en_normalized": "Jardan"
+        },
+        {
+          "source_id": 184,
+          "code": "YE-DST-011-184",
+          "name_ar": "حبان",
+          "name_ar_tashkeel": "حَبَّان",
+          "name_ar_normalized": "حبان",
+          "name_en": "Habban",
+          "name_en_normalized": "Habban"
+        },
+        {
+          "source_id": 185,
+          "code": "YE-DST-011-185",
+          "name_ar": "عين",
+          "name_ar_tashkeel": "عَيْن",
+          "name_ar_normalized": "عين",
+          "name_en": "Ain",
+          "name_en_normalized": "Ain"
+        },
+        {
+          "source_id": 186,
+          "code": "YE-DST-011-186",
+          "name_ar": "حطيب",
+          "name_ar_tashkeel": "حُطَيْب",
+          "name_ar_normalized": "حطيب",
+          "name_en": "Hotaib",
+          "name_en_normalized": "Hotaib"
+        },
+        {
+          "source_id": 187,
+          "code": "YE-DST-011-187",
+          "name_ar": "دهر",
+          "name_ar_tashkeel": "دُهُر",
+          "name_ar_normalized": "دهر",
+          "name_en": "Duhur",
+          "name_en_normalized": "Duhur"
+        },
+        {
+          "source_id": 188,
+          "code": "YE-DST-011-188",
+          "name_ar": "رضوم",
+          "name_ar_tashkeel": "رُضُوْم",
+          "name_ar_normalized": "رضوم",
+          "name_en": "Rudhoom",
+          "name_en_normalized": "Rudhoom"
+        },
+        {
+          "source_id": 189,
+          "code": "YE-DST-011-189",
+          "name_ar": "الصعيد",
+          "name_ar_tashkeel": "الصَّعِيْد",
+          "name_ar_normalized": "الصعيد",
+          "name_en": "Al-Sa'eed",
+          "name_en_normalized": "Al Saeed"
+        },
+        {
+          "source_id": 190,
+          "code": "YE-DST-011-190",
+          "name_ar": "الطلح",
+          "name_ar_tashkeel": "الطَّلْح",
+          "name_ar_normalized": "الطلح",
+          "name_en": "Al-Talh",
+          "name_en_normalized": "Al Talh"
+        },
+        {
+          "source_id": 191,
+          "code": "YE-DST-011-191",
+          "name_ar": "عتق",
+          "name_ar_tashkeel": "عَتَق",
+          "name_ar_normalized": "عتق",
+          "name_en": "Ataq",
+          "name_en_normalized": "Ataq"
+        },
+        {
+          "source_id": 192,
+          "code": "YE-DST-011-192",
+          "name_ar": "عرماء",
+          "name_ar_tashkeel": "عَرْمَاء",
+          "name_ar_normalized": "عرماء",
+          "name_en": "Arma'",
+          "name_en_normalized": "Arma"
+        },
+        {
+          "source_id": 193,
+          "code": "YE-DST-011-193",
+          "name_ar": "عسيلان",
+          "name_ar_tashkeel": "عُسَيْلَان",
+          "name_ar_normalized": "عسيلان",
+          "name_en": "Osailan",
+          "name_en_normalized": "Osailan"
+        },
+        {
+          "source_id": 194,
+          "code": "YE-DST-011-194",
+          "name_ar": "مرخة السفلى",
+          "name_ar_tashkeel": "مَرْخَة السُّفْلَى",
+          "name_ar_normalized": "مرخه السفلا",
+          "name_en": "Markhah Al-Sofla",
+          "name_en_normalized": "Markhah Al Sofla"
+        },
+        {
+          "source_id": 195,
+          "code": "YE-DST-011-195",
+          "name_ar": "مرخة العليا",
+          "name_ar_tashkeel": "مَرْخَة العُلْيَا",
+          "name_ar_normalized": "مرخه العليا",
+          "name_en": "Markhah Al-Olia",
+          "name_en_normalized": "Markhah Al Olia"
+        },
+        {
+          "source_id": 196,
+          "code": "YE-DST-011-196",
+          "name_ar": "ميفعة",
+          "name_ar_tashkeel": "مَيْفَعَة",
+          "name_ar_normalized": "ميفعه",
+          "name_en": "Maifa'h",
+          "name_en_normalized": "Maifah"
+        },
+        {
+          "source_id": 197,
+          "code": "YE-DST-011-197",
+          "name_ar": "نصاب",
+          "name_ar_tashkeel": "نِصَاب",
+          "name_ar_normalized": "نصاب",
+          "name_en": "Nesab",
+          "name_en_normalized": "Nesab"
+        }
+      ]
+    },
+    {
+      "source_id": 12,
+      "code": "YE-GOV-012",
+      "name_ar": "تعز",
+      "name_ar_tashkeel": "تَعِز",
+      "name_ar_normalized": "تعز",
+      "name_en": "Taiz",
+      "name_en_normalized": "Taiz",
+      "districts": [
+        {
+          "source_id": 198,
+          "code": "YE-DST-012-198",
+          "name_ar": "ماوية",
+          "name_ar_tashkeel": "مَاوِيَة",
+          "name_ar_normalized": "ماويه",
+          "name_en": "Mawiah",
+          "name_en_normalized": "Mawiah"
+        },
+        {
+          "source_id": 199,
+          "code": "YE-DST-012-199",
+          "name_ar": "شرعب السلام",
+          "name_ar_tashkeel": "شَرْعَب السَّلَام",
+          "name_ar_normalized": "شرعب السلام",
+          "name_en": "Shara'b Al-Salam",
+          "name_en_normalized": "Sharab Al Salam"
+        },
+        {
+          "source_id": 200,
+          "code": "YE-DST-012-200",
+          "name_ar": "شرعب الرونة",
+          "name_ar_tashkeel": "شَرْعَب الرَّوْنَة",
+          "name_ar_normalized": "شرعب الرونه",
+          "name_en": "Shara'b Al-Rawnah",
+          "name_en_normalized": "Sharab Al Rawnah"
+        },
+        {
+          "source_id": 201,
+          "code": "YE-DST-012-201",
+          "name_ar": "مقبنة",
+          "name_ar_tashkeel": "مَقْبَنَة",
+          "name_ar_normalized": "مقبنه",
+          "name_en": "Maqbana",
+          "name_en_normalized": "Maqbana"
+        },
+        {
+          "source_id": 202,
+          "code": "YE-DST-012-202",
+          "name_ar": "المخا",
+          "name_ar_tashkeel": "المَخَا",
+          "name_ar_normalized": "المخا",
+          "name_en": "Al-Makha",
+          "name_en_normalized": "Al Makha"
+        },
+        {
+          "source_id": 203,
+          "code": "YE-DST-012-203",
+          "name_ar": "ذباب",
+          "name_ar_tashkeel": "ذُبَاب",
+          "name_ar_normalized": "ذباب",
+          "name_en": "Thubab",
+          "name_en_normalized": "Thubab"
+        },
+        {
+          "source_id": 204,
+          "code": "YE-DST-012-204",
+          "name_ar": "موزع",
+          "name_ar_tashkeel": "مَوْزَع",
+          "name_ar_normalized": "موزع",
+          "name_en": "Mawza'",
+          "name_en_normalized": "Mawza"
+        },
+        {
+          "source_id": 205,
+          "code": "YE-DST-012-205",
+          "name_ar": "جبل حبشي",
+          "name_ar_tashkeel": "جَبَل حَبَشِي",
+          "name_ar_normalized": "جبل حبشي",
+          "name_en": "Habashi Mountain",
+          "name_en_normalized": "Habashi Mountain"
+        },
+        {
+          "source_id": 206,
+          "code": "YE-DST-012-206",
+          "name_ar": "مشرعة وحدنان",
+          "name_ar_tashkeel": "مَشْرَعَة وَحَدْنَان",
+          "name_ar_normalized": "مشرعه وحدنان",
+          "name_en": "Mashra'a and Hadnan",
+          "name_en_normalized": "Mashraa and Hadnan"
+        },
+        {
+          "source_id": 207,
+          "code": "YE-DST-012-207",
+          "name_ar": "صبر الموادم",
+          "name_ar_tashkeel": "صَبِر المَوَادِم",
+          "name_ar_normalized": "صبر الموادم",
+          "name_en": "Saber Al-Mawadim",
+          "name_en_normalized": "Saber Al Mawadim"
+        },
+        {
+          "source_id": 208,
+          "code": "YE-DST-012-208",
+          "name_ar": "المسراخ",
+          "name_ar_tashkeel": "المِسْرَاخ",
+          "name_ar_normalized": "المسراخ",
+          "name_en": "Al-Misrakh",
+          "name_en_normalized": "Al Misrakh"
+        },
+        {
+          "source_id": 209,
+          "code": "YE-DST-012-209",
+          "name_ar": "خدير",
+          "name_ar_tashkeel": "خَدِيْر",
+          "name_ar_normalized": "خدير",
+          "name_en": "Khadeer",
+          "name_en_normalized": "Khadeer"
+        },
+        {
+          "source_id": 210,
+          "code": "YE-DST-012-210",
+          "name_ar": "الصلو",
+          "name_ar_tashkeel": "الصِّلْو",
+          "name_ar_normalized": "الصلو",
+          "name_en": "Al-Selw",
+          "name_en_normalized": "Al Selw"
+        },
+        {
+          "source_id": 211,
+          "code": "YE-DST-012-211",
+          "name_ar": "الشمايتين",
+          "name_ar_tashkeel": "الشَّمَايَتَيْن",
+          "name_ar_normalized": "الشمايتين",
+          "name_en": "Al-Shamaiatain",
+          "name_en_normalized": "Al Shamaiatain"
+        },
+        {
+          "source_id": 212,
+          "code": "YE-DST-012-212",
+          "name_ar": "الوازعية",
+          "name_ar_tashkeel": "الوَازِعِيَّة",
+          "name_ar_normalized": "الوازعيه",
+          "name_en": "Al-Waz'iah",
+          "name_en_normalized": "Al Waziah"
+        },
+        {
+          "source_id": 213,
+          "code": "YE-DST-012-213",
+          "name_ar": "حيفان",
+          "name_ar_tashkeel": "حَيْفَان",
+          "name_ar_normalized": "حيفان",
+          "name_en": "Haifan",
+          "name_en_normalized": "Haifan"
+        },
+        {
+          "source_id": 214,
+          "code": "YE-DST-012-214",
+          "name_ar": "المظفر",
+          "name_ar_tashkeel": "المَظْفَر",
+          "name_ar_normalized": "المظفر",
+          "name_en": "Al-Mathfar",
+          "name_en_normalized": "Al Mathfar"
+        },
+        {
+          "source_id": 215,
+          "code": "YE-DST-012-215",
+          "name_ar": "القاهرة",
+          "name_ar_tashkeel": "القَاهِرَة",
+          "name_ar_normalized": "القاهره",
+          "name_en": "Al-Qahera",
+          "name_en_normalized": "Al Qahera"
+        },
+        {
+          "source_id": 216,
+          "code": "YE-DST-012-216",
+          "name_ar": "صالة",
+          "name_ar_tashkeel": "صَالَة",
+          "name_ar_normalized": "صاله",
+          "name_en": "Salah",
+          "name_en_normalized": "Salah"
+        },
+        {
+          "source_id": 217,
+          "code": "YE-DST-012-217",
+          "name_ar": "التعزية",
+          "name_ar_tashkeel": "التَّعِزِّيَة",
+          "name_ar_normalized": "التعزيه",
+          "name_en": "Al-Taiziah",
+          "name_en_normalized": "Al Taiziah"
+        },
+        {
+          "source_id": 218,
+          "code": "YE-DST-012-218",
+          "name_ar": "المعافر",
+          "name_ar_tashkeel": "المَعَافِر",
+          "name_ar_normalized": "المعافر",
+          "name_en": "Al-Ma'afer",
+          "name_en_normalized": "Al Maafer"
+        },
+        {
+          "source_id": 219,
+          "code": "YE-DST-012-219",
+          "name_ar": "المواسط",
+          "name_ar_tashkeel": "المَوَاسِط",
+          "name_ar_normalized": "المواسط",
+          "name_en": "Al-Mawasit",
+          "name_en_normalized": "Al Mawasit"
+        },
+        {
+          "source_id": 220,
+          "code": "YE-DST-012-220",
+          "name_ar": "سامع",
+          "name_ar_tashkeel": "سَامِع",
+          "name_ar_normalized": "سامع",
+          "name_en": "Sama'",
+          "name_en_normalized": "Sama"
+        }
+      ]
+    },
+    {
+      "source_id": 13,
+      "code": "YE-GOV-013",
+      "name_ar": "الجوف",
+      "name_ar_tashkeel": "الجَوْف",
+      "name_ar_normalized": "الجوف",
+      "name_en": "Al-jawf",
+      "name_en_normalized": "Al jawf",
+      "districts": [
+        {
+          "source_id": 221,
+          "code": "YE-DST-013-221",
+          "name_ar": "برط العنان",
+          "name_ar_tashkeel": "بَرَطَ العِنَان",
+          "name_ar_normalized": "برط العنان",
+          "name_en": "Barat Al-enan",
+          "name_en_normalized": "Barat Al enan"
+        },
+        {
+          "source_id": 222,
+          "code": "YE-DST-013-222",
+          "name_ar": "الحزم",
+          "name_ar_tashkeel": "الحَزْم",
+          "name_ar_normalized": "الحزم",
+          "name_en": "Al-Hazm",
+          "name_en_normalized": "Al Hazm"
+        },
+        {
+          "source_id": 223,
+          "code": "YE-DST-013-223",
+          "name_ar": "الحميدات",
+          "name_ar_tashkeel": "الحُمَيْدَات",
+          "name_ar_normalized": "الحميدات",
+          "name_en": "Al-Humaidat",
+          "name_en_normalized": "Al Humaidat"
+        },
+        {
+          "source_id": 224,
+          "code": "YE-DST-013-224",
+          "name_ar": "خب والشعف",
+          "name_ar_tashkeel": "خَب وَالشَعَف",
+          "name_ar_normalized": "خب والشعف",
+          "name_en": "Khab and Al-Sha'af",
+          "name_en_normalized": "Khab and Al Shaaf"
+        },
+        {
+          "source_id": 225,
+          "code": "YE-DST-013-225",
+          "name_ar": "خراب المراشي",
+          "name_ar_tashkeel": "خَرَاب المَرَاشِي",
+          "name_ar_normalized": "خراب المراشي",
+          "name_en": "Kharab Al-Marashi",
+          "name_en_normalized": "Kharab Al Marashi"
+        },
+        {
+          "source_id": 226,
+          "code": "YE-DST-013-226",
+          "name_ar": "الخلق",
+          "name_ar_tashkeel": "الخَلَق",
+          "name_ar_normalized": "الخلق",
+          "name_en": "Al-Khalq",
+          "name_en_normalized": "Al Khalq"
+        },
+        {
+          "source_id": 227,
+          "code": "YE-DST-013-227",
+          "name_ar": "رجوزة",
+          "name_ar_tashkeel": "رَجُوْزَة",
+          "name_ar_normalized": "رجوزه",
+          "name_en": "Rajozah",
+          "name_en_normalized": "Rajozah"
+        },
+        {
+          "source_id": 228,
+          "code": "YE-DST-013-228",
+          "name_ar": "الزاهر",
+          "name_ar_tashkeel": "الزَّاهِر",
+          "name_ar_normalized": "الزاهر",
+          "name_en": "Al-Zaher",
+          "name_en_normalized": "Al Zaher"
+        },
+        {
+          "source_id": 229,
+          "code": "YE-DST-013-229",
+          "name_ar": "الغيل",
+          "name_ar_tashkeel": "الغَيْل",
+          "name_ar_normalized": "الغيل",
+          "name_en": "Al-Ghail",
+          "name_en_normalized": "Al Ghail"
+        },
+        {
+          "source_id": 230,
+          "code": "YE-DST-013-230",
+          "name_ar": "المتون",
+          "name_ar_tashkeel": "المُتُوْن",
+          "name_ar_normalized": "المتون",
+          "name_en": "Al-Mutoon",
+          "name_en_normalized": "Al Mutoon"
+        },
+        {
+          "source_id": 231,
+          "code": "YE-DST-013-231",
+          "name_ar": "المصلوب",
+          "name_ar_tashkeel": "المَصْلُوْب",
+          "name_ar_normalized": "المصلوب",
+          "name_en": "Al-Masloob",
+          "name_en_normalized": "Al Masloob"
+        },
+        {
+          "source_id": 232,
+          "code": "YE-DST-013-232",
+          "name_ar": "المطمة",
+          "name_ar_tashkeel": "المَطَمّة",
+          "name_ar_normalized": "المطمه",
+          "name_en": "Al-Matmmah",
+          "name_en_normalized": "Al Matmmah"
+        }
+      ]
+    },
+    {
+      "source_id": 14,
+      "code": "YE-GOV-014",
+      "name_ar": "مأرب",
+      "name_ar_tashkeel": "مَأْرِب",
+      "name_ar_normalized": "مارب",
+      "name_en": "Ma'rib",
+      "name_en_normalized": "Marib",
+      "districts": [
+        {
+          "source_id": 233,
+          "code": "YE-DST-014-233",
+          "name_ar": "بدبدة",
+          "name_ar_tashkeel": "بِدْبِدَة",
+          "name_ar_normalized": "بدبده",
+          "name_en": "Bedbedah",
+          "name_en_normalized": "Bedbedah"
+        },
+        {
+          "source_id": 234,
+          "code": "YE-DST-014-234",
+          "name_ar": "جبل مراد",
+          "name_ar_tashkeel": "جَبَل مُرَاد",
+          "name_ar_normalized": "جبل مراد",
+          "name_en": "Morad Mountain",
+          "name_en_normalized": "Morad Mountain"
+        },
+        {
+          "source_id": 235,
+          "code": "YE-DST-014-235",
+          "name_ar": "مدغل الجدعان",
+          "name_ar_tashkeel": "مَدْغَل الجِدْعَان",
+          "name_ar_normalized": "مدغل الجدعان",
+          "name_en": "Madghal Al-Gida'an",
+          "name_en_normalized": "Madghal Al Gidaan"
+        },
+        {
+          "source_id": 236,
+          "code": "YE-DST-014-236",
+          "name_ar": "مدينة مأرب",
+          "name_ar_tashkeel": "مَدِينَة مَأْرِب",
+          "name_ar_normalized": "مدينه مارب",
+          "name_en": "Ma'rib City",
+          "name_en_normalized": "Marib City"
+        },
+        {
+          "source_id": 237,
+          "code": "YE-DST-014-237",
+          "name_ar": "حريب",
+          "name_ar_tashkeel": "حَرِيْب",
+          "name_ar_normalized": "حريب",
+          "name_en": "Hareeb",
+          "name_en_normalized": "Hareeb"
+        },
+        {
+          "source_id": 238,
+          "code": "YE-DST-014-238",
+          "name_ar": "حريب القرامش",
+          "name_ar_tashkeel": "حَرِيْب القَرَامِش",
+          "name_ar_normalized": "حريب القرامش",
+          "name_en": "Hareeb Al-Qaramish",
+          "name_en_normalized": "Hareeb Al Qaramish"
+        },
+        {
+          "source_id": 239,
+          "code": "YE-DST-014-239",
+          "name_ar": "رحبة",
+          "name_ar_tashkeel": "رَحَبَة",
+          "name_ar_normalized": "رحبه",
+          "name_en": "Rahabah",
+          "name_en_normalized": "Rahabah"
+        },
+        {
+          "source_id": 240,
+          "code": "YE-DST-014-240",
+          "name_ar": "رغوان",
+          "name_ar_tashkeel": "رَغْوَان",
+          "name_ar_normalized": "رغوان",
+          "name_en": "Raghwan",
+          "name_en_normalized": "Raghwan"
+        },
+        {
+          "source_id": 241,
+          "code": "YE-DST-014-241",
+          "name_ar": "صرواح",
+          "name_ar_tashkeel": "صِرْوَاح",
+          "name_ar_normalized": "صرواح",
+          "name_en": "Sirwah",
+          "name_en_normalized": "Sirwah"
+        },
+        {
+          "source_id": 242,
+          "code": "YE-DST-014-242",
+          "name_ar": "العبدية",
+          "name_ar_tashkeel": "العَبْدِيَّة",
+          "name_ar_normalized": "العبديه",
+          "name_en": "Al-Abdiah",
+          "name_en_normalized": "Al Abdiah"
+        },
+        {
+          "source_id": 243,
+          "code": "YE-DST-014-243",
+          "name_ar": "ماهلية",
+          "name_ar_tashkeel": "ماهِلِيَّة",
+          "name_ar_normalized": "ماهليه",
+          "name_en": "Mahliah",
+          "name_en_normalized": "Mahliah"
+        },
+        {
+          "source_id": 244,
+          "code": "YE-DST-014-244",
+          "name_ar": "الجوبة",
+          "name_ar_tashkeel": "الجُوْبَة",
+          "name_ar_normalized": "الجوبه",
+          "name_en": "Al-Jobah",
+          "name_en_normalized": "Al Jobah"
+        },
+        {
+          "source_id": 245,
+          "code": "YE-DST-014-245",
+          "name_ar": "مجزر",
+          "name_ar_tashkeel": "مَجْزَر",
+          "name_ar_normalized": "مجزر",
+          "name_en": "Majzar",
+          "name_en_normalized": "Majzar"
+        },
+        {
+          "source_id": 246,
+          "code": "YE-DST-014-246",
+          "name_ar": "مأرب",
+          "name_ar_tashkeel": "مَأْرِب",
+          "name_ar_normalized": "مارب",
+          "name_en": "Ma'rib",
+          "name_en_normalized": "Marib"
+        }
+      ]
+    },
+    {
+      "source_id": 15,
+      "code": "YE-GOV-015",
+      "name_ar": "حضرموت",
+      "name_ar_tashkeel": "حَضْرَمَوْت",
+      "name_ar_normalized": "حضرموت",
+      "name_en": "Hadramot",
+      "name_en_normalized": "Hadramot",
+      "districts": [
+        {
+          "source_id": 247,
+          "code": "YE-DST-015-247",
+          "name_ar": "المكلا",
+          "name_ar_tashkeel": "المُكَلَّا",
+          "name_ar_normalized": "المكلا",
+          "name_en": "Al-Mokalla",
+          "name_en_normalized": "Al Mokalla"
+        },
+        {
+          "source_id": 248,
+          "code": "YE-DST-015-248",
+          "name_ar": "ثمود",
+          "name_ar_tashkeel": "ثَمُوْد",
+          "name_ar_normalized": "ثمود",
+          "name_en": "Thamood",
+          "name_en_normalized": "Thamood"
+        },
+        {
+          "source_id": 249,
+          "code": "YE-DST-015-249",
+          "name_ar": "القف",
+          "name_ar_tashkeel": "القَف",
+          "name_ar_normalized": "القف",
+          "name_en": "Al-Qaf",
+          "name_en_normalized": "Al Qaf"
+        },
+        {
+          "source_id": 250,
+          "code": "YE-DST-015-250",
+          "name_ar": "زمخ ومنوخ",
+          "name_ar_tashkeel": "زَمَخ وَمُنُوْخ",
+          "name_ar_normalized": "زمخ ومنوخ",
+          "name_en": "Zamakh and Manookh",
+          "name_en_normalized": "Zamakh and Manookh"
+        },
+        {
+          "source_id": 251,
+          "code": "YE-DST-015-251",
+          "name_ar": "حجر",
+          "name_ar_tashkeel": "حَجْر",
+          "name_ar_normalized": "حجر",
+          "name_en": "Hajr",
+          "name_en_normalized": "Hajr"
+        },
+        {
+          "source_id": 252,
+          "code": "YE-DST-015-252",
+          "name_ar": "العبر",
+          "name_ar_tashkeel": "العَبْر",
+          "name_ar_normalized": "العبر",
+          "name_en": "Al-Abr",
+          "name_en_normalized": "Al Abr"
+        },
+        {
+          "source_id": 253,
+          "code": "YE-DST-015-253",
+          "name_ar": "القطن",
+          "name_ar_tashkeel": "القَطَن",
+          "name_ar_normalized": "القطن",
+          "name_en": "Al-Qatn",
+          "name_en_normalized": "Al Qatn"
+        },
+        {
+          "source_id": 254,
+          "code": "YE-DST-015-254",
+          "name_ar": "شبام",
+          "name_ar_tashkeel": "شِبَام",
+          "name_ar_normalized": "شبام",
+          "name_en": "Shibam",
+          "name_en_normalized": "Shibam"
+        },
+        {
+          "source_id": 255,
+          "code": "YE-DST-015-255",
+          "name_ar": "ساه",
+          "name_ar_tashkeel": "سَاه",
+          "name_ar_normalized": "ساه",
+          "name_en": "Sah",
+          "name_en_normalized": "Sah"
+        },
+        {
+          "source_id": 256,
+          "code": "YE-DST-015-256",
+          "name_ar": "سيئون",
+          "name_ar_tashkeel": "سَيْئُون",
+          "name_ar_normalized": "سيءون",
+          "name_en": "Say'on",
+          "name_en_normalized": "Sayon"
+        },
+        {
+          "source_id": 257,
+          "code": "YE-DST-015-257",
+          "name_ar": "تريم",
+          "name_ar_tashkeel": "تَرِيْم",
+          "name_ar_normalized": "تريم",
+          "name_en": "Tarim",
+          "name_en_normalized": "Tarim"
+        },
+        {
+          "source_id": 258,
+          "code": "YE-DST-015-258",
+          "name_ar": "السوم",
+          "name_ar_tashkeel": "السُّوْم",
+          "name_ar_normalized": "السوم",
+          "name_en": "Al-Soom",
+          "name_en_normalized": "Al Soom"
+        },
+        {
+          "source_id": 259,
+          "code": "YE-DST-015-259",
+          "name_ar": "الريدة وقصيعر",
+          "name_ar_tashkeel": "الرَّيْدَة وَقُصَيْعَِر",
+          "name_ar_normalized": "الريده وقصيعر",
+          "name_en": "Al-Raidah and Qusaier",
+          "name_en_normalized": "Al Raidah and Qusaier"
+        },
+        {
+          "source_id": 260,
+          "code": "YE-DST-015-260",
+          "name_ar": "الديس",
+          "name_ar_tashkeel": "الدِّيْس",
+          "name_ar_normalized": "الديس",
+          "name_en": "Al-Dais",
+          "name_en_normalized": "Al Dais"
+        },
+        {
+          "source_id": 261,
+          "code": "YE-DST-015-261",
+          "name_ar": "الشحر",
+          "name_ar_tashkeel": "الشِّحْر",
+          "name_ar_normalized": "الشحر",
+          "name_en": "Al-Shihr",
+          "name_en_normalized": "Al Shihr"
+        },
+        {
+          "source_id": 262,
+          "code": "YE-DST-015-262",
+          "name_ar": "غيل بن يمين",
+          "name_ar_tashkeel": "غَيْل بِْن يَمِيْن",
+          "name_ar_normalized": "غيل بن يمين",
+          "name_en": "Ghail Bin Yameen",
+          "name_en_normalized": "Ghail Bin Yameen"
+        },
+        {
+          "source_id": 263,
+          "code": "YE-DST-015-263",
+          "name_ar": "غيل باوزير",
+          "name_ar_tashkeel": "غَيْل بَاوَزِيْر",
+          "name_ar_normalized": "غيل باوزير",
+          "name_en": "Ghail Ba Wazeer",
+          "name_en_normalized": "Ghail Ba Wazeer"
+        },
+        {
+          "source_id": 264,
+          "code": "YE-DST-015-264",
+          "name_ar": "دوعن",
+          "name_ar_tashkeel": "دَوْعَن",
+          "name_ar_normalized": "دوعن",
+          "name_en": "Dawa'an",
+          "name_en_normalized": "Dawaan"
+        },
+        {
+          "source_id": 265,
+          "code": "YE-DST-015-265",
+          "name_ar": "عمد",
+          "name_ar_tashkeel": "عَمْد",
+          "name_ar_normalized": "عمد",
+          "name_en": "Amd",
+          "name_en_normalized": "Amd"
+        },
+        {
+          "source_id": 266,
+          "code": "YE-DST-015-266",
+          "name_ar": "حورة ووادي العين",
+          "name_ar_tashkeel": "حُوْرَة وَوَادِي العَيْن",
+          "name_ar_normalized": "حوره ووادي العين",
+          "name_en": "Al-Ayn Valley",
+          "name_en_normalized": "Al Ayn Valley"
+        },
+        {
+          "source_id": 267,
+          "code": "YE-DST-015-267",
+          "name_ar": "رخية",
+          "name_ar_tashkeel": "رَخْيَة",
+          "name_ar_normalized": "رخيه",
+          "name_en": "Raikhyah",
+          "name_en_normalized": "Raikhyah"
+        },
+        {
+          "source_id": 268,
+          "code": "YE-DST-015-268",
+          "name_ar": "يبعث",
+          "name_ar_tashkeel": "يَبْعُث",
+          "name_ar_normalized": "يبعث",
+          "name_en": "Yabo'th",
+          "name_en_normalized": "Yaboth"
+        },
+        {
+          "source_id": 269,
+          "code": "YE-DST-015-269",
+          "name_ar": "حجر الصيعر",
+          "name_ar_tashkeel": "حَجْر الصَّيْعَر",
+          "name_ar_normalized": "حجر الصيعر",
+          "name_en": "Hajar Al-Saia'ar",
+          "name_en_normalized": "Hajar Al Saiaar"
+        },
+        {
+          "source_id": 270,
+          "code": "YE-DST-015-270",
+          "name_ar": "بروم ميفع",
+          "name_ar_tashkeel": "بُرُوم مَيْفَع",
+          "name_ar_normalized": "بروم ميفع",
+          "name_en": "Barom Maifa'a",
+          "name_en_normalized": "Barom Maifaa"
+        },
+        {
+          "source_id": 271,
+          "code": "YE-DST-015-271",
+          "name_ar": "الضليعة",
+          "name_ar_tashkeel": "الضِّلِيْعَة",
+          "name_ar_normalized": "الضليعه",
+          "name_en": "Al-Dhlia'ah",
+          "name_en_normalized": "Al Dhliaah"
+        },
+        {
+          "source_id": 272,
+          "code": "YE-DST-015-272",
+          "name_ar": "رماه",
+          "name_ar_tashkeel": "رُمَاه",
+          "name_ar_normalized": "رماه",
+          "name_en": "Rumah",
+          "name_en_normalized": "Rumah"
+        },
+        {
+          "source_id": 273,
+          "code": "YE-DST-015-273",
+          "name_ar": "حريضة",
+          "name_ar_tashkeel": "حُرَيْضَة",
+          "name_ar_normalized": "حريضه",
+          "name_en": "Huridhah",
+          "name_en_normalized": "Huridhah"
+        },
+        {
+          "source_id": 274,
+          "code": "YE-DST-015-274",
+          "name_ar": "مدينة المكلا",
+          "name_ar_tashkeel": "مَدِيْنَة المُكَلَّا",
+          "name_ar_normalized": "مدينه المكلا",
+          "name_en": "Al-Mokalla City",
+          "name_en_normalized": "Al Mokalla City"
+        }
+      ]
+    },
+    {
+      "source_id": 16,
+      "code": "YE-GOV-016",
+      "name_ar": "المهرة",
+      "name_ar_tashkeel": "المَهَرَة",
+      "name_ar_normalized": "المهره",
+      "name_en": "Al-Maharah",
+      "name_en_normalized": "Al Maharah",
+      "districts": [
+        {
+          "source_id": 275,
+          "code": "YE-DST-016-275",
+          "name_ar": "حات",
+          "name_ar_tashkeel": "حَات",
+          "name_ar_normalized": "حات",
+          "name_en": "Haat",
+          "name_en_normalized": "Haat"
+        },
+        {
+          "source_id": 276,
+          "code": "YE-DST-016-276",
+          "name_ar": "حصوين",
+          "name_ar_tashkeel": "حَصْوِيْن",
+          "name_ar_normalized": "حصوين",
+          "name_en": "Hsween",
+          "name_en_normalized": "Hsween"
+        },
+        {
+          "source_id": 277,
+          "code": "YE-DST-016-277",
+          "name_ar": "حوف",
+          "name_ar_tashkeel": "حَوْف",
+          "name_ar_normalized": "حوف",
+          "name_en": "Hawf",
+          "name_en_normalized": "Hawf"
+        },
+        {
+          "source_id": 278,
+          "code": "YE-DST-016-278",
+          "name_ar": "سيحوت",
+          "name_ar_tashkeel": "سَيْحُوْت",
+          "name_ar_normalized": "سيحوت",
+          "name_en": "Syhoot",
+          "name_en_normalized": "Syhoot"
+        },
+        {
+          "source_id": 279,
+          "code": "YE-DST-016-279",
+          "name_ar": "شحن",
+          "name_ar_tashkeel": "شِحِْن",
+          "name_ar_normalized": "شحن",
+          "name_en": "Shihin",
+          "name_en_normalized": "Shihin"
+        },
+        {
+          "source_id": 280,
+          "code": "YE-DST-016-280",
+          "name_ar": "الغيضة",
+          "name_ar_tashkeel": "الغَيْضَة",
+          "name_ar_normalized": "الغيضه",
+          "name_en": "Al-Ghaidhah",
+          "name_en_normalized": "Al Ghaidhah"
+        },
+        {
+          "source_id": 281,
+          "code": "YE-DST-016-281",
+          "name_ar": "قشن",
+          "name_ar_tashkeel": "قِشْن",
+          "name_ar_normalized": "قشن",
+          "name_en": "Qashn",
+          "name_en_normalized": "Qashn"
+        },
+        {
+          "source_id": 282,
+          "code": "YE-DST-016-282",
+          "name_ar": "المسيلة",
+          "name_ar_tashkeel": "المَسِيْلَة",
+          "name_ar_normalized": "المسيله",
+          "name_en": "Al-Masilah",
+          "name_en_normalized": "Al Masilah"
+        },
+        {
+          "source_id": 283,
+          "code": "YE-DST-016-283",
+          "name_ar": "منعر",
+          "name_ar_tashkeel": "مَنْعَر",
+          "name_ar_normalized": "منعر",
+          "name_en": "Man'r",
+          "name_en_normalized": "Manr"
+        }
+      ]
+    },
+    {
+      "source_id": 17,
+      "code": "YE-GOV-017",
+      "name_ar": "الضالع",
+      "name_ar_tashkeel": "الضَّالِع",
+      "name_ar_normalized": "الضالع",
+      "name_en": "Al-Dhale'",
+      "name_en_normalized": "Al Dhale",
+      "districts": [
+        {
+          "source_id": 284,
+          "code": "YE-DST-017-284",
+          "name_ar": "الأزارق",
+          "name_ar_tashkeel": "الأَزَارِق",
+          "name_ar_normalized": "الازارق",
+          "name_en": "Al-Azariq",
+          "name_en_normalized": "Al Azariq"
+        },
+        {
+          "source_id": 285,
+          "code": "YE-DST-017-285",
+          "name_ar": "الحشاء",
+          "name_ar_tashkeel": "الحَشَاء",
+          "name_ar_normalized": "الحشاء",
+          "name_en": "Al-Hasha'",
+          "name_en_normalized": "Al Hasha"
+        },
+        {
+          "source_id": 286,
+          "code": "YE-DST-017-286",
+          "name_ar": "الحصين",
+          "name_ar_tashkeel": "الحُصَيْن",
+          "name_ar_normalized": "الحصين",
+          "name_en": "Al-Hosain",
+          "name_en_normalized": "Al Hosain"
+        },
+        {
+          "source_id": 287,
+          "code": "YE-DST-017-287",
+          "name_ar": "الشعيب",
+          "name_ar_tashkeel": "الشُّعَيْب",
+          "name_ar_normalized": "الشعيب",
+          "name_en": "Al-Sho'aib",
+          "name_en_normalized": "Al Shoaib"
+        },
+        {
+          "source_id": 288,
+          "code": "YE-DST-017-288",
+          "name_ar": "الضالع",
+          "name_ar_tashkeel": "الضَّالِع",
+          "name_ar_normalized": "الضالع",
+          "name_en": "Al-Dhale'",
+          "name_en_normalized": "Al Dhale"
+        },
+        {
+          "source_id": 289,
+          "code": "YE-DST-017-289",
+          "name_ar": "جبن",
+          "name_ar_tashkeel": "جُبَن",
+          "name_ar_normalized": "جبن",
+          "name_en": "Joban",
+          "name_en_normalized": "Joban"
+        },
+        {
+          "source_id": 290,
+          "code": "YE-DST-017-290",
+          "name_ar": "جحاف",
+          "name_ar_tashkeel": "جِحَاف",
+          "name_ar_normalized": "جحاف",
+          "name_en": "Jehaf",
+          "name_en_normalized": "Jehaf"
+        },
+        {
+          "source_id": 291,
+          "code": "YE-DST-017-291",
+          "name_ar": "دمت",
+          "name_ar_tashkeel": "دَمْت",
+          "name_ar_normalized": "دمت",
+          "name_en": "Damt",
+          "name_en_normalized": "Damt"
+        },
+        {
+          "source_id": 292,
+          "code": "YE-DST-017-292",
+          "name_ar": "قعطبة",
+          "name_ar_tashkeel": "قَعْطَبَة",
+          "name_ar_normalized": "قعطبه",
+          "name_en": "Qa'tabah",
+          "name_en_normalized": "Qatabah"
+        }
+      ]
+    },
+    {
+      "source_id": 18,
+      "code": "YE-GOV-018",
+      "name_ar": "المحويت",
+      "name_ar_tashkeel": "المَحْوِيْت",
+      "name_ar_normalized": "المحويت",
+      "name_en": "Al-Mahweet",
+      "name_en_normalized": "Al Mahweet",
+      "districts": [
+        {
+          "source_id": 293,
+          "code": "YE-DST-018-293",
+          "name_ar": "ملحان",
+          "name_ar_tashkeel": "مَلْحَان",
+          "name_ar_normalized": "ملحان",
+          "name_en": "Melhan",
+          "name_en_normalized": "Melhan"
+        },
+        {
+          "source_id": 294,
+          "code": "YE-DST-018-294",
+          "name_ar": "الخبت",
+          "name_ar_tashkeel": "الخَبْت",
+          "name_ar_normalized": "الخبت",
+          "name_en": "Al-Khabt",
+          "name_en_normalized": "Al Khabt"
+        },
+        {
+          "source_id": 295,
+          "code": "YE-DST-018-295",
+          "name_ar": "الطويلة",
+          "name_ar_tashkeel": "الطَّوِيْلَة",
+          "name_ar_normalized": "الطويله",
+          "name_en": "Al-Tawilah",
+          "name_en_normalized": "Al Tawilah"
+        },
+        {
+          "source_id": 296,
+          "code": "YE-DST-018-296",
+          "name_ar": "بني سعد",
+          "name_ar_tashkeel": "بَنِي سَعْد",
+          "name_ar_normalized": "بني سعد",
+          "name_en": "Bni Sa'd",
+          "name_en_normalized": "Bni Sad"
+        },
+        {
+          "source_id": 297,
+          "code": "YE-DST-018-297",
+          "name_ar": "الرجم",
+          "name_ar_tashkeel": "الرُّجُم",
+          "name_ar_normalized": "الرجم",
+          "name_en": "Al-Rojom",
+          "name_en_normalized": "Al Rojom"
+        },
+        {
+          "source_id": 298,
+          "code": "YE-DST-018-298",
+          "name_ar": "المحويت",
+          "name_ar_tashkeel": "المَحْوِيْت",
+          "name_ar_normalized": "المحويت",
+          "name_en": "Al-Mahweet",
+          "name_en_normalized": "Al Mahweet"
+        },
+        {
+          "source_id": 299,
+          "code": "YE-DST-018-299",
+          "name_ar": "مدينة المحويت",
+          "name_ar_tashkeel": "مَدِيْنَة المَحْوِيْت",
+          "name_ar_normalized": "مدينه المحويت",
+          "name_en": "Al-Mahweet City",
+          "name_en_normalized": "Al Mahweet City"
+        },
+        {
+          "source_id": 300,
+          "code": "YE-DST-018-300",
+          "name_ar": "شبام كوكبان",
+          "name_ar_tashkeel": "شِبَام كَوْكَبَان",
+          "name_ar_normalized": "شبام كوكبان",
+          "name_en": "Shibam Kawkaban",
+          "name_en_normalized": "Shibam Kawkaban"
+        },
+        {
+          "source_id": 301,
+          "code": "YE-DST-018-301",
+          "name_ar": "حفاش",
+          "name_ar_tashkeel": "حُفَاش",
+          "name_ar_normalized": "حفاش",
+          "name_en": "Hofash",
+          "name_en_normalized": "Hofash"
+        }
+      ]
+    },
+    {
+      "source_id": 19,
+      "code": "YE-GOV-019",
+      "name_ar": "لحج",
+      "name_ar_tashkeel": "لَحْج",
+      "name_ar_normalized": "لحج",
+      "name_en": "Lahj",
+      "name_en_normalized": "Lahj",
+      "districts": [
+        {
+          "source_id": 302,
+          "code": "YE-DST-019-302",
+          "name_ar": "الحد",
+          "name_ar_tashkeel": "الحَد",
+          "name_ar_normalized": "الحد",
+          "name_en": "Al-Had",
+          "name_en_normalized": "Al Had"
+        },
+        {
+          "source_id": 303,
+          "code": "YE-DST-019-303",
+          "name_ar": "الحوطة",
+          "name_ar_tashkeel": "الحُوْطَة",
+          "name_ar_normalized": "الحوطه",
+          "name_en": "Al-Hotah",
+          "name_en_normalized": "Al Hotah"
+        },
+        {
+          "source_id": 304,
+          "code": "YE-DST-019-304",
+          "name_ar": "القبيطة",
+          "name_ar_tashkeel": "القَبَّيْطَة",
+          "name_ar_normalized": "القبيطه",
+          "name_en": "Al-Qabbaytah",
+          "name_en_normalized": "Al Qabbaytah"
+        },
+        {
+          "source_id": 305,
+          "code": "YE-DST-019-305",
+          "name_ar": "المسيمير",
+          "name_ar_tashkeel": "المُسَيمِيْر",
+          "name_ar_normalized": "المسيمير",
+          "name_en": "Al-Mosaimeer",
+          "name_en_normalized": "Al Mosaimeer"
+        },
+        {
+          "source_id": 306,
+          "code": "YE-DST-019-306",
+          "name_ar": "المضاربة والعارة",
+          "name_ar_tashkeel": "المَضَارِبَة وَالعَارَة",
+          "name_ar_normalized": "المضاربه والعاره",
+          "name_en": "Al-Madharaba and Al-A'ara",
+          "name_en_normalized": "Al Madharaba and Al Aara"
+        },
+        {
+          "source_id": 307,
+          "code": "YE-DST-019-307",
+          "name_ar": "المفلحي",
+          "name_ar_tashkeel": "المُفْلِحِي",
+          "name_ar_normalized": "المفلحي",
+          "name_en": "Al-Muflhi",
+          "name_en_normalized": "Al Muflhi"
+        },
+        {
+          "source_id": 308,
+          "code": "YE-DST-019-308",
+          "name_ar": "المقاطرة",
+          "name_ar_tashkeel": "المَقَاطِرَة",
+          "name_ar_normalized": "المقاطره",
+          "name_en": "Al-Maqatirah",
+          "name_en_normalized": "Al Maqatirah"
+        },
+        {
+          "source_id": 309,
+          "code": "YE-DST-019-309",
+          "name_ar": "الملاح",
+          "name_ar_tashkeel": "المَلَاح",
+          "name_ar_normalized": "الملاح",
+          "name_en": "Al-Milah",
+          "name_en_normalized": "Al Milah"
+        },
+        {
+          "source_id": 310,
+          "code": "YE-DST-019-310",
+          "name_ar": "تبن",
+          "name_ar_tashkeel": "تُبَن",
+          "name_ar_normalized": "تبن",
+          "name_en": "Tbn",
+          "name_en_normalized": "Tbn"
+        },
+        {
+          "source_id": 311,
+          "code": "YE-DST-019-311",
+          "name_ar": "حالمين",
+          "name_ar_tashkeel": "حَالِمَيْن",
+          "name_ar_normalized": "حالمين",
+          "name_en": "Halimain",
+          "name_en_normalized": "Halimain"
+        },
+        {
+          "source_id": 312,
+          "code": "YE-DST-019-312",
+          "name_ar": "حبيل جبر",
+          "name_ar_tashkeel": "حَبِيْل جَبْر",
+          "name_ar_normalized": "حبيل جبر",
+          "name_en": "Hobail Jabr",
+          "name_en_normalized": "Hobail Jabr"
+        },
+        {
+          "source_id": 313,
+          "code": "YE-DST-019-313",
+          "name_ar": "ردفان",
+          "name_ar_tashkeel": "رَدْفَان",
+          "name_ar_normalized": "ردفان",
+          "name_en": "Radfan",
+          "name_en_normalized": "Radfan"
+        },
+        {
+          "source_id": 314,
+          "code": "YE-DST-019-314",
+          "name_ar": "طور الباحة",
+          "name_ar_tashkeel": "طُوْر البَاحَة",
+          "name_ar_normalized": "طور الباحه",
+          "name_en": "Toor Al-Baha",
+          "name_en_normalized": "Toor Al Baha"
+        },
+        {
+          "source_id": 315,
+          "code": "YE-DST-019-315",
+          "name_ar": "يافع",
+          "name_ar_tashkeel": "يَافِع",
+          "name_ar_normalized": "يافع",
+          "name_en": "Yafe'",
+          "name_en_normalized": "Yafe"
+        },
+        {
+          "source_id": 316,
+          "code": "YE-DST-019-316",
+          "name_ar": "يهر",
+          "name_ar_tashkeel": "يَهَر",
+          "name_ar_normalized": "يهر",
+          "name_en": "Yahar",
+          "name_en_normalized": "Yahar"
+        }
+      ]
+    },
+    {
+      "source_id": 20,
+      "code": "YE-GOV-020",
+      "name_ar": "ريمة",
+      "name_ar_tashkeel": "رَيْمَة",
+      "name_ar_normalized": "ريمه",
+      "name_en": "Raimah",
+      "name_en_normalized": "Raimah",
+      "districts": [
+        {
+          "source_id": 317,
+          "code": "YE-DST-020-317",
+          "name_ar": "بلاد الطعام",
+          "name_ar_tashkeel": "بِلَاد الطَّعَام",
+          "name_ar_normalized": "بلاد الطعام",
+          "name_en": "Bilad Al-Ta'am",
+          "name_en_normalized": "Bilad Al Taam"
+        },
+        {
+          "source_id": 318,
+          "code": "YE-DST-020-318",
+          "name_ar": "السلفية",
+          "name_ar_tashkeel": "السَّلْفِيَة",
+          "name_ar_normalized": "السلفيه",
+          "name_en": "Al-Salfiah",
+          "name_en_normalized": "Al Salfiah"
+        },
+        {
+          "source_id": 319,
+          "code": "YE-DST-020-319",
+          "name_ar": "الجبين",
+          "name_ar_tashkeel": "الجَبِيْن",
+          "name_ar_normalized": "الجبين",
+          "name_en": "Al-Jabeen",
+          "name_en_normalized": "Al Jabeen"
+        },
+        {
+          "source_id": 320,
+          "code": "YE-DST-020-320",
+          "name_ar": "مزهر",
+          "name_ar_tashkeel": "مِزْهِر",
+          "name_ar_normalized": "مزهر",
+          "name_en": "Mizhir",
+          "name_en_normalized": "Mizhir"
+        },
+        {
+          "source_id": 321,
+          "code": "YE-DST-020-321",
+          "name_ar": "كسمة",
+          "name_ar_tashkeel": "كُسْمَة",
+          "name_ar_normalized": "كسمه",
+          "name_en": "Kosmah",
+          "name_en_normalized": "Kosmah"
+        },
+        {
+          "source_id": 322,
+          "code": "YE-DST-020-322",
+          "name_ar": "الجعفرية",
+          "name_ar_tashkeel": "الجَعْفَرِيَّة",
+          "name_ar_normalized": "الجعفريه",
+          "name_en": "Al-ja'faria",
+          "name_en_normalized": "Al jafaria"
+        }
+      ]
+    },
+    {
+      "source_id": 21,
+      "code": "YE-GOV-021",
+      "name_ar": "سقطرى",
+      "name_ar_tashkeel": "سُقَطْرَى",
+      "name_ar_normalized": "سقطرا",
+      "name_en": "Socatra",
+      "name_en_normalized": "Socatra",
+      "districts": [
+        {
+          "source_id": 323,
+          "code": "YE-DST-021-323",
+          "name_ar": "حديبو",
+          "name_ar_tashkeel": "حَدِيْبُو",
+          "name_ar_normalized": "حديبو",
+          "name_en": "Hadibu",
+          "name_en_normalized": "Hadibu"
+        },
+        {
+          "source_id": 324,
+          "code": "YE-DST-021-324",
+          "name_ar": "قلنسية وعبد الكوري",
+          "name_ar_tashkeel": "قَلَنْسِيِّة وَعَبْد الكُوْرِي",
+          "name_ar_normalized": "قلنسيه وعبد الكوري",
+          "name_en": "Qulansiyah and 'Abd-al-Kuri",
+          "name_en_normalized": "Qulansiyah and Abd al Kuri"
+        }
+      ]
+    },
+    {
+      "source_id": 22,
+      "code": "YE-GOV-022",
+      "name_ar": "أبين",
+      "name_ar_tashkeel": "أَبْيَن",
+      "name_ar_normalized": "ابين",
+      "name_en": "Abyan",
+      "name_en_normalized": "Abyan",
+      "districts": [
+        {
+          "source_id": 325,
+          "code": "YE-DST-022-325",
+          "name_ar": "مودية",
+          "name_ar_tashkeel": "مُوْدِيَة",
+          "name_ar_normalized": "موديه",
+          "name_en": "Mudiyah",
+          "name_en_normalized": "Mudiyah"
+        },
+        {
+          "source_id": 326,
+          "code": "YE-DST-022-326",
+          "name_ar": "المحفد",
+          "name_ar_tashkeel": "المَحْفَد",
+          "name_ar_normalized": "المحفد",
+          "name_en": "Al Mahfid",
+          "name_en_normalized": "Al Mahfid"
+        },
+        {
+          "source_id": 327,
+          "code": "YE-DST-022-327",
+          "name_ar": "جيشان",
+          "name_ar_tashkeel": "جَيْشَان",
+          "name_ar_normalized": "جيشان",
+          "name_en": "Jayshan",
+          "name_en_normalized": "Jayshan"
+        },
+        {
+          "source_id": 328,
+          "code": "YE-DST-022-328",
+          "name_ar": "لودر",
+          "name_ar_tashkeel": "لَوْدَر",
+          "name_ar_normalized": "لودر",
+          "name_en": "Lawdar",
+          "name_en_normalized": "Lawdar"
+        },
+        {
+          "source_id": 329,
+          "code": "YE-DST-022-329",
+          "name_ar": "سباح",
+          "name_ar_tashkeel": "سَبَاح",
+          "name_ar_normalized": "سباح",
+          "name_en": "Sabah",
+          "name_en_normalized": "Sabah"
+        },
+        {
+          "source_id": 330,
+          "code": "YE-DST-022-330",
+          "name_ar": "رصد",
+          "name_ar_tashkeel": "رُصُد",
+          "name_ar_normalized": "رصد",
+          "name_en": "Rusud",
+          "name_en_normalized": "Rusud"
+        },
+        {
+          "source_id": 331,
+          "code": "YE-DST-022-331",
+          "name_ar": "سرار",
+          "name_ar_tashkeel": "سَرَار",
+          "name_ar_normalized": "سرار",
+          "name_en": "Sarar",
+          "name_en_normalized": "Sarar"
+        },
+        {
+          "source_id": 332,
+          "code": "YE-DST-022-332",
+          "name_ar": "الوضيع",
+          "name_ar_tashkeel": "الوَضِيْع",
+          "name_ar_normalized": "الوضيع",
+          "name_en": "Al-Wadhi'",
+          "name_en_normalized": "Al Wadhi"
+        },
+        {
+          "source_id": 333,
+          "code": "YE-DST-022-333",
+          "name_ar": "أحور",
+          "name_ar_tashkeel": "أَحْوَر",
+          "name_ar_normalized": "احور",
+          "name_en": "Ahwar",
+          "name_en_normalized": "Ahwar"
+        },
+        {
+          "source_id": 334,
+          "code": "YE-DST-022-334",
+          "name_ar": "زنجبار",
+          "name_ar_tashkeel": "زُنْجُبَار",
+          "name_ar_normalized": "زنجبار",
+          "name_en": "Zunjubar",
+          "name_en_normalized": "Zunjubar"
+        },
+        {
+          "source_id": 335,
+          "code": "YE-DST-022-335",
+          "name_ar": "خنفر",
+          "name_ar_tashkeel": "خَنْفَر",
+          "name_ar_normalized": "خنفر",
+          "name_en": "Khanfar",
+          "name_en_normalized": "Khanfar"
+        }
+      ]
+    }
+  ]
+}
