@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../packages/design_system/dart/lib/assal_tokens.dart';
+import '../../../../../packages/design_system/dart/lib/assal_tokens.dart';
 
 class MerchantDashboard extends StatelessWidget {
   const MerchantDashboard({super.key});
