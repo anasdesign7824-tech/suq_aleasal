@@ -30,7 +30,7 @@ ThemeData buildAssalTheme() {
       labelLarge: AssalTypography.button,
       labelMedium: AssalTypography.label,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: AssalColors.surface,
       elevation: 0,
       shape: RoundedRectangleBorder(

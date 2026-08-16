@@ -111,7 +111,37 @@ class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key, required this.repository});
   final AssalRepository repository;
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('التصنيفات')), body: FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(future: repository.listTaxonomy(), builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<List<AssalTaxonomy>>(state: snapshot.data!, builder: (items) => ListView.separated(padding: const EdgeInsets.all(AssalSpacing.lg), itemCount: items.length, separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm), itemBuilder: (_, index) => Card(child: ListTile(leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.category_outlined, color: AssalColors.primaryDark)), title: Text(items[index].nameAr), subtitle: Text(items[index].description ?? 'تصفح المنتجات المرتبطة بهذا التصنيف'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: repository, initialSubcategoryId: items[index].id)))))); });
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('التصنيفات')),
+      body: FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
+        future: repository.listTaxonomy(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          return AssalStateView<List<AssalTaxonomy>>(
+            state: snapshot.data!,
+            builder: (items) => ListView.separated(
+              padding: const EdgeInsets.all(AssalSpacing.lg),
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
+              itemBuilder: (_, index) {
+                final item = items[index];
+                return Card(
+                  child: ListTile(
+                    leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.category_outlined, color: AssalColors.primaryDark)),
+                    title: Text(item.nameAr),
+                    subtitle: Text(item.description ?? 'تصفح المنتجات المرتبطة بهذا التصنيف'),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: repository, initialSubcategoryId: item.id))),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class SearchScreen extends StatefulWidget {
@@ -346,7 +376,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       const SizedBox(height: AssalSpacing.lg),
       Row(children: [Expanded(child: OutlinedButton.icon(onPressed: () async { final session = await requireAuth(context, widget.repository); if (!session || !mounted) return; final result = await widget.repository.toggleLike('demo-customer', product.id); if (result is AssalData<bool>) setState(() => liked = result.value); }, icon: Icon(liked ? Icons.thumb_up : Icons.thumb_up_outlined), label: Text(liked ? 'أعجبتني' : 'إعجاب'))), const SizedBox(width: AssalSpacing.sm), Expanded(child: OutlinedButton.icon(onPressed: () async { final session = await requireAuth(context, widget.repository); if (!session || !mounted) return; final result = await widget.repository.toggleFavorite('demo-customer', product.id); if (result is AssalData<bool>) setState(() => favorite = result.value); }, icon: Icon(favorite ? Icons.bookmark : Icons.bookmark_border), label: Text(favorite ? 'محفوظ' : 'حفظ')))]),
       const SizedBox(height: AssalSpacing.md),
-      SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: () => _request(product, store), icon: const Icon(Icons.chat_bubble_outline), label: const Text('إرسال طلب تواصل')),
+      SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: () => _request(product, store), icon: const Icon(Icons.chat_bubble_outline), label: const Text('إرسال طلب تواصل'))),
       const SizedBox(height: AssalSpacing.xl),
       _ReviewsSection(repository: widget.repository, product: product),
       const SizedBox(height: AssalSpacing.xl),
@@ -420,7 +450,7 @@ class _RequestSheetState extends State<RequestSheet> {
           const SizedBox(height: AssalSpacing.md),
           TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'رقم للتواصل (اختياري)')),
           const SizedBox(height: AssalSpacing.md),
-          DropdownButtonFormField<HandoffOption>(value: option, decoration: const InputDecoration(labelText: 'طريقة التسليم المفضلة'), items: HandoffOption.values.map<DropdownMenuItem<HandoffOption>>((item) => DropdownMenuItem(value: item, child: Text(item.labelAr))).toList(), onChanged: (value) { if (value != null) setState(() => option = value); }),
+          DropdownButtonFormField<HandoffOption>(initialValue: option, decoration: const InputDecoration(labelText: 'طريقة التسليم المفضلة'), items: HandoffOption.values.map<DropdownMenuItem<HandoffOption>>((item) => DropdownMenuItem(value: item, child: Text(item.labelAr))).toList(), onChanged: (value) { if (value != null) setState(() => option = value); }),
           const SizedBox(height: AssalSpacing.md),
           Row(children: [
             const Text('الكمية'),
