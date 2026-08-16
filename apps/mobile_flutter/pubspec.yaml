@@ -19,7 +19,6 @@ dependencies:
   assalkom_design:
     path: ../../packages/design_system/dart
   supabase_flutter: ^2.17.2
-  google_sign_in: ^7.2.0
 
 dev_dependencies:
   flutter_test:

@@ -17,19 +17,24 @@ Future<void> main() async {
   }
 
   if (!config.isConfigured) {
-    runApp(const AssalApp(startupError: 'شغّل نسخة Production مع ASSALKOM_SUPABASE_URL وASSALKOM_SUPABASE_PUBLISHABLE_KEY وASSALKOM_MODE=production.'));
+    runApp(const AssalApp(
+        startupError:
+            'شغّل نسخة Production مع ASSALKOM_SUPABASE_URL وASSALKOM_SUPABASE_PUBLISHABLE_KEY وASSALKOM_MODE=production.'));
     return;
   }
 
   try {
-    await Supabase.initialize(url: config.supabaseUrl, publishableKey: config.supabasePublishableKey);
+    await Supabase.initialize(
+        url: config.supabaseUrl, publishableKey: config.supabasePublishableKey);
     final client = Supabase.instance.client;
     final repository = ProductionRepository(
       gateway: SupabaseQueryGateway(client),
-      authGateway: SupabaseAuthGateway(client: client, androidRedirect: config.androidRedirect, googleServerClientId: config.googleServerClientId),
+      authGateway: SupabaseAuthGateway(client: client),
     );
     runApp(AssalApp(repository: repository));
   } on Object catch (error) {
-    runApp(AssalApp(startupError: 'تعذر تهيئة Supabase. راجع عنوان المشروع والمفتاح العام وإعدادات Auth.\n$error'));
+    runApp(AssalApp(
+        startupError:
+            'تعذر تهيئة Supabase. راجع عنوان المشروع والمفتاح العام وإعدادات Auth.\n$error'));
   }
 }
