@@ -1,0 +1,52 @@
+# Requirements Traceability — Customer Web/APK Package
+
+> Status values are intentionally conservative. `Partial` means the current repository has an implementation or contract but the requirement has not yet passed the new Web/APK acceptance gate. `Deferred` means it belongs to a later package.
+
+| ID | Requirement | Source | Implementation target | Current files / evidence | Tests / acceptance | Status |
+|---|---|---|---|---|---|---|
+| R-001 | Arabic-first and RTL-first | Prompt 132–151 | `MaterialApp` locale, delegates, Directionality, shared typography | `apps/mobile_flutter/lib/app/assal_app.dart`, `assal_theme.dart`, `packages/design_system/dart` | Arabic widget boot + visual RTL audit | Partial |
+| R-002 | Project font and asset fidelity | Prompt 157–200 | Asset inventory and unified typography tokens | `docs/reference-manifest.md`, design package | Asset hash check + screenshot audit | Partial |
+| R-003 | Tokenized colors/radii/spacing | Prompt 203–300 | Shared design tokens and components | `packages/design_system/dart/lib/assal_tokens.dart`, `apps/mobile_flutter/lib/core/assal_widgets.dart` | Static token scan + visual audit | Partial |
+| R-004 | Feature-first architecture | Prompt 302–347 | Split current customer monolith into feature modules | `docs/architecture.md`, current `customer_experience.dart` | Architecture boundary review | Partial |
+| R-005 | Demo-first operation | Prompt 350–407 | Complete offline Demo repository and local mutations | `packages/data_dart/lib/demo_repository.dart`, `demo_loader.dart` | `customer_journey_test.dart` | Partial |
+| R-006 | Backend-ready repository boundary | Prompt 410–446 | Widget → controller/use case → repository → source | `packages/data_dart`, `packages/contracts_dart` | Boundary/static scan | Partial |
+| R-007 | Typed domain contracts | Prompt 448–494, 1762–1792 | Products, stores, taxonomy, requests, messages, reviews, notifications, banners | `packages/contracts_dart/lib/assal_domain.dart` | Contract compile + repository tests | Partial |
+| R-008 | Guest discovery without login wall | Prompt 500–520, 1262–1275 | Guest Home/Search/Categories/Product/Store access | `apps/mobile_flutter/lib/features/customer/customer_experience.dart` | Widget boot and guest journey | Partial |
+| R-009 | Email/password auth | Prompt 515–520 | Auth repository contract and production adapter | `packages/data_dart/lib/assal_repository.dart`, `demo_repository.dart` | Auth success/failure/session tests | Partial |
+| R-010 | Google sign-in contract | Prompt 515–520 | Production auth provider boundary; no UI coupling | Production gateway placeholder/contract | Auth integration gate | Not implemented |
+| R-011 | Home discovery sections | Prompt 737–799 | Header, hero carousel, taxonomy, stores, featured/new/recommended sections | `customer_experience.dart`, `demo_catalog.json` | Home widget and data coverage | Partial |
+| R-012 | Header badges and internal app bars | Prompt 801–848 | Messages/notifications/profile actions and consistent internal headers | customer app shell | Navigation/visual audit | Partial |
+| R-013 | Navigation hierarchy | Prompt 850–874 | Deterministic bottom navigation and typed routes | `apps/mobile_flutter/lib/app/assal_app.dart` | Navigation tests | Partial |
+| R-014 | Categories | Prompt 877–914 | Featured/all/popular/type/region/quality/store with image/icon/name/count | Current categories screen + catalog | Categories widget/journey test | Partial |
+| R-015 | Search and popular searches | Prompt 915–964 | Premium search header, clear/filter, popular query model | Search screen and repository query | Search widget tests | Partial |
+| R-016 | Honey-specific filters | Prompt 965–996 | Type, region, quality, verification, certificates, processing, packaging, availability, merchant/store | `AssalProductQuery`, Demo filter logic | Filter matrix tests | Partial |
+| R-017 | Product cards | Prompt 997–1030 | 1:1 image, identity, region, store, trust, rating, availability, CTA | `ProductCard`, domain fields | Product card widget test | Partial |
+| R-018 | Product detail and gallery | Prompt 1032–1106 | 3+ images, metadata groups, certifications, delivery/pickup, reviews/comments/request | `ProductDetailScreen`, `_MetadataCard` | Product detail journey | Partial |
+| R-019 | Social store profile | Prompt 577–640 | Cover/logo/avatar/gallery, verification, follow, stats, specialties, contact/message/request | `StoreProfileScreen`, `StoreCard` | Store journey + visual audit | Partial |
+| R-020 | Follow/unfollow | Prompt 643–659 | Typed repository mutation and state feedback | `DemoRepository.toggleFollow` | Mutation test | Partial |
+| R-021 | Reviews and ratings | Prompt 661–680 | Average/distribution/cards/author/date/stars/helpful/reply contract | review contract and section | Review mutation/widget test | Partial |
+| R-022 | Comments/replies | Prompt 683–702 | Product/store comments, likes, reply counts, merchant reply contract | comment contracts and section | Comment mutation test | Partial |
+| R-023 | Likes and share | Prompt 704–735 | Explicit icon state and share fallback | product actions and repository | Interaction audit | Partial |
+| R-024 | Request workflow, not checkout | Prompt 1108–1143 | Request → summary → submit → my requests → detail → messaging/handoff | request contracts, `RequestSheet`, screens | Full customer journey | Partial |
+| R-025 | Delivery/pickup/handoff | Prompt 1146–1207 | Pickup points, delivery points, office/courier/contact data | handoff contracts and Demo repository | Request/handoff test | Partial |
+| R-026 | Messaging | Prompt 1173–1193 | Conversations, participants, messages, read status, timestamps, replies | `ConversationScreen`, `MessagesScreen`, repository | Messaging journey | Partial |
+| R-027 | Favorites split | Prompt 1210–1234 | Favorite products, stores, categories as cards | repository contracts; screens pending | Favorites journey | Partial |
+| R-028 | Customer social profile | Prompt 1236–1275 | Avatar/name/bio/location/favorites/requests/following/settings/activity | `ProfileScreen` | Profile guest/auth test | Partial |
+| R-029 | Notifications center | Prompt 1585–1607 | Request/message/follower/verification/announcement notifications and badges | notifications contract/screen | Notification widget test | Partial |
+| R-030 | Settings | Prompt 1610–1632 | Language/theme/notifications/account/privacy/security/about/support | `SettingsScreen` | Settings widget test | Partial |
+| R-031 | Merchant conversion in customer package | Prompt 522–574, 1894–1932 | Professional onboarding and Demo repository persistence | `BecomeMerchantScreen`, merchant Demo boundary | Merchant conversion journey | Partial |
+| R-032 | Merchant dashboard | Prompt 1278–1335 | Full merchant management | `merchant_dashboard.dart` placeholder/demo | Deferred from current forensic package | Deferred |
+| R-033 | Rich seed dataset | Prompt 1810–1848 | 20+ products, 10+ stores, 10+ categories, linked social/request data | `apps/mobile_flutter/assets/demo_catalog.json` | Dataset count/relationship test | Partial |
+| R-034 | Accessibility | Prompt 1714–1725 | Contrast, target sizes, semantics, text scaling, Web keyboard | shared widgets and responsive shell | Accessibility audit | Partial |
+| R-035 | Responsive Web | Prompt 1728–1742 | Mobile/tablet/desktop layouts with Web keyboard/focus behavior | Flutter Web shell | Browser responsive run | Not verified |
+| R-036 | Android host and reproducible APK | Prompt 2390–2420, 2475–2515 | Tracked `android/`, Gradle, APK artifact, install/runtime smoke | Android host generated locally; not yet confirmed in GitHub | APK rebuild/install on Mimo | Blocked by desktop session |
+| R-037 | Flutter Web build | User scope + Prompt 66 | Customer Web build from same contracts and data | Flutter Web target | Web build + browser smoke | Not verified |
+| R-038 | Production repository boundary | Prompt 410–446, 1964–1989 | Supabase/API adapter without UI changes | `production_repository.dart` currently gateway boundary | Production contract tests | Partial |
+| R-039 | Supabase schema/RLS | Prompt 1545–1582, 2274–2281 | Backend-enforced ownership and participant policies | Later package | RLS advisor/security tests | Deferred |
+| R-040 | Admin Web | Prompt 1337–1450, 1934–1962 | Independent admin interface | Later package | Admin audit | Deferred |
+| R-041 | Landing/Cloudflare | Prompt 1452–1515, 2283–2287 | Independent public site and deployment | Later package | Landing/Cloudflare audit | Deferred |
+| R-042 | Formal acceptance | Prompt 2017–2096, 2472–2515 | Acceptance matrix, root-cause logs, regression evidence | `docs/evidence`, this file | Customer Web/APK GO gate | In progress |
+
+## Status policy
+
+A row becomes `PASS` only after the implementation exists in the tracked repository, the relevant automated test passes, the manual Web/APK runtime path has been exercised, and no critical visual/RTL/runtime defect remains. A successful `flutter analyze` or APK build is evidence for only one sub-check and cannot close a row by itself.
