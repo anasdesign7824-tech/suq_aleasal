@@ -135,6 +135,22 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [if (store.isVerified) const Icon(Icons.verified, size: 18, color: AssalColors.primaryDark), const SizedBox(width: 4), Text(store.isVerified ? 'متجر موثق' : 'متجر في طور التعريف', style: AssalTypography.body.copyWith(color: AssalColors.textSecondary))]),
       const SizedBox(height: AssalSpacing.md),
       Text(store.description ?? 'متجر متخصص في المنتجات النحلية اليمنية.', textAlign: TextAlign.center, style: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary)),
+      if (store.galleryUrls.isNotEmpty) ...[
+        const SizedBox(height: AssalSpacing.lg),
+        const SectionHeader(title: 'من المتجر'),
+        SizedBox(height: 106, child: ListView.separated(scrollDirection: Axis.horizontal, itemCount: store.galleryUrls.length, separatorBuilder: (_, __) => const SizedBox(width: AssalSpacing.sm), itemBuilder: (_, index) => SizedBox(width: 132, child: AssalImageTile(imageUrl: store.galleryUrls[index], height: 106, icon: index.isEven ? Icons.hive_outlined : Icons.storefront_outlined)))),
+      ],
+      if (store.deliveryOptions.isNotEmpty || store.pickupLocations.isNotEmpty) ...[
+        const SizedBox(height: AssalSpacing.lg),
+        const SectionHeader(title: 'التسليم والاستلام'),
+        if (store.deliveryOptions.isNotEmpty) _storeInfoRow(Icons.local_shipping_outlined, 'التوصيل', store.deliveryOptions.join('، ')),
+        if (store.pickupLocations.isNotEmpty) _storeInfoRow(Icons.location_on_outlined, 'الاستلام', store.pickupLocations.join('، ')),
+      ],
+      if (store.socialLinks.isNotEmpty) ...[
+        const SizedBox(height: AssalSpacing.lg),
+        const SectionHeader(title: 'تواصل مع المتجر'),
+        Wrap(spacing: AssalSpacing.sm, runSpacing: AssalSpacing.sm, children: store.socialLinks.entries.map((entry) => ActionChip(avatar: const Icon(Icons.link, size: 16), label: Text(_socialLabel(entry.key)), onPressed: () => _showContact(entry.key, entry.value))).toList()),
+      ],
       const SizedBox(height: AssalSpacing.lg),
       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [_stat('${store.followersCount}', 'متابع'), _stat('${store.reviewCount}', 'مراجعة'), _stat('${store.yearsExperience}', 'سنوات خبرة')]),
       const SizedBox(height: AssalSpacing.lg),
@@ -170,8 +186,14 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     ]);
   }
 
+  void _showContact(String channel, String value) => showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(title: Text('بيانات ${_socialLabel(channel)}'), content: SelectableText(value), actions: [FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('إغلاق'))]));
+
+  Widget _storeInfoRow(IconData icon, String label, String value) => ListTile(contentPadding: EdgeInsets.zero, leading: Icon(icon, color: AssalColors.primaryDark), title: Text(label), subtitle: Text(value));
+
   Widget _stat(String value, String label) => Column(children: [Text(value, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)), Text(label, style: AssalTypography.caption.copyWith(color: AssalColors.textMuted))]);
 }
+
+String _socialLabel(String key) => switch (key) { 'whatsapp' => 'واتساب', 'instagram' => 'إنستغرام', 'telegram' => 'تلغرام', _ => key };
 
 class RequestSheet extends StatefulWidget {
   const RequestSheet({super.key, required this.repository, required this.product, required this.store});
