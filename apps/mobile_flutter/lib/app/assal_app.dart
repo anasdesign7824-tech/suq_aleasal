@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/demo_repository.dart';
@@ -15,6 +16,7 @@ class AssalApp extends StatelessWidget {
         theme: buildAssalTheme(),
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         builder: (context, child) => Directionality(textDirection: TextDirection.rtl, child: child ?? const SizedBox.shrink()),
         home: const AssalHomeShell(),
       );
