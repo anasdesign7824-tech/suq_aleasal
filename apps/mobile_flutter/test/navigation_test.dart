@@ -5,7 +5,8 @@ void main() {
   testWidgets('guest can navigate core customer surfaces without auth wall', (tester) async {
     await tester.pumpWidget(const AssalApp());
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 700));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 1)));
+    await tester.pump();
     expect(find.text('اكتشف العسل من مصدره'), findsOneWidget);
 
     await tester.tap(find.text('التصنيفات').last);
