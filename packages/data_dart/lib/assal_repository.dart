@@ -10,9 +10,20 @@ class AssalProductQuery {
     this.subcategoryId,
     this.storeId,
     this.regionId,
+    this.provinceId,
+    this.originCountry,
+    this.certificateId,
     this.search,
     this.gradeLevel,
     this.productType,
+    this.processingMethod,
+    this.processingStatus,
+    this.packaging,
+    this.availability,
+    this.merchantId,
+    this.minRating,
+    this.minPrice,
+    this.maxPrice,
     this.verifiedStoresOnly = false,
     this.featuredOnly = false,
     this.sort = AssalSort.featured,
@@ -22,9 +33,20 @@ class AssalProductQuery {
   final String? subcategoryId;
   final String? storeId;
   final String? regionId;
+  final String? provinceId;
+  final String? originCountry;
+  final String? certificateId;
   final String? search;
   final int? gradeLevel;
   final ProductType? productType;
+  final String? processingMethod;
+  final String? processingStatus;
+  final String? packaging;
+  final String? availability;
+  final String? merchantId;
+  final double? minRating;
+  final double? minPrice;
+  final double? maxPrice;
   final bool verifiedStoresOnly;
   final bool featuredOnly;
   final AssalSort sort;
@@ -39,6 +61,9 @@ class AssalRequestDraft {
     this.quantity,
     this.phone,
     this.handoffOption = HandoffOption.contact,
+    this.handoffDetails = const <String, Object?>{},
+    this.deliveryNote,
+    this.contactChannel,
     this.priceNote,
   });
 
@@ -49,6 +74,9 @@ class AssalRequestDraft {
   final int? quantity;
   final String? phone;
   final HandoffOption handoffOption;
+  final Map<String, Object?> handoffDetails;
+  final String? deliveryNote;
+  final String? contactChannel;
   final String? priceNote;
 }
 

@@ -101,6 +101,17 @@ class DemoRepository implements AssalRepository {
     if (query.subcategoryId != null) rows = rows.where((item) => item['subcategory_id'] == query.subcategoryId).toList(growable: false);
     if (query.storeId != null) rows = rows.where((item) => item['store_id'] == query.storeId).toList(growable: false);
     if (query.regionId != null) rows = rows.where((item) => (item['regions'] as List?)?.contains(query.regionId) == true || item['region_id'] == query.regionId).toList(growable: false);
+    if (query.provinceId != null) rows = rows.where((item) => item['province_id'] == query.provinceId).toList(growable: false);
+    if (query.originCountry != null) rows = rows.where((item) => item['origin_country'] == query.originCountry).toList(growable: false);
+    if (query.certificateId != null) rows = rows.where((item) => (item['certifications'] as List?)?.contains(query.certificateId) == true).toList(growable: false);
+    if (query.merchantId != null) rows = rows.where((item) => item['merchant_id'] == query.merchantId).toList(growable: false);
+    if (query.processingMethod != null) rows = rows.where((item) => item['processing_method_ar'] == query.processingMethod).toList(growable: false);
+    if (query.processingStatus != null) rows = rows.where((item) => item['processing_status_ar'] == query.processingStatus).toList(growable: false);
+    if (query.packaging != null) rows = rows.where((item) => item['packaging_label_ar'] == query.packaging).toList(growable: false);
+    if (query.availability != null) rows = rows.where((item) => item['availability'] == query.availability).toList(growable: false);
+    if (query.minRating != null) rows = rows.where((item) => item['rating_average'] is num && (item['rating_average'] as num).toDouble() >= query.minRating!).toList(growable: false);
+    if (query.minPrice != null) rows = rows.where((item) => item['price'] is num && (item['price'] as num).toDouble() >= query.minPrice!).toList(growable: false);
+    if (query.maxPrice != null) rows = rows.where((item) => item['price'] is num && (item['price'] as num).toDouble() <= query.maxPrice!).toList(growable: false);
     if (query.featuredOnly) rows = rows.where((item) => item['is_featured'] == true).toList(growable: false);
     if (query.gradeLevel != null) rows = rows.where((item) => (item['grade_levels'] as List?)?.contains(query.gradeLevel) == true).toList(growable: false);
     if (query.productType != null) rows = rows.where((item) => item['product_type'] == query.productType!.name).toList(growable: false);
@@ -181,6 +192,7 @@ class DemoRepository implements AssalRepository {
       quantity: draft.quantity,
       phone: draft.phone,
       preferredHandoffOption: draft.handoffOption.labelAr,
+      deliveryNote: draft.deliveryNote ?? (draft.handoffDetails['notes'] as String?),
       priceNote: draft.priceNote,
       status: RequestStatus.open,
       createdAt: DateTime.now(),
