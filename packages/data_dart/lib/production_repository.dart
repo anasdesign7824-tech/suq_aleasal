@@ -102,9 +102,13 @@ class ProductionRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<String>>> listPopularSearches() async {
-    final rows = await _gateway.select('popular_searches', filters: const {'is_active': true});
-    final values = rows.map((row) => row['term_ar']).whereType<String>().toList(growable: false);
-    return _state(values, 'لا توجد اقتراحات بحث متاحة');
+    try {
+      final rows = await _gateway.select('popular_searches', filters: const {'is_active': true});
+      final values = rows.map((row) => row['term_ar']).whereType<String>().toList(growable: false);
+      return _state(values, 'لا توجد اقتراحات بحث متاحة');
+    } on Object {
+      return const AssalEmpty('لا توجد اقتراحات بحث متاحة بعد');
+    }
   }
 
   @override

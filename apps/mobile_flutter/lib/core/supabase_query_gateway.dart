@@ -4,6 +4,7 @@ import 'package:assalkom_data/assal_repository.dart';
 
 class SupabaseQueryGateway implements ProductionQueryGateway {
   const SupabaseQueryGateway(this.client);
+  static const requestTimeout = Duration(seconds: 12);
   final SupabaseClient client;
 
   @override
@@ -14,19 +15,19 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
       if (value == null) continue;
       query = query.eq(entry.key, value);
     }
-    final rows = await query;
+    final rows = await query.timeout(requestTimeout);
     return rows.map((row) => Map<String, Object?>.from(row)).toList(growable: false);
   }
 
   @override
   Future<Map<String, Object?>> insert(String table, Map<String, Object?> values) async {
-    final row = await client.from(table).insert(values).select().single();
+    final row = await client.from(table).insert(values).select().single().timeout(requestTimeout);
     return Map<String, Object?>.from(row);
   }
 
   @override
   Future<Map<String, Object?>> update(String table, Map<String, Object?> values, {required String id}) async {
-    final row = await client.from(table).update(values).eq('id', id).select().single();
+    final row = await client.from(table).update(values).eq('id', id).select().single().timeout(requestTimeout);
     return Map<String, Object?>.from(row);
   }
 }

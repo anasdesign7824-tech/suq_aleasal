@@ -166,7 +166,7 @@ class RequestsScreen extends StatelessWidget {
           return FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
             future: repository.listRequests(session.user!.id),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalRequestSummary>>(
                 state: snapshot.data!,
                 builder: (requests) => ListView.separated(
@@ -212,7 +212,7 @@ class NotificationsScreen extends StatelessWidget {
           return FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(
             future: repository.listNotifications(session.user!.id),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalNotificationSummary>>(
                 state: snapshot.data!,
                 builder: (items) => ListView.separated(
@@ -270,7 +270,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           child: FutureBuilder<AssalLoadState<List<AssalMessageSummary>>>(
             future: future,
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalMessageSummary>>(
                 state: snapshot.data!,
                 builder: (messages) => ListView(
@@ -327,7 +327,7 @@ class MessagesScreen extends StatelessWidget {
           return FutureBuilder<AssalLoadState<List<AssalConversationSummary>>>(
             future: repository.listConversations(session.user!.id),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalConversationSummary>>(
                 state: snapshot.data!,
                 builder: (items) => ListView.separated(

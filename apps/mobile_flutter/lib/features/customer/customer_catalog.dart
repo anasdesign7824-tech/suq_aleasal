@@ -19,19 +19,29 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late Future<AssalLoadState<AssalProductSummary>> productFuture;
+  final Map<String, Future<AssalLoadState<AssalStoreSummary>>> storeFutures = <String, Future<AssalLoadState<AssalStoreSummary>>>{};
+  late final PageController galleryController;
   bool liked = false;
   bool favorite = false;
   int galleryIndex = 0;
   @override
-  void initState() { super.initState(); productFuture = widget.repository.getProduct(widget.productId); }
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('تفاصيل المنتج'), actions: [IconButton(onPressed: () => _share(), icon: const Icon(Icons.share_outlined), tooltip: 'مشاركة')]), body: FutureBuilder<AssalLoadState<AssalProductSummary>>(future: productFuture, builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<AssalProductSummary>(state: snapshot.data!, onRetry: () => setState(() => productFuture = widget.repository.getProduct(widget.productId)), builder: (product) => _content(product)); }));
+  void initState() { super.initState(); productFuture = widget.repository.getProduct(widget.productId); galleryController = PageController(); }
 
-  Widget _content(AssalProductSummary product) => FutureBuilder<AssalLoadState<AssalStoreSummary>>(future: widget.repository.getStore(product.storeId), builder: (context, storeSnapshot) {
+  @override
+  void dispose() {
+    galleryController.dispose();
+    super.dispose();
+  }
+
+  Future<AssalLoadState<AssalStoreSummary>> _storeFuture(String storeId) => storeFutures.putIfAbsent(storeId, () => widget.repository.getStore(storeId));
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('تفاصيل المنتج'), actions: [IconButton(onPressed: () => _share(), icon: const Icon(Icons.share_outlined), tooltip: 'مشاركة')]), body: FutureBuilder<AssalLoadState<AssalProductSummary>>(future: productFuture, builder: (context, snapshot) { if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading(); return AssalStateView<AssalProductSummary>(state: snapshot.data!, onRetry: () => setState(() => productFuture = widget.repository.getProduct(widget.productId)), builder: (product) => _content(product)); }));
+
+  Widget _content(AssalProductSummary product) => FutureBuilder<AssalLoadState<AssalStoreSummary>>(future: _storeFuture(product.storeId), builder: (context, storeSnapshot) {
     final store = storeSnapshot.data is AssalData<AssalStoreSummary> ? (storeSnapshot.data! as AssalData<AssalStoreSummary>).value : null;
     final gallery = product.imageUrls.isEmpty ? <String?>[product.primaryImageUrl, product.primaryImageUrl, product.primaryImageUrl] : product.imageUrls;
     return ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
-      SizedBox(height: 260, child: PageView.builder(controller: PageController(initialPage: galleryIndex), itemCount: gallery.length, onPageChanged: (index) => setState(() => galleryIndex = index), itemBuilder: (_, index) => AssalImageTile(imageUrl: gallery[index], height: 260, icon: index.isEven ? Icons.wb_sunny_outlined : Icons.hive_outlined))),
+      SizedBox(height: 260, child: PageView.builder(controller: galleryController, itemCount: gallery.length, onPageChanged: (index) => setState(() => galleryIndex = index), itemBuilder: (_, index) => AssalImageTile(imageUrl: gallery[index], height: 260, icon: index.isEven ? Icons.wb_sunny_outlined : Icons.hive_outlined))),
       const SizedBox(height: AssalSpacing.md),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(gallery.length, (index) => AnimatedContainer(duration: const Duration(milliseconds: 180), width: index == galleryIndex ? 22 : 8, height: 8, margin: const EdgeInsets.symmetric(horizontal: 3), decoration: BoxDecoration(color: index == galleryIndex ? AssalColors.primaryDark : AssalColors.border, borderRadius: BorderRadius.circular(AssalRadius.pill))))),
       const SizedBox(height: AssalSpacing.lg),
@@ -109,16 +119,25 @@ class StoreProfileScreen extends StatefulWidget {
 }
 
 class _StoreProfileScreenState extends State<StoreProfileScreen> {
+  late Future<AssalLoadState<AssalStoreSummary>> storeFuture;
+  late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
   bool following = false;
+
+  @override
+  void initState() {
+    super.initState();
+    storeFuture = widget.repository.getStore(widget.storeId);
+    productsFuture = widget.repository.listProducts(query: AssalProductQuery(storeId: widget.storeId));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('صفحة المتجر')),
       body: FutureBuilder<AssalLoadState<AssalStoreSummary>>(
-        future: widget.repository.getStore(widget.storeId),
+        future: storeFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<AssalStoreSummary>(state: snapshot.data!, builder: _content);
         },
       ),
@@ -165,9 +184,9 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       const SizedBox(height: AssalSpacing.xl),
       const SectionHeader(title: 'منتجات المتجر'),
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
-        future: widget.repository.listProducts(query: AssalProductQuery(storeId: store.id)),
+        future: productsFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (snapshot.hasError) return const AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.'); if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalProductSummary>>(
             state: snapshot.data!,
             builder: (products) => GridView.builder(

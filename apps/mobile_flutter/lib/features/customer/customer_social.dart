@@ -28,7 +28,7 @@ class _ReviewsSectionState extends State<ReviewsSection> {
       FutureBuilder<AssalLoadState<List<AssalReviewSummary>>>(
         future: future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalReviewSummary>>(
             state: snapshot.data!,
             builder: (reviews) => Column(
@@ -105,7 +105,7 @@ class _CommentsSectionState extends State<CommentsSection> {
       FutureBuilder<AssalLoadState<List<AssalCommentSummary>>>(
         future: future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalCommentSummary>>(
             state: snapshot.data!,
             builder: (comments) => Column(

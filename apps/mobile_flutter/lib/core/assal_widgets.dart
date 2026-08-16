@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
+
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:assalkom_contracts/assal_domain.dart';
@@ -37,6 +39,86 @@ class DemoModePill extends StatelessWidget {
       );
 }
 
+class AssalGlassLoading extends StatefulWidget {
+  const AssalGlassLoading({super.key, this.height = 180, this.label = 'جارٍ تجهيز تجربة عسلكم...'});
+  final double height;
+  final String label;
+
+  @override
+  State<AssalGlassLoading> createState() => _AssalGlassLoadingState();
+}
+
+class _AssalGlassLoadingState extends State<AssalGlassLoading> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1700))..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: SizedBox(
+          height: widget.height,
+          width: double.infinity,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+            child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [AssalColors.cream.withValues(alpha: .72), AssalColors.honeyLight.withValues(alpha: .48)]),
+                  border: Border.all(color: AssalColors.cream.withValues(alpha: .85)),
+                  boxShadow: [BoxShadow(color: AssalColors.deepBrown.withValues(alpha: .08), blurRadius: 18, offset: const Offset(0, 8))],
+                ),
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) => ShaderMask(
+                    blendMode: BlendMode.srcIn,
+                    shaderCallback: (bounds) {
+                      final shift = -1.2 + (_controller.value * 2.4);
+                      return LinearGradient(begin: Alignment(shift, -0.3), end: Alignment(shift + 1.2, 0.3), colors: [AssalColors.textMuted, AssalColors.cream, AssalColors.textMuted]).createShader(bounds);
+                    },
+                    child: child,
+                  ),
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    const Icon(Icons.hive_outlined, size: 34),
+                    const SizedBox(height: AssalSpacing.sm),
+                    Text(widget.label, style: AssalTypography.bodySmall),
+                    const SizedBox(height: AssalSpacing.md),
+                    Container(width: 150, height: 10, decoration: BoxDecoration(color: AssalColors.cream, borderRadius: BorderRadius.circular(AssalRadius.pill))),
+                    const SizedBox(height: AssalSpacing.sm),
+                    Container(width: 100, height: 10, decoration: BoxDecoration(color: AssalColors.cream, borderRadius: BorderRadius.circular(AssalRadius.pill))),
+                  ]),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+}
+
+class AssalFutureStateView<T> extends StatelessWidget {
+  const AssalFutureStateView({super.key, required this.future, required this.builder, this.onRetry, this.loadingHeight = 180});
+  final Future<AssalLoadState<T>> future;
+  final Widget Function(T value) builder;
+  final VoidCallback? onRetry;
+  final double loadingHeight;
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<AssalLoadState<T>>(
+        future: future,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم حاول مرة أخرى.', onRetry: onRetry);
+          }
+          if (!snapshot.hasData) return AssalGlassLoading(height: loadingHeight);
+          return AssalStateView<T>(state: snapshot.data!, builder: builder, onRetry: onRetry);
+        },
+      );
+}
+
 class AssalStateView<T> extends StatelessWidget {
   const AssalStateView({super.key, required this.state, required this.builder, this.onRetry});
   final AssalLoadState<T> state;
@@ -45,7 +127,7 @@ class AssalStateView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (state) {
-        AssalLoading<T>() => const Center(child: Padding(padding: EdgeInsets.all(AssalSpacing.x2l), child: CircularProgressIndicator(color: AssalColors.primaryDark))),
+        AssalLoading<T>() => const AssalGlassLoading(),
         AssalData<T>(:final value) => builder(value),
         AssalEmpty<T>(:final messageAr) => AssalMessageCard(icon: Icons.inbox_outlined, message: messageAr),
         AssalError<T>(:final messageAr, :final code) => AssalMessageCard(icon: Icons.error_outline, message: '$messageAr${code == null ? '' : '\nرمز: $code'}', onRetry: onRetry),

@@ -56,7 +56,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   Widget _products() => FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalProductSummary>>(
             state: snapshot.data!,
             onRetry: () => setState(_load),
@@ -73,7 +73,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   Widget _taxonomies() => FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
         future: taxonomiesFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalTaxonomy>>(
             state: snapshot.data!,
             onRetry: () => setState(_load),
@@ -90,7 +90,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   Widget _stores() => FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
         future: storesFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalStoreSummary>>(
             state: snapshot.data!,
             onRetry: () => setState(_load),
