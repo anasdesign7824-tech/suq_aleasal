@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: FutureBuilder<bool>(
           future: initialContentFuture,
           builder: (context, snapshot) {
-            if (snapshot.hasError) return CustomScrollView(slivers: [const SliverFillRemaining(hasScrollBody: false, child: AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تجهيز الصفحة الآن. تحقق من الاتصال ثم أعد المحاولة.'))]);
+            if (snapshot.hasError) return const CustomScrollView(slivers: [SliverFillRemaining(hasScrollBody: false, child: AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تجهيز الصفحة الآن. تحقق من الاتصال ثم أعد المحاولة.'))]);
             if (snapshot.data != true) return _loadingBody();
             return CustomScrollView(slivers: [
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.md, AssalSpacing.lg, 0), sliver: SliverToBoxAdapter(child: _Header(repository: widget.repository, notificationsFuture: notificationsFuture, onOpenNotifications: widget.onOpenNotifications))),
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _loadingBody() => CustomScrollView(slivers: [
         SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.md, AssalSpacing.lg, 0), sliver: SliverToBoxAdapter(child: _Header(repository: widget.repository, notificationsFuture: notificationsFuture, onOpenNotifications: widget.onOpenNotifications))),
-        const SliverFillRemaining(hasScrollBody: false, child: Padding(padding: EdgeInsets.all(AssalSpacing.lg), child: AssalGlassLoading(height: 520, label: 'جارٍ تحميل الصفحة والمنتجات...'))),
+        const SliverFillRemaining(hasScrollBody: false, child: Padding(padding: EdgeInsets.all(AssalSpacing.lg), child: const AssalGlassLoading(height: 520, label: 'جارٍ تحميل الصفحة والمنتجات...'))),
       ]);
 }
 
