@@ -87,6 +87,15 @@ class AssalStoreSummary {
     this.regionNameAr,
     this.logoUrl,
     this.coverUrl,
+    this.avatarUrl,
+    this.merchantNameAr,
+    this.galleryUrls = const <String>[],
+    this.socialLinks = const <String, String>{},
+    this.deliveryOptions = const <String>[],
+    this.pickupLocations = const <String>[],
+    this.contactPhone,
+    this.contactWhatsapp,
+    this.contactTelegram,
     this.isVerified = false,
     this.status = StoreStatus.pending,
     this.ratingAverage = 0,
@@ -107,6 +116,15 @@ class AssalStoreSummary {
   final String? regionNameAr;
   final String? logoUrl;
   final String? coverUrl;
+  final String? avatarUrl;
+  final String? merchantNameAr;
+  final List<String> galleryUrls;
+  final Map<String, String> socialLinks;
+  final List<String> deliveryOptions;
+  final List<String> pickupLocations;
+  final String? contactPhone;
+  final String? contactWhatsapp;
+  final String? contactTelegram;
   final bool isVerified;
   final StoreStatus status;
   final double ratingAverage;
@@ -127,6 +145,15 @@ class AssalStoreSummary {
         regionNameAr: _stringOrNull(json['region_name_ar']),
         logoUrl: _stringOrNull(json['logo_url']),
         coverUrl: _stringOrNull(json['cover_url']),
+        avatarUrl: _stringOrNull(json['avatar_url']),
+        merchantNameAr: _stringOrNull(json['merchant_name_ar']),
+        galleryUrls: _strings(json['gallery_urls'] ?? json['gallery']),
+        socialLinks: _stringMap(json['social_links']),
+        deliveryOptions: _strings(json['delivery_options']),
+        pickupLocations: _strings(json['pickup_locations']),
+        contactPhone: _stringOrNull(json['contact_phone']),
+        contactWhatsapp: _stringOrNull(json['contact_whatsapp']),
+        contactTelegram: _stringOrNull(json['contact_telegram']),
         isVerified: json['is_verified'] as bool? ?? false,
         status: _storeStatus(_string(json['status'], fallback: 'pending')),
         ratingAverage: _number(json['rating_average']),
@@ -156,6 +183,21 @@ class AssalProductSummary {
     this.gradeLabelAr,
     this.isFeatured = false,
     this.primaryImageUrl,
+    this.imageUrls = const <String>[],
+    this.originCountry,
+    this.provinceNameAr,
+    this.honeyIdentity,
+    this.qualityLabelAr,
+    this.processingMethodAr,
+    this.processingStatusAr,
+    this.packagingLabelAr,
+    this.productionDate,
+    this.packagedDate,
+    this.shelfLifeLabelAr,
+    this.deliveryOptions = const <String>[],
+    this.pickupLocations = const <String>[],
+    this.viewsCount = 0,
+    this.likesCount = 0,
     this.ratingAverage = 0,
     this.reviewCount = 0,
     this.tags = const <String>[],
@@ -184,6 +226,21 @@ class AssalProductSummary {
   final String? gradeLabelAr;
   final bool isFeatured;
   final String? primaryImageUrl;
+  final List<String> imageUrls;
+  final String? originCountry;
+  final String? provinceNameAr;
+  final String? honeyIdentity;
+  final String? qualityLabelAr;
+  final String? processingMethodAr;
+  final String? processingStatusAr;
+  final String? packagingLabelAr;
+  final DateTime? productionDate;
+  final DateTime? packagedDate;
+  final String? shelfLifeLabelAr;
+  final List<String> deliveryOptions;
+  final List<String> pickupLocations;
+  final int viewsCount;
+  final int likesCount;
   final double ratingAverage;
   final int reviewCount;
   final List<String> tags;
@@ -214,6 +271,21 @@ class AssalProductSummary {
       gradeLabelAr: _stringOrNull(json['grade_label_ar']),
       isFeatured: json['is_featured'] as bool? ?? false,
       primaryImageUrl: _stringOrNull(json['primary_image_url']),
+      imageUrls: _strings(json['image_urls'] ?? json['images']),
+      originCountry: _stringOrNull(json['origin_country']),
+      provinceNameAr: _stringOrNull(json['province_name_ar']),
+      honeyIdentity: _stringOrNull(json['honey_identity']),
+      qualityLabelAr: _stringOrNull(json['quality_label_ar']),
+      processingMethodAr: _stringOrNull(json['processing_method_ar']),
+      processingStatusAr: _stringOrNull(json['processing_status_ar']),
+      packagingLabelAr: _stringOrNull(json['packaging_label_ar']),
+      productionDate: _dateOrNull(json['production_date']),
+      packagedDate: _dateOrNull(json['packaged_date']),
+      shelfLifeLabelAr: _stringOrNull(json['shelf_life_label_ar']),
+      deliveryOptions: _strings(json['delivery_options']),
+      pickupLocations: _strings(json['pickup_locations']),
+      viewsCount: _int(json['views_count']),
+      likesCount: _int(json['likes_count']),
       ratingAverage: _number(json['rating_average']),
       reviewCount: _int(json['review_count']),
       tags: _strings(json['tags']),
@@ -273,6 +345,7 @@ class AssalRequestSummary {
     required this.id,
     required this.requesterId,
     required this.storeId,
+    this.merchantId,
     required this.subject,
     required this.status,
     this.productId,
@@ -284,12 +357,15 @@ class AssalRequestSummary {
     this.phone,
     this.preferredHandoffOption,
     this.priceNote,
+    this.deliveryNote,
+    this.updatedAt,
     this.createdAt,
   });
 
   final String id;
   final String requesterId;
   final String storeId;
+  final String? merchantId;
   final String subject;
   final RequestStatus status;
   final String? productId;
@@ -301,12 +377,15 @@ class AssalRequestSummary {
   final String? phone;
   final String? preferredHandoffOption;
   final String? priceNote;
+  final String? deliveryNote;
+  final DateTime? updatedAt;
   final DateTime? createdAt;
 
   factory AssalRequestSummary.fromJson(Map<String, Object?> json) => AssalRequestSummary(
         id: _string(json['id']),
         requesterId: _string(json['requester_id']),
         storeId: _string(json['store_id']),
+        merchantId: _stringOrNull(json['merchant_id']),
         subject: _string(json['subject']),
         status: _requestStatus(_string(json['status'], fallback: 'open')),
         productId: _stringOrNull(json['product_id']),
@@ -318,7 +397,9 @@ class AssalRequestSummary {
         phone: _stringOrNull(json['phone']),
         preferredHandoffOption: _stringOrNull(json['preferred_handoff_option']),
         priceNote: _stringOrNull(json['price_note']),
-        createdAt: DateTime.tryParse(_string(json['created_at'])),
+        deliveryNote: _stringOrNull(json['delivery_note']),
+        updatedAt: _dateOrNull(json['updated_at']),
+        createdAt: _dateOrNull(json['created_at']),
       );
 }
 
@@ -344,13 +425,17 @@ class AssalNotificationSummary {
 }
 
 class AssalUserProfile {
-  const AssalUserProfile({required this.id, required this.nameAr, this.email, this.avatarUrl, this.bio, this.location, this.followersCount = 0, this.followingCount = 0, this.role = AssalRole.customer});
+  const AssalUserProfile({required this.id, required this.nameAr, this.email, this.avatarUrl, this.bio, this.phone, this.location, this.preferences = const <String, Object?>{}, this.createdAt, this.updatedAt, this.followersCount = 0, this.followingCount = 0, this.role = AssalRole.customer});
   final String id;
   final String nameAr;
   final String? email;
   final String? avatarUrl;
   final String? bio;
+  final String? phone;
   final String? location;
+  final Map<String, Object?> preferences;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
   final int followersCount;
   final int followingCount;
   final AssalRole role;
@@ -365,23 +450,27 @@ class AssalSession {
 }
 
 class AssalConversationSummary {
-  const AssalConversationSummary({required this.id, required this.storeId, required this.storeName, required this.lastMessage, required this.updatedAt, this.unreadCount = 0});
+  const AssalConversationSummary({required this.id, required this.storeId, required this.storeName, required this.lastMessage, required this.updatedAt, this.participantIds = const <String>[], this.unreadCount = 0, this.lastReadAt});
   final String id;
   final String storeId;
   final String storeName;
   final String lastMessage;
   final DateTime updatedAt;
+  final List<String> participantIds;
   final int unreadCount;
+  final DateTime? lastReadAt;
 }
 
 class AssalMessageSummary {
-  const AssalMessageSummary({required this.id, required this.conversationId, required this.senderId, required this.body, required this.sentAt, this.isMine = false});
+  const AssalMessageSummary({required this.id, required this.conversationId, required this.senderId, required this.body, required this.sentAt, this.isMine = false, this.readAt, this.attachments = const <String>[]});
   final String id;
   final String conversationId;
   final String senderId;
   final String body;
   final DateTime sentAt;
   final bool isMine;
+  final DateTime? readAt;
+  final List<String> attachments;
 }
 
 sealed class AssalLoadState<T> { const AssalLoadState(); }
@@ -398,6 +487,8 @@ double _number(Object? value) => value is num ? value.toDouble() : double.tryPar
 List<String> _strings(Object? value) => value is List ? value.whereType<String>().toList(growable: false) : const <String>[];
 List<int> _ints(Object? value) => value is List ? value.whereType<num>().map((item) => item.toInt()).toList(growable: false) : const <int>[];
 Map<String, Object?> _map(Object? value) => value is Map ? value.cast<String, Object?>() : const <String, Object?>{};
+Map<String, String> _stringMap(Object? value) => value is Map ? value.map((key, item) => MapEntry('$key', '$item')) : const <String, String>{};
+DateTime? _dateOrNull(Object? value) => value is DateTime ? value : DateTime.tryParse(_string(value));
 
 Map<String, Object?> jsonMap(String value) => (jsonDecode(value) as Map).cast<String, Object?>();
 
