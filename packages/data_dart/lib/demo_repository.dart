@@ -97,6 +97,24 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(String userId) async {
+    final state = await listProducts();
+    if (state is AssalData<List<AssalProductSummary>>) {
+      return _listState(state.value.where((product) => _favorites.contains(product.id)).toList(growable: false), 'لا توجد منتجات محفوظة بعد.');
+    }
+    return state;
+  }
+
+  @override
+  Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(String userId) async {
+    final state = await listStores();
+    if (state is AssalData<List<AssalStoreSummary>>) {
+      return _listState(state.value.where((store) => _followedStores.contains(store.id)).toList(growable: false), 'لا توجد متاجر متابَعة بعد.');
+    }
+    return state;
+  }
+
+  @override
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId) async {
     final state = await listStores();
     if (state is AssalData<List<AssalStoreSummary>>) {

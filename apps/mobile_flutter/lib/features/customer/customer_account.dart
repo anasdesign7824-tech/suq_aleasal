@@ -4,6 +4,7 @@ import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
+import 'customer_favorites.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key, required this.repository});
@@ -40,6 +41,7 @@ class ProfileScreen extends StatelessWidget {
           session.isAuthenticated ? _authenticated(context, session) : _guest(context),
           const SizedBox(height: AssalSpacing.lg),
           Card(child: Column(children: [
+            ListTile(leading: const Icon(Icons.bookmarks_outlined), title: const Text('المحفوظات والمتاجر المتابَعة'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => FavoritesScreen(repository: repository)))),
             ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('الإشعارات'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => NotificationsScreen(repository: repository)))),
             ListTile(leading: const Icon(Icons.settings_outlined), title: const Text('الإعدادات'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()))),
             ListTile(leading: const Icon(Icons.help_outline), title: const Text('الدعم والتعريف بعسلكم'), trailing: const Icon(Icons.chevron_left), onTap: () => showAboutDialog(context: context, applicationName: 'عسلكم', applicationVersion: 'Demo', children: [const Text('منصة اكتشاف وتواصل للعسل اليمني من مصدره.')]))

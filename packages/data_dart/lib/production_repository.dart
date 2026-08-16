@@ -49,6 +49,24 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(String userId) async {
+    final rows = await _gateway.select('favorites', filters: {'user_id': userId, 'target_type': 'product'});
+    final ids = rows.map((row) => row['target_id']).whereType<String>().toSet();
+    if (ids.isEmpty) return const AssalEmpty('لا توجد منتجات محفوظة');
+    final products = await _gateway.select('products', filters: const {'status': 'active'});
+    return _state(products.where((row) => ids.contains(row['id'])).map(AssalProductSummary.fromJson).toList(growable: false), 'لا توجد منتجات محفوظة');
+  }
+
+  @override
+  Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(String userId) async {
+    final rows = await _gateway.select('store_follows', filters: {'user_id': userId});
+    final ids = rows.map((row) => row['store_id']).whereType<String>().toSet();
+    if (ids.isEmpty) return const AssalEmpty('لا توجد متاجر متابَعة');
+    final stores = await _gateway.select('stores', filters: const {'status': 'active'});
+    return _state(stores.where((row) => ids.contains(row['id'])).map(AssalStoreSummary.fromJson).toList(growable: false), 'لا توجد متاجر متابَعة');
+  }
+
+  @override
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId) async {
     final rows = await _gateway.select('stores', filters: {'id': storeId, 'status': 'active'});
     if (rows.isEmpty) return const AssalError('المتجر غير موجود', code: 'not_found');

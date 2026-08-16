@@ -102,6 +102,8 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<List<AssalBannerSummary>>> listBanners();
   Future<AssalLoadState<List<String>>> listPopularSearches();
   Future<AssalLoadState<List<AssalStoreSummary>>> listStores({String? regionId});
+  Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(String userId);
+  Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(String userId);
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId);
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({AssalProductQuery query = const AssalProductQuery()});
   Future<AssalLoadState<AssalProductSummary>> getProduct(String productId);
