@@ -2,7 +2,7 @@
 
 **التاريخ:** 17 أغسطس 2026
 
-**آخر commit مدفوع:** `96d4493 feat: ship email-only android auth flow`
+**آخر commit مدفوع:** `cd9a3ed docs: record final apk and supabase verification`
 
 ## الحكم المختصر
 
@@ -25,7 +25,7 @@
 | Social dependency scan | لا توجد `google_sign_in` أو `google_identity_services` في lockfile |
 | OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback`؛ manifest يحتوي launcher `MAIN` فقط للتطبيق، دون `VIEW`/`BROWSABLE` deep-link خارجي |
 | Supabase delete RPC ACL | `security_definer=true`, `anon=false`, `authenticated=true` بعد migration 0007 |
-| GitHub | `origin/main` عند `96d4493` قبل commit hardening التوثيقي التالي |
+| GitHub | `origin/main` عند `cd9a3ed` |
 
 فحص `aapt` النهائي أكد أن `com.assalkom.assalkom.MainActivity` هي launchable activity الوحيدة، وأن manifest لا يعلن `VIEW` أو `BROWSABLE` للتطبيق. ظهور marker عام لـ`android.intent.action.VIEW` داخل dex لا يساوي callback خارجيًا؛ مصدره مكتبات Android/Flutter العامة، وليس intent-filter في manifest.
 
