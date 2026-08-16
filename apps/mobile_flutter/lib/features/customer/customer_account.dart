@@ -316,24 +316,29 @@ class MessagesScreen extends StatelessWidget {
   }
 }
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('الإعدادات')),
-      body: ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
-        Card(child: Column(children: [
-          SwitchListTile(value: true, onChanged: (value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value ? 'تم تفعيل الإشعارات في Demo Mode' : 'تم إيقاف الإشعارات في Demo Mode'))), title: const Text('الإشعارات'), secondary: const Icon(Icons.notifications_outlined)),
-          const ListTile(leading: Icon(Icons.language), title: Text('اللغة'), subtitle: Text('العربية — RTL')),
-          const ListTile(leading: Icon(Icons.palette_outlined), title: Text('المظهر'), subtitle: Text('هوية عسلكم الفاتحة')),
-          const ListTile(leading: Icon(Icons.lock_outline), title: Text('الخصوصية والأمان'), subtitle: Text('إعدادات الحساب والصلاحيات')),
-          const ListTile(leading: Icon(Icons.info_outline), title: Text('عن عسلكم'), subtitle: Text('منصة اكتشاف وتواصل للعسل اليمني')),
-        ])),
-      ]),
-    );
-  }
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool notificationsEnabled = true;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('الإعدادات')),
+        body: ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
+          Card(child: Column(children: [
+            SwitchListTile(value: notificationsEnabled, onChanged: (value) { setState(() => notificationsEnabled = value); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value ? 'تم تفعيل الإشعارات في هذه الجلسة.' : 'تم إيقاف الإشعارات في هذه الجلسة.'))); }, title: const Text('الإشعارات'), subtitle: const Text('تفضيل محفوظ في Demo Mode للجلسة الحالية'), secondary: const Icon(Icons.notifications_outlined)),
+            const ListTile(leading: Icon(Icons.language), title: Text('اللغة'), subtitle: Text('العربية — RTL (اللغة الأساسية)')),
+            const ListTile(leading: Icon(Icons.palette_outlined), title: Text('المظهر'), subtitle: Text('هوية عسلكم الفاتحة — تخصيص السمات يحتاج إعداد الإنتاج')),
+            ListTile(leading: const Icon(Icons.lock_outline), title: const Text('الخصوصية والأمان'), subtitle: const Text('صلاحيات الحساب وبيانات التواصل'), onTap: () => showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(title: const Text('الخصوصية والأمان'), content: const Text('في Demo لا تُرسل بياناتك إلى خادم. في Production ستُفرض الصلاحيات من Auth وRLS.'), actions: [FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('حسنًا'))]))),
+            ListTile(leading: const Icon(Icons.info_outline), title: const Text('عن عسلكم'), subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'), onTap: () => showAboutDialog(context: context, applicationName: 'عسلكم', applicationVersion: 'Customer App', children: [const Text('اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.')]))
+          ])),
+        ],
+      );
 }
 
 class BecomeMerchantScreen extends StatefulWidget {
