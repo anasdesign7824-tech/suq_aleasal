@@ -411,36 +411,174 @@ class ConversationScreen extends StatefulWidget {
   const ConversationScreen({super.key, required this.repository, required this.conversation});
   final AssalRepository repository;
   final AssalConversationSummary conversation;
+
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
 }
+
 class _ConversationScreenState extends State<ConversationScreen> {
   final controller = TextEditingController();
   late Future<AssalLoadState<List<AssalMessageSummary>>> future;
+
   @override
-  void initState() { super.initState(); future = widget.repository.listMessages(widget.conversation.id); }
+  void initState() {
+    super.initState();
+    future = widget.repository.listMessages(widget.conversation.id);
+  }
+
   @override
-  void dispose() { controller.dispose(); super.dispose(); }
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text(widget.conversation.storeName)), body: Column(children: [Expanded(child: FutureBuilder<AssalLoadState<List<AssalMessageSummary>>>(future: future, builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<List<AssalMessageSummary>>(state: snapshot.data!, builder: (messages) => ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: messages.map((message) => Align(alignment: message.isMine ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd, child: Card(color: message.isMine ? AssalColors.honeyLight : AssalColors.surfaceVariant, child: Padding(padding: const EdgeInsets.all(AssalSpacing.md), child: Text(message.body)))).toList())); })), SafeArea(child: Padding(padding: const EdgeInsets.all(AssalSpacing.sm), child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [Expanded(child: TextField(controller: controller, maxLines: 3, minLines: 1, decoration: const InputDecoration(hintText: 'اكتب رسالتك'))), IconButton(onPressed: _send, icon: const Icon(Icons.send_rounded), tooltip: 'إرسال')])))]));
-  Future<void> _send() async { if (controller.text.trim().isEmpty) return; await widget.repository.sendMessage('demo-customer', AssalMessageDraft(conversationId: widget.conversation.id, body: controller.text.trim())); controller.clear(); setState(() => future = widget.repository.listMessages(widget.conversation.id)); }
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(widget.conversation.storeName)),
+      body: Column(children: [
+        Expanded(
+          child: FutureBuilder<AssalLoadState<List<AssalMessageSummary>>>(
+            future: future,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              return AssalStateView<List<AssalMessageSummary>>(
+                state: snapshot.data!,
+                builder: (messages) => ListView(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  children: messages.map<Widget>((message) {
+                    return Align(
+                      alignment: message.isMine ? AlignmentDirectional.centerStart : AlignmentDirectional.centerEnd,
+                      child: Card(
+                        color: message.isMine ? AssalColors.honeyLight : AssalColors.surfaceVariant,
+                        child: Padding(padding: const EdgeInsets.all(AssalSpacing.md), child: Text(message.body)),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            },
+          ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AssalSpacing.sm),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+              Expanded(child: TextField(controller: controller, maxLines: 3, minLines: 1, decoration: const InputDecoration(hintText: 'اكتب رسالتك'))),
+              IconButton(onPressed: _send, icon: const Icon(Icons.send_rounded), tooltip: 'إرسال'),
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Future<void> _send() async {
+    final body = controller.text.trim();
+    if (body.isEmpty) return;
+    await widget.repository.sendMessage('demo-customer', AssalMessageDraft(conversationId: widget.conversation.id, body: body));
+    controller.clear();
+    setState(() => future = widget.repository.listMessages(widget.conversation.id));
+  }
 }
 
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key, required this.repository});
   final AssalRepository repository;
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('المراسلات')), body: FutureBuilder<AssalSession>(future: repository.getSession(), builder: (context, sessionSnapshot) { final session = sessionSnapshot.data ?? AssalSession.guest; if (!session.isAuthenticated) return Center(child: FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول لعرض المراسلات'))); return FutureBuilder<AssalLoadState<List<AssalConversationSummary>>>(future: repository.listConversations(session.user!.id), builder: (context, snapshot) { if (!snapshot.hasData) return const Center(child: CircularProgressIndicator()); return AssalStateView<List<AssalConversationSummary>>(state: snapshot.data!, builder: (items) => ListView.separated(padding: const EdgeInsets.all(AssalSpacing.lg), itemCount: items.length, separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm), itemBuilder: (_, index) => Card(child: ListTile(leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.storefront_outlined, color: AssalColors.primaryDark)), title: Text(items[index].storeName), subtitle: Text(items[index].lastMessage), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ConversationScreen(repository: repository, conversation: items[index])))))); }); }));
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('المراسلات')),
+      body: FutureBuilder<AssalSession>(
+        future: repository.getSession(),
+        builder: (context, sessionSnapshot) {
+          final session = sessionSnapshot.data ?? AssalSession.guest;
+          if (!session.isAuthenticated) return Center(child: FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول لعرض المراسلات')));
+          return FutureBuilder<AssalLoadState<List<AssalConversationSummary>>>(
+            future: repository.listConversations(session.user!.id),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              return AssalStateView<List<AssalConversationSummary>>(
+                state: snapshot.data!,
+                builder: (items) => ListView.separated(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
+                  itemBuilder: (_, index) {
+                    final item = items[index];
+                    return Card(
+                      child: ListTile(
+                        leading: const CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Icon(Icons.storefront_outlined, color: AssalColors.primaryDark)),
+                        title: Text(item.storeName),
+                        subtitle: Text(item.lastMessage),
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ConversationScreen(repository: repository, conversation: item))),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
 }
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('الإعدادات')), body: ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [Card(child: Column(children: [SwitchListTile(value: true, onChanged: (value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value ? 'تم تفعيل الإشعارات في Demo Mode' : 'تم إيقاف الإشعارات في Demo Mode'))), title: const Text('الإشعارات'), secondary: const Icon(Icons.notifications_outlined)), const ListTile(leading: Icon(Icons.language), title: Text('اللغة'), subtitle: Text('العربية — RTL')), const ListTile(leading: Icon(Icons.palette_outlined), title: Text('المظهر'), subtitle: Text('هوية عسلكم الفاتحة')), const ListTile(leading: Icon(Icons.lock_outline), title: Text('الخصوصية والأمان'), subtitle: Text('إعدادات الحساب والصلاحيات')), const ListTile(leading: Icon(Icons.info_outline), title: Text('عن عسلكم'), subtitle: Text('منصة اكتشاف وتواصل للعسل اليمني'))]))]);
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('الإعدادات')),
+      body: ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
+        Card(child: Column(children: [
+          SwitchListTile(value: true, onChanged: (value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value ? 'تم تفعيل الإشعارات في Demo Mode' : 'تم إيقاف الإشعارات في Demo Mode'))), title: const Text('الإشعارات'), secondary: const Icon(Icons.notifications_outlined)),
+          const ListTile(leading: Icon(Icons.language), title: Text('اللغة'), subtitle: Text('العربية — RTL')),
+          const ListTile(leading: Icon(Icons.palette_outlined), title: Text('المظهر'), subtitle: Text('هوية عسلكم الفاتحة')),
+          const ListTile(leading: Icon(Icons.lock_outline), title: Text('الخصوصية والأمان'), subtitle: Text('إعدادات الحساب والصلاحيات')),
+          const ListTile(leading: Icon(Icons.info_outline), title: Text('عن عسلكم'), subtitle: Text('منصة اكتشاف وتواصل للعسل اليمني')),
+        ])),
+      ]),
+    );
+  }
 }
 
 class BecomeMerchantScreen extends StatelessWidget {
   const BecomeMerchantScreen({super.key});
+
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('كن تاجرًا')), body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [const AssalImageTile(height: 180, icon: Icons.storefront_outlined), const SizedBox(height: AssalSpacing.xl), Text('حوّل خبرتك إلى متجر موثوق', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)), const SizedBox(height: AssalSpacing.sm), Text('مسار واضح من التعريف بك إلى إنشاء المتجر ثم التحقق، دون خلطه بتجربة التصفح.', style: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary)), const SizedBox(height: AssalSpacing.xl), ...['التعريف بنشاطك وخبرتك', 'إضافة بيانات المتجر وموقعه', 'إرفاق الشهادات ومعلومات المصدر', 'مراجعة التحقق ثم فتح لوحة التاجر'].asMap().entries.map((entry) => ListTile(leading: CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Text('${entry.key + 1}')), title: Text(entry.value), subtitle: const Text('خطوة محفوظة في Demo Mode'))), const SizedBox(height: AssalSpacing.xl), SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: () => showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(title: const Text('تم بدء مسار التاجر'), content: const Text('في Demo Mode تم حفظ الخطوات. في Production ستنتقل البيانات إلى مراجعة التحقق.'), actions: [FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('حسنًا'))])), icon: const Icon(Icons.arrow_forward), label: const Text('ابدأ طلب التحول إلى تاجر'))]));
+  Widget build(BuildContext context) {
+    const steps = ['التعريف بنشاطك وخبرتك', 'إضافة بيانات المتجر وموقعه', 'إرفاق الشهادات ومعلومات المصدر', 'مراجعة التحقق ثم فتح لوحة التاجر'];
+    return Scaffold(
+      appBar: AppBar(title: const Text('كن تاجرًا')),
+      body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [
+        const AssalImageTile(height: 180, icon: Icons.storefront_outlined),
+        const SizedBox(height: AssalSpacing.xl),
+        Text('حوّل خبرتك إلى متجر موثوق', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
+        const SizedBox(height: AssalSpacing.sm),
+        Text('مسار واضح من التعريف بك إلى إنشاء المتجر ثم التحقق، دون خلطه بتجربة التصفح.', style: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary)),
+        const SizedBox(height: AssalSpacing.xl),
+        ...steps.asMap().entries.map<Widget>((entry) => ListTile(leading: CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Text('${entry.key + 1}')), title: Text(entry.value), subtitle: const Text('خطوة محفوظة في Demo Mode'))),
+        const SizedBox(height: AssalSpacing.xl),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (dialogContext) => AlertDialog(
+                title: const Text('تم بدء مسار التاجر'),
+                content: const Text('في Demo Mode تم حفظ الخطوات. في Production ستنتقل البيانات إلى مراجعة التحقق.'),
+                actions: [FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('حسنًا'))],
+              ),
+            ),
+            icon: const Icon(Icons.arrow_forward),
+            label: const Text('ابدأ طلب التحول إلى تاجر'),
+          ),
+        ),
+      ]),
+    );
+  }
 }
