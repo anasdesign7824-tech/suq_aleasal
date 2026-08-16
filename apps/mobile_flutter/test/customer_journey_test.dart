@@ -39,6 +39,9 @@ void main() {
     expect((favorite as AssalData<bool>).value, isTrue);
     expect((like as AssalData<bool>).value, isTrue);
 
+    final merchantApplication = await repository.submitMerchantApplication(session.user!.id, const AssalMerchantApplicationDraft(displayName: 'مناحل دوعن الجديدة', phone: '777123456', experience: 'خبرة طويلة في فرز وتعبئة السدر الدوعني.', location: 'حضرموت - دوعن', specialties: 'سدر، سمرة، شمع', certificateNote: 'شهادة مصدر موثق'));
+    expect(merchantApplication, isA<AssalData<AssalMerchantApplicationSummary>>());
+
     final request = await repository.createRequest(session.user!.id, const AssalRequestDraft(storeId: 's1', productId: 'p1', subject: 'استفسار عن سدر دوعني', body: 'أرغب في معرفة التوفر وطريقة الاستلام.', quantity: 1, handoffOption: HandoffOption.pickup, deliveryNote: 'التواصل قبل الوصول'));
     expect(request, isA<AssalData<AssalRequestSummary>>());
     final requests = await repository.listRequests(session.user!.id);
@@ -56,5 +59,6 @@ void main() {
 
     final notifications = await repository.listNotifications(session.user!.id);
     expect(notifications, isA<AssalData<List<AssalNotificationSummary>>>());
+    expect((notifications as AssalData<List<AssalNotificationSummary>>).value.any((item) => item.notificationType == 'merchant_application'), isTrue);
   });
 }
