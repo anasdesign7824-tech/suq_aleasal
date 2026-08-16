@@ -5,7 +5,6 @@ import 'app/assal_app.dart';
 import 'app/assal_runtime_config.dart';
 import 'core/supabase_auth_gateway.dart';
 import 'core/supabase_query_gateway.dart';
-import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/production_repository.dart';
 
 Future<void> main() async {
