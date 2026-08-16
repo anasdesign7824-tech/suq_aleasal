@@ -8,7 +8,8 @@ import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
 
 class AssalApp extends StatelessWidget {
-  const AssalApp({super.key});
+  const AssalApp({super.key, this.repository});
+  final AssalRepository? repository;
   @override
   Widget build(BuildContext context) => MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -18,19 +19,26 @@ class AssalApp extends StatelessWidget {
         supportedLocales: const [Locale('ar')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         builder: (context, child) => Directionality(textDirection: TextDirection.rtl, child: child ?? const SizedBox.shrink()),
-        home: const AssalHomeShell(),
+        home: AssalHomeShell(repository: repository),
       );
 }
 
 class AssalHomeShell extends StatefulWidget {
-  const AssalHomeShell({super.key});
+  const AssalHomeShell({super.key, this.repository});
+  final AssalRepository? repository;
   @override
   State<AssalHomeShell> createState() => _AssalHomeShellState();
 }
 
 class _AssalHomeShellState extends State<AssalHomeShell> {
-  late final AssalRepository repository = DemoRepository(loader: const RootBundleDemoCatalogLoader());
+  late final AssalRepository repository;
   int selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    repository = widget.repository ?? DemoRepository(loader: const RootBundleDemoCatalogLoader());
+  }
 
   @override
   Widget build(BuildContext context) {
