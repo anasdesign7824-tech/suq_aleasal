@@ -124,6 +124,7 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<AssalSession>> signIn(String email, String password);
   Future<AssalLoadState<AssalSession>> signInWithGoogle();
   Future<AssalLoadState<AssalSession>> register(String name, String email, String password);
+  Future<AssalLoadState<AssalMerchantApplicationSummary>> submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft);
   Future<AssalLoadState<void>> signOut();
 }
 

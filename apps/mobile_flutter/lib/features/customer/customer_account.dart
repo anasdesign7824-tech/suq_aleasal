@@ -81,7 +81,7 @@ class ProfileScreen extends StatelessWidget {
     Row(children: [
       Expanded(child: OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => RequestsScreen(repository: repository))), icon: const Icon(Icons.assignment_outlined), label: const Text('طلباتي'))),
       const SizedBox(width: AssalSpacing.sm),
-      Expanded(child: FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BecomeMerchantScreen())), icon: const Icon(Icons.storefront_outlined), label: const Text('كن تاجرًا'))),
+      Expanded(child: FilledButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => BecomeMerchantScreen(repository: repository))), icon: const Icon(Icons.storefront_outlined), label: const Text('كن تاجرًا'))),
     ]),
     const SizedBox(height: AssalSpacing.sm),
     OutlinedButton.icon(onPressed: () async { await repository.signOut(); if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل الخروج من Demo Mode'))); }, icon: const Icon(Icons.logout), label: const Text('تسجيل الخروج')),
@@ -336,39 +336,74 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-class BecomeMerchantScreen extends StatelessWidget {
-  const BecomeMerchantScreen({super.key});
+class BecomeMerchantScreen extends StatefulWidget {
+  const BecomeMerchantScreen({super.key, required this.repository});
+  final AssalRepository repository;
 
   @override
-  Widget build(BuildContext context) {
-    const steps = ['التعريف بنشاطك وخبرتك', 'إضافة بيانات المتجر وموقعه', 'إرفاق الشهادات ومعلومات المصدر', 'مراجعة التحقق ثم فتح لوحة التاجر'];
-    return Scaffold(
-      appBar: AppBar(title: const Text('كن تاجرًا')),
-      body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [
-        const AssalImageTile(height: 180, icon: Icons.storefront_outlined),
-        const SizedBox(height: AssalSpacing.xl),
-        Text('حوّل خبرتك إلى متجر موثوق', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
-        const SizedBox(height: AssalSpacing.sm),
-        Text('مسار واضح من التعريف بك إلى إنشاء المتجر ثم التحقق، دون خلطه بتجربة التصفح.', style: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary)),
-        const SizedBox(height: AssalSpacing.xl),
-        ...steps.asMap().entries.map<Widget>((entry) => ListTile(leading: CircleAvatar(backgroundColor: AssalColors.honeyLight, child: Text('${entry.key + 1}')), title: Text(entry.value), subtitle: const Text('خطوة محفوظة في Demo Mode'))),
-        const SizedBox(height: AssalSpacing.xl),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: () => showDialog<void>(
-              context: context,
-              builder: (dialogContext) => AlertDialog(
-                title: const Text('تم بدء مسار التاجر'),
-                content: const Text('في Demo Mode تم حفظ الخطوات. في Production ستنتقل البيانات إلى مراجعة التحقق.'),
-                actions: [FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('حسنًا'))],
-              ),
-            ),
-            icon: const Icon(Icons.arrow_forward),
-            label: const Text('ابدأ طلب التحول إلى تاجر'),
-          ),
-        ),
-      ]),
-    );
+  State<BecomeMerchantScreen> createState() => _BecomeMerchantScreenState();
+}
+
+class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
+  final nameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final experienceController = TextEditingController();
+  final locationController = TextEditingController();
+  final specialtiesController = TextEditingController();
+  final certificateController = TextEditingController();
+  bool loading = false;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    experienceController.dispose();
+    locationController.dispose();
+    specialtiesController.dispose();
+    certificateController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('كن تاجرًا')),
+        body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [
+          const AssalImageTile(height: 180, icon: Icons.storefront_outlined),
+          const SizedBox(height: AssalSpacing.xl),
+          Text('حوّل خبرتك إلى متجر موثوق', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
+          const SizedBox(height: AssalSpacing.sm),
+          Text('قدّم معلومات نشاطك ومصدر منتجاتك. لا يوجد Checkout؛ الطلب ينتقل إلى مراجعة التحقق والتواصل.', style: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary)),
+          const SizedBox(height: AssalSpacing.xl),
+          TextField(controller: nameController, decoration: const InputDecoration(labelText: 'اسم النشاط أو المتجر')),
+          const SizedBox(height: AssalSpacing.md),
+          TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'رقم التواصل')),
+          const SizedBox(height: AssalSpacing.md),
+          TextField(controller: experienceController, maxLines: 2, decoration: const InputDecoration(labelText: 'الخبرة في العسل ومصدره')),
+          const SizedBox(height: AssalSpacing.md),
+          TextField(controller: locationController, decoration: const InputDecoration(labelText: 'المحافظة / الموقع')),
+          const SizedBox(height: AssalSpacing.md),
+          TextField(controller: specialtiesController, decoration: const InputDecoration(labelText: 'التخصصات والأنواع')),
+          const SizedBox(height: AssalSpacing.md),
+          TextField(controller: certificateController, maxLines: 2, decoration: const InputDecoration(labelText: 'الشهادات أو معلومات المصدر (اختياري)')),
+          const SizedBox(height: AssalSpacing.xl),
+          SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: loading ? null : _submit, icon: const Icon(Icons.send_outlined), label: Text(loading ? 'جارٍ الإرسال…' : 'إرسال طلب التحقق'))),
+        ]),
+      );
+
+  Future<void> _submit() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) await openAuth(context, widget.repository);
+      return;
+    }
+    setState(() => loading = true);
+    final result = await widget.repository.submitMerchantApplication(session.user!.id, AssalMerchantApplicationDraft(displayName: nameController.text, phone: phoneController.text, experience: experienceController.text, location: locationController.text, specialties: specialtiesController.text, certificateNote: certificateController.text.trim().isEmpty ? null : certificateController.text.trim()));
+    if (!mounted) return;
+    setState(() => loading = false);
+    if (result is AssalData<AssalMerchantApplicationSummary>) {
+      await showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(title: const Text('تم استلام طلبك'), content: Text('رقم الطلب: ${result.value.id}\nالحالة: قيد المراجعة'), actions: [FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('حسنًا'))]));
+    } else if (result is AssalError<AssalMerchantApplicationSummary>) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
   }
 }

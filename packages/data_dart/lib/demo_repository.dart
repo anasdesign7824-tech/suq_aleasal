@@ -25,6 +25,7 @@ class DemoRepository implements AssalRepository {
   final List<AssalNotificationSummary> _localNotifications = <AssalNotificationSummary>[];
   final List<AssalConversationSummary> _localConversations = <AssalConversationSummary>[];
   final List<AssalMessageSummary> _localMessages = <AssalMessageSummary>[];
+  AssalMerchantApplicationSummary? _merchantApplication;
 
   @override
   AssalDataSourceMode get mode => AssalDataSourceMode.demo;
@@ -324,6 +325,14 @@ class DemoRepository implements AssalRepository {
     final liked = !_likes.contains(targetId);
     liked ? _likes.add(targetId) : _likes.remove(targetId);
     return AssalData(liked);
+  }
+
+  @override
+  Future<AssalLoadState<AssalMerchantApplicationSummary>> submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft) async {
+    if (draft.displayName.trim().length < 2 || draft.phone.trim().length < 6 || draft.experience.trim().length < 4 || draft.location.trim().length < 2 || draft.specialties.trim().length < 2) return const AssalError('أكمل بيانات النشاط والخبرة والموقع والتخصص قبل الإرسال.', code: 'invalid_merchant_application');
+    _merchantApplication = AssalMerchantApplicationSummary(id: 'demo-merchant-application-${DateTime.now().millisecondsSinceEpoch}', userId: userId, status: 'submitted', displayName: draft.displayName.trim(), submittedAt: DateTime.now());
+    _localNotifications.insert(0, AssalNotificationSummary(id: 'demo-notification-merchant-${DateTime.now().millisecondsSinceEpoch}', userId: userId, notificationType: 'merchant_application', titleAr: 'تم استلام طلب التحول إلى تاجر', bodyAr: 'سنراجع بيانات ${draft.displayName.trim()} في مرحلة التحقق.', payload: {'application_id': _merchantApplication!.id}));
+    return AssalData(_merchantApplication!);
   }
 
   @override

@@ -456,6 +456,25 @@ class AssalRequestSummary {
       );
 }
 
+class AssalMerchantApplicationDraft {
+  const AssalMerchantApplicationDraft({required this.displayName, required this.phone, required this.experience, required this.location, required this.specialties, this.certificateNote});
+  final String displayName;
+  final String phone;
+  final String experience;
+  final String location;
+  final String specialties;
+  final String? certificateNote;
+}
+
+class AssalMerchantApplicationSummary {
+  const AssalMerchantApplicationSummary({required this.id, required this.userId, required this.status, required this.displayName, required this.submittedAt});
+  final String id;
+  final String userId;
+  final String status;
+  final String displayName;
+  final DateTime submittedAt;
+}
+
 class AssalNotificationSummary {
   const AssalNotificationSummary({required this.id, required this.userId, required this.notificationType, required this.titleAr, this.bodyAr, this.payload = const <String, Object?>{}, this.readAt});
   final String id;

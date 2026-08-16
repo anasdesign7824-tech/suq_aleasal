@@ -183,5 +183,8 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<AssalSession>> register(String name, String email, String password) async => const AssalError('المصادقة الإنتاجية موكلة إلى مزود المصادقة.', code: 'production_auth_not_configured');
   @override
+  Future<AssalLoadState<AssalMerchantApplicationSummary>> submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft) async => const AssalError('طلب التحول إلى تاجر يحتاج تهيئة مصدر الإنتاج والمراجعة الإدارية.', code: 'production_merchant_application_not_configured');
+
+  @override
   Future<AssalLoadState<void>> signOut() async => const AssalData(null);
 }
