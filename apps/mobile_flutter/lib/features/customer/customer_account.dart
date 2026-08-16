@@ -336,7 +336,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const ListTile(leading: Icon(Icons.palette_outlined), title: Text('المظهر'), subtitle: Text('هوية عسلكم الفاتحة — تخصيص السمات يحتاج إعداد الإنتاج')),
             ListTile(leading: const Icon(Icons.lock_outline), title: const Text('الخصوصية والأمان'), subtitle: const Text('صلاحيات الحساب وبيانات التواصل'), onTap: () => showDialog<void>(context: context, builder: (dialogContext) => AlertDialog(title: const Text('الخصوصية والأمان'), content: const Text('في Demo لا تُرسل بياناتك إلى خادم. في Production ستُفرض الصلاحيات من Auth وRLS.'), actions: [FilledButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('حسنًا'))]))),
             ListTile(leading: const Icon(Icons.info_outline), title: const Text('عن عسلكم'), subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'), onTap: () => showAboutDialog(context: context, applicationName: 'عسلكم', applicationVersion: 'Customer App', children: [const Text('اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.')]))
-          ]),
+          ])),
         ]),
       );
 }
