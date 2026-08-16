@@ -43,7 +43,7 @@ class DemoRepository implements AssalRepository {
     return value.whereType<Map>().map((item) => item.cast<String, Object?>()).toList(growable: false);
   }
 
-  AssalLoadState<List<T>> _listState<T>(List<T> values, String emptyMessage) => values.isEmpty ? AssalEmpty<T>(emptyMessage) : AssalData<T>(values);
+  AssalLoadState<List<T>> _listState<T>(List<T> values, String emptyMessage) => values.isEmpty ? AssalEmpty<List<T>>(emptyMessage) : AssalData<List<T>>(values);
 
   @override
   Future<AssalSession> getSession() async => _session;

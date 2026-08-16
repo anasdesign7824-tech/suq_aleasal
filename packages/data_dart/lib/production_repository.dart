@@ -8,7 +8,7 @@ class ProductionRepository implements AssalRepository {
   @override
   AssalDataSourceMode get mode => AssalDataSourceMode.production;
 
-  AssalLoadState<List<T>> _state<T>(List<T> values, String emptyMessage) => values.isEmpty ? AssalEmpty<T>(emptyMessage) : AssalData<T>(values);
+  AssalLoadState<List<T>> _state<T>(List<T> values, String emptyMessage) => values.isEmpty ? AssalEmpty<List<T>>(emptyMessage) : AssalData<List<T>>(values);
 
   @override
   Future<AssalSession> getSession() async => AssalSession.guest;
