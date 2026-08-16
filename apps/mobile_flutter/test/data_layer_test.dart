@@ -29,6 +29,10 @@ void main() {
     expect(products, isA<AssalData<List<AssalProductSummary>>>());
     final reviews = await repository.listReviews('p1');
     expect(reviews, isA<AssalEmpty<List<AssalReviewSummary>>>());
+    await repository.signIn('demo@assalkom.app', 'demo123');
+    await repository.toggleFavorite('demo-customer', 'p1');
+    final favoriteTaxonomies = await repository.listFavoriteTaxonomies('demo-customer');
+    expect((favoriteTaxonomies as AssalData<List<AssalTaxonomy>>).value, hasLength(1));
     final banners = await repository.listBanners();
     expect((banners as AssalData<List<AssalBannerSummary>>).value, hasLength(1));
     final searches = await repository.listPopularSearches();
