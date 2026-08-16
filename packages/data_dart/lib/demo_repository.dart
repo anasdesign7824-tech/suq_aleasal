@@ -351,6 +351,9 @@ class DemoRepository implements AssalRepository {
   Future<AssalLoadState<AssalSession>> signInWithGoogle() async => const AssalError('تسجيل Google يحتاج مزود OAuth الإنتاجي، وهو غير متاح دون اتصال في Demo Mode.', code: 'demo_google_auth_unavailable');
 
   @override
+  Future<AssalLoadState<AssalSession>> signInWithFacebook() async => const AssalError('تسجيل Facebook يحتاج مزود OAuth الإنتاجي، وهو غير متاح دون اتصال في Demo Mode.', code: 'demo_facebook_auth_unavailable');
+
+  @override
   Future<AssalLoadState<AssalSession>> register(String name, String email, String password) async {
     if (name.trim().length < 2 || !email.contains('@') || password.length < 6) return const AssalError('أدخل اسمًا صحيحًا وبريدًا صالحًا وكلمة مرور من 6 أحرف على الأقل.', code: 'invalid_registration');
     _session = AssalSession(isAuthenticated: true, role: AssalRole.customer, user: AssalUserProfile(id: 'demo-customer', nameAr: name.trim(), email: email, bio: 'عضو جديد في مجتمع عسلكم'));
