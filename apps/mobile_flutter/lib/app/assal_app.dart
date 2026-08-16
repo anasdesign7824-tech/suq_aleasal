@@ -48,19 +48,18 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
       MessagesScreen(repository: repository),
       ProfileScreen(repository: repository),
     ];
-    return Scaffold(
-      body: SafeArea(child: IndexedStack(index: selectedIndex, children: pages)),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) => setState(() => selectedIndex = index),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: 'اكتشف'),
-          NavigationDestination(icon: Icon(Icons.category_outlined), selectedIcon: Icon(Icons.category), label: 'التصنيفات'),
-          NavigationDestination(icon: Icon(Icons.forum_outlined), selectedIcon: Icon(Icons.forum), label: 'المراسلات'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'حسابي'),
-        ],
-      ),
-    );
+    const destinations = [
+      NavigationDestination(icon: Icon(Icons.explore_outlined), selectedIcon: Icon(Icons.explore), label: 'اكتشف'),
+      NavigationDestination(icon: Icon(Icons.category_outlined), selectedIcon: Icon(Icons.category), label: 'التصنيفات'),
+      NavigationDestination(icon: Icon(Icons.forum_outlined), selectedIcon: Icon(Icons.forum), label: 'المراسلات'),
+      NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'حسابي'),
+    ];
+    return LayoutBuilder(builder: (context, constraints) {
+      final wide = constraints.maxWidth >= 900;
+      final content = Expanded(child: SafeArea(child: IndexedStack(index: selectedIndex, children: pages)));
+      if (wide) return Scaffold(body: Row(children: [NavigationRail(selectedIndex: selectedIndex, onDestinationSelected: (index) => setState(() => selectedIndex = index), labelType: NavigationRailLabelType.all, destinations: destinations.map((item) => NavigationRailDestination(icon: item.icon, selectedIcon: item.selectedIcon ?? item.icon, label: Text(item.label))).toList()), content]));
+      return Scaffold(body: content, bottomNavigationBar: NavigationBar(selectedIndex: selectedIndex, onDestinationSelected: (index) => setState(() => selectedIndex = index), destinations: destinations));
+    });
   }
 
   void _openSearch() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: repository)));
