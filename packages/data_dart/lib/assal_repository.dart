@@ -124,6 +124,7 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<bool>> toggleLike(String userId, String targetId);
   Future<AssalLoadState<AssalSession>> signIn(String email, String password);
   Future<AssalLoadState<AssalSession>> signInWithGoogle();
+  Future<AssalLoadState<AssalSession>> signInWithFacebook();
   Future<AssalLoadState<AssalSession>> register(String name, String email, String password);
   Future<AssalLoadState<AssalMerchantApplicationSummary>> submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft);
   Future<AssalLoadState<void>> signOut();
@@ -134,6 +135,31 @@ abstract interface class ProductionQueryGateway {
   Future<List<Map<String, Object?>>> select(String table, {Map<String, Object?> filters = const <String, Object?>{}});
   Future<Map<String, Object?>> insert(String table, Map<String, Object?> values);
   Future<Map<String, Object?>> update(String table, Map<String, Object?> values, {required String id});
+}
+
+class AssalAuthIdentity {
+  const AssalAuthIdentity({required this.id, this.email, this.displayName, this.avatarUrl});
+  final String id;
+  final String? email;
+  final String? displayName;
+  final String? avatarUrl;
+}
+
+abstract interface class AssalAuthGateway {
+  Future<AssalAuthIdentity?> currentIdentity();
+  Future<AssalAuthIdentity?> signInWithPassword(String email, String password);
+  Future<AssalAuthIdentity?> signUp({required String name, required String email, required String password});
+  Future<AssalAuthIdentity?> signInWithGoogle();
+  Future<AssalAuthIdentity?> signInWithFacebook();
+  Future<void> signOut();
+}
+
+class AssalAuthFailure implements Exception {
+  const AssalAuthFailure(this.messageAr, {this.code});
+  final String messageAr;
+  final String? code;
+  @override
+  String toString() => messageAr;
 }
 
 class ProductionRepositoryNotConfigured implements Exception {

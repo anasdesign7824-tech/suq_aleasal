@@ -9,6 +9,7 @@ class AssalRepositoryFactory {
     required AssalDataSourceMode mode,
     required DemoCatalogLoader demoLoader,
     ProductionQueryGateway? productionGateway,
+    AssalAuthGateway? authGateway,
   }) {
     switch (mode) {
       case AssalDataSourceMode.demo:
@@ -16,7 +17,7 @@ class AssalRepositoryFactory {
       case AssalDataSourceMode.production:
         final gateway = productionGateway;
         if (gateway == null) throw const ProductionRepositoryNotConfigured();
-        return ProductionRepository(gateway: gateway);
+        return ProductionRepository(gateway: gateway, authGateway: authGateway);
     }
   }
 }

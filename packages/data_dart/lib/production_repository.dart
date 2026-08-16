@@ -2,8 +2,9 @@ import 'package:assalkom_contracts/assal_domain.dart';
 import 'assal_repository.dart';
 
 class ProductionRepository implements AssalRepository {
-  const ProductionRepository({required ProductionQueryGateway gateway}) : _gateway = gateway;
+  const ProductionRepository({required ProductionQueryGateway gateway, AssalAuthGateway? authGateway}) : _gateway = gateway, _authGateway = authGateway;
   final ProductionQueryGateway _gateway;
+  final AssalAuthGateway? _authGateway;
 
   @override
   AssalDataSourceMode get mode => AssalDataSourceMode.production;
@@ -11,7 +12,72 @@ class ProductionRepository implements AssalRepository {
   AssalLoadState<List<T>> _state<T>(List<T> values, String emptyMessage) => values.isEmpty ? AssalEmpty<List<T>>(emptyMessage) : AssalData<List<T>>(values);
 
   @override
-  Future<AssalSession> getSession() async => AssalSession.guest;
+  Future<AssalSession> getSession() async {
+    final auth = _authGateway;
+    if (auth == null) return AssalSession.guest;
+    try {
+      return _sessionFromIdentity(await auth.currentIdentity());
+    } on Object {
+      return AssalSession.guest;
+    }
+  }
+
+  AssalSession _sessionFromIdentity(AssalAuthIdentity? identity, {Map<String, Object?> profile = const <String, Object?>{}, bool isAdmin = false}) {
+    if (identity == null) return AssalSession.guest;
+    final role = isAdmin ? AssalRole.admin : _roleFrom(profile['role']);
+    final user = AssalUserProfile.fromJson({
+      'id': identity.id,
+      'name_ar': profile['display_name'] ?? identity.displayName ?? 'عميل عسلكم',
+      'email': identity.email,
+      'avatar_url': profile['avatar_url'] ?? identity.avatarUrl,
+      'bio': profile['bio'],
+      'phone': profile['phone'],
+      'role': role.name,
+      'is_active': profile['is_active'] ?? true,
+      'created_at': profile['created_at'],
+      'updated_at': profile['updated_at'],
+    });
+    return AssalSession(isAuthenticated: true, role: role, user: user);
+  }
+
+  AssalRole _roleFrom(Object? value) => switch (value) {
+        'admin' => AssalRole.admin,
+        'merchant' => AssalRole.merchant,
+        _ => AssalRole.customer,
+      };
+
+  Future<AssalSession> _sessionForIdentity(AssalAuthIdentity? identity) async {
+    if (identity == null) return AssalSession.guest;
+    Map<String, Object?> profile = const <String, Object?>{};
+    var isAdmin = false;
+    try {
+      final rows = await _gateway.select('profiles', filters: {'user_id': identity.id});
+      if (rows.isNotEmpty) profile = rows.first;
+    } on Object {
+      // Auth remains valid even if profile hydration is temporarily unavailable.
+    }
+    try {
+      final rows = await _gateway.select('admin_users', filters: {'user_id': identity.id});
+      isAdmin = rows.isNotEmpty;
+    } on Object {
+      isAdmin = false;
+    }
+    return _sessionFromIdentity(identity, profile: profile, isAdmin: isAdmin);
+  }
+
+  Future<AssalLoadState<AssalSession>> _authOperation(Future<AssalAuthIdentity?> Function(AssalAuthGateway auth) operation) async {
+    final auth = _authGateway;
+    if (auth == null) return const AssalError('المصادقة الإنتاجية غير مهيأة بعد.', code: 'production_auth_not_configured');
+    try {
+      final identity = await operation(auth);
+      if (identity == null) return const AssalError('لم تكتمل جلسة المصادقة.', code: 'auth_session_missing');
+      return AssalData(await _sessionForIdentity(identity));
+    } on AssalAuthFailure catch (error) {
+      return AssalError(error.messageAr, code: error.code);
+    } on Object {
+      return const AssalError('تعذر إكمال المصادقة. تحقق من الاتصال والإعدادات ثم حاول مرة أخرى.', code: 'auth_unexpected_error');
+    }
+  }
 
   @override
   Future<AssalLoadState<List<AssalRegion>>> listRegions() async {
@@ -182,15 +248,28 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<bool>> toggleLike(String userId, String targetId) async => const AssalError('الإعجاب الإنتاجي يحتاج إلى Data Source مصادق عليه.', code: 'production_write_not_configured');
   @override
-  Future<AssalLoadState<AssalSession>> signIn(String email, String password) async => const AssalError('المصادقة الإنتاجية موكلة إلى مزود المصادقة.', code: 'production_auth_not_configured');
-  @override
-  Future<AssalLoadState<AssalSession>> signInWithGoogle() async => const AssalError('مصادقة Google تحتاج تهيئة مزود OAuth الإنتاجي.', code: 'production_google_auth_not_configured');
+  Future<AssalLoadState<AssalSession>> signIn(String email, String password) => _authOperation((auth) async => auth.signInWithPassword(email, password));
 
   @override
-  Future<AssalLoadState<AssalSession>> register(String name, String email, String password) async => const AssalError('المصادقة الإنتاجية موكلة إلى مزود المصادقة.', code: 'production_auth_not_configured');
+  Future<AssalLoadState<AssalSession>> signInWithGoogle() => _authOperation((auth) => auth.signInWithGoogle());
+
+  @override
+  Future<AssalLoadState<AssalSession>> signInWithFacebook() => _authOperation((auth) => auth.signInWithFacebook());
+
+  @override
+  Future<AssalLoadState<AssalSession>> register(String name, String email, String password) => _authOperation((auth) => auth.signUp(name: name, email: email, password: password));
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary>> submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft) async => const AssalError('طلب التحول إلى تاجر يحتاج تهيئة مصدر الإنتاج والمراجعة الإدارية.', code: 'production_merchant_application_not_configured');
 
   @override
-  Future<AssalLoadState<void>> signOut() async => const AssalData(null);
+  Future<AssalLoadState<void>> signOut() async {
+    final auth = _authGateway;
+    if (auth == null) return const AssalData(null);
+    try {
+      await auth.signOut();
+      return const AssalData(null);
+    } on Object {
+      return const AssalError('تعذر تسجيل الخروج. حاول مرة أخرى.', code: 'sign_out_failed');
+    }
+  }
 }

@@ -14,16 +14,32 @@ class AuthScreen extends StatefulWidget {
 }
 class _AuthScreenState extends State<AuthScreen> {
   final nameController = TextEditingController();
-  final emailController = TextEditingController(text: 'demo@assalkom.app');
-  final passwordController = TextEditingController(text: 'demo123');
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool registerMode = false;
   bool loading = false;
   @override
   void dispose() { nameController.dispose(); emailController.dispose(); passwordController.dispose(); super.dispose(); }
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text(registerMode ? 'إنشاء حساب' : 'تسجيل الدخول')), body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [const AssalBrandMark(size: 66), const SizedBox(height: AssalSpacing.xl), Text(registerMode ? 'أنشئ حسابك في عسلكم' : 'أهلًا بك في عسلكم', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)), const SizedBox(height: AssalSpacing.sm), Text('يمكنك التصفح كزائر، والحساب يفتح لك الحفظ والمتابعة والطلبات والمراسلة.', style: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary)), const SizedBox(height: AssalSpacing.xl), if (registerMode) ...[TextField(controller: nameController, textInputAction: TextInputAction.next, decoration: const InputDecoration(labelText: 'الاسم')) , const SizedBox(height: AssalSpacing.md)], TextField(controller: emailController, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'البريد الإلكتروني')), const SizedBox(height: AssalSpacing.md), TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'كلمة المرور')), const SizedBox(height: AssalSpacing.lg), SizedBox(width: double.infinity, child: FilledButton(onPressed: loading ? null : _submit, child: loading ? const CircularProgressIndicator() : Text(registerMode ? 'إنشاء الحساب' : 'تسجيل الدخول'))), Tooltip(message: widget.repository.mode == AssalDataSourceMode.demo ? 'يتطلب ربط مزود OAuth الإنتاجي' : 'تسجيل الدخول عبر Google', child: OutlinedButton.icon(onPressed: widget.repository.mode == AssalDataSourceMode.production && !loading ? _googleSignIn : null, icon: const Icon(Icons.account_circle_outlined), label: Text(widget.repository.mode == AssalDataSourceMode.demo ? 'Google — غير متاح في Demo' : 'المتابعة عبر Google'))), TextButton(onPressed: () => setState(() => registerMode = !registerMode), child: Text(registerMode ? 'لديك حساب؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب')), TextButton(onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('سنرسل رابط الاستعادة عند ربط مزود المصادقة الإنتاجي.'))), child: const Text('نسيت كلمة المرور؟'))]));
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text(registerMode ? 'إنشاء حساب' : 'تسجيل الدخول')), body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [const AssalBrandMark(size: 66), const SizedBox(height: AssalSpacing.xl), Text(registerMode ? 'أنشئ حسابك في عسلكم' : 'أهلًا بك في عسلكم', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)), const SizedBox(height: AssalSpacing.sm), Text('يمكنك التصفح كزائر، والحساب يفتح لك الحفظ والمتابعة والطلبات والمراسلة.', style: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary)), const SizedBox(height: AssalSpacing.xl), if (registerMode) ...[TextField(controller: nameController, textInputAction: TextInputAction.next, decoration: const InputDecoration(labelText: 'الاسم')) , const SizedBox(height: AssalSpacing.md)], TextField(controller: emailController, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'البريد الإلكتروني')), const SizedBox(height: AssalSpacing.md), TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'كلمة المرور')), const SizedBox(height: AssalSpacing.lg), SizedBox(width: double.infinity, child: FilledButton(onPressed: loading ? null : _submit, child: loading ? const CircularProgressIndicator() : Text(registerMode ? 'إنشاء الحساب' : 'تسجيل الدخول'))), Column(children: [
+        Tooltip(message: widget.repository.mode == AssalDataSourceMode.demo ? 'يتطلب ربط مزود OAuth الإنتاجي' : 'تسجيل الدخول عبر Google', child: OutlinedButton.icon(onPressed: widget.repository.mode == AssalDataSourceMode.production && !loading ? _googleSignIn : null, icon: const Icon(Icons.account_circle_outlined), label: Text(widget.repository.mode == AssalDataSourceMode.demo ? 'Google — غير متاح في Demo' : 'المتابعة عبر Google'))),
+        Tooltip(message: widget.repository.mode == AssalDataSourceMode.demo ? 'يتطلب ربط مزود OAuth الإنتاجي' : 'تسجيل الدخول عبر Facebook', child: OutlinedButton.icon(onPressed: widget.repository.mode == AssalDataSourceMode.production && !loading ? _facebookSignIn : null, icon: const Icon(Icons.facebook), label: Text(widget.repository.mode == AssalDataSourceMode.demo ? 'Facebook — غير متاح في Demo' : 'المتابعة عبر Facebook'))),
+      ]), TextButton(onPressed: () => setState(() => registerMode = !registerMode), child: Text(registerMode ? 'لديك حساب؟ تسجيل الدخول' : 'ليس لديك حساب؟ إنشاء حساب')), TextButton(onPressed: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('سنرسل رابط الاستعادة عند ربط مزود المصادقة الإنتاجي.'))), child: const Text('نسيت كلمة المرور؟'))]));
   Future<void> _submit() async { setState(() => loading = true); final result = registerMode ? await widget.repository.register(nameController.text, emailController.text, passwordController.text) : await widget.repository.signIn(emailController.text, passwordController.text); if (!mounted) return; setState(() => loading = false); if (result is AssalData<AssalSession>) { Navigator.pop(context); } else if (result is AssalError<AssalSession>) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.messageAr))); } }
-  Future<void> _googleSignIn() async { setState(() => loading = true); final result = await widget.repository.signInWithGoogle(); if (!mounted) return; setState(() => loading = false); if (result is AssalData<AssalSession>) { Navigator.pop(context); } else if (result is AssalError<AssalSession>) { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.messageAr))); } }
+  Future<void> _googleSignIn() => _authAction(widget.repository.signInWithGoogle, 'Google');
+  Future<void> _facebookSignIn() => _authAction(widget.repository.signInWithFacebook, 'Facebook');
+
+  Future<void> _authAction(Future<AssalLoadState<AssalSession>> Function() action, String providerName) async {
+    setState(() => loading = true);
+    final result = await action();
+    if (!mounted) return;
+    setState(() => loading = false);
+    if (result is AssalData<AssalSession>) {
+      Navigator.pop(context);
+    } else if (result is AssalError<AssalSession>) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.code == 'oauth_started' ? 'أكمل تسجيل الدخول عبر $providerName ثم عد إلى التطبيق.' : result.messageAr)));
+    }
+  }
 }
 
 class ProfileScreen extends StatelessWidget {

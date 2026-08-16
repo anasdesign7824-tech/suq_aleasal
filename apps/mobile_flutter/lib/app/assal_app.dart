@@ -8,8 +8,9 @@ import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
 
 class AssalApp extends StatelessWidget {
-  const AssalApp({super.key, this.repository});
+  const AssalApp({super.key, this.repository, this.startupError});
   final AssalRepository? repository;
+  final String? startupError;
   @override
   Widget build(BuildContext context) => MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -19,7 +20,39 @@ class AssalApp extends StatelessWidget {
         supportedLocales: const [Locale('ar')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         builder: (context, child) => Directionality(textDirection: TextDirection.rtl, child: child ?? const SizedBox.shrink()),
-        home: AssalHomeShell(repository: repository),
+        home: startupError == null ? AssalHomeShell(repository: repository) : AssalStartupErrorScreen(messageAr: startupError!),
+      );
+}
+
+class AssalStartupErrorScreen extends StatelessWidget {
+  const AssalStartupErrorScreen({super.key, required this.messageAr});
+  final String messageAr;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('تعذر تشغيل عسلكم')),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.cloud_off_outlined, size: 52),
+                    const SizedBox(height: 16),
+                    const Text('إعدادات التشغيل غير مكتملة', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 12),
+                    Text(messageAr, textAlign: TextAlign.center),
+                    const SizedBox(height: 16),
+                    const Text('لا تم إدخالك إلى Demo تلقائيًا حتى لا تختلط بيانات الاختبار ببيئة الإنتاج.', textAlign: TextAlign.center),
+                  ]),
+                ),
+              ),
+            ),
+          ),
+        ),
       );
 }
 
