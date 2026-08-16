@@ -207,6 +207,7 @@ class RequestSheet extends StatefulWidget {
 class _RequestSheetState extends State<RequestSheet> {
   final bodyController = TextEditingController(text: 'أرغب في معرفة تفاصيل المنتج والتوفر الحالي.');
   final phoneController = TextEditingController();
+  final deliveryNoteController = TextEditingController();
   int quantity = 1;
   HandoffOption option = HandoffOption.contact;
   bool saving = false;
@@ -215,6 +216,7 @@ class _RequestSheetState extends State<RequestSheet> {
   void dispose() {
     bodyController.dispose();
     phoneController.dispose();
+    deliveryNoteController.dispose();
     super.dispose();
   }
 
@@ -231,6 +233,8 @@ class _RequestSheetState extends State<RequestSheet> {
           TextField(controller: bodyController, maxLines: 3, decoration: const InputDecoration(labelText: 'رسالتك', hintText: 'اكتب ما تريد معرفته')),
           const SizedBox(height: AssalSpacing.md),
           TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'رقم للتواصل (اختياري)')),
+          const SizedBox(height: AssalSpacing.md),
+          TextField(controller: deliveryNoteController, maxLines: 2, decoration: const InputDecoration(labelText: 'ملاحظات التسليم (اختياري)', hintText: 'مثال: التواصل قبل الوصول')),
           const SizedBox(height: AssalSpacing.md),
           DropdownButtonFormField<HandoffOption>(initialValue: option, decoration: const InputDecoration(labelText: 'طريقة التسليم المفضلة'), items: HandoffOption.values.map<DropdownMenuItem<HandoffOption>>((item) => DropdownMenuItem(value: item, child: Text(item.labelAr))).toList(), onChanged: (value) { if (value != null) setState(() => option = value); }),
           const SizedBox(height: AssalSpacing.md),
@@ -254,7 +258,7 @@ class _RequestSheetState extends State<RequestSheet> {
       return;
     }
     setState(() => saving = true);
-    final result = await widget.repository.createRequest('demo-customer', AssalRequestDraft(storeId: widget.store.id, productId: widget.product.id, subject: 'استفسار عن ${widget.product.nameAr}', body: body, quantity: quantity, phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(), handoffOption: option));
+    final result = await widget.repository.createRequest('demo-customer', AssalRequestDraft(storeId: widget.store.id, productId: widget.product.id, subject: 'استفسار عن ${widget.product.nameAr}', body: body, quantity: quantity, phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(), handoffOption: option, deliveryNote: deliveryNoteController.text.trim().isEmpty ? null : deliveryNoteController.text.trim(), handoffDetails: {'quantity_label': '$quantity', 'source': 'customer_request'}));
     if (!mounted) return;
     setState(() => saving = false);
     Navigator.pop(context);
