@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _loadingBody() => CustomScrollView(slivers: [
         SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.md, AssalSpacing.lg, 0), sliver: SliverToBoxAdapter(child: _Header(repository: widget.repository, notificationsFuture: notificationsFuture, onOpenNotifications: widget.onOpenNotifications))),
-        const SliverFillRemaining(hasScrollBody: false, child: Padding(padding: EdgeInsets.all(AssalSpacing.lg), child: const AssalGlassLoading(height: 520, label: 'جارٍ تحميل الصفحة والمنتجات...'))),
+        const SliverFillRemaining(hasScrollBody: false, child: Padding(padding: EdgeInsets.all(AssalSpacing.lg), child: AssalGlassLoading(height: 520, label: 'جارٍ تحميل الصفحة والمنتجات...'))),
       ]);
 }
 
