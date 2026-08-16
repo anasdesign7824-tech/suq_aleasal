@@ -25,5 +25,20 @@ void main() {
     expect((taxonomy as AssalData<List<AssalTaxonomy>>).value.length, greaterThanOrEqualTo(10));
     expect((banners as AssalData<List<AssalBannerSummary>>).value.length, 5);
     expect((searches as AssalData<List<String>>).value.length, greaterThanOrEqualTo(10));
+
+    final reviews = await repository.listReviews(productValues.first.id);
+    expect(reviews, isA<AssalData<List<AssalReviewSummary>>>());
+    final comments = await repository.listComments(productValues[3].id);
+    expect(comments, isA<AssalData<List<AssalCommentSummary>>>());
+    await repository.signIn('demo@assalkom.app', 'demo123');
+    final requests = await repository.listRequests('demo-customer');
+    final notifications = await repository.listNotifications('demo-customer');
+    final conversations = await repository.listConversations('demo-customer');
+    expect((requests as AssalData<List<AssalRequestSummary>>).value.length, greaterThanOrEqualTo(6));
+    expect((notifications as AssalData<List<AssalNotificationSummary>>).value.length, greaterThanOrEqualTo(4));
+    final conversationValues = (conversations as AssalData<List<AssalConversationSummary>>).value;
+    expect(conversationValues.length, greaterThanOrEqualTo(3));
+    final messages = await repository.listMessages(conversationValues.first.id);
+    expect(messages, isA<AssalData<List<AssalMessageSummary>>>());
   });
 }
