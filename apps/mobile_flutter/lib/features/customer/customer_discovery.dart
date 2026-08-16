@@ -21,6 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<AssalLoadState<List<AssalTaxonomy>>> taxonomyFuture;
   late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
   late Future<AssalLoadState<List<AssalBannerSummary>>> bannersFuture;
+  late Future<AssalLoadState<List<AssalProductSummary>>> popularFuture;
+  late Future<AssalLoadState<List<AssalProductSummary>>> newProductsFuture;
+  late Future<AssalLoadState<List<AssalProductSummary>>> verifiedProductsFuture;
   final searchController = TextEditingController();
 
   @override
@@ -40,6 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
     taxonomyFuture = widget.repository.listTaxonomy();
     storesFuture = widget.repository.listStores();
     bannersFuture = widget.repository.listBanners();
+    popularFuture = widget.repository.listProducts(query: const AssalProductQuery(sort: AssalSort.popular));
+    newProductsFuture = widget.repository.listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
+    verifiedProductsFuture = widget.repository.listProducts(query: const AssalProductQuery(verifiedStoresOnly: true, sort: AssalSort.rating));
   }
 
   void _refresh() => setState(_load);
@@ -70,6 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
             if (!snapshot.hasData) return const SizedBox(height: 300, child: Center(child: CircularProgressIndicator()));
             return AssalStateView<List<AssalProductSummary>>(state: snapshot.data!, onRetry: _refresh, builder: (products) => GridView.builder(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68), itemCount: products.length > 6 ? 6 : products.length, itemBuilder: (_, index) => ProductCard(product: products[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ProductDetailScreen(repository: widget.repository, productId: products[index].id))))));
           }))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'الأكثر مشاهدة', future: popularFuture))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'وصل حديثًا', future: newProductsFuture))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: _ProductRail(repository: widget.repository, title: 'من متاجر موثقة', future: verifiedProductsFuture))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm), sliver: SliverToBoxAdapter(child: SectionHeader(title: 'متاجر موثوقة', actionLabel: 'عرض المتاجر', onAction: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StoresScreen(repository: widget.repository)))))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, 0, AssalSpacing.lg, AssalSpacing.xl), sliver: SliverToBoxAdapter(child: FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(future: storesFuture, builder: (context, snapshot) {
             if (!snapshot.hasData) return const SizedBox(height: 100, child: Center(child: CircularProgressIndicator()));
@@ -186,6 +195,38 @@ class _CategoryTile extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => InkWell(onTap: onTap, borderRadius: BorderRadius.circular(AssalRadius.large), child: Container(width: 122, padding: const EdgeInsets.all(AssalSpacing.sm), decoration: BoxDecoration(color: AssalColors.surface, border: Border.all(color: AssalColors.border), borderRadius: BorderRadius.circular(AssalRadius.large)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.category_outlined, color: AssalColors.primaryDark), const SizedBox(height: AssalSpacing.xs), Text(item.nameAr, maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, style: AssalTypography.caption.copyWith(color: AssalColors.deepBrown))])));
+}
+
+class _ProductRail extends StatelessWidget {
+  const _ProductRail({required this.repository, required this.title, required this.future});
+  final AssalRepository repository;
+  final String title;
+  final Future<AssalLoadState<List<AssalProductSummary>>> future;
+
+  @override
+  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SectionHeader(title: title, actionLabel: 'عرض الكل', onAction: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: repository)))),
+        const SizedBox(height: AssalSpacing.sm),
+        SizedBox(
+          height: 292,
+          child: FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+            future: future,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+              return AssalStateView<List<AssalProductSummary>>(
+                state: snapshot.data!,
+                builder: (products) => ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.xs),
+                  itemCount: products.length > 8 ? 8 : products.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: AssalSpacing.md),
+                  itemBuilder: (_, index) => SizedBox(width: 168, child: ProductCard(product: products[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ProductDetailScreen(repository: repository, productId: products[index].id))))),
+                ),
+              );
+            },
+          ),
+        ),
+      ]);
 }
 
 class CategoriesScreen extends StatelessWidget {
