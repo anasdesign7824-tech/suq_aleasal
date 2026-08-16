@@ -1,4 +1,4 @@
-import '../../contracts_dart/lib/assal_domain.dart';
+import 'package:assalkom_contracts/assal_domain.dart';
 
 enum AssalDataSourceMode { demo, production }
 

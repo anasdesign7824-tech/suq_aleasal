@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../packages/contracts_dart/lib/assal_domain.dart';
-import '../../../../../packages/data_dart/lib/assal_repository.dart';
-import '../../../../../packages/design_system/dart/lib/assal_tokens.dart';
+import 'package:assalkom_contracts/assal_domain.dart';
+import 'package:assalkom_data/assal_repository.dart';
+import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 
 Future<void> openAuth(BuildContext context, AssalRepository repository) async {

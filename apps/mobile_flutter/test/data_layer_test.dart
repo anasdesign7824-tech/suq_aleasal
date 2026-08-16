@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../packages/contracts_dart/lib/assal_domain.dart';
-import '../../../packages/data_dart/lib/assal_repository.dart';
-import '../../../packages/data_dart/lib/demo_repository.dart';
-import '../../../packages/data_dart/lib/repository_factory.dart';
+import 'package:assalkom_contracts/assal_domain.dart';
+import 'package:assalkom_data/assal_repository.dart';
+import 'package:assalkom_data/demo_repository.dart';
+import 'package:assalkom_data/repository_factory.dart';
 
 void main() {
   const catalog = '''

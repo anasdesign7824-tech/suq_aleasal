@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../packages/contracts_dart/lib/assal_domain.dart';
-import '../../../../packages/design_system/dart/lib/assal_tokens.dart';
+import 'package:assalkom_contracts/assal_domain.dart';
+import 'package:assalkom_design/assal_tokens.dart';
 
 class AssalBrandMark extends StatelessWidget {
   const AssalBrandMark({super.key, this.size = 44, this.showName = true});

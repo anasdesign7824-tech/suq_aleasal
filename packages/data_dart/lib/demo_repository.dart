@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../contracts_dart/lib/assal_domain.dart';
+import 'package:assalkom_contracts/assal_domain.dart';
 import 'assal_repository.dart';
 
 class InMemoryDemoCatalogLoader implements DemoCatalogLoader {

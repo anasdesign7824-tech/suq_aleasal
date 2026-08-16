@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../packages/data_dart/lib/assal_repository.dart';
-import '../../../../packages/data_dart/lib/demo_repository.dart';
+import 'package:assalkom_data/assal_repository.dart';
+import 'package:assalkom_data/demo_repository.dart';
 import '../core/demo_loader.dart';
 import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
