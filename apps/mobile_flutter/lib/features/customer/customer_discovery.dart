@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<AssalLoadState<List<AssalProductSummary>>> popularFuture;
   late Future<AssalLoadState<List<AssalProductSummary>>> newProductsFuture;
   late Future<AssalLoadState<List<AssalProductSummary>>> verifiedProductsFuture;
+  late Future<AssalLoadState<List<AssalNotificationSummary>>> notificationsFuture;
   final searchController = TextEditingController();
 
   @override
@@ -46,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     popularFuture = widget.repository.listProducts(query: const AssalProductQuery(sort: AssalSort.popular));
     newProductsFuture = widget.repository.listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
     verifiedProductsFuture = widget.repository.listProducts(query: const AssalProductQuery(verifiedStoresOnly: true, sort: AssalSort.rating));
+    notificationsFuture = widget.repository.listNotifications('demo-customer');
   }
 
   void _refresh() => setState(_load);
@@ -54,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) => RefreshIndicator(
         onRefresh: () async => _refresh(),
         child: CustomScrollView(slivers: [
-          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.md, AssalSpacing.lg, 0), sliver: SliverToBoxAdapter(child: _Header(onOpenNotifications: widget.onOpenNotifications))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.md, AssalSpacing.lg, 0), sliver: SliverToBoxAdapter(child: _Header(repository: widget.repository, notificationsFuture: notificationsFuture, onOpenNotifications: widget.onOpenNotifications))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.md), sliver: SliverToBoxAdapter(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('اكتشف العسل من مصدره', style: AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
             const SizedBox(height: AssalSpacing.sm),
@@ -100,10 +102,13 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.onOpenNotifications});
+  const _Header({required this.repository, required this.notificationsFuture, required this.onOpenNotifications});
+  final AssalRepository repository;
+  final Future<AssalLoadState<List<AssalNotificationSummary>>> notificationsFuture;
   final VoidCallback onOpenNotifications;
+
   @override
-  Widget build(BuildContext context) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const AssalBrandMark(), Row(children: [IconButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())), icon: const Icon(Icons.settings_outlined), tooltip: 'الإعدادات'), IconButton(onPressed: onOpenNotifications, icon: const Icon(Icons.notifications_none_rounded), tooltip: 'الإشعارات')])]);
+  Widget build(BuildContext context) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const AssalBrandMark(), Row(children: [IconButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())), icon: const Icon(Icons.settings_outlined), tooltip: 'الإعدادات'), FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(future: notificationsFuture, builder: (context, snapshot) { final state = snapshot.data; final unread = state is AssalData<List<AssalNotificationSummary>> ? state.value.where((item) => item.readAt == null).length : 0; return Stack(clipBehavior: Clip.none, children: [IconButton(onPressed: onOpenNotifications, icon: const Icon(Icons.notifications_none_rounded), tooltip: 'الإشعارات'), if (unread > 0) Positioned(top: 5, right: 5, child: Container(padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1), decoration: BoxDecoration(color: AssalColors.error, borderRadius: BorderRadius.circular(AssalRadius.pill)), child: Text('$unread', style: AssalTypography.caption.copyWith(color: AssalColors.onPrimary))))]); })])]);
 }
 
 class _BannersCarousel extends StatefulWidget {
