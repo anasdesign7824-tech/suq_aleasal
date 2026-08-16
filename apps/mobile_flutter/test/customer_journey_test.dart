@@ -24,6 +24,8 @@ void main() {
     expect(products, isA<AssalData<List<AssalProductSummary>>>());
     final stores = await repository.listStores();
     expect(stores, isA<AssalData<List<AssalStoreSummary>>>());
+    final filtered = await repository.listProducts(query: const AssalProductQuery(gradeLevel: 1, productType: ProductType.honey, verifiedStoresOnly: true));
+    expect(filtered, isA<AssalData<List<AssalProductSummary>>>());
 
     final auth = await repository.signIn('demo@assalkom.app', 'demo123');
     expect(auth, isA<AssalData<AssalSession>>());
@@ -37,7 +39,7 @@ void main() {
     expect((favorite as AssalData<bool>).value, isTrue);
     expect((like as AssalData<bool>).value, isTrue);
 
-    final request = await repository.createRequest(session.user!.id, const AssalRequestDraft(storeId: 's1', productId: 'p1', subject: 'استفسار عن سدر دوعني', body: 'أرغب في معرفة التوفر وطريقة الاستلام.', quantity: 1, handoffOption: HandoffOption.pickup));
+    final request = await repository.createRequest(session.user!.id, const AssalRequestDraft(storeId: 's1', productId: 'p1', subject: 'استفسار عن سدر دوعني', body: 'أرغب في معرفة التوفر وطريقة الاستلام.', quantity: 1, handoffOption: HandoffOption.pickup, deliveryNote: 'التواصل قبل الوصول'));
     expect(request, isA<AssalData<AssalRequestSummary>>());
     final requests = await repository.listRequests(session.user!.id);
     expect(requests, isA<AssalData<List<AssalRequestSummary>>>());
