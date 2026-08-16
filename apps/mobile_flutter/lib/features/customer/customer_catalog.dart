@@ -7,6 +7,8 @@ import 'customer_core.dart';
 import 'customer_account.dart';
 import 'customer_social.dart';
 
+String _productTypeLabel(ProductType type) => switch (type) { ProductType.honey => 'عسل', ProductType.wax => 'شمع', ProductType.mix => 'خلطة', ProductType.raw => 'منتج خام', ProductType.gift => 'هدية' };
+
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key, required this.repository, required this.productId});
   final AssalRepository repository;
