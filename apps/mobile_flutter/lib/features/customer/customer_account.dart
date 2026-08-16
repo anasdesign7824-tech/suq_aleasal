@@ -75,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
     Text(session.user?.nameAr ?? 'عميل عسلكم', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
     Text(session.user?.email ?? '', style: AssalTypography.body.copyWith(color: AssalColors.textSecondary)),
     const SizedBox(height: AssalSpacing.lg),
-    Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [_metric('0', 'المتابعات'), _metric('0', 'المحفوظات'), _metric('0', 'الطلبات')]),
+    _ProfileStats(repository: repository, userId: session.user?.id ?? 'demo-customer'),
     const SizedBox(height: AssalSpacing.lg),
     Row(children: [
       Expanded(child: OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => RequestsScreen(repository: repository))), icon: const Icon(Icons.assignment_outlined), label: const Text('طلباتي'))),
@@ -85,6 +85,27 @@ class ProfileScreen extends StatelessWidget {
     const SizedBox(height: AssalSpacing.sm),
     OutlinedButton.icon(onPressed: () async { await repository.signOut(); if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل الخروج من Demo Mode'))); }, icon: const Icon(Icons.logout), label: const Text('تسجيل الخروج')),
   ]);
+
+}
+
+class _ProfileStats extends StatelessWidget {
+  const _ProfileStats({required this.repository, required this.userId});
+  final AssalRepository repository;
+  final String userId;
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<List<AssalLoadState<Object?>>>(
+        future: Future.wait<Object?>([repository.listFollowedStores(userId), repository.listFavoriteProducts(userId), repository.listRequests(userId)]).then((states) => states.cast<AssalLoadState<Object?>>()),
+        builder: (context, snapshot) {
+          final values = snapshot.data ?? const <AssalLoadState<Object?>>[];
+          int countAt(int index) {
+            if (index >= values.length) return 0;
+            final state = values[index];
+            return state is AssalData && state.value is List ? (state.value as List).length : 0;
+          }
+          return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [_metric('${countAt(0)}', 'المتابعات'), _metric('${countAt(1)}', 'المحفوظات'), _metric('${countAt(2)}', 'الطلبات')]);
+        },
+      );
 
   Widget _metric(String value, String label) => Column(children: [Text(value, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)), Text(label, style: AssalTypography.caption.copyWith(color: AssalColors.textMuted))]);
 }
