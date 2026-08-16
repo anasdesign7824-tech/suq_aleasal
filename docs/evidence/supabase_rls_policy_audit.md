@@ -47,3 +47,10 @@ The `roles` field is `{public}` on the existing policies, but the policy express
 ## Gate
 
 No Admin account creation, production CRUD, or real upload is accepted until `is_admin()` and the relevant policies are tested with isolated accounts and fixtures. No policy is changed in this audit; the next step is controlled function/policy inspection followed by an additive migration only if a proven gap remains.
+
+
+## `is_admin()` implementation result
+
+The public wrapper `public.is_admin()` is a stable SQL function with `search_path=public, private` that delegates to `private.is_admin()`. The private function is `SECURITY DEFINER`, stable, and sets `search_path=private, public`; it returns true only when `auth.uid()` exists in `private.admin_user_ids(user_id uuid)`. This is a materially safer role source than trusting a client-editable profile role, but the bootstrap path still needs to be tested: the Admin Auth user must be inserted into the controlled admin source without exposing a public self-service path.
+
+The private role source has only the expected `user_id uuid` column in the schema inspection. No Admin user was created during this audit. The next safe step is to use the server-side connector for a controlled idempotent bootstrap only after the user identity and generated credential handoff are recorded outside Git, then verify anonymous/customer denial and Admin allow paths.
