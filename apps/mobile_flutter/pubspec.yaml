@@ -30,6 +30,8 @@ flutter:
     - assets/demo_catalog.json
     - assets/logo-internal.svg
     - assets/logo-external.svg
+    - assets/logo-internal-runtime.svg
+    - assets/logo-external-runtime.svg
     - assets/fonts/
   fonts:
     - family: IBM Plex Sans Arabic
