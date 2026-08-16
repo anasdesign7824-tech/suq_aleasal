@@ -82,7 +82,12 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       };
 
   @override
-  Future<AssalAuthIdentity?> signInWithFacebook() => _oauth(OAuthProvider.facebook, 'Facebook');
+  Future<AssalAuthIdentity?> signInWithFacebook() {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      throw const AssalAuthFailure('تسجيل Facebook داخل APK يحتاج تهيئة Native Facebook SDK. لم نفتح متصفحًا أو إعادة توجيه خارجية.', code: 'facebook_native_not_configured');
+    }
+    return _oauth(OAuthProvider.facebook, 'Facebook');
+  }
 
   Future<AssalAuthIdentity?> _oauth(OAuthProvider provider, String providerName) async {
     try {
