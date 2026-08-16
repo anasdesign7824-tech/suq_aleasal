@@ -363,11 +363,56 @@ class _RequestSheetState extends State<RequestSheet> {
   int quantity = 1;
   HandoffOption option = HandoffOption.contact;
   bool saving = false;
+
   @override
-  void dispose() { bodyController.dispose(); phoneController.dispose(); super.dispose(); }
+  void dispose() {
+    bodyController.dispose();
+    phoneController.dispose();
+    super.dispose();
+  }
+
   @override
-  Widget build(BuildContext context) => Padding(padding: EdgeInsets.only(left: AssalSpacing.xl, right: AssalSpacing.xl, top: AssalSpacing.xl, bottom: MediaQuery.viewInsetsOf(context).bottom + AssalSpacing.xl), child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [Text('طلب تواصل مع ${widget.store.nameAr}', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)), const SizedBox(height: AssalSpacing.sm), Text(widget.product.nameAr, style: AssalTypography.subtitle), const SizedBox(height: AssalSpacing.lg), TextField(controller: bodyController, maxLines: 3, decoration: const InputDecoration(labelText: 'رسالتك', hintText: 'اكتب ما تريد معرفته')), const SizedBox(height: AssalSpacing.md), TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'رقم للتواصل (اختياري)')), const SizedBox(height: AssalSpacing.md), DropdownButtonFormField<HandoffOption>(value: option, decoration: const InputDecoration(labelText: 'طريقة التسليم المفضلة'), items: HandoffOption.values.map((item) => DropdownMenuItem(value: item, child: Text(item.labelAr))).toList(), onChanged: (value) { if (value != null) setState(() => option = value); }), const SizedBox(height: AssalSpacing.md), Row(children: [const Text('الكمية'), IconButton(onPressed: () => setState(() { if (quantity > 1) quantity--; }), icon: const Icon(Icons.remove_circle_outline)), Text('$quantity', style: AssalTypography.title), IconButton(onPressed: () => setState(() => quantity++), icon: const Icon(Icons.add_circle_outline))]), const SizedBox(height: AssalSpacing.lg), SizedBox(width: double.infinity, child: FilledButton(onPressed: saving ? null : _submit, child: saving ? const CircularProgressIndicator() : const Text('حفظ وإرسال الطلب'))])));
-  Future<void> _submit() async { if (bodyController.text.trim().length < 4) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('اكتب رسالة أوضح للتاجر.'))); return; } setState(() => saving = true); final result = await widget.repository.createRequest('demo-customer', AssalRequestDraft(storeId: widget.store.id, productId: widget.product.id, subject: 'استفسار عن ${widget.product.nameAr}', body: bodyController.text.trim(), quantity: quantity, phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(), handoffOption: option)); if (!mounted) return; setState(() => saving = false); Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result is AssalData<AssalRequestSummary> ? 'تم حفظ الطلب ويمكنك متابعته من ملفك.' : 'تعذر حفظ الطلب، حاول مرة أخرى.'))); }
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: AssalSpacing.xl, right: AssalSpacing.xl, top: AssalSpacing.xl, bottom: MediaQuery.viewInsetsOf(context).bottom + AssalSpacing.xl),
+      child: SingleChildScrollView(
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('طلب تواصل مع ${widget.store.nameAr}', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
+          const SizedBox(height: AssalSpacing.sm),
+          Text(widget.product.nameAr, style: AssalTypography.subtitle),
+          const SizedBox(height: AssalSpacing.lg),
+          TextField(controller: bodyController, maxLines: 3, decoration: const InputDecoration(labelText: 'رسالتك', hintText: 'اكتب ما تريد معرفته')),
+          const SizedBox(height: AssalSpacing.md),
+          TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'رقم للتواصل (اختياري)')),
+          const SizedBox(height: AssalSpacing.md),
+          DropdownButtonFormField<HandoffOption>(value: option, decoration: const InputDecoration(labelText: 'طريقة التسليم المفضلة'), items: HandoffOption.values.map<DropdownMenuItem<HandoffOption>>((item) => DropdownMenuItem(value: item, child: Text(item.labelAr))).toList(), onChanged: (value) { if (value != null) setState(() => option = value); }),
+          const SizedBox(height: AssalSpacing.md),
+          Row(children: [
+            const Text('الكمية'),
+            IconButton(onPressed: () => setState(() { if (quantity > 1) quantity--; }), icon: const Icon(Icons.remove_circle_outline)),
+            Text('$quantity', style: AssalTypography.title),
+            IconButton(onPressed: () => setState(() => quantity++), icon: const Icon(Icons.add_circle_outline)),
+          ]),
+          const SizedBox(height: AssalSpacing.lg),
+          SizedBox(width: double.infinity, child: FilledButton(onPressed: saving ? null : _submit, child: saving ? const CircularProgressIndicator() : const Text('حفظ وإرسال الطلب'))),
+        ]),
+      ),
+    );
+  }
+
+  Future<void> _submit() async {
+    final body = bodyController.text.trim();
+    if (body.length < 4) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('اكتب رسالة أوضح للتاجر.')));
+      return;
+    }
+    setState(() => saving = true);
+    final result = await widget.repository.createRequest('demo-customer', AssalRequestDraft(storeId: widget.store.id, productId: widget.product.id, subject: 'استفسار عن ${widget.product.nameAr}', body: body, quantity: quantity, phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(), handoffOption: option));
+    if (!mounted) return;
+    setState(() => saving = false);
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result is AssalData<AssalRequestSummary> ? 'تم حفظ الطلب ويمكنك متابعته من ملفك.' : 'تعذر حفظ الطلب، حاول مرة أخرى.')));
+  }
 }
 
 class _ReviewsSection extends StatefulWidget {
@@ -419,7 +464,9 @@ class _CommentsSectionState extends State<_CommentsSection> {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           return AssalStateView<List<AssalCommentSummary>>(
             state: snapshot.data!,
-            builder: (comments) => Column(children: comments.map<Widget>((comment) => Card(child: ListTile(title: Text(comment.authorName), subtitle: Text(comment.body))).toList()),
+            builder: (comments) => Column(
+              children: comments.map<Widget>((comment) => Card(child: ListTile(title: Text(comment.authorName), subtitle: Text(comment.body)))).toList(),
+            ),
           );
         },
       ),
@@ -486,15 +533,23 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _guest(BuildContext context) => Card(color: AssalColors.cream, child: Padding(padding: const EdgeInsets.all(AssalSpacing.xl), child: Column(children: [
-    const CircleAvatar(radius: 34, backgroundColor: AssalColors.honeyLight, child: Icon(Icons.person_outline, size: 36, color: AssalColors.primaryDark)),
-    const SizedBox(height: AssalSpacing.md),
-    Text('تصفح كزائر', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
-    const SizedBox(height: AssalSpacing.sm),
-    const Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'),
-    const SizedBox(height: AssalSpacing.lg),
-    FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول أو إنشاء حساب')),
-  ]));
+  Widget _guest(BuildContext context) {
+    return Card(
+      color: AssalColors.cream,
+      child: Padding(
+        padding: const EdgeInsets.all(AssalSpacing.xl),
+        child: Column(children: [
+          const CircleAvatar(radius: 34, backgroundColor: AssalColors.honeyLight, child: Icon(Icons.person_outline, size: 36, color: AssalColors.primaryDark)),
+          const SizedBox(height: AssalSpacing.md),
+          Text('تصفح كزائر', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
+          const SizedBox(height: AssalSpacing.sm),
+          const Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'),
+          const SizedBox(height: AssalSpacing.lg),
+          FilledButton(onPressed: () => openAuth(context, repository), child: const Text('تسجيل الدخول أو إنشاء حساب')),
+        ]),
+      ),
+    );
+  }
 
   Widget _authenticated(BuildContext context, AssalSession session) => Column(children: [
     CircleAvatar(radius: 38, backgroundColor: AssalColors.honeyLight, child: Text((session.user?.nameAr ?? 'ع').substring(0, 1), style: AssalTypography.heading1.copyWith(color: AssalColors.primaryDark))),
