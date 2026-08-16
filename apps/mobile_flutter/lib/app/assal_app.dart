@@ -56,8 +56,8 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
     ];
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 900;
-      final content = Expanded(child: SafeArea(child: IndexedStack(index: selectedIndex, children: pages)));
-      if (wide) return Scaffold(body: Row(children: [NavigationRail(selectedIndex: selectedIndex, onDestinationSelected: (index) => setState(() => selectedIndex = index), labelType: NavigationRailLabelType.all, destinations: destinations.map((item) => NavigationRailDestination(icon: item.icon, selectedIcon: item.selectedIcon ?? item.icon, label: Text(item.label))).toList()), content]));
+      final content = SafeArea(child: IndexedStack(index: selectedIndex, children: pages));
+      if (wide) return Scaffold(body: Row(children: [NavigationRail(selectedIndex: selectedIndex, onDestinationSelected: (index) => setState(() => selectedIndex = index), labelType: NavigationRailLabelType.all, destinations: destinations.map((item) => NavigationRailDestination(icon: item.icon, selectedIcon: item.selectedIcon ?? item.icon, label: Text(item.label))).toList()), Expanded(child: content)]));
       return Scaffold(body: content, bottomNavigationBar: NavigationBar(selectedIndex: selectedIndex, onDestinationSelected: (index) => setState(() => selectedIndex = index), destinations: destinations));
     });
   }
