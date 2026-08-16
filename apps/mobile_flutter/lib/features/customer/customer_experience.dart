@@ -1,7 +1,6 @@
-/// Public customer-experience facade.
-///
-/// The implementation is split by feature while this facade preserves the
-/// existing import contract used by the app shell and tests.
+// Public customer-experience facade.
+// The implementation is split by feature while preserving the existing
+// import contract used by the app shell and tests.
 export 'customer_core.dart';
 export 'customer_discovery.dart';
 export 'customer_catalog.dart';

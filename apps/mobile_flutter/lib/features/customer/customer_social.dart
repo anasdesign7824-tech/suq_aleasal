@@ -6,7 +6,7 @@ import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
 
 class ReviewsSection extends StatefulWidget {
-  const ReviewsSection({required this.repository, required this.product});
+  const ReviewsSection({super.key, required this.repository, required this.product});
   final AssalRepository repository;
   final AssalProductSummary product;
   @override
@@ -76,7 +76,7 @@ class _ReviewsSectionState extends State<ReviewsSection> {
 }
 
 class CommentsSection extends StatefulWidget {
-  const CommentsSection({required this.repository, required this.targetId});
+  const CommentsSection({super.key, required this.repository, required this.targetId});
   final AssalRepository repository;
   final String targetId;
   @override
