@@ -23,9 +23,11 @@
 | APK SHA-256 | `5a093bbd82faf7ac5018e91961cdf0ff971f05db39e74261e61fc3611430f680` |
 | AAB SHA-256 | `2a081658d29cfccd634e1b7c2a74772c35a17a8c060b35cc55ce8bcd32c7cf35` |
 | Social dependency scan | لا توجد `google_sign_in` أو `google_identity_services` في lockfile |
-| OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback` في client source أو dex scan |
+| OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback`؛ manifest يحتوي launcher `MAIN` فقط للتطبيق، دون `VIEW`/`BROWSABLE` deep-link خارجي |
 | Supabase delete RPC ACL | `security_definer=true`, `anon=false`, `authenticated=true` بعد migration 0007 |
 | GitHub | `origin/main` عند `96d4493` قبل commit hardening التوثيقي التالي |
+
+فحص `aapt` النهائي أكد أن `com.assalkom.assalkom.MainActivity` هي launchable activity الوحيدة، وأن manifest لا يعلن `VIEW` أو `BROWSABLE` للتطبيق. ظهور marker عام لـ`android.intent.action.VIEW` داخل dex لا يساوي callback خارجيًا؛ مصدره مكتبات Android/Flutter العامة، وليس intent-filter في manifest.
 
 ## ما تم على Supabase
 
