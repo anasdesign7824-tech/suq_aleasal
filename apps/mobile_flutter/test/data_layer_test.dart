@@ -27,6 +27,6 @@ void main() {
   });
 
   test('Factory rejects production without an explicit gateway', () {
-    expect(() => const AssalRepositoryFactory().create(mode: AssalDataSourceMode.production, demoLoader: InMemoryDemoCatalogLoader(catalog)), throwsA(isA<ProductionRepositoryNotConfigured>()));
+    expect(() => const AssalRepositoryFactory().create(mode: AssalDataSourceMode.production, demoLoader: const InMemoryDemoCatalogLoader(catalog)), throwsA(isA<ProductionRepositoryNotConfigured>()));
   });
 }
