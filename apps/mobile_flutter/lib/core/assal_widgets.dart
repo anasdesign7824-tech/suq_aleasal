@@ -19,10 +19,13 @@ class AssalBrandMark extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset(AssalAssets.logoInternal, width: size, height: size),
+            SvgPicture.asset(AssalAssets.logoInternal,
+                width: size, height: size),
             if (showName) ...[
               const SizedBox(width: AssalSpacing.sm),
-              Text('عسلكم', style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)),
+              Text('عسلكم',
+                  style: AssalTypography.heading3
+                      .copyWith(color: AssalColors.deepBrown)),
             ],
           ],
         ),
@@ -33,14 +36,20 @@ class DemoModePill extends StatelessWidget {
   const DemoModePill({super.key});
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.md, vertical: AssalSpacing.xs),
-        decoration: BoxDecoration(color: AssalColors.honeyLight, borderRadius: BorderRadius.circular(AssalRadius.pill)),
-        child: Text('تجربة بلا تسجيل', style: AssalTypography.caption.copyWith(color: AssalColors.primaryDark)),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AssalSpacing.md, vertical: AssalSpacing.xs),
+        decoration: BoxDecoration(
+            color: AssalColors.honeyLight,
+            borderRadius: BorderRadius.circular(AssalRadius.pill)),
+        child: Text('تجربة بلا تسجيل',
+            style: AssalTypography.caption
+                .copyWith(color: AssalColors.primaryDark)),
       );
 }
 
 class AssalGlassLoading extends StatefulWidget {
-  const AssalGlassLoading({super.key, this.height = 180, this.label = 'جارٍ تجهيز تجربة عسلكم...'});
+  const AssalGlassLoading(
+      {super.key, this.height = 180, this.label = 'جارٍ تجهيز تجربة عسلكم...'});
   final double height;
   final String label;
 
@@ -48,8 +57,11 @@ class AssalGlassLoading extends StatefulWidget {
   State<AssalGlassLoading> createState() => _AssalGlassLoadingState();
 }
 
-class _AssalGlassLoadingState extends State<AssalGlassLoading> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1700))..repeat();
+class _AssalGlassLoadingState extends State<AssalGlassLoading>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1700))
+    ..repeat();
 
   @override
   void dispose() {
@@ -68,9 +80,18 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading> with SingleTicker
               filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [AssalColors.cream.withValues(alpha: .72), AssalColors.honeyLight.withValues(alpha: .48)]),
-                  border: Border.all(color: AssalColors.cream.withValues(alpha: .85)),
-                  boxShadow: [BoxShadow(color: AssalColors.deepBrown.withValues(alpha: .08), blurRadius: 18, offset: const Offset(0, 8))],
+                  gradient: LinearGradient(colors: [
+                    AssalColors.cream.withValues(alpha: .72),
+                    AssalColors.honeyLight.withValues(alpha: .48)
+                  ]),
+                  border: Border.all(
+                      color: AssalColors.cream.withValues(alpha: .85)),
+                  boxShadow: [
+                    BoxShadow(
+                        color: AssalColors.deepBrown.withValues(alpha: .08),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8))
+                  ],
                 ),
                 child: AnimatedBuilder(
                   animation: _controller,
@@ -78,19 +99,51 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading> with SingleTicker
                     blendMode: BlendMode.srcIn,
                     shaderCallback: (bounds) {
                       final shift = -1.2 + (_controller.value * 2.4);
-                      return LinearGradient(begin: Alignment(shift, -0.3), end: Alignment(shift + 1.2, 0.3), colors: const [AssalColors.textMuted, AssalColors.cream, AssalColors.textMuted]).createShader(bounds);
+                      return LinearGradient(
+                          begin: Alignment(shift, -0.3),
+                          end: Alignment(shift + 1.2, 0.3),
+                          colors: const [
+                            AssalColors.textMuted,
+                            AssalColors.cream,
+                            AssalColors.textMuted
+                          ]).createShader(bounds);
                     },
                     child: child,
                   ),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    const Icon(Icons.hive_outlined, size: 34),
-                    const SizedBox(height: AssalSpacing.sm),
-                    Text(widget.label, style: AssalTypography.bodySmall),
-                    const SizedBox(height: AssalSpacing.md),
-                    Container(width: 150, height: 10, decoration: BoxDecoration(color: AssalColors.cream, borderRadius: BorderRadius.circular(AssalRadius.pill))),
-                    const SizedBox(height: AssalSpacing.sm),
-                    Container(width: 100, height: 10, decoration: BoxDecoration(color: AssalColors.cream, borderRadius: BorderRadius.circular(AssalRadius.pill))),
-                  ]),
+                  child: widget.height < 90
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                              const Icon(Icons.hive_outlined, size: 18),
+                              const SizedBox(width: AssalSpacing.xs),
+                              Text(widget.label,
+                                  style: AssalTypography.caption),
+                            ])
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                              const Icon(Icons.hive_outlined, size: 34),
+                              const SizedBox(height: AssalSpacing.sm),
+                              Text(widget.label,
+                                  style: AssalTypography.bodySmall),
+                              const SizedBox(height: AssalSpacing.md),
+                              Container(
+                                  width: 150,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                      color: AssalColors.cream,
+                                      borderRadius: BorderRadius.circular(
+                                          AssalRadius.pill))),
+                              const SizedBox(height: AssalSpacing.sm),
+                              Container(
+                                  width: 100,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                      color: AssalColors.cream,
+                                      borderRadius: BorderRadius.circular(
+                                          AssalRadius.pill))),
+                            ]),
                 ),
               ),
             ),
@@ -100,7 +153,12 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading> with SingleTicker
 }
 
 class AssalFutureStateView<T> extends StatelessWidget {
-  const AssalFutureStateView({super.key, required this.future, required this.builder, this.onRetry, this.loadingHeight = 180});
+  const AssalFutureStateView(
+      {super.key,
+      required this.future,
+      required this.builder,
+      this.onRetry,
+      this.loadingHeight = 180});
   final Future<AssalLoadState<T>> future;
   final Widget Function(T value) builder;
   final VoidCallback? onRetry;
@@ -111,16 +169,24 @@ class AssalFutureStateView<T> extends StatelessWidget {
         future: future,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return AssalMessageCard(icon: Icons.wifi_off_outlined, message: 'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم حاول مرة أخرى.', onRetry: onRetry);
+            return AssalMessageCard(
+                icon: Icons.wifi_off_outlined,
+                message:
+                    'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم حاول مرة أخرى.',
+                onRetry: onRetry);
           }
-          if (!snapshot.hasData) return AssalGlassLoading(height: loadingHeight);
-          return AssalStateView<T>(state: snapshot.data!, builder: builder, onRetry: onRetry);
+          if (!snapshot.hasData) {
+            return AssalGlassLoading(height: loadingHeight);
+          }
+          return AssalStateView<T>(
+              state: snapshot.data!, builder: builder, onRetry: onRetry);
         },
       );
 }
 
 class AssalStateView<T> extends StatelessWidget {
-  const AssalStateView({super.key, required this.state, required this.builder, this.onRetry});
+  const AssalStateView(
+      {super.key, required this.state, required this.builder, this.onRetry});
   final AssalLoadState<T> state;
   final Widget Function(T value) builder;
   final VoidCallback? onRetry;
@@ -129,13 +195,18 @@ class AssalStateView<T> extends StatelessWidget {
   Widget build(BuildContext context) => switch (state) {
         AssalLoading<T>() => const AssalGlassLoading(),
         AssalData<T>(:final value) => builder(value),
-        AssalEmpty<T>(:final messageAr) => AssalMessageCard(icon: Icons.inbox_outlined, message: messageAr),
-        AssalError<T>(:final messageAr, :final code) => AssalMessageCard(icon: Icons.error_outline, message: '$messageAr${code == null ? '' : '\nرمز: $code'}', onRetry: onRetry),
+        AssalEmpty<T>(:final messageAr) =>
+          AssalMessageCard(icon: Icons.inbox_outlined, message: messageAr),
+        AssalError<T>(:final messageAr, :final code) => AssalMessageCard(
+            icon: Icons.error_outline,
+            message: '$messageAr${code == null ? '' : '\nرمز: $code'}',
+            onRetry: onRetry),
       };
 }
 
 class AssalMessageCard extends StatelessWidget {
-  const AssalMessageCard({super.key, required this.icon, required this.message, this.onRetry});
+  const AssalMessageCard(
+      {super.key, required this.icon, required this.message, this.onRetry});
   final IconData icon;
   final String message;
   final VoidCallback? onRetry;
@@ -147,10 +218,16 @@ class AssalMessageCard extends StatelessWidget {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(icon, size: 42, color: AssalColors.textMuted),
             const SizedBox(height: AssalSpacing.md),
-            Text(message, textAlign: TextAlign.center, style: AssalTypography.body.copyWith(color: AssalColors.textSecondary)),
+            Text(message,
+                textAlign: TextAlign.center,
+                style: AssalTypography.body
+                    .copyWith(color: AssalColors.textSecondary)),
             if (onRetry != null) ...[
               const SizedBox(height: AssalSpacing.md),
-              OutlinedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('إعادة المحاولة')),
+              OutlinedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('إعادة المحاولة')),
             ],
           ]),
         ),
@@ -158,19 +235,28 @@ class AssalMessageCard extends StatelessWidget {
 }
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({super.key, required this.title, this.actionLabel, this.onAction});
+  const SectionHeader(
+      {super.key, required this.title, this.actionLabel, this.onAction});
   final String title;
   final String? actionLabel;
   final VoidCallback? onAction;
   @override
-  Widget build(BuildContext context) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(title, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)),
-        if (actionLabel != null) TextButton(onPressed: onAction, child: Text(actionLabel!)),
+  Widget build(BuildContext context) =>
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(title,
+            style: AssalTypography.heading3
+                .copyWith(color: AssalColors.deepBrown)),
+        if (actionLabel != null)
+          TextButton(onPressed: onAction, child: Text(actionLabel!)),
       ]);
 }
 
 class AssalImageTile extends StatelessWidget {
-  const AssalImageTile({super.key, this.imageUrl, this.height = 150, this.icon = Icons.local_florist_outlined});
+  const AssalImageTile(
+      {super.key,
+      this.imageUrl,
+      this.height = 150,
+      this.icon = Icons.local_florist_outlined});
   final String? imageUrl;
   final double height;
   final IconData icon;
@@ -178,17 +264,22 @@ class AssalImageTile extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         height: height,
         width: double.infinity,
-        decoration: BoxDecoration(color: AssalColors.honeyLight, borderRadius: BorderRadius.circular(AssalRadius.large)),
+        decoration: BoxDecoration(
+            color: AssalColors.honeyLight,
+            borderRadius: BorderRadius.circular(AssalRadius.large)),
         clipBehavior: Clip.antiAlias,
         child: imageUrl != null && imageUrl!.startsWith('http')
-            ? Image.network(imageUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _fallback())
+            ? Image.network(imageUrl!,
+                fit: BoxFit.cover, errorBuilder: (_, __, ___) => _fallback())
             : _fallback(),
       );
-  Widget _fallback() => Center(child: Icon(icon, size: height * .38, color: AssalColors.primaryDark));
+  Widget _fallback() => Center(
+      child: Icon(icon, size: height * .38, color: AssalColors.primaryDark));
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required this.product, required this.onTap, this.onFavorite});
+  const ProductCard(
+      {super.key, required this.product, required this.onTap, this.onFavorite});
   final AssalProductSummary product;
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
@@ -200,28 +291,69 @@ class ProductCard extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Stack(children: [
                 AssalImageTile(imageUrl: product.primaryImageUrl, height: 138),
-                if (onFavorite != null) Positioned(top: AssalSpacing.sm, left: AssalSpacing.sm, child: IconButton.filledTonal(onPressed: onFavorite, icon: const Icon(Icons.bookmark_border), tooltip: 'حفظ المنتج')),
+                if (onFavorite != null)
+                  Positioned(
+                      top: AssalSpacing.sm,
+                      left: AssalSpacing.sm,
+                      child: IconButton.filledTonal(
+                          onPressed: onFavorite,
+                          icon: const Icon(Icons.bookmark_border),
+                          tooltip: 'حفظ المنتج')),
               ]),
               Padding(
                 padding: const EdgeInsets.all(AssalSpacing.md),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(product.nameAr, maxLines: 2, overflow: TextOverflow.ellipsis, style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                  const SizedBox(height: AssalSpacing.xs),
-                  Text(product.subcategoryNameAr ?? product.categoryNameAr ?? 'منتج نحلي يمني', maxLines: 1, overflow: TextOverflow.ellipsis, style: AssalTypography.bodySmall.copyWith(color: AssalColors.textSecondary)),
-                  const SizedBox(height: AssalSpacing.xs),
-                  if (product.price != null) Text('${product.price!.toStringAsFixed(0)} ${product.currencyCode}', style: AssalTypography.bodySmall.copyWith(color: AssalColors.primaryDark, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: AssalSpacing.xs),
-                  Row(children: [RatingStars(rating: product.ratingAverage), const SizedBox(width: AssalSpacing.xs), Text('(${product.reviewCount})', style: AssalTypography.caption.copyWith(color: AssalColors.textMuted)), const Spacer(), if (product.availability.isNotEmpty) Flexible(child: Text(product.availability, overflow: TextOverflow.ellipsis, style: AssalTypography.caption.copyWith(color: AssalColors.textSecondary)))]),
-                  const SizedBox(height: AssalSpacing.sm),
-                  Row(children: [
-                    if (product.gradeLevel != null) InfoChip(label: 'درجة ${product.gradeLevel}'),
-                    const Spacer(),
-                    const Icon(Icons.arrow_back_rounded, size: 18, color: AssalColors.primaryDark),
-                  ]),
-                ]),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(product.nameAr,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AssalTypography.title
+                              .copyWith(color: AssalColors.deepBrown)),
+                      const SizedBox(height: AssalSpacing.xs),
+                      Text(
+                          product.subcategoryNameAr ??
+                              product.categoryNameAr ??
+                              'منتج نحلي يمني',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AssalTypography.bodySmall
+                              .copyWith(color: AssalColors.textSecondary)),
+                      const SizedBox(height: AssalSpacing.xs),
+                      if (product.price != null)
+                        Text(
+                            '${product.price!.toStringAsFixed(0)} ${product.currencyCode}',
+                            style: AssalTypography.bodySmall.copyWith(
+                                color: AssalColors.primaryDark,
+                                fontWeight: FontWeight.w700)),
+                      const SizedBox(height: AssalSpacing.xs),
+                      Row(children: [
+                        RatingStars(rating: product.ratingAverage),
+                        const SizedBox(width: AssalSpacing.xs),
+                        Text('(${product.reviewCount})',
+                            style: AssalTypography.caption
+                                .copyWith(color: AssalColors.textMuted)),
+                        const Spacer(),
+                        if (product.availability.isNotEmpty)
+                          Flexible(
+                              child: Text(product.availability,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AssalTypography.caption.copyWith(
+                                      color: AssalColors.textSecondary)))
+                      ]),
+                      const SizedBox(height: AssalSpacing.sm),
+                      Row(children: [
+                        if (product.gradeLevel != null)
+                          InfoChip(label: 'درجة ${product.gradeLevel}'),
+                        const Spacer(),
+                        const Icon(Icons.arrow_back_rounded,
+                            size: 18, color: AssalColors.primaryDark),
+                      ]),
+                    ]),
               ),
             ]),
           ),
@@ -236,18 +368,47 @@ class StoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Card(
         clipBehavior: Clip.antiAlias,
-        child: InkWell(onTap: onTap, child: Padding(padding: const EdgeInsets.all(AssalSpacing.lg), child: Row(children: [
-          const CircleAvatar(radius: 30, backgroundColor: AssalColors.honeyLight, child: Icon(Icons.storefront_outlined, color: AssalColors.primaryDark, size: 28)),
-          const SizedBox(width: AssalSpacing.md),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [Expanded(child: Text(store.nameAr, maxLines: 1, overflow: TextOverflow.ellipsis, style: AssalTypography.title.copyWith(color: AssalColors.deepBrown))), if (store.isVerified) const Icon(Icons.verified, color: AssalColors.primaryDark, size: 18)]),
-            const SizedBox(height: AssalSpacing.xs),
-            Text(store.regionNameAr ?? 'منصة عسلكم', style: AssalTypography.bodySmall.copyWith(color: AssalColors.textSecondary)),
-            const SizedBox(height: AssalSpacing.xs),
-            Row(children: [RatingStars(rating: store.ratingAverage), const SizedBox(width: AssalSpacing.sm), Text('${store.followersCount} متابع', style: AssalTypography.caption.copyWith(color: AssalColors.textMuted))]),
-          ])),
-          const Icon(Icons.chevron_left, color: AssalColors.textMuted),
-        ]))),
+        child: InkWell(
+            onTap: onTap,
+            child: Padding(
+                padding: const EdgeInsets.all(AssalSpacing.lg),
+                child: Row(children: [
+                  const CircleAvatar(
+                      radius: 30,
+                      backgroundColor: AssalColors.honeyLight,
+                      child: Icon(Icons.storefront_outlined,
+                          color: AssalColors.primaryDark, size: 28)),
+                  const SizedBox(width: AssalSpacing.md),
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        Row(children: [
+                          Expanded(
+                              child: Text(store.nameAr,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown))),
+                          if (store.isVerified)
+                            const Icon(Icons.verified,
+                                color: AssalColors.primaryDark, size: 18)
+                        ]),
+                        const SizedBox(height: AssalSpacing.xs),
+                        Text(store.regionNameAr ?? 'منصة عسلكم',
+                            style: AssalTypography.bodySmall
+                                .copyWith(color: AssalColors.textSecondary)),
+                        const SizedBox(height: AssalSpacing.xs),
+                        Row(children: [
+                          RatingStars(rating: store.ratingAverage),
+                          const SizedBox(width: AssalSpacing.sm),
+                          Text('${store.followersCount} متابع',
+                              style: AssalTypography.caption
+                                  .copyWith(color: AssalColors.textMuted))
+                        ]),
+                      ])),
+                  const Icon(Icons.chevron_left, color: AssalColors.textMuted),
+                ]))),
       );
 }
 
@@ -255,7 +416,16 @@ class RatingStars extends StatelessWidget {
   const RatingStars({super.key, required this.rating});
   final double rating;
   @override
-  Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: List.generate(5, (index) => Icon(index < rating.round() ? Icons.star_rounded : Icons.star_border_rounded, size: 16, color: AssalColors.primaryDark)));
+  Widget build(BuildContext context) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(
+          5,
+          (index) => Icon(
+              index < rating.round()
+                  ? Icons.star_rounded
+                  : Icons.star_border_rounded,
+              size: 16,
+              color: AssalColors.primaryDark)));
 }
 
 class InfoChip extends StatelessWidget {
@@ -263,17 +433,36 @@ class InfoChip extends StatelessWidget {
   final String label;
   final IconData? icon;
   @override
-  Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.sm, vertical: AssalSpacing.xs), decoration: BoxDecoration(color: AssalColors.surfaceVariant, borderRadius: BorderRadius.circular(AssalRadius.small)), child: Row(mainAxisSize: MainAxisSize.min, children: [if (icon != null) Icon(icon, size: 14, color: AssalColors.primaryDark), if (icon != null) const SizedBox(width: 3), Text(label, style: AssalTypography.caption.copyWith(color: AssalColors.secondary))]));
+  Widget build(BuildContext context) => Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AssalSpacing.sm, vertical: AssalSpacing.xs),
+      decoration: BoxDecoration(
+          color: AssalColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(AssalRadius.small)),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        if (icon != null) Icon(icon, size: 14, color: AssalColors.primaryDark),
+        if (icon != null) const SizedBox(width: 3),
+        Text(label,
+            style:
+                AssalTypography.caption.copyWith(color: AssalColors.secondary))
+      ]));
 }
 
-Future<bool> showAuthPrompt(BuildContext context) async => await showDialog<bool>(
+Future<bool> showAuthPrompt(BuildContext context) async =>
+    await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('هذه الميزة تحتاج حسابًا'),
-        content: const Text('أنشئ حسابًا مجانيًا لحفظ المنتجات ومتابعة المتاجر وإرسال الطلبات، أو تابع التصفح كزائر.'),
+        content: const Text(
+            'أنشئ حسابًا مجانيًا لحفظ المنتجات ومتابعة المتاجر وإرسال الطلبات، أو تابع التصفح كزائر.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('متابعة التصفح')),
-          OutlinedButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('تسجيل الدخول')),
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('متابعة التصفح')),
+          OutlinedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('تسجيل الدخول')),
         ],
       ),
-    ) ?? false;
+    ) ??
+    false;

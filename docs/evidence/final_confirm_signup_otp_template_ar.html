@@ -1,0 +1,50 @@
+<!-- Subject: رمز التحقق من بريدك الإلكتروني — عسلكم -->
+<div dir="rtl" style="background:#f7f1e7;padding:28px 18px;font-family:'IBM Plex Sans Arabic',Tahoma,Arial,sans-serif;color:#3d2418;text-align:center">
+  <div style="max-width:560px;margin:0 auto;background:#fffdf9;border:1px solid #ead8bd;border-radius:20px;overflow:hidden">
+    <div style="background:#3d2418;padding:24px 18px 26px;color:#fff7e8">
+      <div style="width:96px;height:96px;margin:0 auto 12px;background:#fffdf9;border-radius:24px;text-align:center;line-height:96px">
+        <img src="https://gvalqfgxrkibuydoiuiz.supabase.co/storage/v1/object/public/assalkom_public/email/email_honey_mark_only.png" width="82" height="82" alt="رمز عسلكم — خلية عسل ذهبية" style="display:inline-block;width:82px;height:82px;vertical-align:middle;border:0;outline:none;text-decoration:none" />
+      </div>
+      <div style="font-size:30px;line-height:1.3;font-weight:800;color:#f5b642">عسلكم</div>
+      <div style="margin-top:7px;font-size:13px;letter-spacing:2px;color:#f8dfac">ASALKOM</div>
+      <div style="margin-top:14px;font-size:13px;color:#ffe8bd">خدمة دعم تطبيق عسلكم</div>
+    </div>
+
+    <div style="padding:30px 24px 12px">
+      <div style="font-size:24px;line-height:1.5;font-weight:800;color:#3d2418">تأكيد بريدك الإلكتروني</div>
+      <p style="margin:12px 0 0;font-size:15px;line-height:1.9;color:#765c47">
+        مرحبًا بك في سوق العسل اليمني. استخدم الرمز التالي داخل التطبيق لإكمال إنشاء حسابك.
+      </p>
+    </div>
+
+    <div style="margin:18px 24px 26px;padding:18px 12px;background:#fff3d2;border:2px solid #d99013;border-radius:16px">
+      <div style="font-size:12px;color:#9c5a00;font-weight:700">رمز التحقق الخاص بك</div>
+      <div dir="ltr" style="margin-top:8px;font-size:34px;line-height:1.2;letter-spacing:8px;font-weight:800;color:#8a4d00">
+        {{ .Token }}
+      </div>
+    </div>
+
+    <div style="padding:0 24px 26px;text-align:right;font-size:13px;line-height:1.9;color:#765c47">
+      <p style="margin:0 0 8px">أدخل الرمز داخل نافذة التحقق في تطبيق عسلكم. لا تشارك الرمز مع أي شخص.</p>
+      <p style="margin:0">إذا لم تطلب إنشاء هذا الحساب، فتجاهل الرسالة بأمان.</p>
+    </div>
+
+    <div style="padding:15px;background:#f2e2c4;color:#6f4a2b;font-size:12px">
+      عسلكم — من مصدره إلى بابك
+    </div>
+  </div>
+</div>
+
+<!--
+طريقة الاستخدام:
+1. Subject: رمز التحقق من بريدك الإلكتروني — عسلكم
+2. الصق ما بين بداية div ونهايته داخل تبويب Source في Confirm sign up.
+3. لا تضف {{ .ConfirmationURL }} ولا أي زر رابط؛ الاعتماد هنا على {{ .Token }} فقط.
+4. اضغط Save changes ثم أعد تحميل الصفحة للتأكد من بقاء القالب.
+5. أنشئ حساب اختبار جديد؛ يجب أن تصل رسالة تحتوي {{ .Token }} كرمز، ثم أدخله في نافذة التطبيق.
+
+ملاحظة توافق البريد:
+- الصورة تستخدم رابط HTTPS عامًا مع alt text؛ إذا حُجبت الصور يظهر اسم عسلكم والنص العربي بشكل طبيعي.
+- IBM Plex Sans Arabic هو الخط المفضل للتطبيق، مع Tahoma ثم Arial ثم sans-serif كبدائل آمنة لعملاء البريد.
+- لا يعتمد القالب على SVG أو JavaScript أو ConfirmationURL.
+-->

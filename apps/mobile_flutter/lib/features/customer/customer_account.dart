@@ -21,7 +21,6 @@ class _AuthScreenState extends State<AuthScreen> {
   final confirmPasswordController = TextEditingController();
   final otpController = TextEditingController();
   bool registerMode = false;
-  bool awaitingEmailOtp = false;
   bool loading = false;
   String? _authNotice;
   @override
@@ -74,30 +73,6 @@ class _AuthScreenState extends State<AuthScreen> {
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(labelText: 'البريد الإلكتروني')),
-        if (awaitingEmailOtp) ...[
-          const SizedBox(height: AssalSpacing.sm),
-          Text(
-              'أدخل رمز التحقق المكوّن من 6 أرقام المرسل إلى بريدك الإلكتروني.',
-              style: AssalTypography.caption
-                  .copyWith(color: AssalColors.textSecondary)),
-          const SizedBox(height: AssalSpacing.xs),
-          TextField(
-            controller: otpController,
-            keyboardType: TextInputType.number,
-            maxLength: 6,
-            textAlign: TextAlign.center,
-            decoration:
-                const InputDecoration(labelText: 'رمز التحقق', counterText: ''),
-          ),
-          const SizedBox(height: AssalSpacing.sm),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: loading ? null : _verifyEmailOtp,
-              child: const Text('تحقق من الرمز'),
-            ),
-          ),
-        ],
         const SizedBox(height: AssalSpacing.md),
         TextField(
             controller: passwordController,
@@ -155,17 +130,12 @@ class _AuthScreenState extends State<AuthScreen> {
           TextButton(
               onPressed: loading ? null : _requestPasswordReset,
               child: const Text('نسيت كلمة المرور؟')),
-          if (awaitingEmailOtp)
-            TextButton(
-                onPressed: loading ? null : _resendEmailConfirmation,
-                child: const Text('إعادة إرسال رمز التحقق')),
         ],
         TextButton(
             onPressed: loading
                 ? null
                 : () => setState(() {
                       registerMode = !registerMode;
-                      awaitingEmailOtp = false;
                       otpController.clear();
                       _authNotice = null;
                     }),
@@ -181,17 +151,28 @@ class _AuthScreenState extends State<AuthScreen> {
           const SnackBar(content: Text('أدخل بريدًا إلكترونيًا صالحًا.')));
       return;
     }
-    if (password.isEmpty || (registerMode && password.length < 8)) {
+    if (password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(registerMode
+              ? 'اختر كلمة مرور قوية أولًا.'
+              : 'أدخل كلمة المرور للمتابعة.')));
+      return;
+    }
+    if (registerMode && !_passwordIsStrong(password)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
-              'اختر كلمة مرور أقوى: 8 أحرف على الأقل ويفضل أن تجمع بين حروف وأرقام ورموز.')));
+              'اختر كلمة مرور أقوى: 8 أحرف على الأقل، بحروف إنجليزية وأرقام ورمز خاص.')));
+      return;
+    }
+    if (registerMode && nameController.text.trim().length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('أدخل اسمًا لا يقل عن حرفين.')));
       return;
     }
     if (registerMode &&
-        (nameController.text.trim().length < 2 ||
-            confirmPasswordController.text != passwordController.text)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('أدخل الاسم وتأكد من تطابق كلمتي المرور.')));
+        confirmPasswordController.text != passwordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('كلمتا المرور غير متطابقتين.')));
       return;
     }
     setState(() => loading = true);
@@ -206,14 +187,17 @@ class _AuthScreenState extends State<AuthScreen> {
         (result.code == 'email_confirmation_required' ||
             result.code == 'email_not_confirmed')) {
       setState(() {
+        // The OTP dialog is the only next step. Clear all
+        // credential fields so the password is never shown
+        // again after registration has been submitted.
         registerMode = false;
-        awaitingEmailOtp = true;
         _authNotice = result.code == 'email_not_confirmed'
-            ? 'أكد بريدك الإلكتروني أولًا. أدخل رمز التحقق المرسل إلى بريدك أو اطلب رمزًا جديدًا.'
-            : 'تم إنشاء الحساب. أدخل رمز التحقق المكوّن من 6 أرقام المرسل إلى بريدك الإلكتروني.';
+            ? 'أكد بريدك الإلكتروني لإكمال تسجيل الدخول.'
+            : 'تم إنشاء الحساب. أدخل الرمز المرسل إلى بريدك الإلكتروني.';
         passwordController.clear();
         confirmPasswordController.clear();
       });
+      await _showEmailOtpDialog();
       return;
     }
     if (result is AssalData<AssalSession>) {
@@ -224,48 +208,123 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  Future<void> _verifyEmailOtp() async {
+  Future<void> _showEmailOtpDialog() async {
     final email = emailController.text.trim();
-    final token = otpController.text.trim();
-    if (!email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('أدخل بريدك الإلكتروني أولًا.')));
-      return;
-    }
-    if (!RegExp(r'^\d{6}$').hasMatch(token)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('أدخل رمز التحقق المكوّن من 6 أرقام.')));
-      return;
-    }
-    setState(() => loading = true);
-    final result =
-        await widget.repository.verifyEmailConfirmation(email, token);
-    if (!mounted) return;
-    setState(() => loading = false);
-    if (result is AssalData<AssalSession>) {
+    otpController.clear();
+    var dialogLoading = false;
+    String? dialogError;
+    String? dialogNotice;
+    final verified = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => PopScope(
+          canPop: false,
+          child: AlertDialog(
+            title: const Text('تأكيد البريد الإلكتروني'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const AssalBrandMark(size: 54),
+                const SizedBox(height: AssalSpacing.sm),
+                Text('أرسلنا رمز التحقق إلى\\n$email',
+                    textAlign: TextAlign.center, style: AssalTypography.body),
+                const SizedBox(height: AssalSpacing.md),
+                TextField(
+                  controller: otpController,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  maxLength: 9,
+                  textInputAction: TextInputAction.done,
+                  textAlign: TextAlign.center,
+                  style: AssalTypography.heading2
+                      .copyWith(color: AssalColors.deepBrown, letterSpacing: 5),
+                  decoration: const InputDecoration(
+                      labelText: 'رمز التحقق (6–9 أرقام)', counterText: ''),
+                ),
+                if (dialogError != null) ...[
+                  const SizedBox(height: AssalSpacing.sm),
+                  Text(dialogError!,
+                      textAlign: TextAlign.center,
+                      style: AssalTypography.caption
+                          .copyWith(color: AssalColors.error)),
+                ],
+                if (dialogNotice != null) ...[
+                  const SizedBox(height: AssalSpacing.sm),
+                  Text(dialogNotice!,
+                      textAlign: TextAlign.center,
+                      style: AssalTypography.caption
+                          .copyWith(color: AssalColors.success)),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: dialogLoading
+                    ? null
+                    : () async {
+                        setDialogState(() {
+                          dialogLoading = true;
+                          dialogError = null;
+                          dialogNotice = null;
+                        });
+                        final result = await widget.repository
+                            .resendEmailConfirmation(email);
+                        if (!mounted || !dialogContext.mounted) return;
+                        setDialogState(() {
+                          dialogLoading = false;
+                          if (result is AssalData<void>) {
+                            dialogNotice =
+                                'تم إرسال رمز جديد. استخدم أحدث رمز فقط.';
+                          } else if (result is AssalError<void>) {
+                            dialogError = result.messageAr;
+                          }
+                        });
+                      },
+                child: const Text('إعادة إرسال الرمز'),
+              ),
+              FilledButton(
+                onPressed: dialogLoading
+                    ? null
+                    : () async {
+                        final token = otpController.text.trim();
+                        if (!RegExp(r'^\d{6,9}$').hasMatch(token)) {
+                          setDialogState(() => dialogError =
+                              'أدخل رمز التحقق كاملًا (من 6 إلى 9 أرقام).');
+                          return;
+                        }
+                        setDialogState(() {
+                          dialogLoading = true;
+                          dialogError = null;
+                          dialogNotice = null;
+                        });
+                        final result = await widget.repository
+                            .verifyEmailConfirmation(email, token);
+                        if (!mounted || !dialogContext.mounted) return;
+                        if (result is AssalData<AssalSession>) {
+                          Navigator.of(dialogContext).pop(true);
+                        } else if (result is AssalError<AssalSession>) {
+                          setDialogState(() {
+                            dialogLoading = false;
+                            dialogError = result.messageAr;
+                          });
+                        }
+                      },
+                child: dialogLoading
+                    ? const AssalGlassLoading(
+                        height: 44, label: 'جارٍ التحقق...')
+                    : const Text('تحقق من الرمز'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (verified == true && mounted) {
       Navigator.pop(context, true);
-    } else if (result is AssalError<AssalSession>) {
-      setState(() => _authNotice = result.messageAr);
-    }
-  }
-
-  Future<void> _resendEmailConfirmation() async {
-    final email = emailController.text.trim();
-    if (!email.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('أدخل بريدك الإلكتروني أولًا لإرسال رسالة التأكيد.')));
-      return;
-    }
-    setState(() => loading = true);
-    final result = await widget.repository.resendEmailConfirmation(email);
-    if (!mounted) return;
-    setState(() => loading = false);
-    if (result is AssalData<void>) {
-      setState(() => _authNotice =
-          'تم إرسال رمز تحقق جديد. أدخل أحدث رمز مكوّن من 6 أرقام مرة واحدة فقط.');
-    } else if (result is AssalError<void>) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result.messageAr)));
     }
   }
 
@@ -494,12 +553,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: AssalSpacing.sm),
         OutlinedButton.icon(
             onPressed: () async {
-              await repository.signOut();
+              final result = await repository.signOut();
               if (context.mounted) {
+                if (result is AssalData<void>) {
+                  setState(() {});
+                }
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(repository.mode == AssalDataSourceMode.demo
-                        ? 'تم تسجيل الخروج من Demo Mode'
-                        : 'تم تسجيل الخروج.')));
+                    content: Text(result is AssalError<void>
+                        ? result.messageAr
+                        : (repository.mode == AssalDataSourceMode.demo
+                            ? 'تم تسجيل الخروج من Demo Mode'
+                            : 'تم تسجيل الخروج.'))));
               }
             },
             icon: const Icon(Icons.logout),

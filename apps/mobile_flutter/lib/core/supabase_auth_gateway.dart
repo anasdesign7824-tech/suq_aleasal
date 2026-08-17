@@ -21,7 +21,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       return _identity(response.user);
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
-          code: error.statusCode ?? error.code);
+          code: error.code ?? error.statusCode);
     }
   }
 
@@ -50,7 +50,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       rethrow;
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
-          code: error.statusCode ?? error.code);
+          code: error.code ?? error.statusCode);
     }
   }
 
@@ -61,7 +61,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
           .resetPasswordForEmail(email.trim(), redirectTo: emailRedirectTo);
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
-          code: error.statusCode ?? error.code);
+          code: error.code ?? error.statusCode);
     }
   }
 
@@ -75,7 +75,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       );
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
-          code: error.statusCode ?? error.code);
+          code: error.code ?? error.statusCode);
     }
   }
 
@@ -91,7 +91,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       return _identity(response.user);
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
-          code: error.statusCode ?? error.code);
+          code: error.code ?? error.statusCode);
     }
   }
 
@@ -102,7 +102,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       await client.auth.signOut();
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
-          code: error.statusCode ?? error.code);
+          code: error.code ?? error.statusCode);
     }
   }
 
@@ -153,7 +153,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
         code == 'invalid_or_already_used_token') {
       return 'رمز التحقق غير صحيح أو انتهت صلاحيته. اطلب رمزًا جديدًا وأدخله مرة واحدة.';
     }
-    if (code == 'user_already_exists') {
+    if (code == 'user_already_exists' || code == 'email_exists') {
       return 'يوجد حساب بهذا البريد الإلكتروني.';
     }
     if (code == 'weak_password' ||
@@ -164,8 +164,13 @@ class SupabaseAuthGateway implements AssalAuthGateway {
     if (code == 'invalid_email' || code == 'email_address_invalid') {
       return 'أدخل بريدًا إلكترونيًا صالحًا.';
     }
-    if (code == 'over_request_rate_limit') {
-      return 'تم تجاوز عدد المحاولات. انتظر قليلًا ثم حاول مرة أخرى.';
+    if (code == 'over_request_rate_limit' ||
+        code == 'over_email_send_rate_limit' ||
+        code == 'email_send_rate_limit') {
+      return 'تم تجاوز عدد محاولات الإرسال. انتظر قليلًا ثم حاول مرة أخرى.';
+    }
+    if (code == 'same_password') {
+      return 'استخدم كلمة مرور مختلفة عن كلمة المرور السابقة.';
     }
     return 'تعذر إكمال المصادقة. تحقق من البيانات وحاول مرة أخرى.';
   }
