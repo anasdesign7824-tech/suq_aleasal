@@ -55,7 +55,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           storeId, () => widget.repository.getStore(storeId));
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text('تفاصيل المنتج'), actions: [
+      appBar: AssalAppBar(title: 'تفاصيل المنتج', actions: [
         IconButton(
             onPressed: () => _share(),
             icon: const Icon(Icons.share_outlined),
@@ -341,7 +341,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('صفحة المتجر')),
+      appBar: const AssalAppBar(title: 'صفحة المتجر'),
       body: FutureBuilder<AssalLoadState<AssalStoreSummary>>(
         future: storeFuture,
         builder: (context, snapshot) {
@@ -672,7 +672,7 @@ class _RequestSheetState extends State<RequestSheet> {
                   child: FilledButton(
                       onPressed: saving ? null : _submit,
                       child: saving
-                          ? const CircularProgressIndicator()
+                          ? const AssalGlassLoading(height: 44, label: 'جارٍ الإرسال...')
                           : const Text('حفظ وإرسال الطلب'))),
             ]),
       ),

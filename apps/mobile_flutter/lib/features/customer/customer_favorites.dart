@@ -45,9 +45,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
         future: widget.repository.getSession(),
         builder: (context, sessionSnapshot) {
           final session = sessionSnapshot.data ?? AssalSession.guest;
-          if (!session.isAuthenticated) return Scaffold(appBar: AppBar(title: const Text('المحفوظات')), body: Center(child: FilledButton(onPressed: () => openAuth(context, widget.repository), child: const Text('تسجيل الدخول لعرض محفوظاتك'))));
+          if (!session.isAuthenticated) return Scaffold(appBar: const AssalAppBar(title: 'المحفوظات'), body: Center(child: FilledButton(onPressed: () => openAuth(context, widget.repository), child: const Text('تسجيل الدخول لعرض محفوظاتك'))));
           return Scaffold(
-            appBar: AppBar(title: const Text('المحفوظات'), bottom: TabBar(controller: tabs, tabs: const [Tab(text: 'المنتجات'), Tab(text: 'المتاجر'), Tab(text: 'التصنيفات')])) ,
+            appBar: AssalAppBar(title: 'المحفوظات', bottom: TabBar(controller: tabs, tabs: const [Tab(text: 'المنتجات'), Tab(text: 'المتاجر'), Tab(text: 'التصنيفات')])) ,
             body: TabBarView(controller: tabs, children: [_products(), _stores(), _taxonomies()]),
           );
         },

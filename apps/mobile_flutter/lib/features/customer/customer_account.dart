@@ -709,7 +709,7 @@ class RequestsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('طلباتي')),
+      appBar: const AssalAppBar(title: 'طلباتي'),
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
@@ -763,7 +763,7 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('الإشعارات')),
+      appBar: const AssalAppBar(title: 'الإشعارات'),
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
@@ -850,7 +850,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.conversation.storeName)),
+      appBar: AssalAppBar(title: widget.conversation.storeName),
       body: Column(children: [
         Expanded(
           child: FutureBuilder<AssalLoadState<List<AssalMessageSummary>>>(
@@ -921,7 +921,7 @@ class MessagesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('المراسلات')),
+      appBar: const AssalAppBar(title: 'المراسلات'),
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
@@ -983,7 +983,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('الإعدادات')),
+        appBar: const AssalAppBar(title: 'الإعدادات'),
         body:
             ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
           Card(
@@ -1082,7 +1082,7 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('كن تاجرًا')),
+        appBar: const AssalAppBar(title: 'كن تاجرًا'),
         body: Form(
           key: formKey,
           child: ListView(

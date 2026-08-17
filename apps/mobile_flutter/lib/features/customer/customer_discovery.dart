@@ -1023,7 +1023,7 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('التصنيفات')),
+      appBar: const AssalAppBar(title: 'التصنيفات'),
       body: FutureBuilder<AssalLoadState<List<AssalCategorySummary>>>(
         future: repository.listCategories(),
         builder: (context, snapshot) {

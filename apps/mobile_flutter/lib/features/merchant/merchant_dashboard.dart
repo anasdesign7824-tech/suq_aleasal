@@ -38,7 +38,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('لوحة التاجر')),
+        appBar: const AssalAppBar(title: 'لوحة التاجر'),
         body: FutureBuilder<AssalLoadState<AssalMerchantApplicationSummary?>>(
           future: applicationFuture,
           builder: (context, snapshot) {

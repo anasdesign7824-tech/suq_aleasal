@@ -83,17 +83,20 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.actions,
     this.showBrand = true,
+      this.bottom,
   });
 
   final String title;
   final List<Widget>? actions;
   final bool showBrand;
 
-  @override
+    final PreferredSizeWidget? bottom;
+@override
   Widget build(BuildContext context) {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     return AppBar(
-      titleSpacing: AssalSpacing.sm,
+            bottom: bottom,
+titleSpacing: AssalSpacing.sm,
       leading: canPop
           ? IconButton(
               tooltip: 'رجوع',
