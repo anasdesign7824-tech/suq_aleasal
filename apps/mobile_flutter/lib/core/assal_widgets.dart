@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui' as ui;
-
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:assalkom_contracts/assal_domain.dart';
@@ -148,8 +146,11 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class AssalGlassLoading extends StatefulWidget {
-  const AssalGlassLoading(
-      {super.key, this.height = 180, this.label = 'جارٍ تجهيز تجربة عسلكم...'});
+  const AssalGlassLoading({
+    super.key,
+    this.height = 72,
+    this.label = 'جارٍ تجهيز تجربة عسلكم...',
+  });
   final double height;
   final String label;
 
@@ -160,8 +161,9 @@ class AssalGlassLoading extends StatefulWidget {
 class _AssalGlassLoadingState extends State<AssalGlassLoading>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 1700))
-    ..repeat();
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..repeat();
 
   @override
   void dispose() {
@@ -170,96 +172,39 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
   }
 
   @override
-  Widget build(BuildContext context) => Semantics(
-        liveRegion: true,
-        label: widget.label,
+  Widget build(BuildContext context) {
+    final height = widget.height.clamp(56, 104).toDouble();
+    return Semantics(
+      liveRegion: true,
+      label: widget.label,
+      child: SizedBox(
+        height: height,
+        width: double.infinity,
         child: Center(
-          child: SizedBox(
-            height: widget.height,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                      AssalColors.cream.withValues(alpha: .72),
-                      AssalColors.honeyLight.withValues(alpha: .48)
-                    ]),
-                    border: Border.all(
-                        color: AssalColors.cream.withValues(alpha: .85)),
-                    boxShadow: [
-                      BoxShadow(
-                          color: AssalColors.deepBrown.withValues(alpha: .08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8))
-                    ],
-                  ),
-                  child: AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) => ShaderMask(
-                      blendMode: BlendMode.srcIn,
-                      shaderCallback: (bounds) {
-                        final shift = -1.2 + (_controller.value * 2.4);
-                        return LinearGradient(
-                            begin: Alignment(shift, -0.3),
-                            end: Alignment(shift + 1.2, 0.3),
-                            colors: const [
-                              AssalColors.textMuted,
-                              AssalColors.cream,
-                              AssalColors.textMuted
-                            ]).createShader(bounds);
-                      },
-                      child: child,
-                    ),
-                    child: widget.height < 90
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                                const Icon(Icons.hive_outlined, size: 18),
-                                const SizedBox(width: AssalSpacing.xs),
-                                Text(widget.label,
-                                    style: AssalTypography.caption),
-                              ])
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                                const Icon(Icons.hive_outlined, size: 34),
-                                const SizedBox(height: AssalSpacing.sm),
-                                Text(widget.label,
-                                    textAlign: TextAlign.center,
-                                    style: AssalTypography.bodySmall),
-                                const SizedBox(height: AssalSpacing.md),
-                                const _SkeletonBar(width: 150),
-                                const SizedBox(height: AssalSpacing.sm),
-                                const _SkeletonBar(width: 116),
-                                const SizedBox(height: AssalSpacing.sm),
-                                const _SkeletonBar(width: 82),
-                              ]),
-                  ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RotationTransition(
+                turns: _controller,
+                child: const Icon(
+                  Icons.hive_outlined,
+                  size: 22,
+                  color: AssalColors.primaryDark,
                 ),
               ),
-            ),
+              const SizedBox(width: AssalSpacing.xs),
+              Text(
+                widget.label,
+                style: AssalTypography.bodySmall.copyWith(
+                  color: AssalColors.textSecondary,
+                ),
+              ),
+            ],
           ),
         ),
-      );
-}
-
-class _SkeletonBar extends StatelessWidget {
-  const _SkeletonBar({required this.width});
-  final double width;
-
-  @override
-  Widget build(BuildContext context) => Container(
-        width: width,
-        height: 10,
-        decoration: BoxDecoration(
-          color: AssalColors.cream,
-          borderRadius: BorderRadius.circular(AssalRadius.pill),
-        ),
-      );
+      ),
+    );
+  }
 }
 
 class AssalFutureStateView<T> extends StatelessWidget {
