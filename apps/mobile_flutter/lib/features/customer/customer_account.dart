@@ -22,7 +22,6 @@ class _AuthScreenState extends State<AuthScreen> {
   final otpController = TextEditingController();
   bool registerMode = false;
   bool loading = false;
-  String? _authNotice;
   @override
   void dispose() {
     nameController.dispose();
@@ -50,37 +49,15 @@ class _AuthScreenState extends State<AuthScreen> {
             style: AssalTypography.bodyLarge
                 .copyWith(color: AssalColors.textSecondary)),
         const SizedBox(height: AssalSpacing.md),
-        Container(
-          padding: const EdgeInsets.all(AssalSpacing.md),
-          decoration: BoxDecoration(
-            color: AssalColors.honeyLight,
-            borderRadius: BorderRadius.circular(AssalRadius.medium),
-            border: Border.all(color: AssalColors.primary.withAlpha(80)),
-          ),
-          child: Text(
-            registerMode
-                ? 'حساب جديد: أدخل اسمك وبريدك وكلمة مرور للحساب، ثم أكمل التحقق بالرمز.'
-                : 'حساب موجود: البريد الإلكتروني ثم رمز التحقق فقط. لن نطلب كلمة المرور.',
-            textAlign: TextAlign.center,
-            style: AssalTypography.body.copyWith(
-                color: AssalColors.deepBrown, fontWeight: FontWeight.w600),
-          ),
+        Text(
+          registerMode
+              ? 'أنشئ حسابًا جديدًا للبدء.'
+              : 'هل لديك حساب؟ سجّل الدخول إلى حسابك الموجود.',
+          textAlign: TextAlign.center,
+          style: AssalTypography.body.copyWith(
+              color: AssalColors.textSecondary, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: AssalSpacing.xl),
-        if (_authNotice != null) ...[
-          Container(
-            padding: const EdgeInsets.all(AssalSpacing.md),
-            decoration: BoxDecoration(
-              color: AssalColors.honeyLight,
-              borderRadius: BorderRadius.circular(AssalRadius.medium),
-              border: Border.all(color: AssalColors.primary.withAlpha(80)),
-            ),
-            child: Text(_authNotice!,
-                style: AssalTypography.body.copyWith(
-                    color: AssalColors.deepBrown, fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(height: AssalSpacing.md),
-        ],
         if (registerMode) ...[
           TextField(
               controller: nameController,
@@ -149,11 +126,10 @@ class _AuthScreenState extends State<AuthScreen> {
                 : () => setState(() {
                       registerMode = !registerMode;
                       otpController.clear();
-                      _authNotice = null;
                     }),
             child: Text(registerMode
-                ? 'لديك حساب موجود؟ تسجيل الدخول'
-                : 'مستخدم جديد؟ إنشاء حساب'))
+                ? 'لديك حساب؟ سجّل الدخول إلى حسابك الموجود'
+                : 'ليس لديك حساب؟ أنشئ حسابًا جديدًا'))
       ]));
   Future<void> _submit() async {
     final email = emailController.text.trim();
@@ -190,8 +166,6 @@ class _AuthScreenState extends State<AuthScreen> {
               result.code == 'email_not_confirmed')) {
         setState(() {
           registerMode = false;
-          _authNotice =
-              'تم إنشاء الحساب. أدخل رمز التحقق المرسل إلى بريدك الإلكتروني.';
           passwordController.clear();
           confirmPasswordController.clear();
         });
@@ -212,8 +186,6 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!mounted) return;
     setState(() => loading = false);
     if (result is AssalData<void>) {
-      setState(() => _authNotice =
-          'أرسلنا رمز الدخول إلى بريدك الإلكتروني. أدخله للمتابعة.');
       await _showEmailOtpDialog(loginMode: true);
     } else if (result is AssalError<void>) {
       ScaffoldMessenger.of(context)

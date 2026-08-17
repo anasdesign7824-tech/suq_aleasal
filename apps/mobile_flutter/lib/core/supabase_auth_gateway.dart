@@ -31,7 +31,6 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       await client.auth.signInWithOtp(
         email: email.trim(),
         shouldCreateUser: false,
-        emailRedirectTo: emailRedirectTo,
       );
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),

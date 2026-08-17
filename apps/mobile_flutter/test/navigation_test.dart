@@ -27,9 +27,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('إرسال رمز الدخول'), findsOneWidget);
-    expect(
-        find.text(
-            'حساب موجود: البريد الإلكتروني ثم رمز التحقق فقط. لن نطلب كلمة المرور.'),
+    expect(find.text('هل لديك حساب؟ سجّل الدخول إلى حسابك الموجود.'),
         findsOneWidget);
     expect(find.text('نسيت كلمة المرور؟'), findsNothing);
     expect(find.text('المتابعة عبر Google'), findsNothing);
