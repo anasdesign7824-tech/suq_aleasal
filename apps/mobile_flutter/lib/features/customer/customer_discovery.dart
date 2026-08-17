@@ -609,7 +609,10 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
               AssalSpacing.lg,
               AssalSpacing.sm,
             ),
-            child: child,
+            child: SizedBox(
+              height: maxExtent,
+              child: child,
+            ),
           ),
         ),
       );
