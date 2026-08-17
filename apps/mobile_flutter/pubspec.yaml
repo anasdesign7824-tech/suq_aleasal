@@ -31,20 +31,10 @@ flutter:
   assets:
     - assets/demo_catalog.json
     - assets/yemen_governorates_districts.json
-    - assets/logo-internal.svg
-    - assets/logo-external.svg
     - assets/logo-internal-runtime.svg
-    - assets/logo-external-runtime.svg
-    - assets/fonts/
   fonts:
     - family: IBM Plex Sans Arabic
       fonts:
-        - asset: assets/fonts/IBMPlexSansArabic-Thin.ttf
-          weight: 100
-        - asset: assets/fonts/IBMPlexSansArabic-ExtraLight.ttf
-          weight: 200
-        - asset: assets/fonts/IBMPlexSansArabic-Light.ttf
-          weight: 300
         - asset: assets/fonts/IBMPlexSansArabic-Regular.ttf
           weight: 400
         - asset: assets/fonts/IBMPlexSansArabic-Medium.ttf

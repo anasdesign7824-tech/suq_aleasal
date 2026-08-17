@@ -1,0 +1,23 @@
+# Task 34 Architecture Audit — final
+## Forbidden direct data-service calls from feature implementations
+NONE
+## Repository-bearing feature implementations
+OK apps/mobile_flutter/lib/features/customer/customer_account.dart
+OK apps/mobile_flutter/lib/features/customer/customer_catalog.dart
+OK apps/mobile_flutter/lib/features/customer/customer_core.dart
+OK apps/mobile_flutter/lib/features/customer/customer_discovery.dart
+OK apps/mobile_flutter/lib/features/customer/customer_favorites.dart
+OK apps/mobile_flutter/lib/features/customer/customer_social.dart
+OK apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart
+## Composition root
+27:    await Supabase.initialize(
+30:    final repository = ProductionRepository(
+31:      gateway: SupabaseQueryGateway(client),
+32:      authGateway: SupabaseAuthGateway(
+## Factory boundary
+11:    ProductionQueryGateway? productionGateway,
+12:    AssalAuthGateway? authGateway,
+16:        return DemoRepository(loader: demoLoader);
+18:        final gateway = productionGateway;
+19:        if (gateway == null) throw const ProductionRepositoryNotConfigured();
+20:        return ProductionRepository(gateway: gateway, authGateway: authGateway);

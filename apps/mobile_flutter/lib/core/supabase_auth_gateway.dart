@@ -1,108 +1,151 @@
-import 'package:flutter/foundation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:assalkom_data/assal_repository.dart';
 
 class SupabaseAuthGateway implements AssalAuthGateway {
-  SupabaseAuthGateway({required this.client, this.androidRedirect = 'com.assalkom.assalkom://login-callback/', this.googleServerClientId = const String.fromEnvironment('ASSALKOM_GOOGLE_WEB_CLIENT_ID')});
+  const SupabaseAuthGateway({required this.client, this.emailRedirectTo});
 
   final SupabaseClient client;
-  final String androidRedirect;
-  final String googleServerClientId;
-  GoogleSignIn? _googleSignIn;
+  final String? emailRedirectTo;
 
   @override
-  Future<AssalAuthIdentity?> currentIdentity() async => _identity(client.auth.currentUser);
+  Future<AssalAuthIdentity?> currentIdentity() async =>
+      _identity(client.auth.currentUser);
 
   @override
-  Future<AssalAuthIdentity?> signInWithPassword(String email, String password) async {
+  Future<AssalAuthIdentity?> signInWithPassword(
+      String email, String password) async {
     try {
-      final response = await client.auth.signInWithPassword(email: email.trim(), password: password);
+      final response = await client.auth
+          .signInWithPassword(email: email.trim(), password: password);
       return _identity(response.user);
     } on AuthException catch (error) {
-      throw AssalAuthFailure(_messageFor(error), code: error.statusCode ?? error.code);
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
     }
   }
 
   @override
-  Future<AssalAuthIdentity?> signUp({required String name, required String email, required String password}) async {
+  Future<void> requestEmailOtp(String email) async {
+    try {
+      await client.auth.signInWithOtp(
+        email: email.trim(),
+        shouldCreateUser: false,
+      );
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
+  Future<AssalAuthIdentity?> verifyEmailOtp(String email, String token) async {
+    try {
+      final response = await client.auth.verifyOTP(
+        email: email.trim(),
+        token: token.trim(),
+        type: OtpType.email,
+      );
+      return _identity(response.user);
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
+  Future<AssalAuthIdentity?> signUp(
+      {required String name,
+      required String email,
+      required String password}) async {
     try {
       final response = await client.auth.signUp(
         email: email.trim(),
         password: password,
+        emailRedirectTo: emailRedirectTo,
         data: <String, Object?>{'display_name': name.trim()},
       );
       final identity = _identity(response.user);
-      if (identity == null && response.session == null) {
-        throw const AssalAuthFailure('تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل الدخول.', code: 'email_confirmation_required');
+      // Supabase returns a user but no session when email confirmation is required.
+      // Never treat that response as an authenticated login.
+      if (response.session == null) {
+        throw const AssalAuthFailure(
+            'تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل الدخول.',
+            code: 'email_confirmation_required');
       }
       return identity;
     } on AssalAuthFailure {
       rethrow;
     } on AuthException catch (error) {
-      throw AssalAuthFailure(_messageFor(error), code: error.statusCode ?? error.code);
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      await client.auth
+          .resetPasswordForEmail(email.trim(), redirectTo: emailRedirectTo);
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
+  Future<void> resendEmailConfirmation(String email) async {
+    try {
+      await client.auth.resend(
+        email: email.trim(),
+        type: OtpType.signup,
+        emailRedirectTo: emailRedirectTo,
+      );
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
+  Future<AssalAuthIdentity?> verifyEmailConfirmation(
+      String email, String token) async {
+    try {
+      final response = await client.auth.verifyOTP(
+        email: email.trim(),
+        token: token.trim(),
+        type: OtpType.signup,
+      );
+      return _identity(response.user);
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    try {
+      await client.rpc('delete_my_account');
+      await client.auth.signOut();
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
     }
   }
 
   @override
   Future<AssalAuthIdentity?> signInWithGoogle() async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return _oauth(OAuthProvider.google, 'Google');
-    return _nativeGoogleSignIn();
+    throw const AssalAuthFailure(
+        'تسجيل Google مؤجل للإصدار اللاحق. استخدم البريد الإلكتروني في الإصدار الحالي.',
+        code: 'google_auth_deferred');
   }
-
-  Future<AssalAuthIdentity?> _nativeGoogleSignIn() async {
-    if (googleServerClientId.isEmpty) {
-      throw const AssalAuthFailure('إعداد Google native غير مكتمل: أضف Web Client ID في build defines.', code: 'google_server_client_id_missing');
-    }
-    try {
-      final signIn = _googleSignIn ??= GoogleSignIn.instance;
-      await signIn.initialize(serverClientId: googleServerClientId);
-      final account = await signIn.authenticate();
-      final idToken = account.authentication.idToken;
-      if (idToken == null || idToken.isEmpty) {
-        throw const AssalAuthFailure('لم يُرجع Google رمز الهوية. تحقق من Client IDs وبصمة Android.', code: 'google_id_token_missing');
-      }
-      final response = await client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
-      return _identity(response.user);
-    } on AssalAuthFailure {
-      rethrow;
-    } on GoogleSignInException catch (error) {
-      throw AssalAuthFailure(_googleMessage(error), code: error.code.name);
-    } on AuthException catch (error) {
-      throw AssalAuthFailure(_messageFor(error), code: error.statusCode ?? error.code);
-    }
-  }
-
-  String _googleMessage(GoogleSignInException error) => switch (error.code) {
-        GoogleSignInExceptionCode.canceled => 'ألغيت عملية اختيار حساب Google.',
-        GoogleSignInExceptionCode.clientConfigurationError => 'إعداد Google Android غير صحيح. تحقق من Client ID وبصمة SHA-1.',
-        GoogleSignInExceptionCode.providerConfigurationError => 'مزود Google غير مهيأ في Supabase.',
-        _ => error.description?.isNotEmpty == true ? error.description! : 'تعذر تسجيل الدخول عبر Google.',
-      };
 
   @override
-  Future<AssalAuthIdentity?> signInWithFacebook() => _oauth(OAuthProvider.facebook, 'Facebook');
-
-  Future<AssalAuthIdentity?> _oauth(OAuthProvider provider, String providerName) async {
-    try {
-      final started = await client.auth.signInWithOAuth(
-        provider,
-        redirectTo: kIsWeb ? null : androidRedirect,
-      );
-      if (!started) {
-        throw AssalAuthFailure('تعذر بدء تسجيل الدخول عبر $providerName.', code: 'oauth_start_failed');
-      }
-      final identity = _identity(client.auth.currentUser);
-      if (identity == null) {
-        throw AssalAuthFailure('تم فتح تسجيل الدخول عبر $providerName. أكمل الخطوة في المتصفح ثم عد إلى عسلكم.', code: 'oauth_started');
-      }
-      return identity;
-    } on AssalAuthFailure {
-      rethrow;
-    } on AuthException catch (error) {
-      throw AssalAuthFailure(_messageFor(error), code: error.statusCode ?? error.code);
-    }
+  Future<AssalAuthIdentity?> signInWithFacebook() async {
+    throw const AssalAuthFailure(
+        'تسجيل Facebook مؤجل للإصدار اللاحق. استخدم البريد الإلكتروني في الإصدار الحالي.',
+        code: 'facebook_auth_deferred');
   }
 
   @override
@@ -111,21 +154,55 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   AssalAuthIdentity? _identity(User? user) {
     if (user == null) return null;
     final metadata = user.userMetadata ?? const <String, dynamic>{};
-    String? metadataString(String key) => metadata[key] is String ? metadata[key] as String : null;
+    String? metadataString(String key) =>
+        metadata[key] is String ? metadata[key] as String : null;
     return AssalAuthIdentity(
       id: user.id,
       email: user.email,
-      displayName: metadataString('display_name') ?? metadataString('full_name') ?? metadataString('name'),
+      displayName: metadataString('display_name') ??
+          metadataString('full_name') ??
+          metadataString('name'),
       avatarUrl: metadataString('avatar_url') ?? metadataString('picture'),
     );
   }
 
   String _messageFor(AuthException error) {
     final code = error.code?.toLowerCase();
-    if (code == 'invalid_credentials') return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-    if (code == 'email_not_confirmed') return 'تحقق من بريدك الإلكتروني قبل تسجيل الدخول.';
-    if (code == 'user_already_exists') return 'يوجد حساب بهذا البريد الإلكتروني.';
-    if (code == 'weak_password') return 'اختر كلمة مرور أقوى.';
-    return error.message.isEmpty ? 'تعذر إكمال المصادقة. حاول مرة أخرى.' : error.message;
+    if (code == 'invalid_credentials') {
+      return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+    }
+    if (code == 'email_not_confirmed') {
+      return 'تحقق من بريدك الإلكتروني قبل تسجيل الدخول.';
+    }
+    if (code == 'bad_code' ||
+        code == 'otp_expired' ||
+        code == 'token_expired' ||
+        code == 'invalid_token' ||
+        code == 'invalid_or_already_used_token') {
+      return 'رمز التحقق غير صحيح أو انتهت صلاحيته. اطلب رمزًا جديدًا وأدخله مرة واحدة.';
+    }
+    if (code == 'user_already_exists' || code == 'email_exists') {
+      return 'يوجد حساب بهذا البريد الإلكتروني.';
+    }
+    if (code == 'user_not_found' || code == 'signup_disabled') {
+      return 'لا يوجد حساب بهذا البريد الإلكتروني. اختر «إنشاء حساب» أولًا.';
+    }
+    if (code == 'weak_password' ||
+        code == 'password_too_short' ||
+        code == 'password_strength') {
+      return 'اختر كلمة مرور أقوى: استخدم 8 أحرف على الأقل وامزج بين الحروف والأرقام والرموز.';
+    }
+    if (code == 'invalid_email' || code == 'email_address_invalid') {
+      return 'أدخل بريدًا إلكترونيًا صالحًا.';
+    }
+    if (code == 'over_request_rate_limit' ||
+        code == 'over_email_send_rate_limit' ||
+        code == 'email_send_rate_limit') {
+      return 'تم تجاوز عدد محاولات الإرسال. انتظر قليلًا ثم حاول مرة أخرى.';
+    }
+    if (code == 'same_password') {
+      return 'استخدم كلمة مرور مختلفة عن كلمة المرور السابقة.';
+    }
+    return 'تعذر إكمال المصادقة. تحقق من البيانات وحاول مرة أخرى.';
   }
 }

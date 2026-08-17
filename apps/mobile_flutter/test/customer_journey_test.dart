@@ -17,14 +17,20 @@ void main() {
   ''';
 
   test('customer demo journey remains usable without Supabase', () async {
-    final repository = DemoRepository(loader: const InMemoryDemoCatalogLoader(catalog));
+    final repository =
+        DemoRepository(loader: const InMemoryDemoCatalogLoader(catalog));
 
     expect((await repository.getSession()).isAuthenticated, isFalse);
-    final products = await repository.listProducts(query: const AssalProductQuery(featuredOnly: true));
+    final products = await repository.listProducts(
+        query: const AssalProductQuery(featuredOnly: true));
     expect(products, isA<AssalData<List<AssalProductSummary>>>());
     final stores = await repository.listStores();
     expect(stores, isA<AssalData<List<AssalStoreSummary>>>());
-    final filtered = await repository.listProducts(query: const AssalProductQuery(gradeLevel: 1, productType: ProductType.honey, verifiedStoresOnly: true));
+    final filtered = await repository.listProducts(
+        query: const AssalProductQuery(
+            gradeLevel: 1,
+            productType: ProductType.honey,
+            verifiedStoresOnly: true));
     expect(filtered, isA<AssalData<List<AssalProductSummary>>>());
 
     final auth = await repository.signIn('demo@assalkom.app', 'demo123');
@@ -39,30 +45,78 @@ void main() {
     expect((favorite as AssalData<bool>).value, isTrue);
     expect((like as AssalData<bool>).value, isTrue);
 
-    final merchantApplication = await repository.submitMerchantApplication(session.user!.id, const AssalMerchantApplicationDraft(displayName: 'مناحل دوعن الجديدة', phone: '777123456', experience: 'خبرة طويلة في فرز وتعبئة السدر الدوعني.', location: 'حضرموت - دوعن', specialties: 'سدر، سمرة، شمع', certificateNote: 'شهادة مصدر موثق'));
-    expect(merchantApplication, isA<AssalData<AssalMerchantApplicationSummary>>());
+    final merchantApplication = await repository.submitMerchantApplication(
+        session.user!.id,
+        const AssalMerchantApplicationDraft(
+            displayName: 'مناحل دوعن الجديدة',
+            phone: '777123456',
+            experience: 'خبرة طويلة في فرز وتعبئة السدر الدوعني.',
+            location: 'حضرموت - دوعن',
+            specialties: 'سدر، سمرة، شمع',
+            certificateNote: 'شهادة مصدر موثق'));
+    expect(
+        merchantApplication, isA<AssalData<AssalMerchantApplicationSummary>>());
+    final applicationState =
+        await repository.loadMerchantApplication(session.user!.id);
+    expect(
+        applicationState, isA<AssalData<AssalMerchantApplicationSummary?>>());
+    expect(
+        (applicationState as AssalData<AssalMerchantApplicationSummary?>)
+            .value
+            ?.status,
+        'submitted');
 
-    final request = await repository.createRequest(session.user!.id, const AssalRequestDraft(storeId: 's1', productId: 'p1', subject: 'استفسار عن سدر دوعني', body: 'أرغب في معرفة التوفر وطريقة الاستلام.', quantity: 1, handoffOption: HandoffOption.pickup, deliveryNote: 'التواصل قبل الوصول'));
+    final request = await repository.createRequest(
+        session.user!.id,
+        const AssalRequestDraft(
+            storeId: 's1',
+            productId: 'p1',
+            subject: 'استفسار عن سدر دوعني',
+            body: 'أرغب في معرفة التوفر وطريقة الاستلام.',
+            quantity: 1,
+            handoffOption: HandoffOption.pickup,
+            deliveryNote: 'التواصل قبل الوصول'));
     expect(request, isA<AssalData<AssalRequestSummary>>());
     final requests = await repository.listRequests(session.user!.id);
     expect(requests, isA<AssalData<List<AssalRequestSummary>>>());
 
-    final review = await repository.createReview(session.user!.id, const AssalReviewDraft(productId: 'p1', storeId: 's1', rating: 5, body: 'تجربة واضحة ومصدر موثق.'));
-    final comment = await repository.createComment(session.user!.id, 'عميل عسلكم', 'p1', 'هل يتوفر وزن نصف كيلو؟');
+    final review = await repository.createReview(
+        session.user!.id,
+        const AssalReviewDraft(
+            productId: 'p1',
+            storeId: 's1',
+            rating: 5,
+            body: 'تجربة واضحة ومصدر موثق.'));
+    final comment = await repository.createComment(
+        session.user!.id, 'عميل عسلكم', 'p1', 'هل يتوفر وزن نصف كيلو؟');
     expect(review, isA<AssalData<AssalReviewSummary>>());
     expect(comment, isA<AssalData<AssalCommentSummary>>());
 
-    final message = await repository.sendMessage(session.user!.id, const AssalMessageDraft(conversationId: 'demo-conversation-s1', body: 'مرحبًا، أحتاج مساعدة في الاختيار.'));
+    final message = await repository.sendMessage(
+        session.user!.id,
+        const AssalMessageDraft(
+            conversationId: 'demo-conversation-s1',
+            body: 'مرحبًا، أحتاج مساعدة في الاختيار.'));
     expect(message, isA<AssalData<AssalMessageSummary>>());
     final messages = await repository.listMessages('demo-conversation-s1');
     expect(messages, isA<AssalData<List<AssalMessageSummary>>>());
 
     final notifications = await repository.listNotifications(session.user!.id);
     expect(notifications, isA<AssalData<List<AssalNotificationSummary>>>());
-    final notificationValues = (notifications as AssalData<List<AssalNotificationSummary>>).value;
-    expect(notificationValues.any((item) => item.notificationType == 'merchant_application'), isTrue);
-    await repository.markNotificationRead(session.user!.id, notificationValues.first.id);
+    final notificationValues =
+        (notifications as AssalData<List<AssalNotificationSummary>>).value;
+    expect(
+        notificationValues
+            .any((item) => item.notificationType == 'merchant_application'),
+        isTrue);
+    await repository.markNotificationRead(
+        session.user!.id, notificationValues.first.id);
     final afterRead = await repository.listNotifications(session.user!.id);
-    expect((afterRead as AssalData<List<AssalNotificationSummary>>).value.first.readAt, isNotNull);
+    expect(
+        (afterRead as AssalData<List<AssalNotificationSummary>>)
+            .value
+            .first
+            .readAt,
+        isNotNull);
   });
 }

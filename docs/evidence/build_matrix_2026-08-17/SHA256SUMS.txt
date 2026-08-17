@@ -1,0 +1,6 @@
+8b107194fef48f8661cbe230e1b9764d246951b14f7613dc6cc1b957bc8d24a2  docs/evidence/build_matrix_2026-08-17/app-debug-demo.apk
+fde6c5033c8e98d572fea39c1d7e6ca23a334da58529317e30b12ce0cfad9fb0  docs/evidence/build_matrix_2026-08-17/app-release-demo-arm64.apk
+220ce06a11a9cc4355d53aed1af58b4210005bd1ae1c71a13d98e7ccd078840f  docs/evidence/build_matrix_2026-08-17/app-release-demo-x86_64.apk
+91d8aa39107a03d3d11d4fa9c53f7d91359302486c0f78be8444586be646e0a8  docs/evidence/build_matrix_2026-08-17/app-release-demo.aab
+5becd9b516c284f23b2a67bad7f7ffd7db06ac6608b05ee56ffab712ec86ecb2  docs/evidence/build_matrix_2026-08-17/app-release-production-arm64.apk
+260ee236ca99c04247097b25527b0b074bd1ba9810313e148ea2c04a939befa6  docs/evidence/build_matrix_2026-08-17/app-release-production.aab

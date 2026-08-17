@@ -5,6 +5,16 @@ from pathlib import Path
 path = Path(__file__).resolve().parents[1] / "references" / "data" / "yemeni_honey_master_database_final.json"
 data = json.loads(path.read_text(encoding="utf-8"))
 
+info = data.get("database_info", {})
+if info.get("version") != "5.0.0":
+    raise SystemExit("Canonical Honey Master version drifted; expected 5.0.0")
+required_global_settings = {"grading_system", "badges_and_awards", "packaging_units"}
+missing_global_settings = required_global_settings - data.get("global_settings", {}).keys()
+if missing_global_settings:
+    raise SystemExit(
+        f"Canonical Honey Master is incomplete; missing global settings: {sorted(missing_global_settings)}"
+    )
+
 categories = data.get("categories", [])
 records = []
 category_ids = []
@@ -23,6 +33,8 @@ for category in categories:
         product_ids.append(product.get("id"))
 
 all_ids = category_ids + subcategory_ids + product_ids
+if len(categories) < 5:
+    raise SystemExit("Canonical Honey Master appears truncated: fewer than five main categories")
 missing_product_ids = [p.get("name_ar") for _, _, p in records if not p.get("id")]
 duplicate_ids = sorted([key for key, count in Counter(all_ids).items() if key and count > 1])
 product_field_counts = Counter()
@@ -44,5 +56,7 @@ for key, value in data.get("global_settings", {}).items():
     size = len(value) if hasattr(value, "__len__") else 1
     print(f"  {key}: {size}")
 
+if len(records) < 30:
+    raise SystemExit("Canonical Honey Master appears truncated: fewer than 30 product records")
 if duplicate_ids or missing_product_ids:
     raise SystemExit("Validation failed: duplicate or missing product identifiers")
