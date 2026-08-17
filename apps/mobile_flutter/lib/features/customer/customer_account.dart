@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
@@ -34,9 +36,13 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: Text(registerMode ? 'إنشاء حساب' : 'تسجيل الدخول')),
+      appBar: AssalAppBar(
+          title: registerMode ? 'إنشاء حساب' : 'تسجيل الدخول',
+          showBrand: false),
       body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [
-        const AssalBrandMark(size: 66),
+        const Center(
+          child: AssalBrandMark(size: 92, showName: false),
+        ),
         const SizedBox(height: AssalSpacing.xl),
         Text(registerMode ? 'أنشئ حسابك في عسلكم' : 'تسجيل الدخول',
             style: AssalTypography.heading1
@@ -194,128 +200,202 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _showEmailOtpDialog({required bool loginMode}) async {
-    final email = emailController.text.trim();
+    final dialogEmailController =
+        TextEditingController(text: emailController.text.trim());
     otpController.clear();
     var dialogLoading = false;
+    var resendSeconds = 30;
+    var countdownStarted = false;
+    Timer? resendTimer;
     String? dialogError;
     String? dialogNotice;
+
+    void startCountdown(void Function(void Function()) setDialogState) {
+      resendTimer?.cancel();
+      setDialogState(() => resendSeconds = 30);
+      resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (resendSeconds <= 1) {
+          timer.cancel();
+          resendTimer = null;
+          setDialogState(() => resendSeconds = 0);
+        } else {
+          setDialogState(() => resendSeconds -= 1);
+        }
+      });
+    }
+
     final verified = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => PopScope(
-          canPop: false,
-          child: AlertDialog(
-            title: Text(loginMode ? 'رمز الدخول' : 'تأكيد البريد الإلكتروني'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const AssalBrandMark(size: 54),
-                const SizedBox(height: AssalSpacing.sm),
-                Text(
-                    '${loginMode ? 'أرسلنا رمز الدخول إلى' : 'أرسلنا رمز التحقق إلى'}\\n$email',
-                    textAlign: TextAlign.center,
-                    style: AssalTypography.body),
-                const SizedBox(height: AssalSpacing.md),
-                TextField(
-                  controller: otpController,
-                  autofocus: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
+        builder: (dialogContext, setDialogState) {
+          if (!countdownStarted) {
+            countdownStarted = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (dialogContext.mounted) startCountdown(setDialogState);
+            });
+          }
+          return PopScope(
+            canPop: false,
+            child: AlertDialog(
+              title: Text(loginMode ? 'رمز الدخول' : 'تأكيد البريد الإلكتروني'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const AssalBrandMark(size: 54, showName: false),
+                    const SizedBox(height: AssalSpacing.sm),
+                    Text(
+                        loginMode
+                            ? 'أرسلنا رمز الدخول إلى'
+                            : 'أرسلنا رمز التحقق إلى',
+                        textAlign: TextAlign.center,
+                        style: AssalTypography.body),
+                    const SizedBox(height: AssalSpacing.sm),
+                    TextField(
+                      controller: dialogEmailController,
+                      keyboardType: TextInputType.emailAddress,
+                      textDirection: TextDirection.ltr,
+                      textAlign: TextAlign.center,
+                      decoration: const InputDecoration(
+                        labelText: 'البريد الإلكتروني',
+                        helperText: 'يمكنك تعديل البريد قبل التحقق',
+                      ),
+                      onChanged: (_) => setDialogState(() {
+                        dialogError = null;
+                        dialogNotice = null;
+                      }),
+                    ),
+                    const SizedBox(height: AssalSpacing.md),
+                    TextField(
+                      controller: otpController,
+                      autofocus: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      maxLength: 9,
+                      textInputAction: TextInputAction.done,
+                      textAlign: TextAlign.center,
+                      textDirection: TextDirection.ltr,
+                      style: AssalTypography.heading2.copyWith(
+                          color: AssalColors.deepBrown, letterSpacing: 5),
+                      decoration: const InputDecoration(
+                          labelText: 'رمز التحقق (6–9 أرقام)', counterText: ''),
+                    ),
+                    Text(
+                      resendSeconds > 0
+                          ? 'يمكنك طلب رمز جديد بعد $resendSeconds ثانية'
+                          : 'يمكنك طلب رمز جديد الآن',
+                      textAlign: TextAlign.center,
+                      style: AssalTypography.caption
+                          .copyWith(color: AssalColors.textMuted),
+                    ),
+                    if (dialogError != null) ...[
+                      const SizedBox(height: AssalSpacing.sm),
+                      Text(dialogError!,
+                          textAlign: TextAlign.center,
+                          style: AssalTypography.caption
+                              .copyWith(color: AssalColors.error)),
+                    ],
+                    if (dialogNotice != null) ...[
+                      const SizedBox(height: AssalSpacing.sm),
+                      Text(dialogNotice!,
+                          textAlign: TextAlign.center,
+                          style: AssalTypography.caption
+                              .copyWith(color: AssalColors.success)),
+                    ],
                   ],
-                  maxLength: 9,
-                  textInputAction: TextInputAction.done,
-                  textAlign: TextAlign.center,
-                  style: AssalTypography.heading2
-                      .copyWith(color: AssalColors.deepBrown, letterSpacing: 5),
-                  decoration: const InputDecoration(
-                      labelText: 'رمز التحقق (6–9 أرقام)', counterText: ''),
                 ),
-                if (dialogError != null) ...[
-                  const SizedBox(height: AssalSpacing.sm),
-                  Text(dialogError!,
-                      textAlign: TextAlign.center,
-                      style: AssalTypography.caption
-                          .copyWith(color: AssalColors.error)),
-                ],
-                if (dialogNotice != null) ...[
-                  const SizedBox(height: AssalSpacing.sm),
-                  Text(dialogNotice!,
-                      textAlign: TextAlign.center,
-                      style: AssalTypography.caption
-                          .copyWith(color: AssalColors.success)),
-                ],
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: dialogLoading
-                    ? null
-                    : () async {
-                        setDialogState(() {
-                          dialogLoading = true;
-                          dialogError = null;
-                          dialogNotice = null;
-                        });
-                        final result = loginMode
-                            ? await widget.repository.requestEmailOtp(email)
-                            : await widget.repository
-                                .resendEmailConfirmation(email);
-                        if (!mounted || !dialogContext.mounted) return;
-                        setDialogState(() {
-                          dialogLoading = false;
-                          if (result is AssalData<void>) {
-                            dialogNotice = loginMode
-                                ? 'تم إرسال رمز دخول جديد. استخدم أحدث رمز فقط.'
-                                : 'تم إرسال رمز تحقق جديد. استخدم أحدث رمز فقط.';
-                          } else if (result is AssalError<void>) {
-                            dialogError = result.messageAr;
-                          }
-                        });
-                      },
-                child: const Text('إعادة إرسال الرمز'),
               ),
-              FilledButton(
-                onPressed: dialogLoading
-                    ? null
-                    : () async {
-                        final token = otpController.text.trim();
-                        if (!RegExp(r'^\d{6,9}$').hasMatch(token)) {
-                          setDialogState(() => dialogError =
-                              'أدخل رمز التحقق كاملًا (من 6 إلى 9 أرقام).');
-                          return;
-                        }
-                        setDialogState(() {
-                          dialogLoading = true;
-                          dialogError = null;
-                          dialogNotice = null;
-                        });
-                        final result = loginMode
-                            ? await widget.repository
-                                .verifyEmailOtp(email, token)
-                            : await widget.repository
-                                .verifyEmailConfirmation(email, token);
-                        if (!mounted || !dialogContext.mounted) return;
-                        if (result is AssalData<AssalSession>) {
-                          Navigator.of(dialogContext).pop(true);
-                        } else if (result is AssalError<AssalSession>) {
+              actions: [
+                TextButton(
+                  onPressed: dialogLoading || resendSeconds > 0
+                      ? null
+                      : () async {
+                          final email = dialogEmailController.text.trim();
+                          if (!email.contains('@')) {
+                            setDialogState(() =>
+                                dialogError = 'أدخل بريدًا إلكترونيًا صالحًا.');
+                            return;
+                          }
+                          setDialogState(() {
+                            dialogLoading = true;
+                            dialogError = null;
+                            dialogNotice = null;
+                          });
+                          final result = loginMode
+                              ? await widget.repository.requestEmailOtp(email)
+                              : await widget.repository
+                                  .resendEmailConfirmation(email);
+                          if (!mounted || !dialogContext.mounted) return;
                           setDialogState(() {
                             dialogLoading = false;
-                            dialogError = result.messageAr;
+                            if (result is AssalData<void>) {
+                              dialogNotice = loginMode
+                                  ? 'تم إرسال رمز دخول جديد. استخدم أحدث رمز فقط.'
+                                  : 'تم إرسال رمز تحقق جديد. استخدم أحدث رمز فقط.';
+                            } else if (result is AssalError<void>) {
+                              dialogError = result.messageAr;
+                            }
                           });
-                        }
-                      },
-                child: dialogLoading
-                    ? const AssalGlassLoading(
-                        height: 44, label: 'جارٍ التحقق...')
-                    : Text(loginMode ? 'دخول بالرمز' : 'تحقق من الرمز'),
-              ),
-            ],
-          ),
-        ),
+                          if (result is AssalData<void>) {
+                            startCountdown(setDialogState);
+                          }
+                        },
+                  child: const Text('إعادة إرسال الرمز'),
+                ),
+                FilledButton(
+                  onPressed: dialogLoading
+                      ? null
+                      : () async {
+                          final token = otpController.text.trim();
+                          final email = dialogEmailController.text.trim();
+                          if (!email.contains('@')) {
+                            setDialogState(() =>
+                                dialogError = 'أدخل بريدًا إلكترونيًا صالحًا.');
+                            return;
+                          }
+                          if (!RegExp(r'^\\d{6,9}$').hasMatch(token)) {
+                            setDialogState(() => dialogError =
+                                'أدخل رمز التحقق كاملًا (من 6 إلى 9 أرقام).');
+                            return;
+                          }
+                          setDialogState(() {
+                            dialogLoading = true;
+                            dialogError = null;
+                            dialogNotice = null;
+                          });
+                          final result = loginMode
+                              ? await widget.repository
+                                  .verifyEmailOtp(email, token)
+                              : await widget.repository
+                                  .verifyEmailConfirmation(email, token);
+                          if (!mounted || !dialogContext.mounted) return;
+                          if (result is AssalData<AssalSession>) {
+                            emailController.text = email;
+                            resendTimer?.cancel();
+                            Navigator.of(dialogContext).pop(true);
+                          } else if (result is AssalError<AssalSession>) {
+                            setDialogState(() {
+                              dialogLoading = false;
+                              dialogError = result.messageAr;
+                            });
+                          }
+                        },
+                  child: dialogLoading
+                      ? const AssalGlassLoading(
+                          height: 44, label: 'جارٍ التحقق...')
+                      : Text(loginMode ? 'دخول بالرمز' : 'تحقق من الرمز'),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
+    resendTimer?.cancel();
+    dialogEmailController.dispose();
     if (verified == true && mounted) {
       Navigator.pop(context, true);
     }
@@ -972,6 +1052,7 @@ class BecomeMerchantScreen extends StatefulWidget {
 }
 
 class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
+  final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
   final experienceController = TextEditingController();
@@ -979,6 +1060,16 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
   final specialtiesController = TextEditingController();
   final certificateController = TextEditingController();
   bool loading = false;
+  bool draftLoading = true;
+  String? draftUserId;
+  AssalMerchantApplicationSummary? application;
+  String? applicationLoadMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreDraft();
+  }
 
   @override
   void dispose() {
@@ -994,87 +1085,229 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('كن تاجرًا')),
-        body:
-            ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [
-          const AssalImageTile(height: 180, icon: Icons.storefront_outlined),
-          const SizedBox(height: AssalSpacing.xl),
-          Text('حوّل خبرتك إلى متجر موثوق',
-              style: AssalTypography.heading1
-                  .copyWith(color: AssalColors.deepBrown)),
-          const SizedBox(height: AssalSpacing.sm),
-          Text(
-              'قدّم معلومات نشاطك ومصدر منتجاتك. لا يوجد Checkout؛ الطلب ينتقل إلى مراجعة التحقق والتواصل.',
-              style: AssalTypography.bodyLarge
-                  .copyWith(color: AssalColors.textSecondary)),
-          const SizedBox(height: AssalSpacing.xl),
-          TextField(
-              controller: nameController,
-              decoration:
-                  const InputDecoration(labelText: 'اسم النشاط أو المتجر')),
-          const SizedBox(height: AssalSpacing.md),
-          TextField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'رقم التواصل')),
-          const SizedBox(height: AssalSpacing.md),
-          TextField(
-              controller: experienceController,
-              maxLines: 2,
-              decoration:
-                  const InputDecoration(labelText: 'الخبرة في العسل ومصدره')),
-          const SizedBox(height: AssalSpacing.md),
-          TextField(
-              controller: locationController,
-              decoration:
-                  const InputDecoration(labelText: 'المحافظة / الموقع')),
-          const SizedBox(height: AssalSpacing.md),
-          TextField(
-              controller: specialtiesController,
-              decoration:
-                  const InputDecoration(labelText: 'التخصصات والأنواع')),
-          const SizedBox(height: AssalSpacing.md),
-          TextField(
-              controller: certificateController,
-              maxLines: 2,
-              decoration: const InputDecoration(
-                  labelText: 'الشهادات أو معلومات المصدر (اختياري)')),
-          const SizedBox(height: AssalSpacing.xl),
-          SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                  onPressed: loading ? null : _submit,
-                  icon: const Icon(Icons.send_outlined),
-                  label: Text(loading ? 'جارٍ الإرسال…' : 'إرسال طلب التحقق'))),
-        ]),
+        body: Form(
+          key: formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(AssalSpacing.xl),
+            children: [
+              const AssalImageTile(
+                  height: 180, icon: Icons.storefront_outlined),
+              const SizedBox(height: AssalSpacing.xl),
+              Text('حوّل خبرتك إلى متجر موثوق',
+                  style: AssalTypography.heading1
+                      .copyWith(color: AssalColors.deepBrown)),
+              const SizedBox(height: AssalSpacing.sm),
+              Text(
+                  'قدّم معلومات نشاطك ومصدر منتجاتك. لا يوجد Checkout؛ الطلب ينتقل إلى مراجعة التحقق والتواصل.',
+                  style: AssalTypography.bodyLarge
+                      .copyWith(color: AssalColors.textSecondary)),
+              const SizedBox(height: AssalSpacing.md),
+              _VerificationStatusCard(
+                status: application?.status,
+                unavailableMessage: applicationLoadMessage,
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              Container(
+                padding: const EdgeInsets.all(AssalSpacing.md),
+                decoration: BoxDecoration(
+                  color: AssalColors.cream,
+                  borderRadius: BorderRadius.circular(AssalRadius.medium),
+                  border: Border.all(color: AssalColors.border),
+                ),
+                child: Text(
+                  'رفع المستندات غير متاح في هذه المرحلة. يمكنك إضافة معلومات المصدر أو الشهادات في الحقل الاختياري، وسيُفتح الرفع الحقيقي بعد تهيئة التخزين والمراجعة الإدارية.',
+                  style: AssalTypography.caption
+                      .copyWith(color: AssalColors.textSecondary),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Text(
+                draftLoading
+                    ? 'جارٍ استعادة المسودة…'
+                    : 'يمكنك حفظ المسودة أثناء جلسة التطبيق وإكمالها لاحقًا.',
+                style: AssalTypography.caption
+                    .copyWith(color: AssalColors.textSecondary),
+              ),
+              const SizedBox(height: AssalSpacing.xl),
+              TextFormField(
+                  controller: nameController,
+                  textInputAction: TextInputAction.next,
+                  decoration:
+                      const InputDecoration(labelText: 'اسم النشاط أو المتجر'),
+                  validator: (value) => value == null || value.trim().length < 2
+                      ? 'اكتب اسم النشاط أو المتجر (حرفان على الأقل).'
+                      : null),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(labelText: 'رقم التواصل'),
+                  validator: (value) => value == null || value.trim().length < 6
+                      ? 'اكتب رقم تواصل صحيحًا (6 أرقام على الأقل).'
+                      : null),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                  controller: experienceController,
+                  maxLines: 2,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                      labelText: 'الخبرة في العسل ومصدره'),
+                  validator: (value) => value == null || value.trim().length < 4
+                      ? 'اذكر خبرتك ومصدر منتجاتك باختصار.'
+                      : null),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                  controller: locationController,
+                  textInputAction: TextInputAction.next,
+                  decoration:
+                      const InputDecoration(labelText: 'المحافظة / الموقع'),
+                  validator: (value) => value == null || value.trim().length < 2
+                      ? 'اكتب المحافظة أو الموقع.'
+                      : null),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                  controller: specialtiesController,
+                  decoration:
+                      const InputDecoration(labelText: 'التخصصات والأنواع'),
+                  validator: (value) => value == null || value.trim().length < 2
+                      ? 'اكتب تخصصًا واحدًا على الأقل.'
+                      : null),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                  controller: certificateController,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                      labelText: 'الشهادات أو معلومات المصدر (اختياري)')),
+              const SizedBox(height: AssalSpacing.sm),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  onPressed: loading ? null : _saveDraft,
+                  icon: const Icon(Icons.save_outlined),
+                  label: const Text('حفظ المسودة الآن'),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.xl),
+              SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                      onPressed: loading ? null : _submit,
+                      icon: const Icon(Icons.send_outlined),
+                      label: Text(
+                          loading ? 'جارٍ الإرسال…' : 'إرسال طلب التحقق'))),
+            ],
+          ),
+        ),
       );
 
+  AssalMerchantApplicationDraft _draftFromForm() =>
+      AssalMerchantApplicationDraft(
+        displayName: nameController.text.trim(),
+        phone: phoneController.text.trim(),
+        experience: experienceController.text.trim(),
+        location: locationController.text.trim(),
+        specialties: specialtiesController.text.trim(),
+        certificateNote: certificateController.text.trim().isEmpty
+            ? null
+            : certificateController.text.trim(),
+      );
+
+  Future<void> _restoreDraft() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) setState(() => draftLoading = false);
+      return;
+    }
+    draftUserId = session.user!.id;
+    final applicationResult = await widget.repository.loadMerchantApplication(
+      draftUserId!,
+    );
+    if (!mounted) return;
+    if (applicationResult is AssalData<AssalMerchantApplicationSummary?>) {
+      application = applicationResult.value;
+    } else if (applicationResult
+        is AssalError<AssalMerchantApplicationSummary?>) {
+      applicationLoadMessage = applicationResult.messageAr;
+    }
+    final result = await widget.repository.loadMerchantApplicationDraft(
+      draftUserId!,
+    );
+    if (!mounted) return;
+    if (result is AssalData<AssalMerchantApplicationDraft?> &&
+        result.value != null) {
+      final draft = result.value!;
+      nameController.text = draft.displayName;
+      phoneController.text = draft.phone;
+      experienceController.text = draft.experience;
+      locationController.text = draft.location;
+      specialtiesController.text = draft.specialties;
+      certificateController.text = draft.certificateNote ?? '';
+    }
+    setState(() => draftLoading = false);
+  }
+
+  Future<bool> _saveDraft({bool showFeedback = true}) async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('سجّل الدخول أولًا لحفظ مسودة طلب التاجر.'),
+        ));
+      }
+      return false;
+    }
+    draftUserId = session.user!.id;
+    final result = await widget.repository.saveMerchantApplicationDraft(
+      draftUserId!,
+      _draftFromForm(),
+    );
+    if (!mounted) return result is AssalData<void>;
+    if (showFeedback) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(result is AssalData<void>
+            ? 'تم حفظ المسودة ويمكنك إكمالها لاحقًا.'
+            : result is AssalError<void>
+                ? result.messageAr
+                : 'تعذر حفظ المسودة الآن.'),
+      ));
+    }
+    return result is AssalData<void>;
+  }
+
   Future<void> _submit() async {
+    if (!(formKey.currentState?.validate() ?? false)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('راجع الحقول الموضحة قبل إرسال الطلب.'),
+      ));
+      return;
+    }
     final session = await widget.repository.getSession();
     if (!session.isAuthenticated || session.user == null) {
       if (mounted) await openAuth(context, widget.repository);
       return;
     }
     setState(() => loading = true);
+    final draft = _draftFromForm();
     final result = await widget.repository.submitMerchantApplication(
-        session.user!.id,
-        AssalMerchantApplicationDraft(
-            displayName: nameController.text,
-            phone: phoneController.text,
-            experience: experienceController.text,
-            location: locationController.text,
-            specialties: specialtiesController.text,
-            certificateNote: certificateController.text.trim().isEmpty
-                ? null
-                : certificateController.text.trim()));
+      session.user!.id,
+      draft,
+    );
     if (!mounted) return;
     setState(() => loading = false);
     if (result is AssalData<AssalMerchantApplicationSummary>) {
+      setState(() {
+        application = result.value;
+        applicationLoadMessage = null;
+      });
+      await widget.repository.clearMerchantApplicationDraft(session.user!.id);
+      if (!mounted) return;
       await showDialog<void>(
           context: context,
           builder: (dialogContext) => AlertDialog(
                   title: const Text('تم استلام طلبك'),
                   content: Text(
-                      'رقم الطلب: ${result.value.id}\nالحالة: قيد المراجعة'),
+                      'رقم الطلب: ${result.value.id}\nالحالة: ${result.value.status}'),
                   actions: [
                     FilledButton(
                         onPressed: () => Navigator.pop(dialogContext),
@@ -1084,5 +1317,65 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result.messageAr)));
     }
+  }
+}
+
+class _VerificationStatusCard extends StatelessWidget {
+  const _VerificationStatusCard({this.status, this.unavailableMessage});
+
+  final String? status;
+  final String? unavailableMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = switch (status) {
+      'submitted' => 'تم الإرسال',
+      'under_review' => 'قيد المراجعة',
+      'verified' => 'موثق',
+      'rejected' => 'مرفوض — يحتاج إلى تعديل',
+      _ => 'لم يبدأ بعد',
+    };
+    final description = switch (status) {
+      'submitted' => 'استلمنا الطلب وينتظر انتقاله إلى المراجعة.',
+      'under_review' => 'يجري فريق التحقق مراجعة بيانات النشاط والمصدر.',
+      'verified' => 'تم اعتماد النشاط كمتجر موثق.',
+      'rejected' => 'راجع ملاحظات المراجعة ثم أرسل البيانات بعد تعديلها.',
+      _ => 'أكمل البيانات ثم أرسل طلب فتح المتجر للبدء.',
+    };
+    return Container(
+      padding: const EdgeInsets.all(AssalSpacing.md),
+      decoration: BoxDecoration(
+        color: AssalColors.surface,
+        borderRadius: BorderRadius.circular(AssalRadius.medium),
+        border: Border.all(color: AssalColors.border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.verified_outlined, color: AssalColors.honey),
+          const SizedBox(width: AssalSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('حالة التوثيق', style: AssalTypography.caption),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: AssalTypography.heading3
+                      .copyWith(color: AssalColors.deepBrown),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  unavailableMessage ?? description,
+                  style: AssalTypography.caption
+                      .copyWith(color: AssalColors.textSecondary),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -47,6 +47,35 @@ class DemoModePill extends StatelessWidget {
       );
 }
 
+class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const AssalAppBar({
+    super.key,
+    required this.title,
+    this.actions,
+    this.showBrand = true,
+  });
+
+  final String title;
+  final List<Widget>? actions;
+  final bool showBrand;
+
+  @override
+  Widget build(BuildContext context) => AppBar(
+        titleSpacing: showBrand ? AssalSpacing.sm : null,
+        leading: showBrand
+            ? const Padding(
+                padding: EdgeInsets.all(AssalSpacing.sm),
+                child: AssalBrandMark(size: 36, showName: false),
+              )
+            : null,
+        title: Text(title),
+        actions: actions,
+      );
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
 class AssalGlassLoading extends StatefulWidget {
   const AssalGlassLoading(
       {super.key, this.height = 180, this.label = 'جارٍ تجهيز تجربة عسلكم...'});
@@ -70,8 +99,11 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
   }
 
   @override
-  Widget build(BuildContext context) => Center(
-        child: SizedBox(
+  Widget build(BuildContext context) => Semantics(
+        liveRegion: true,
+        label: widget.label,
+        child: Center(
+          child: SizedBox(
           height: widget.height,
           width: double.infinity,
           child: ClipRRect(
@@ -126,28 +158,35 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
                               const Icon(Icons.hive_outlined, size: 34),
                               const SizedBox(height: AssalSpacing.sm),
                               Text(widget.label,
+                                  textAlign: TextAlign.center,
                                   style: AssalTypography.bodySmall),
                               const SizedBox(height: AssalSpacing.md),
-                              Container(
-                                  width: 150,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                      color: AssalColors.cream,
-                                      borderRadius: BorderRadius.circular(
-                                          AssalRadius.pill))),
+                              const _SkeletonBar(width: 150),
                               const SizedBox(height: AssalSpacing.sm),
-                              Container(
-                                  width: 100,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                      color: AssalColors.cream,
-                                      borderRadius: BorderRadius.circular(
-                                          AssalRadius.pill))),
+                              const _SkeletonBar(width: 116),
+                              const SizedBox(height: AssalSpacing.sm),
+                              const _SkeletonBar(width: 82),
                             ]),
                 ),
               ),
             ),
           ),
+          ),
+        ),
+      );
+}
+
+class _SkeletonBar extends StatelessWidget {
+  const _SkeletonBar({required this.width});
+  final double width;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: width,
+        height: 10,
+        decoration: BoxDecoration(
+          color: AssalColors.cream,
+          borderRadius: BorderRadius.circular(AssalRadius.pill),
         ),
       );
 }
@@ -185,18 +224,33 @@ class AssalFutureStateView<T> extends StatelessWidget {
 }
 
 class AssalStateView<T> extends StatelessWidget {
-  const AssalStateView(
-      {super.key, required this.state, required this.builder, this.onRetry});
+  const AssalStateView({
+    super.key,
+    required this.state,
+    required this.builder,
+    this.onRetry,
+    this.emptyMessageAr = 'لا توجد نتائج متاحة الآن. جرّب تغيير الفلاتر أو البحث مرة أخرى.',
+  });
   final AssalLoadState<T> state;
   final Widget Function(T value) builder;
   final VoidCallback? onRetry;
+  final String emptyMessageAr;
 
   @override
   Widget build(BuildContext context) => switch (state) {
         AssalLoading<T>() => const AssalGlassLoading(),
-        AssalData<T>(:final value) => builder(value),
-        AssalEmpty<T>(:final messageAr) =>
-          AssalMessageCard(icon: Icons.inbox_outlined, message: messageAr),
+        AssalData<T>(:final value) => value is Iterable && value.isEmpty
+            ? AssalMessageCard(
+                icon: Icons.inbox_outlined,
+                message: emptyMessageAr,
+                onRetry: onRetry,
+              )
+            : builder(value),
+        AssalEmpty<T>(:final messageAr) => AssalMessageCard(
+            icon: Icons.inbox_outlined,
+            message: messageAr,
+            onRetry: onRetry,
+          ),
         AssalError<T>(:final messageAr, :final code) => AssalMessageCard(
             icon: Icons.error_outline,
             message: '$messageAr${code == null ? '' : '\nرمز: $code'}',
@@ -277,12 +331,30 @@ class AssalImageTile extends StatelessWidget {
       child: Icon(icon, size: height * .38, color: AssalColors.primaryDark));
 }
 
+String formatAssalPrice(double? price, String currencyCode) {
+  if (price == null) return 'السعر عند الطلب';
+  final currency = switch (currencyCode.toUpperCase()) {
+    'YER' => 'ريال يمني',
+    'SAR' => 'ريال سعودي',
+    'USD' => 'دولار أمريكي',
+    _ => currencyCode,
+  };
+  return '${price.toStringAsFixed(0)} $currency';
+}
+
 class ProductCard extends StatelessWidget {
   const ProductCard(
-      {super.key, required this.product, required this.onTap, this.onFavorite});
+      {
+        super.key,
+        required this.product,
+        required this.onTap,
+        this.onFavorite,
+        this.showVerifiedBadge = false,
+      });
   final AssalProductSummary product;
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
+  final bool showVerifiedBadge;
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
@@ -303,6 +375,31 @@ class ProductCard extends StatelessWidget {
                           onPressed: onFavorite,
                           icon: const Icon(Icons.bookmark_border),
                           tooltip: 'حفظ المنتج')),
+                if (showVerifiedBadge)
+                  Positioned(
+                    top: AssalSpacing.sm,
+                    right: AssalSpacing.sm,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AssalColors.success,
+                        borderRadius: BorderRadius.circular(AssalRadius.pill),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AssalSpacing.sm,
+                          vertical: AssalSpacing.xs,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.verified, size: 14, color: AssalColors.cream),
+                            SizedBox(width: AssalSpacing.xs),
+                            Text('موثق', style: TextStyle(color: AssalColors.cream)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
               ]),
               Padding(
                 padding: const EdgeInsets.all(AssalSpacing.md),
@@ -324,12 +421,11 @@ class ProductCard extends StatelessWidget {
                           style: AssalTypography.bodySmall
                               .copyWith(color: AssalColors.textSecondary)),
                       const SizedBox(height: AssalSpacing.xs),
-                      if (product.price != null)
-                        Text(
-                            '${product.price!.toStringAsFixed(0)} ${product.currencyCode}',
-                            style: AssalTypography.bodySmall.copyWith(
-                                color: AssalColors.primaryDark,
-                                fontWeight: FontWeight.w700)),
+                      Text(
+                          formatAssalPrice(product.price, product.currencyCode),
+                          style: AssalTypography.bodySmall.copyWith(
+                              color: AssalColors.primaryDark,
+                              fontWeight: FontWeight.w700)),
                       const SizedBox(height: AssalSpacing.xs),
                       Row(children: [
                         RatingStars(rating: product.ratingAverage),

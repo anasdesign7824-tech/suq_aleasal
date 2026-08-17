@@ -99,6 +99,34 @@ class AssalBannerSummary {
       );
 }
 
+class AssalCategorySummary {
+  const AssalCategorySummary({
+    required this.id,
+    required this.nameAr,
+    this.nameEn,
+    this.description,
+    this.productType = ProductType.honey,
+    this.productCount = 0,
+  });
+
+  final String id;
+  final String nameAr;
+  final String? nameEn;
+  final String? description;
+  final ProductType productType;
+  final int productCount;
+
+  factory AssalCategorySummary.fromJson(Map<String, Object?> json) =>
+      AssalCategorySummary(
+        id: _string(json['id']),
+        nameAr: _string(json['name_ar']),
+        nameEn: _stringOrNull(json['name_en']),
+        description: _stringOrNull(json['description']),
+        productType: _productType(_string(json['category_kind'], fallback: 'honey')),
+        productCount: _int(json['product_count']),
+      );
+}
+
 class AssalStoreSummary {
   const AssalStoreSummary({
     required this.id,
@@ -203,7 +231,10 @@ class AssalProductSummary {
     this.subcategoryNameAr,
     this.regionNameAr,
     this.gradeLevel,
+    this.gradeLevels = const <int>[],
     this.gradeLabelAr,
+    this.gradeLabels = const <String>[],
+    this.components = const <String>[],
     this.isFeatured = false,
     this.primaryImageUrl,
     this.imageUrls = const <String>[],
@@ -248,7 +279,10 @@ class AssalProductSummary {
   final String? subcategoryNameAr;
   final String? regionNameAr;
   final int? gradeLevel;
+  final List<int> gradeLevels;
   final String? gradeLabelAr;
+  final List<String> gradeLabels;
+  final List<String> components;
   final bool isFeatured;
   final String? primaryImageUrl;
   final List<String> imageUrls;
@@ -295,7 +329,10 @@ class AssalProductSummary {
       subcategoryNameAr: _stringOrNull(json['subcategory_name_ar']),
       regionNameAr: _stringOrNull(json['region_name_ar']),
       gradeLevel: _intOrNull(json['grade_level']) ?? (levels.isEmpty ? null : levels.first),
+      gradeLevels: levels,
       gradeLabelAr: _stringOrNull(json['grade_label_ar']),
+      gradeLabels: _valueStrings(json['grades'] ?? json['grade_labels']),
+      components: _strings(json['components']),
       isFeatured: json['is_featured'] as bool? ?? false,
       primaryImageUrl: _stringOrNull(json['primary_image_url']),
       imageUrls: _strings(json['image_urls'] ?? json['images']),
@@ -596,6 +633,7 @@ int? _intOrNull(Object? value) => value == null ? null : _int(value);
 double _number(Object? value) => value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
 double? _numberOrNull(Object? value) => value is num ? value.toDouble() : double.tryParse('$value');
 List<String> _strings(Object? value) => value is List ? value.whereType<String>().toList(growable: false) : const <String>[];
+List<String> _valueStrings(Object? value) => value is List ? value.map((item) => '$item').toList(growable: false) : const <String>[];
 List<int> _ints(Object? value) => value is List ? value.whereType<num>().map((item) => item.toInt()).toList(growable: false) : const <int>[];
 Map<String, Object?> _map(Object? value) => value is Map ? value.cast<String, Object?>() : const <String, Object?>{};
 Map<String, String> _stringMap(Object? value) => value is Map ? value.map((key, item) => MapEntry('$key', '$item')) : const <String, String>{};

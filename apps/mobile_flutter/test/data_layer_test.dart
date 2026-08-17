@@ -64,6 +64,54 @@ void main() {
     expect(conversations, isA<AssalData<List<AssalConversationSummary>>>());
   });
 
+  test('DemoRepository saves, restores, and clears merchant drafts', () async {
+    final repository =
+        DemoRepository(loader: const InMemoryDemoCatalogLoader(catalog));
+    const draft = AssalMerchantApplicationDraft(
+      displayName: 'مناحل تجريبية',
+      phone: '777123456',
+      experience: 'خبرة في فرز العسل وتعبئته.',
+      location: 'حضرموت',
+      specialties: 'سدر، سمرة',
+    );
+
+    await repository.signIn('demo@assalkom.app', 'demo123');
+    final saved =
+        await repository.saveMerchantApplicationDraft('demo-customer', draft);
+    expect(saved, isA<AssalData<void>>());
+    final restored =
+        await repository.loadMerchantApplicationDraft('demo-customer');
+    expect(restored, isA<AssalData<AssalMerchantApplicationDraft?>>());
+    expect(
+      (restored as AssalData<AssalMerchantApplicationDraft?>)
+          .value
+          ?.displayName,
+      'مناحل تجريبية',
+    );
+
+    final submitted =
+        await repository.submitMerchantApplication('demo-customer', draft);
+    expect(submitted, isA<AssalData<AssalMerchantApplicationSummary>>());
+    final afterSubmit =
+        await repository.loadMerchantApplicationDraft('demo-customer');
+    expect((afterSubmit as AssalData<AssalMerchantApplicationDraft?>).value,
+        isNull);
+  });
+
+  test('DemoRepository buffers product view events without production metrics',
+      () async {
+    final repository =
+        DemoRepository(loader: const InMemoryDemoCatalogLoader(catalog));
+    final first = await repository.trackProductView('p1');
+    final second = await repository.trackProductView('p1');
+    final invalid = await repository.trackProductView('');
+
+    expect(first, isA<AssalData<void>>());
+    expect(second, isA<AssalData<void>>());
+    expect(repository.localProductViewCount('p1'), 2);
+    expect(invalid, isA<AssalError<void>>());
+  });
+
   test('DemoRepository supports passwordless email OTP', () async {
     final repository =
         DemoRepository(loader: const InMemoryDemoCatalogLoader(catalog));

@@ -194,6 +194,22 @@ class ProductionRepository implements AssalRepository {
   );
 
   @override
+  Future<AssalLoadState<List<AssalCategorySummary>>> listCategories() =>
+      _readList(
+        resource: 'categories',
+        emptyMessage: 'لا توجد أقسام منشورة بعد',
+        read: () async {
+          final rows = await _gateway.select(
+            'categories',
+            filters: const {'is_active': true},
+          );
+          return rows
+              .map(AssalCategorySummary.fromJson)
+              .toList(growable: false);
+        },
+      );
+
+  @override
   Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() => _readList(
     resource: 'banners',
     emptyMessage: 'لا توجد حملات استكشاف منشورة بعد',
@@ -585,6 +601,12 @@ class ProductionRepository implements AssalRepository {
     code: 'production_write_not_configured',
   );
   @override
+  Future<AssalLoadState<void>> trackProductView(String productId) async =>
+      const AssalError(
+        'تتبع المشاهدات الإنتاجي يحتاج إلى تهيئة Analytics Gateway.',
+        code: 'production_analytics_not_configured',
+      );
+  @override
   Future<AssalLoadState<AssalSession>> signIn(String email, String password) =>
       _authOperation((auth) async => auth.signInWithPassword(email, password));
 
@@ -762,7 +784,33 @@ class ProductionRepository implements AssalRepository {
     'طلب التحول إلى تاجر يحتاج تهيئة مصدر الإنتاج والمراجعة الإدارية.',
     code: 'production_merchant_application_not_configured',
   );
-
+  @override
+  Future<AssalLoadState<AssalMerchantApplicationSummary?>>
+  loadMerchantApplication(String userId) async => const AssalError(
+    'قراءة حالة طلب التاجر تحتاج تهيئة مصدر الإنتاج.',
+    code: 'production_merchant_application_not_configured',
+  );
+  @override
+  Future<AssalLoadState<AssalMerchantApplicationDraft?>>
+  loadMerchantApplicationDraft(String userId) async => const AssalError(
+    'حفظ مسودة طلب التاجر يحتاج تهيئة مصدر الإنتاج.',
+    code: 'production_merchant_draft_not_configured',
+  );
+  @override
+  Future<AssalLoadState<void>> saveMerchantApplicationDraft(
+    String userId,
+    AssalMerchantApplicationDraft draft,
+  ) async => const AssalError(
+    'حفظ مسودة طلب التاجر يحتاج تهيئة مصدر الإنتاج.',
+    code: 'production_merchant_draft_not_configured',
+  );
+  @override
+  Future<AssalLoadState<void>> clearMerchantApplicationDraft(
+    String userId,
+  ) async => const AssalError(
+    'حذف مسودة طلب التاجر يحتاج تهيئة مصدر الإنتاج.',
+    code: 'production_merchant_draft_not_configured',
+  );
   @override
   Future<AssalLoadState<void>> signOut() async {
     final auth = _authGateway;

@@ -4,6 +4,14 @@ import 'package:assalkom_contracts/assal_domain.dart';
 
 import 'assal_repository.dart';
 
+ProductType _demoProductType(Object? value) => switch (value) {
+  'wax' => ProductType.wax,
+  'mix' => ProductType.mix,
+  'raw' => ProductType.raw,
+  'gift' => ProductType.gift,
+  _ => ProductType.honey,
+};
+
 class InMemoryDemoCatalogLoader implements DemoCatalogLoader {
   const InMemoryDemoCatalogLoader(this.catalogJson);
   final String catalogJson;
@@ -20,6 +28,7 @@ class DemoRepository implements AssalRepository {
   final Set<String> _followedStores = <String>{};
   final Set<String> _favorites = <String>{};
   final Set<String> _likes = <String>{};
+  final List<String> _localProductViewEvents = <String>[];
   final Set<String> _readNotificationIds = <String>{};
   final List<AssalReviewSummary> _localReviews = <AssalReviewSummary>[];
   final List<AssalCommentSummary> _localComments = <AssalCommentSummary>[];
@@ -30,6 +39,8 @@ class DemoRepository implements AssalRepository {
       <AssalConversationSummary>[];
   final List<AssalMessageSummary> _localMessages = <AssalMessageSummary>[];
   AssalMerchantApplicationSummary? _merchantApplication;
+  final Map<String, AssalMerchantApplicationDraft> _merchantDrafts =
+      <String, AssalMerchantApplicationDraft>{};
   String? _demoOtpEmail;
 
   @override
@@ -92,6 +103,38 @@ class DemoRepository implements AssalRepository {
       );
     }
     return _listState(values, 'لا توجد تصنيفات متاحة حاليًا');
+  }
+
+  @override
+  Future<AssalLoadState<List<AssalCategorySummary>>> listCategories() async {
+    final products = _list(await _readCatalog(), 'products');
+    final byId = <String, AssalCategorySummary>{};
+    final counts = <String, int>{};
+    for (final product in products) {
+      final id = product['category_id'] as String?;
+      final name = product['category_name_ar'] as String?;
+      if (id == null || name == null) continue;
+      counts[id] = (counts[id] ?? 0) + 1;
+      byId[id] ??= AssalCategorySummary(
+        id: id,
+        nameAr: name,
+        description: 'قسم مرجعي من Honey Master Database',
+        productType: _demoProductType(product['product_type']),
+      );
+    }
+    final values = byId.entries
+        .map(
+          (entry) => AssalCategorySummary(
+            id: entry.value.id,
+            nameAr: entry.value.nameAr,
+            nameEn: entry.value.nameEn,
+            description: entry.value.description,
+            productType: entry.value.productType,
+            productCount: counts[entry.key] ?? 0,
+          ),
+        )
+        .toList(growable: false);
+    return _listState(values, 'لا توجد أقسام متاحة حاليًا');
   }
 
   Future<Map<String, String>> _regionNames() async {
@@ -656,6 +699,21 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<void>> trackProductView(String productId) async {
+    if (productId.trim().isEmpty) {
+      return const AssalError(
+        'معرّف المنتج غير صالح لتسجيل المشاهدة.',
+        code: 'invalid_product_view_target',
+      );
+    }
+    _localProductViewEvents.add(productId);
+    return const AssalData(null);
+  }
+
+  int localProductViewCount(String productId) =>
+      _localProductViewEvents.where((item) => item == productId).length;
+
+  @override
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
   submitMerchantApplication(
     String userId,
@@ -688,7 +746,34 @@ class DemoRepository implements AssalRepository {
         payload: {'application_id': _merchantApplication!.id},
       ),
     );
+    _merchantDrafts.remove(userId);
     return AssalData(_merchantApplication!);
+  }
+
+  @override
+  Future<AssalLoadState<AssalMerchantApplicationSummary?>>
+  loadMerchantApplication(String userId) async => AssalData(
+    _merchantApplication?.userId == userId ? _merchantApplication : null,
+  );
+  @override
+  Future<AssalLoadState<AssalMerchantApplicationDraft?>>
+  loadMerchantApplicationDraft(String userId) async =>
+      AssalData(_merchantDrafts[userId]);
+  @override
+  Future<AssalLoadState<void>> saveMerchantApplicationDraft(
+    String userId,
+    AssalMerchantApplicationDraft draft,
+  ) async {
+    _merchantDrafts[userId] = draft;
+    return const AssalData(null);
+  }
+
+  @override
+  Future<AssalLoadState<void>> clearMerchantApplicationDraft(
+    String userId,
+  ) async {
+    _merchantDrafts.remove(userId);
+    return const AssalData(null);
   }
 
   @override

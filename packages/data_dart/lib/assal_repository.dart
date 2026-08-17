@@ -104,6 +104,7 @@ abstract interface class AssalRepository {
   Future<AssalSession> getSession();
   Future<AssalLoadState<List<AssalRegion>>> listRegions();
   Future<AssalLoadState<List<AssalTaxonomy>>> listTaxonomy();
+  Future<AssalLoadState<List<AssalCategorySummary>>> listCategories();
   Future<AssalLoadState<List<AssalBannerSummary>>> listBanners();
   Future<AssalLoadState<List<String>>> listPopularSearches();
   Future<AssalLoadState<List<AssalStoreSummary>>> listStores({
@@ -166,6 +167,7 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<bool>> toggleFollow(String userId, String storeId);
   Future<AssalLoadState<bool>> toggleFavorite(String userId, String targetId);
   Future<AssalLoadState<bool>> toggleLike(String userId, String targetId);
+  Future<AssalLoadState<void>> trackProductView(String productId);
   Future<AssalLoadState<AssalSession>> signIn(String email, String password);
   Future<AssalLoadState<void>> requestEmailOtp(String email);
   Future<AssalLoadState<AssalSession>> verifyEmailOtp(
@@ -188,6 +190,15 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<void>> deleteAccount();
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
   submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft);
+  Future<AssalLoadState<AssalMerchantApplicationSummary?>>
+  loadMerchantApplication(String userId);
+  Future<AssalLoadState<AssalMerchantApplicationDraft?>>
+  loadMerchantApplicationDraft(String userId);
+  Future<AssalLoadState<void>> saveMerchantApplicationDraft(
+    String userId,
+    AssalMerchantApplicationDraft draft,
+  );
+  Future<AssalLoadState<void>> clearMerchantApplicationDraft(String userId);
   Future<AssalLoadState<void>> signOut();
 }
 
