@@ -227,107 +227,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     repository: widget.repository,
                     notificationsFuture: notificationsFuture,
                     onOpenNotifications: widget.onOpenNotifications,
+                    searchController: searchController,
+                    onOpenSearch: widget.onOpenSearch,
                   ),
                 ),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AssalSpacing.lg,
-                  AssalSpacing.lg,
-                  AssalSpacing.lg,
-                  AssalSpacing.md,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: Padding(
-                      padding: const EdgeInsets.all(AssalSpacing.lg),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: AssalColors.honeyLight
-                                      .withValues(alpha: .45),
-                                  borderRadius:
-                                      BorderRadius.circular(AssalRadius.large),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(AssalSpacing.md),
-                                  child: Icon(Icons.hive_outlined,
-                                      color: AssalColors.primaryDark, size: 30),
-                                ),
-                              ),
-                              const SizedBox(width: AssalSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'اكتشف العسل من مصدره',
-                                      style: AssalTypography.heading1.copyWith(
-                                          color: AssalColors.deepBrown),
-                                    ),
-                                    const SizedBox(height: AssalSpacing.xs),
-                                    Text(
-                                      'تصفح المتاجر والمنتجات اليمنية الموثوقة، ثم تواصل مع التاجر بالطريقة المناسبة لك.',
-                                      style: AssalTypography.bodyLarge.copyWith(
-                                          color: AssalColors.textSecondary),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AssalSpacing.lg),
-                          TextField(
-                            controller: searchController,
-                            readOnly: true,
-                            onTap: widget.onOpenSearch,
-                            decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.search),
-                              hintText: 'ابحث عن سدر، سمر، شمع أو هدية',
-                              suffixIcon: Icon(Icons.tune_rounded),
-                            ),
-                          ),
-                          const SizedBox(height: AssalSpacing.md),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.icon(
-                              onPressed: _openStores,
-                              icon: const Icon(Icons.storefront_outlined),
-                              label: const Text('استكشف المتاجر'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SliverPadding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
-                sliver: SliverToBoxAdapter(
-                  child:
-                      FutureBuilder<AssalLoadState<List<AssalBannerSummary>>>(
-                    future: bannersFuture,
-                    builder: (context, snapshot) {
-                      final state = snapshot.data;
-                      if (state is AssalData<List<AssalBannerSummary>>) {
-                        return _NewsTicker(
-                          items: state.value,
-                          onTap: widget.onOpenSearch,
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ),
-              ),
+              const SliverToBoxAdapter(child: SizedBox(height: AssalSpacing.sm)),
               SliverPadding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
@@ -343,13 +248,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                       'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.',
                                   onRetry: _refresh);
                             if (!snapshot.hasData)
-                              return const AssalGlassLoading(height: 210);
+                              return const AssalGlassLoading(height: 76);
                             return AssalStateView<List<AssalBannerSummary>>(
                                 state: snapshot.data!,
                                 onRetry: _refresh,
                                 builder: (banners) => _BannersCarousel(
                                     banners: banners,
-                                    onExplore: widget.onOpenSearch));
+                                    onExplore: widget.onOpenSearch,
+                                    onRetry: _refresh,
+                                    useFallbackDemo: widget.repository.mode ==
+                                        AssalDataSourceMode.demo));
                           }))),
               SliverPadding(
                   padding: const EdgeInsets.fromLTRB(AssalSpacing.lg,
@@ -679,25 +587,28 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
 
   @override
-  double get minExtent => 64;
+  double get minExtent => 156;
 
   @override
-  double get maxExtent => 64;
+  double get maxExtent => 156;
 
   @override
   Widget build(
           BuildContext context, double shrinkOffset, bool overlapsContent) =>
-      Material(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        elevation: overlapsContent ? 2 : 0,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AssalSpacing.lg,
-            AssalSpacing.sm,
-            AssalSpacing.lg,
-            AssalSpacing.sm,
+      DecoratedBox(
+        decoration: const BoxDecoration(gradient: assalDarkGradient),
+        child: Material(
+          color: Colors.transparent,
+          elevation: overlapsContent ? 4 : 0,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.xs,
+              AssalSpacing.lg,
+              AssalSpacing.sm,
+            ),
+            child: child,
           ),
-          child: child,
         ),
       );
 
@@ -706,62 +617,219 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
 }
 
 class _Header extends StatelessWidget {
-  const _Header(
-      {required this.repository,
-      required this.notificationsFuture,
-      required this.onOpenNotifications});
+  const _Header({
+    required this.repository,
+    required this.notificationsFuture,
+    required this.onOpenNotifications,
+    required this.searchController,
+    required this.onOpenSearch,
+  });
   final AssalRepository repository;
   final Future<AssalLoadState<List<AssalNotificationSummary>>>
       notificationsFuture;
   final VoidCallback onOpenNotifications;
+  final TextEditingController searchController;
+  final VoidCallback onOpenSearch;
 
   @override
-  Widget build(BuildContext context) =>
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        const AssalBrandMark(showName: false),
-        Row(children: [
-          IconButton(
-              onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen())),
-              icon: const Icon(Icons.settings_outlined),
-              tooltip: 'الإعدادات'),
-          FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(
-              future: notificationsFuture,
-              builder: (context, snapshot) {
-                final state = snapshot.data;
-                final unread = state
-                        is AssalData<List<AssalNotificationSummary>>
-                    ? state.value.where((item) => item.readAt == null).length
-                    : 0;
-                return Stack(clipBehavior: Clip.none, children: [
-                  IconButton(
-                      onPressed: onOpenNotifications,
-                      icon: const Icon(Icons.notifications_none_rounded),
-                      tooltip: 'الإشعارات'),
-                  if (unread > 0)
-                    Positioned(
-                        top: 5,
-                        right: 5,
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 4, vertical: 1),
-                            decoration: BoxDecoration(
-                                color: AssalColors.error,
-                                borderRadius:
-                                    BorderRadius.circular(AssalRadius.pill)),
-                            child: Text('$unread',
-                                style: AssalTypography.caption
-                                    .copyWith(color: AssalColors.cream))))
-                ]);
-              })
-        ])
-      ]);
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 38,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const AssalBrandMark(
+                  size: 30,
+                  showName: true,
+                  framed: true,
+                  nameColor: Colors.white,
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const SettingsScreen()),
+                      ),
+                      icon: const Icon(Icons.settings_outlined,
+                          color: Colors.white),
+                      tooltip: 'الإعدادات',
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    FutureBuilder<
+                        AssalLoadState<List<AssalNotificationSummary>>>(
+                      future: notificationsFuture,
+                      builder: (context, snapshot) {
+                        final state = snapshot.data;
+                        final unread = state
+                                is AssalData<
+                                    List<AssalNotificationSummary>>
+                            ? state.value
+                                .where((item) => item.readAt == null)
+                                .length
+                            : 0;
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            IconButton(
+                              onPressed: onOpenNotifications,
+                              icon: const Icon(
+                                  Icons.notifications_none_rounded,
+                                  color: Colors.white),
+                              tooltip: 'الإشعارات',
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            if (unread > 0)
+                              Positioned(
+                                top: 1,
+                                right: 1,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: AssalColors.error,
+                                    borderRadius: BorderRadius.circular(
+                                        AssalRadius.pill),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4, vertical: 1),
+                                    child: Text(
+                                      '$unread',
+                                      style: AssalTypography.caption.copyWith(
+                                          color: AssalColors.cream),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.xs),
+          const _HomeIntroTicker(),
+          const SizedBox(height: AssalSpacing.xs),
+          SizedBox(
+            height: 48,
+            child: TextField(
+              controller: searchController,
+              readOnly: true,
+              onTap: onOpenSearch,
+              style: AssalTypography.body.copyWith(
+                color: AssalColors.deepBrown,
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: AssalColors.cream,
+                prefixIcon: const Icon(Icons.search,
+                    color: AssalColors.deepBrown),
+                suffixIcon: const Icon(Icons.tune_rounded,
+                    color: AssalColors.deepBrown),
+                hintText: 'ابحث عن سدر، سمر، شمع أو هدية',
+                hintStyle: AssalTypography.bodySmall.copyWith(
+                  color: AssalColors.textMuted,
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: AssalSpacing.md),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AssalRadius.medium),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+}
+
+class _HomeIntroTicker extends StatefulWidget {
+  const _HomeIntroTicker();
+
+  @override
+  State<_HomeIntroTicker> createState() => _HomeIntroTickerState();
+}
+
+class _HomeIntroTickerState extends State<_HomeIntroTicker>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 9),
+  )..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: 30,
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: .12),
+          borderRadius: BorderRadius.circular(AssalRadius.medium),
+          border: Border.all(color: Colors.white.withValues(alpha: .28)),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final style = AssalTypography.caption.copyWith(
+              color: AssalColors.cream,
+              fontWeight: FontWeight.w600,
+            );
+            final painter = TextPainter(
+              text: TextSpan(
+                text:
+                    'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بالطريقة المناسبة لك',
+                style: style,
+              ),
+              textDirection: TextDirection.rtl,
+            )..layout();
+            final overflow = (painter.width - constraints.maxWidth).clamp(
+              0.0,
+              double.infinity,
+            );
+            return AnimatedBuilder(
+              animation: controller,
+              builder: (context, child) => Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Transform.translate(
+                  offset: Offset(-overflow * controller.value, 0),
+                  child: child,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AssalSpacing.md),
+                child: Text(
+                  'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بالطريقة المناسبة لك',
+                  maxLines: 1,
+                  softWrap: false,
+                  style: style,
+                ),
+              ),
+            );
+          },
+        ),
+      );
 }
 
 class _BannersCarousel extends StatefulWidget {
-  const _BannersCarousel({required this.banners, required this.onExplore});
+  const _BannersCarousel({
+    required this.banners,
+    required this.onExplore,
+    required this.onRetry,
+    required this.useFallbackDemo,
+  });
   final List<AssalBannerSummary> banners;
   final VoidCallback onExplore;
+  final VoidCallback onRetry;
+  final bool useFallbackDemo;
 
   @override
   State<_BannersCarousel> createState() => _BannersCarouselState();
@@ -772,14 +840,19 @@ class _BannersCarouselState extends State<_BannersCarousel> {
   Timer? timer;
   int currentIndex = 0;
 
+  List<AssalBannerSummary> get visibleBanners => widget.banners
+      .where((item) => item.imageUrl.trim().startsWith('http') ||
+          item.imageUrl.trim().startsWith('assets/'))
+      .toList(growable: false);
+
   @override
   void initState() {
     super.initState();
     controller = PageController();
-    if (widget.banners.length > 1) {
+    if (visibleBanners.length > 1) {
       timer = Timer.periodic(const Duration(seconds: 5), (_) {
         if (!mounted || !controller.hasClients) return;
-        final next = (currentIndex + 1) % widget.banners.length;
+        final next = (currentIndex + 1) % visibleBanners.length;
         controller.animateToPage(next,
             duration: const Duration(milliseconds: 400),
             curve: Curves.easeOutCubic);
@@ -796,23 +869,29 @@ class _BannersCarouselState extends State<_BannersCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.banners.isEmpty) return _HeroBanner(onExplore: widget.onExplore);
+    final banners = visibleBanners;
+    if (banners.isEmpty) {
+      if (widget.useFallbackDemo) {
+        return _HeroBanner(onExplore: widget.onExplore);
+      }
+      return const SizedBox.shrink();
+    }
     return Column(children: [
       SizedBox(
         height: 210,
         child: PageView.builder(
           controller: controller,
-          itemCount: widget.banners.length,
+          itemCount: banners.length,
           onPageChanged: (index) => setState(() => currentIndex = index),
           itemBuilder: (_, index) => _BannerCard(
-              item: widget.banners[index], onExplore: widget.onExplore),
+              item: banners[index], onExplore: widget.onExplore),
         ),
       ),
       const SizedBox(height: AssalSpacing.sm),
       Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
-              widget.banners.length,
+              banners.length,
               (index) => AnimatedContainer(
                   duration: const Duration(milliseconds: 220),
                   width: index == currentIndex ? 22 : 8,
@@ -833,37 +912,81 @@ class _BannerCard extends StatelessWidget {
   final VoidCallback onExplore;
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(AssalSpacing.xl),
-        decoration: BoxDecoration(
-            gradient: const LinearGradient(
-                colors: [AssalColors.deepBrown, AssalColors.secondary]),
-            borderRadius: BorderRadius.circular(AssalRadius.extraLarge)),
-        child: Row(children: [
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                Text(item.titleAr,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AssalTypography.heading2
-                        .copyWith(color: AssalColors.cream)),
-                const SizedBox(height: AssalSpacing.sm),
-                Text(item.descriptionAr,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AssalTypography.body
-                        .copyWith(color: AssalColors.cream)),
-                const SizedBox(height: AssalSpacing.md),
-                FilledButton.tonal(
-                    onPressed: onExplore, child: Text(item.ctaLabelAr)),
-              ])),
-          const SizedBox(width: AssalSpacing.md),
-          const Icon(Icons.local_florist_rounded,
-              size: 68, color: AssalColors.primaryLight),
-        ]),
+  Widget build(BuildContext context) {
+    final source = item.imageUrl.trim();
+    final image = source.startsWith('assets/')
+        ? Image.asset(
+            source,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const _BannerImageFallback(),
+          )
+        : Image.network(
+            source,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, progress) => progress == null
+                ? child
+                : const AssalGlassLoading(height: 72, label: 'جارٍ تحميل الصورة...'),
+            errorBuilder: (_, __, ___) => const _BannerImageFallback(),
+          );
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onExplore,
+        child: SizedBox(
+          height: 210,
+          width: double.infinity,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              image,
+              if (item.titleAr.trim().isNotEmpty)
+                Positioned(
+                  left: AssalSpacing.md,
+                  right: AssalSpacing.md,
+                  bottom: AssalSpacing.md,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AssalColors.deepBrown.withValues(alpha: .72),
+                      borderRadius:
+                          BorderRadius.circular(AssalRadius.medium),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AssalSpacing.md,
+                          vertical: AssalSpacing.xs),
+                      child: Text(
+                        item.titleAr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: AssalTypography.bodySmall.copyWith(
+                          color: AssalColors.cream,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BannerImageFallback extends StatelessWidget {
+  const _BannerImageFallback();
+
+  @override
+  Widget build(BuildContext context) => const ColoredBox(
+        color: AssalColors.cream,
+        child: Center(
+          child: Icon(Icons.image_not_supported_outlined,
+              color: AssalColors.textMuted, size: 38),
+        ),
       );
 }
 
@@ -1004,7 +1127,7 @@ class CategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('التصنيفات')),
+      appBar: const AssalAppBar(title: 'التصنيفات'),
       body: FutureBuilder<AssalLoadState<List<AssalCategorySummary>>>(
         future: repository.listCategories(),
         builder: (context, snapshot) {

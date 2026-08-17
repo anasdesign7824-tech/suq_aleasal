@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/demo_repository.dart';
 import '../core/demo_loader.dart';
+import '../core/assal_widgets.dart';
 import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
 
@@ -19,9 +21,17 @@ class AssalApp extends StatelessWidget {
         locale: const Locale('ar'),
         supportedLocales: const [Locale('ar')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        builder: (context, child) => Directionality(
-            textDirection: TextDirection.rtl,
-            child: child ?? const SizedBox.shrink()),
+        builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+            value: const SystemUiOverlayStyle(
+              statusBarColor: AssalColors.deepBrown,
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.dark,
+              systemNavigationBarColor: AssalColors.deepBrown,
+              systemNavigationBarIconBrightness: Brightness.light,
+            ),
+            child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: child ?? const SizedBox.shrink())),
         home: startupError == null
             ? AssalHomeShell(repository: repository)
             : AssalStartupErrorScreen(messageAr: startupError!),
@@ -34,7 +44,7 @@ class AssalStartupErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('تعذر تشغيل عسلكم')),
+        appBar: const AssalAppBar(title: 'تعذر تشغيل عسلكم', showBrand: false),
         body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),

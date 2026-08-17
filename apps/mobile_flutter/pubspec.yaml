@@ -31,6 +31,7 @@ flutter:
     - assets/demo_catalog.json
     - assets/yemen_governorates_districts.json
     - assets/logo-internal-runtime.svg
+    - assets/logo-external-runtime.svg
   fonts:
     - family: IBM Plex Sans Arabic
       fonts:

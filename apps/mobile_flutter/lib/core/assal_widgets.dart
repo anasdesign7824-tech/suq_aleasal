@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter_svg/flutter_svg.dart';
@@ -83,16 +84,26 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.actions,
     this.showBrand = true,
+      this.bottom,
   });
 
   final String title;
   final List<Widget>? actions;
   final bool showBrand;
 
-  @override
+    final PreferredSizeWidget? bottom;
+@override
   Widget build(BuildContext context) {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     return AppBar(
+      bottom: bottom,
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        statusBarColor: AssalColors.deepBrown,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: AssalColors.deepBrown,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
       titleSpacing: AssalSpacing.sm,
       leading: canPop
           ? IconButton(
