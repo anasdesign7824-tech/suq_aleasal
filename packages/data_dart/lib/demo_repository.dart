@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:assalkom_contracts/assal_domain.dart';
+
 import 'assal_repository.dart';
 
 class InMemoryDemoCatalogLoader implements DemoCatalogLoader {
@@ -29,6 +30,7 @@ class DemoRepository implements AssalRepository {
       <AssalConversationSummary>[];
   final List<AssalMessageSummary> _localMessages = <AssalMessageSummary>[];
   AssalMerchantApplicationSummary? _merchantApplication;
+  String? _demoOtpEmail;
 
   @override
   AssalDataSourceMode get mode => AssalDataSourceMode.demo;
@@ -52,17 +54,18 @@ class DemoRepository implements AssalRepository {
 
   AssalLoadState<List<T>> _listState<T>(List<T> values, String emptyMessage) =>
       values.isEmpty
-          ? AssalEmpty<List<T>>(emptyMessage)
-          : AssalData<List<T>>(values);
+      ? AssalEmpty<List<T>>(emptyMessage)
+      : AssalData<List<T>>(values);
 
   @override
   Future<AssalSession> getSession() async => _session;
 
   @override
   Future<AssalLoadState<List<AssalRegion>>> listRegions() async {
-    final values = _list(await _readCatalog(), 'regions')
-        .map(AssalRegion.fromJson)
-        .toList(growable: false);
+    final values = _list(
+      await _readCatalog(),
+      'regions',
+    ).map(AssalRegion.fromJson).toList(growable: false);
     return _listState(values, 'لا توجد مناطق متاحة حاليًا');
   }
 
@@ -72,16 +75,21 @@ class DemoRepository implements AssalRepository {
     final seen = <String>{};
     final values = <AssalTaxonomy>[];
     for (final product in products) {
-      final id = product['subcategory_id'] as String? ??
+      final id =
+          product['subcategory_id'] as String? ??
           product['category_id'] as String?;
-      final name = product['subcategory_name_ar'] as String? ??
+      final name =
+          product['subcategory_name_ar'] as String? ??
           product['category_name_ar'] as String?;
       if (id == null || name == null || !seen.add(id)) continue;
-      values.add(AssalTaxonomy(
+      values.add(
+        AssalTaxonomy(
           id: id,
           code: id,
           nameAr: name,
-          description: 'تصنيف لاكتشاف منتجات العسل اليمني'));
+          description: 'تصنيف لاكتشاف منتجات العسل اليمني',
+        ),
+      );
     }
     return _listState(values, 'لا توجد تصنيفات متاحة حاليًا');
   }
@@ -90,17 +98,18 @@ class DemoRepository implements AssalRepository {
     final regions = _list(await _readCatalog(), 'regions');
     return {
       for (final item in regions)
-        item['id'] as String: item['name_ar'] as String
+        item['id'] as String: item['name_ar'] as String,
     };
   }
 
   @override
   Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() async {
-    final values = _list(await _readCatalog(), 'banners')
-        .map(AssalBannerSummary.fromJson)
-        .where((banner) => banner.isActive)
-        .toList(growable: false)
-      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    final values =
+        _list(await _readCatalog(), 'banners')
+            .map(AssalBannerSummary.fromJson)
+            .where((banner) => banner.isActive)
+            .toList(growable: false)
+          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     return _listState(values, 'لا توجد حملات استكشاف متاحة حاليًا');
   }
 
@@ -115,8 +124,9 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
-  Future<AssalLoadState<List<AssalStoreSummary>>> listStores(
-      {String? regionId}) async {
+  Future<AssalLoadState<List<AssalStoreSummary>>> listStores({
+    String? regionId,
+  }) async {
     final regions = await _regionNames();
     var rows = _list(await _readCatalog(), 'stores');
     if (regionId != null && regionId.isNotEmpty)
@@ -124,29 +134,36 @@ class DemoRepository implements AssalRepository {
           .where((item) => item['region_id'] == regionId)
           .toList(growable: false);
     final values = rows
-        .map((item) => AssalStoreSummary.fromJson(
-            {...item, 'region_name_ar': regions[item['region_id']]}))
+        .map(
+          (item) => AssalStoreSummary.fromJson({
+            ...item,
+            'region_name_ar': regions[item['region_id']],
+          }),
+        )
         .toList(growable: false);
     return _listState(values, 'لا توجد متاجر ضمن هذا الاختيار');
   }
 
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(
-      String userId) async {
+    String userId,
+  ) async {
     final state = await listProducts();
     if (state is AssalData<List<AssalProductSummary>>) {
       return _listState(
-          state.value
-              .where((product) => _favorites.contains(product.id))
-              .toList(growable: false),
-          'لا توجد منتجات محفوظة بعد.');
+        state.value
+            .where((product) => _favorites.contains(product.id))
+            .toList(growable: false),
+        'لا توجد منتجات محفوظة بعد.',
+      );
     }
     return state;
   }
 
   @override
   Future<AssalLoadState<List<AssalTaxonomy>>> listFavoriteTaxonomies(
-      String userId) async {
+    String userId,
+  ) async {
     final productsState = await listFavoriteProducts(userId);
     final taxonomyState = await listTaxonomy();
     if (productsState is AssalData<List<AssalProductSummary>> &&
@@ -156,24 +173,27 @@ class DemoRepository implements AssalRepository {
           .whereType<String>()
           .toSet();
       return _listState(
-          taxonomyState.value
-              .where((taxonomy) => ids.contains(taxonomy.id))
-              .toList(growable: false),
-          'لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
+        taxonomyState.value
+            .where((taxonomy) => ids.contains(taxonomy.id))
+            .toList(growable: false),
+        'لا توجد تصنيفات مرتبطة بالمحفوظات بعد.',
+      );
     }
     return const AssalEmpty('لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
   }
 
   @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(
-      String userId) async {
+    String userId,
+  ) async {
     final state = await listStores();
     if (state is AssalData<List<AssalStoreSummary>>) {
       return _listState(
-          state.value
-              .where((store) => _followedStores.contains(store.id))
-              .toList(growable: false),
-          'لا توجد متاجر متابَعة بعد.');
+        state.value
+            .where((store) => _followedStores.contains(store.id))
+            .toList(growable: false),
+        'لا توجد متاجر متابَعة بعد.',
+      );
     }
     return state;
   }
@@ -185,13 +205,16 @@ class DemoRepository implements AssalRepository {
       final matches = state.value.where((store) => store.id == storeId);
       if (matches.isNotEmpty) return AssalData(matches.first);
     }
-    return const AssalError('المتجر غير موجود في البيانات التجريبية',
-        code: 'store_not_found');
+    return const AssalError(
+      'المتجر غير موجود في البيانات التجريبية',
+      code: 'store_not_found',
+    );
   }
 
   @override
-  Future<AssalLoadState<List<AssalProductSummary>>> listProducts(
-      {AssalProductQuery query = const AssalProductQuery()}) async {
+  Future<AssalLoadState<List<AssalProductSummary>>> listProducts({
+    AssalProductQuery query = const AssalProductQuery(),
+  }) async {
     final catalog = await _readCatalog();
     final regions = await _regionNames();
     var rows = _list(catalog, 'products');
@@ -209,9 +232,11 @@ class DemoRepository implements AssalRepository {
           .toList(growable: false);
     if (query.regionId != null)
       rows = rows
-          .where((item) =>
-              (item['regions'] as List?)?.contains(query.regionId) == true ||
-              item['region_id'] == query.regionId)
+          .where(
+            (item) =>
+                (item['regions'] as List?)?.contains(query.regionId) == true ||
+                item['region_id'] == query.regionId,
+          )
           .toList(growable: false);
     if (query.provinceId != null)
       rows = rows
@@ -223,10 +248,13 @@ class DemoRepository implements AssalRepository {
           .toList(growable: false);
     if (query.certificateId != null)
       rows = rows
-          .where((item) =>
-              (item['certifications'] as List?)
-                  ?.contains(query.certificateId) ==
-              true)
+          .where(
+            (item) =>
+                (item['certifications'] as List?)?.contains(
+                  query.certificateId,
+                ) ==
+                true,
+          )
           .toList(growable: false);
     if (query.merchantId != null)
       rows = rows
@@ -235,12 +263,14 @@ class DemoRepository implements AssalRepository {
     if (query.processingMethod != null)
       rows = rows
           .where(
-              (item) => item['processing_method_ar'] == query.processingMethod)
+            (item) => item['processing_method_ar'] == query.processingMethod,
+          )
           .toList(growable: false);
     if (query.processingStatus != null)
       rows = rows
           .where(
-              (item) => item['processing_status_ar'] == query.processingStatus)
+            (item) => item['processing_status_ar'] == query.processingStatus,
+          )
           .toList(growable: false);
     if (query.packaging != null)
       rows = rows
@@ -252,21 +282,27 @@ class DemoRepository implements AssalRepository {
           .toList(growable: false);
     if (query.minRating != null)
       rows = rows
-          .where((item) =>
-              item['rating_average'] is num &&
-              (item['rating_average'] as num).toDouble() >= query.minRating!)
+          .where(
+            (item) =>
+                item['rating_average'] is num &&
+                (item['rating_average'] as num).toDouble() >= query.minRating!,
+          )
           .toList(growable: false);
     if (query.minPrice != null)
       rows = rows
-          .where((item) =>
-              item['price'] is num &&
-              (item['price'] as num).toDouble() >= query.minPrice!)
+          .where(
+            (item) =>
+                item['price'] is num &&
+                (item['price'] as num).toDouble() >= query.minPrice!,
+          )
           .toList(growable: false);
     if (query.maxPrice != null)
       rows = rows
-          .where((item) =>
-              item['price'] is num &&
-              (item['price'] as num).toDouble() <= query.maxPrice!)
+          .where(
+            (item) =>
+                item['price'] is num &&
+                (item['price'] as num).toDouble() <= query.maxPrice!,
+          )
           .toList(growable: false);
     if (query.featuredOnly)
       rows = rows
@@ -274,9 +310,11 @@ class DemoRepository implements AssalRepository {
           .toList(growable: false);
     if (query.gradeLevel != null)
       rows = rows
-          .where((item) =>
-              (item['grade_levels'] as List?)?.contains(query.gradeLevel) ==
-              true)
+          .where(
+            (item) =>
+                (item['grade_levels'] as List?)?.contains(query.gradeLevel) ==
+                true,
+          )
           .toList(growable: false);
     if (query.productType != null)
       rows = rows
@@ -293,26 +331,32 @@ class DemoRepository implements AssalRepository {
     }
     final search = query.search?.trim().toLowerCase();
     if (search != null && search.isNotEmpty) {
-      rows = rows.where((item) {
-        final haystack = [
-          item['name_ar'],
-          item['category_name_ar'],
-          item['subcategory_name_ar'],
-          ...(item['tags'] is List ? (item['tags'] as List) : const []),
-          ...(item['regions'] is List ? (item['regions'] as List) : const []),
-        ].whereType<String>().join(' ').toLowerCase();
-        return haystack.contains(search);
-      }).toList(growable: false);
+      rows = rows
+          .where((item) {
+            final haystack = [
+              item['name_ar'],
+              item['category_name_ar'],
+              item['subcategory_name_ar'],
+              ...(item['tags'] is List ? (item['tags'] as List) : const []),
+              ...(item['regions'] is List
+                  ? (item['regions'] as List)
+                  : const []),
+            ].whereType<String>().join(' ').toLowerCase();
+            return haystack.contains(search);
+          })
+          .toList(growable: false);
     }
-    var values = rows.map((item) {
-      final regionId = item['region_id'] as String?;
-      final grades = item['grade_levels'] as List?;
-      return AssalProductSummary.fromJson({
-        ...item,
-        'region_name_ar': regions[regionId],
-        'grade_level': grades?.isEmpty == false ? grades!.first : null
-      });
-    }).toList(growable: false);
+    var values = rows
+        .map((item) {
+          final regionId = item['region_id'] as String?;
+          final grades = item['grade_levels'] as List?;
+          return AssalProductSummary.fromJson({
+            ...item,
+            'region_name_ar': regions[regionId],
+            'grade_level': grades?.isEmpty == false ? grades!.first : null,
+          });
+        })
+        .toList(growable: false);
     values = [...values];
     switch (query.sort) {
       case AssalSort.newest:
@@ -323,30 +367,36 @@ class DemoRepository implements AssalRepository {
         values.sort((a, b) => b.ratingAverage.compareTo(a.ratingAverage));
       case AssalSort.featured:
         values.sort(
-            (a, b) => (b.isFeatured ? 1 : 0).compareTo(a.isFeatured ? 1 : 0));
+          (a, b) => (b.isFeatured ? 1 : 0).compareTo(a.isFeatured ? 1 : 0),
+        );
     }
     return _listState(
-        values,
-        search == null || search.isEmpty
-            ? 'لا توجد منتجات متاحة حاليًا'
-            : 'لم نعثر على نتائج مطابقة. جرّب كلمة أخرى.');
+      values,
+      search == null || search.isEmpty
+          ? 'لا توجد منتجات متاحة حاليًا'
+          : 'لم نعثر على نتائج مطابقة. جرّب كلمة أخرى.',
+    );
   }
 
   @override
   Future<AssalLoadState<AssalProductSummary>> getProduct(
-      String productId) async {
+    String productId,
+  ) async {
     final state = await listProducts();
     if (state is AssalData<List<AssalProductSummary>>) {
       final matches = state.value.where((product) => product.id == productId);
       if (matches.isNotEmpty) return AssalData(matches.first);
     }
-    return const AssalError('المنتج غير موجود في البيانات التجريبية',
-        code: 'product_not_found');
+    return const AssalError(
+      'المنتج غير موجود في البيانات التجريبية',
+      code: 'product_not_found',
+    );
   }
 
   @override
   Future<AssalLoadState<List<AssalReviewSummary>>> listReviews(
-      String productId) async {
+    String productId,
+  ) async {
     final values = [
       ..._list(await _readCatalog(), 'reviews')
           .where((item) => item['product_id'] == productId)
@@ -354,12 +404,15 @@ class DemoRepository implements AssalRepository {
       ..._localReviews.where((review) => review.productId == productId),
     ];
     return _listState(
-        values, 'لا توجد مراجعات منشورة بعد. كن أول من يشارك تجربته.');
+      values,
+      'لا توجد مراجعات منشورة بعد. كن أول من يشارك تجربته.',
+    );
   }
 
   @override
   Future<AssalLoadState<List<AssalCommentSummary>>> listComments(
-      String targetId) async {
+    String targetId,
+  ) async {
     final values = [
       ..._list(await _readCatalog(), 'comments')
           .where((item) => item['target_id'] == targetId)
@@ -371,7 +424,8 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(
-      String requesterId) async {
+    String requesterId,
+  ) async {
     final values = [
       ..._list(await _readCatalog(), 'requests')
           .where((item) => item['requester_id'] == requesterId)
@@ -383,7 +437,9 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<AssalRequestSummary>> createRequest(
-      String requesterId, AssalRequestDraft draft) async {
+    String requesterId,
+    AssalRequestDraft draft,
+  ) async {
     final request = AssalRequestSummary(
       id: 'local-request-${DateTime.now().millisecondsSinceEpoch}',
       requesterId: requesterId,
@@ -402,90 +458,110 @@ class DemoRepository implements AssalRepository {
     );
     _localRequests.insert(0, request);
     _localNotifications.insert(
-        0,
-        AssalNotificationSummary(
-            id: 'local-notification-${request.id}',
-            userId: requesterId,
-            notificationType: 'request',
-            titleAr: 'تم حفظ طلب التواصل',
-            bodyAr: 'سيتابع المتجر طلبك في Demo Mode.',
-            payload: {'request_id': request.id}));
+      0,
+      AssalNotificationSummary(
+        id: 'local-notification-${request.id}',
+        userId: requesterId,
+        notificationType: 'request',
+        titleAr: 'تم حفظ طلب التواصل',
+        bodyAr: 'سيتابع المتجر طلبك في Demo Mode.',
+        payload: {'request_id': request.id},
+      ),
+    );
     return AssalData(request);
   }
 
   @override
   Future<AssalLoadState<List<AssalNotificationSummary>>> listNotifications(
-      String userId) async {
+    String userId,
+  ) async {
     final seeded = _list(await _readCatalog(), 'notifications')
         .where((item) => item['user_id'] == userId)
         .map(AssalNotificationSummary.fromJson)
-        .map((notification) => _readNotificationIds.contains(notification.id)
-            ? AssalNotificationSummary(
-                id: notification.id,
-                userId: notification.userId,
-                notificationType: notification.notificationType,
-                titleAr: notification.titleAr,
-                bodyAr: notification.bodyAr,
-                payload: notification.payload,
-                readAt: DateTime.now())
-            : notification);
+        .map(
+          (notification) => _readNotificationIds.contains(notification.id)
+              ? AssalNotificationSummary(
+                  id: notification.id,
+                  userId: notification.userId,
+                  notificationType: notification.notificationType,
+                  titleAr: notification.titleAr,
+                  bodyAr: notification.bodyAr,
+                  payload: notification.payload,
+                  readAt: DateTime.now(),
+                )
+              : notification,
+        );
     final local = _localNotifications
         .where((notification) => notification.userId == userId)
-        .map((notification) => _readNotificationIds.contains(notification.id)
-            ? AssalNotificationSummary(
-                id: notification.id,
-                userId: notification.userId,
-                notificationType: notification.notificationType,
-                titleAr: notification.titleAr,
-                bodyAr: notification.bodyAr,
-                payload: notification.payload,
-                readAt: DateTime.now())
-            : notification);
+        .map(
+          (notification) => _readNotificationIds.contains(notification.id)
+              ? AssalNotificationSummary(
+                  id: notification.id,
+                  userId: notification.userId,
+                  notificationType: notification.notificationType,
+                  titleAr: notification.titleAr,
+                  bodyAr: notification.bodyAr,
+                  payload: notification.payload,
+                  readAt: DateTime.now(),
+                )
+              : notification,
+        );
     return _listState([...seeded, ...local], 'لا توجد إشعارات جديدة.');
   }
 
   @override
   Future<AssalLoadState<bool>> markNotificationRead(
-      String userId, String notificationId) async {
+    String userId,
+    String notificationId,
+  ) async {
     _readNotificationIds.add(notificationId);
     return const AssalData(true);
   }
 
   @override
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(
-      String userId) async {
-    final seeded = _list(await _readCatalog(), 'conversations')
-        .map(AssalConversationSummary.fromJson);
+    String userId,
+  ) async {
+    final seeded = _list(
+      await _readCatalog(),
+      'conversations',
+    ).map(AssalConversationSummary.fromJson);
     final values = [...seeded, ..._localConversations];
     if (values.isEmpty && _session.isAuthenticated) {
-      values.add(AssalConversationSummary(
+      values.add(
+        AssalConversationSummary(
           id: 'demo-conversation-doani',
           storeId: 'demo-store-doani',
           storeName: 'مناحل دوعن الأصيلة',
           lastMessage: 'مرحبًا، كيف نساعدك في اختيار العسل؟',
-          updatedAt: DateTime.now()));
+          updatedAt: DateTime.now(),
+        ),
+      );
     }
     return _listState(values, 'لا توجد محادثات بعد. ابدأ من صفحة المتجر.');
   }
 
   @override
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(
-      String conversationId) async {
+    String conversationId,
+  ) async {
     final values = [
       ..._list(await _readCatalog(), 'messages')
           .where((item) => item['conversation_id'] == conversationId)
           .map(AssalMessageSummary.fromJson),
-      ..._localMessages
-          .where((message) => message.conversationId == conversationId),
+      ..._localMessages.where(
+        (message) => message.conversationId == conversationId,
+      ),
     ];
     if (values.isEmpty) {
       return AssalData([
         AssalMessageSummary(
-            id: 'demo-message-welcome',
-            conversationId: conversationId,
-            senderId: 'demo-merchant-doani',
-            body: 'مرحبًا بك في عسلكم. يسعدنا مساعدتك في معرفة المصدر والجودة.',
-            sentAt: DateTime.now().subtract(const Duration(minutes: 12))),
+          id: 'demo-message-welcome',
+          conversationId: conversationId,
+          senderId: 'demo-merchant-doani',
+          body: 'مرحبًا بك في عسلكم. يسعدنا مساعدتك في معرفة المصدر والجودة.',
+          sentAt: DateTime.now().subtract(const Duration(minutes: 12)),
+        ),
       ]);
     }
     return AssalData(values);
@@ -493,54 +569,67 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<AssalMessageSummary>> sendMessage(
-      String userId, AssalMessageDraft draft) async {
+    String userId,
+    AssalMessageDraft draft,
+  ) async {
     final message = AssalMessageSummary(
-        id: 'local-message-${DateTime.now().microsecondsSinceEpoch}',
-        conversationId: draft.conversationId,
-        senderId: userId,
-        body: draft.body,
-        sentAt: DateTime.now(),
-        isMine: true);
+      id: 'local-message-${DateTime.now().microsecondsSinceEpoch}',
+      conversationId: draft.conversationId,
+      senderId: userId,
+      body: draft.body,
+      sentAt: DateTime.now(),
+      isMine: true,
+    );
     _localMessages.add(message);
     return AssalData(message);
   }
 
   @override
   Future<AssalLoadState<AssalReviewSummary>> createReview(
-      String authorId, AssalReviewDraft draft) async {
+    String authorId,
+    AssalReviewDraft draft,
+  ) async {
     final review = AssalReviewSummary(
-        id: 'local-review-${DateTime.now().microsecondsSinceEpoch}',
-        productId: draft.productId,
-        storeId: draft.storeId,
-        authorId: authorId,
-        authorName: _session.user?.nameAr ?? 'عميل Demo',
-        rating: draft.rating,
-        status: ReviewStatus.approved,
-        body: draft.body,
-        createdAt: DateTime.now(),
-        isLocal: true);
+      id: 'local-review-${DateTime.now().microsecondsSinceEpoch}',
+      productId: draft.productId,
+      storeId: draft.storeId,
+      authorId: authorId,
+      authorName: _session.user?.nameAr ?? 'عميل Demo',
+      rating: draft.rating,
+      status: ReviewStatus.approved,
+      body: draft.body,
+      createdAt: DateTime.now(),
+      isLocal: true,
+    );
     _localReviews.insert(0, review);
     return AssalData(review);
   }
 
   @override
   Future<AssalLoadState<AssalCommentSummary>> createComment(
-      String authorId, String authorName, String targetId, String body) async {
+    String authorId,
+    String authorName,
+    String targetId,
+    String body,
+  ) async {
     final comment = AssalCommentSummary(
-        id: 'local-comment-${DateTime.now().microsecondsSinceEpoch}',
-        targetId: targetId,
-        authorId: authorId,
-        authorName: authorName,
-        body: body,
-        createdAt: DateTime.now(),
-        isLocal: true);
+      id: 'local-comment-${DateTime.now().microsecondsSinceEpoch}',
+      targetId: targetId,
+      authorId: authorId,
+      authorName: authorName,
+      body: body,
+      createdAt: DateTime.now(),
+      isLocal: true,
+    );
     _localComments.insert(0, comment);
     return AssalData(comment);
   }
 
   @override
   Future<AssalLoadState<bool>> toggleFollow(
-      String userId, String storeId) async {
+    String userId,
+    String storeId,
+  ) async {
     final followed = !_followedStores.contains(storeId);
     followed ? _followedStores.add(storeId) : _followedStores.remove(storeId);
     return AssalData(followed);
@@ -548,7 +637,9 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<bool>> toggleFavorite(
-      String userId, String targetId) async {
+    String userId,
+    String targetId,
+  ) async {
     final favorite = !_favorites.contains(targetId);
     favorite ? _favorites.add(targetId) : _favorites.remove(targetId);
     return AssalData(favorite);
@@ -556,7 +647,9 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<bool>> toggleLike(
-      String userId, String targetId) async {
+    String userId,
+    String targetId,
+  ) async {
     final liked = !_likes.contains(targetId);
     liked ? _likes.add(targetId) : _likes.remove(targetId);
     return AssalData(liked);
@@ -564,113 +657,173 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
-      submitMerchantApplication(
-          String userId, AssalMerchantApplicationDraft draft) async {
+  submitMerchantApplication(
+    String userId,
+    AssalMerchantApplicationDraft draft,
+  ) async {
     if (draft.displayName.trim().length < 2 ||
         draft.phone.trim().length < 6 ||
         draft.experience.trim().length < 4 ||
         draft.location.trim().length < 2 ||
         draft.specialties.trim().length < 2)
       return const AssalError(
-          'أكمل بيانات النشاط والخبرة والموقع والتخصص قبل الإرسال.',
-          code: 'invalid_merchant_application');
+        'أكمل بيانات النشاط والخبرة والموقع والتخصص قبل الإرسال.',
+        code: 'invalid_merchant_application',
+      );
     _merchantApplication = AssalMerchantApplicationSummary(
-        id: 'demo-merchant-application-${DateTime.now().millisecondsSinceEpoch}',
-        userId: userId,
-        status: 'submitted',
-        displayName: draft.displayName.trim(),
-        submittedAt: DateTime.now());
+      id: 'demo-merchant-application-${DateTime.now().millisecondsSinceEpoch}',
+      userId: userId,
+      status: 'submitted',
+      displayName: draft.displayName.trim(),
+      submittedAt: DateTime.now(),
+    );
     _localNotifications.insert(
-        0,
-        AssalNotificationSummary(
-            id: 'demo-notification-merchant-${DateTime.now().millisecondsSinceEpoch}',
-            userId: userId,
-            notificationType: 'merchant_application',
-            titleAr: 'تم استلام طلب التحول إلى تاجر',
-            bodyAr: 'سنراجع بيانات ${draft.displayName.trim()} في مرحلة التحقق.',
-            payload: {'application_id': _merchantApplication!.id}));
+      0,
+      AssalNotificationSummary(
+        id: 'demo-notification-merchant-${DateTime.now().millisecondsSinceEpoch}',
+        userId: userId,
+        notificationType: 'merchant_application',
+        titleAr: 'تم استلام طلب التحول إلى تاجر',
+        bodyAr: 'سنراجع بيانات ${draft.displayName.trim()} في مرحلة التحقق.',
+        payload: {'application_id': _merchantApplication!.id},
+      ),
+    );
     return AssalData(_merchantApplication!);
   }
 
   @override
   Future<AssalLoadState<AssalSession>> signIn(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     if (!email.contains('@') || password.length < 6)
       return const AssalError(
-          'تحقق من البريد وكلمة المرور. كلمة المرور لا تقل عن 6 أحرف.',
-          code: 'invalid_credentials');
+        'تحقق من البريد وكلمة المرور. كلمة المرور لا تقل عن 6 أحرف.',
+        code: 'invalid_credentials',
+      );
     _session = AssalSession(
-        isAuthenticated: true,
-        role: AssalRole.customer,
-        user: AssalUserProfile(
-            id: 'demo-customer',
-            nameAr: 'عميل عسلكم',
-            email: email,
-            bio: 'أبحث عن العسل اليمني الموثوق ومصدره.',
-            location: 'صنعاء'));
+      isAuthenticated: true,
+      role: AssalRole.customer,
+      user: AssalUserProfile(
+        id: 'demo-customer',
+        nameAr: 'عميل عسلكم',
+        email: email,
+        bio: 'أبحث عن العسل اليمني الموثوق ومصدره.',
+        location: 'صنعاء',
+      ),
+    );
     return AssalData(_session);
   }
 
   @override
-  Future<
-      AssalLoadState<
-          void>> requestPasswordReset(String email) async => const AssalError(
-      'إعادة تعيين كلمة المرور متاحة بعد ربط حساب Production بالبريد الإلكتروني.',
-      code: 'demo_password_reset_unavailable');
+  Future<AssalLoadState<void>> requestEmailOtp(String email) async {
+    if (!email.contains('@')) {
+      return const AssalError(
+        'أدخل بريدًا إلكترونيًا صالحًا.',
+        code: 'invalid_email',
+      );
+    }
+    _demoOtpEmail = email.trim();
+    return const AssalData(null);
+  }
+
+  @override
+  Future<AssalLoadState<AssalSession>> verifyEmailOtp(
+    String email,
+    String token,
+  ) async {
+    if (_demoOtpEmail != email.trim() || token.trim() != '123456') {
+      return const AssalError(
+        'في Demo Mode استخدم الرمز التجريبي 123456.',
+        code: 'demo_invalid_email_otp',
+      );
+    }
+    _session = AssalSession(
+      isAuthenticated: true,
+      role: AssalRole.customer,
+      user: AssalUserProfile(
+        id: 'demo-customer',
+        nameAr: 'عميل عسلكم',
+        email: email.trim(),
+        bio: 'أبحث عن العسل اليمني الموثوق ومصدره.',
+        location: 'صنعاء',
+      ),
+    );
+    return AssalData(_session);
+  }
+
+  @override
+  Future<AssalLoadState<void>> requestPasswordReset(
+    String email,
+  ) async => const AssalError(
+    'إعادة تعيين كلمة المرور متاحة بعد ربط حساب Production بالبريد الإلكتروني.',
+    code: 'demo_password_reset_unavailable',
+  );
 
   @override
   Future<AssalLoadState<void>> resendEmailConfirmation(String email) async =>
       const AssalError(
-          'إعادة إرسال تأكيد البريد متاحة في Production Mode فقط.',
-          code: 'demo_email_confirmation_unavailable');
+        'إعادة إرسال تأكيد البريد متاحة في Production Mode فقط.',
+        code: 'demo_email_confirmation_unavailable',
+      );
 
   @override
   Future<AssalLoadState<AssalSession>> verifyEmailConfirmation(
-          String email, String token) async =>
+    String email,
+    String token,
+  ) async => const AssalError(
+    'التحقق بالرمز متاح في Production Mode فقط لأن Demo لا يرسل بريدًا حقيقيًا.',
+    code: 'demo_email_otp_unavailable',
+  );
+
+  @override
+  Future<AssalLoadState<void>> deleteAccount() async => const AssalError(
+    'حذف الحساب متاح في Production فقط من إعدادات الحساب.',
+    code: 'demo_account_delete_unavailable',
+  );
+
+  @override
+  Future<AssalLoadState<AssalSession>> signInWithGoogle() async =>
       const AssalError(
-          'التحقق بالرمز متاح في Production Mode فقط لأن Demo لا يرسل بريدًا حقيقيًا.',
-          code: 'demo_email_otp_unavailable');
+        'تسجيل Google مؤجل للإصدار اللاحق. استخدم البريد الإلكتروني في الإصدار الحالي.',
+        code: 'demo_google_auth_deferred',
+      );
 
   @override
-  Future<AssalLoadState<void>> deleteAccount() async =>
-      const AssalError('حذف الحساب متاح في Production فقط من إعدادات الحساب.',
-          code: 'demo_account_delete_unavailable');
-
-  @override
-  Future<
-      AssalLoadState<
-          AssalSession>> signInWithGoogle() async => const AssalError(
-      'تسجيل Google مؤجل للإصدار اللاحق. استخدم البريد الإلكتروني في الإصدار الحالي.',
-      code: 'demo_google_auth_deferred');
-
-  @override
-  Future<
-      AssalLoadState<
-          AssalSession>> signInWithFacebook() async => const AssalError(
-      'تسجيل Facebook يحتاج مزود OAuth الإنتاجي، وهو غير متاح دون اتصال في Demo Mode.',
-      code: 'demo_facebook_auth_unavailable');
+  Future<AssalLoadState<AssalSession>> signInWithFacebook() async =>
+      const AssalError(
+        'تسجيل Facebook يحتاج مزود OAuth الإنتاجي، وهو غير متاح دون اتصال في Demo Mode.',
+        code: 'demo_facebook_auth_unavailable',
+      );
 
   @override
   Future<AssalLoadState<AssalSession>> register(
-      String name, String email, String password) async {
+    String name,
+    String email,
+    String password,
+  ) async {
     if (name.trim().length < 2 || !email.contains('@') || password.length < 6)
       return const AssalError(
-          'أدخل اسمًا صحيحًا وبريدًا صالحًا وكلمة مرور من 6 أحرف على الأقل.',
-          code: 'invalid_registration');
+        'أدخل اسمًا صحيحًا وبريدًا صالحًا وكلمة مرور من 6 أحرف على الأقل.',
+        code: 'invalid_registration',
+      );
     _session = AssalSession(
-        isAuthenticated: true,
-        role: AssalRole.customer,
-        user: AssalUserProfile(
-            id: 'demo-customer',
-            nameAr: name.trim(),
-            email: email,
-            bio: 'عضو جديد في مجتمع عسلكم'));
+      isAuthenticated: true,
+      role: AssalRole.customer,
+      user: AssalUserProfile(
+        id: 'demo-customer',
+        nameAr: name.trim(),
+        email: email,
+        bio: 'عضو جديد في مجتمع عسلكم',
+      ),
+    );
     return AssalData(_session);
   }
 
   @override
   Future<AssalLoadState<void>> signOut() async {
     _session = AssalSession.guest;
+    _demoOtpEmail = null;
     return const AssalData(null);
   }
 }

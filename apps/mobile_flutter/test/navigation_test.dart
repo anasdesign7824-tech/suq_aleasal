@@ -25,8 +25,13 @@ void main() {
 
     await tester.tap(find.text('تسجيل الدخول أو إنشاء حساب'));
     await tester.pumpAndSettle();
-    expect(find.byType(TextField), findsNWidgets(2));
-    expect(find.text('نسيت كلمة المرور؟'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('إرسال رمز الدخول'), findsOneWidget);
+    expect(
+        find.text(
+            'حساب موجود: البريد الإلكتروني ثم رمز التحقق فقط. لن نطلب كلمة المرور.'),
+        findsOneWidget);
+    expect(find.text('نسيت كلمة المرور؟'), findsNothing);
     expect(find.text('المتابعة عبر Google'), findsNothing);
     expect(find.text('المتابعة عبر Facebook'), findsNothing);
   });

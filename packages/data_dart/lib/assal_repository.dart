@@ -81,11 +81,12 @@ class AssalRequestDraft {
 }
 
 class AssalReviewDraft {
-  const AssalReviewDraft(
-      {required this.productId,
-      required this.storeId,
-      required this.rating,
-      required this.body});
+  const AssalReviewDraft({
+    required this.productId,
+    required this.storeId,
+    required this.rating,
+    required this.body,
+  });
   final String productId;
   final String storeId;
   final int rating;
@@ -105,56 +106,88 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<List<AssalTaxonomy>>> listTaxonomy();
   Future<AssalLoadState<List<AssalBannerSummary>>> listBanners();
   Future<AssalLoadState<List<String>>> listPopularSearches();
-  Future<AssalLoadState<List<AssalStoreSummary>>> listStores(
-      {String? regionId});
+  Future<AssalLoadState<List<AssalStoreSummary>>> listStores({
+    String? regionId,
+  });
   Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(
-      String userId);
+    String userId,
+  );
   Future<AssalLoadState<List<AssalTaxonomy>>> listFavoriteTaxonomies(
-      String userId);
+    String userId,
+  );
   Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(
-      String userId);
+    String userId,
+  );
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId);
-  Future<AssalLoadState<List<AssalProductSummary>>> listProducts(
-      {AssalProductQuery query = const AssalProductQuery()});
+  Future<AssalLoadState<List<AssalProductSummary>>> listProducts({
+    AssalProductQuery query = const AssalProductQuery(),
+  });
   Future<AssalLoadState<AssalProductSummary>> getProduct(String productId);
   Future<AssalLoadState<List<AssalReviewSummary>>> listReviews(
-      String productId);
+    String productId,
+  );
   Future<AssalLoadState<List<AssalCommentSummary>>> listComments(
-      String targetId);
+    String targetId,
+  );
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(
-      String requesterId);
+    String requesterId,
+  );
   Future<AssalLoadState<AssalRequestSummary>> createRequest(
-      String requesterId, AssalRequestDraft draft);
+    String requesterId,
+    AssalRequestDraft draft,
+  );
   Future<AssalLoadState<List<AssalNotificationSummary>>> listNotifications(
-      String userId);
+    String userId,
+  );
   Future<AssalLoadState<bool>> markNotificationRead(
-      String userId, String notificationId);
+    String userId,
+    String notificationId,
+  );
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(
-      String userId);
+    String userId,
+  );
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(
-      String conversationId);
+    String conversationId,
+  );
   Future<AssalLoadState<AssalMessageSummary>> sendMessage(
-      String userId, AssalMessageDraft draft);
+    String userId,
+    AssalMessageDraft draft,
+  );
   Future<AssalLoadState<AssalReviewSummary>> createReview(
-      String authorId, AssalReviewDraft draft);
+    String authorId,
+    AssalReviewDraft draft,
+  );
   Future<AssalLoadState<AssalCommentSummary>> createComment(
-      String authorId, String authorName, String targetId, String body);
+    String authorId,
+    String authorName,
+    String targetId,
+    String body,
+  );
   Future<AssalLoadState<bool>> toggleFollow(String userId, String storeId);
   Future<AssalLoadState<bool>> toggleFavorite(String userId, String targetId);
   Future<AssalLoadState<bool>> toggleLike(String userId, String targetId);
   Future<AssalLoadState<AssalSession>> signIn(String email, String password);
+  Future<AssalLoadState<void>> requestEmailOtp(String email);
+  Future<AssalLoadState<AssalSession>> verifyEmailOtp(
+    String email,
+    String token,
+  );
   Future<AssalLoadState<AssalSession>> signInWithGoogle();
   Future<AssalLoadState<AssalSession>> signInWithFacebook();
   Future<AssalLoadState<AssalSession>> register(
-      String name, String email, String password);
+    String name,
+    String email,
+    String password,
+  );
   Future<AssalLoadState<void>> requestPasswordReset(String email);
   Future<AssalLoadState<void>> resendEmailConfirmation(String email);
   Future<AssalLoadState<AssalSession>> verifyEmailConfirmation(
-      String email, String token);
+    String email,
+    String token,
+  );
   Future<AssalLoadState<void>> deleteAccount();
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
-      submitMerchantApplication(
-          String userId, AssalMerchantApplicationDraft draft);
+  submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft);
   Future<AssalLoadState<void>> signOut();
 }
 
@@ -163,17 +196,28 @@ abstract interface class DemoCatalogLoader {
 }
 
 abstract interface class ProductionQueryGateway {
-  Future<List<Map<String, Object?>>> select(String table,
-      {Map<String, Object?> filters = const <String, Object?>{}});
+  Future<List<Map<String, Object?>>> select(
+    String table, {
+    Map<String, Object?> filters = const <String, Object?>{},
+  });
   Future<Map<String, Object?>> insert(
-      String table, Map<String, Object?> values);
-  Future<Map<String, Object?>> update(String table, Map<String, Object?> values,
-      {required String id});
+    String table,
+    Map<String, Object?> values,
+  );
+  Future<Map<String, Object?>> update(
+    String table,
+    Map<String, Object?> values, {
+    required String id,
+  });
 }
 
 class AssalAuthIdentity {
-  const AssalAuthIdentity(
-      {required this.id, this.email, this.displayName, this.avatarUrl});
+  const AssalAuthIdentity({
+    required this.id,
+    this.email,
+    this.displayName,
+    this.avatarUrl,
+  });
   final String id;
   final String? email;
   final String? displayName;
@@ -183,12 +227,19 @@ class AssalAuthIdentity {
 abstract interface class AssalAuthGateway {
   Future<AssalAuthIdentity?> currentIdentity();
   Future<AssalAuthIdentity?> signInWithPassword(String email, String password);
-  Future<AssalAuthIdentity?> signUp(
-      {required String name, required String email, required String password});
+  Future<void> requestEmailOtp(String email);
+  Future<AssalAuthIdentity?> verifyEmailOtp(String email, String token);
+  Future<AssalAuthIdentity?> signUp({
+    required String name,
+    required String email,
+    required String password,
+  });
   Future<void> requestPasswordReset(String email);
   Future<void> resendEmailConfirmation(String email);
   Future<AssalAuthIdentity?> verifyEmailConfirmation(
-      String email, String token);
+    String email,
+    String token,
+  );
   Future<void> deleteAccount();
   Future<AssalAuthIdentity?> signInWithGoogle();
   Future<AssalAuthIdentity?> signInWithFacebook();

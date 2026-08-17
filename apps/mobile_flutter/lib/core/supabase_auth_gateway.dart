@@ -26,6 +26,35 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   }
 
   @override
+  Future<void> requestEmailOtp(String email) async {
+    try {
+      await client.auth.signInWithOtp(
+        email: email.trim(),
+        shouldCreateUser: false,
+        emailRedirectTo: emailRedirectTo,
+      );
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
+  Future<AssalAuthIdentity?> verifyEmailOtp(String email, String token) async {
+    try {
+      final response = await client.auth.verifyOTP(
+        email: email.trim(),
+        token: token.trim(),
+        type: OtpType.email,
+      );
+      return _identity(response.user);
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.code ?? error.statusCode);
+    }
+  }
+
+  @override
   Future<AssalAuthIdentity?> signUp(
       {required String name,
       required String email,
@@ -155,6 +184,9 @@ class SupabaseAuthGateway implements AssalAuthGateway {
     }
     if (code == 'user_already_exists' || code == 'email_exists') {
       return 'يوجد حساب بهذا البريد الإلكتروني.';
+    }
+    if (code == 'user_not_found' || code == 'signup_disabled') {
+      return 'لا يوجد حساب بهذا البريد الإلكتروني. اختر «إنشاء حساب» أولًا.';
     }
     if (code == 'weak_password' ||
         code == 'password_too_short' ||
