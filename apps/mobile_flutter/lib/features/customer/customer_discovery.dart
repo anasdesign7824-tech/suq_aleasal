@@ -461,6 +461,8 @@ class _HomeScreenState extends State<HomeScreen> {
               repository: widget.repository,
               notificationsFuture: notificationsFuture,
               onOpenNotifications: widget.onOpenNotifications,
+              searchController: searchController,
+              onOpenSearch: widget.onOpenSearch,
             ),
           ),
         ),

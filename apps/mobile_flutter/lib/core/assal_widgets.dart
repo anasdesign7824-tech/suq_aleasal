@@ -8,16 +8,24 @@ import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import 'assal_assets.dart';
 
+const assalDarkGradient = LinearGradient(
+  begin: Alignment.topRight,
+  end: Alignment.bottomLeft,
+  colors: [AssalColors.deepBrown, AssalColors.primaryDark],
+);
+
 class AssalBrandMark extends StatelessWidget {
   const AssalBrandMark({
     super.key,
     this.size = 44,
     this.showName = false,
     this.framed = false,
+    this.nameColor,
   });
   final double size;
   final bool showName;
   final bool framed;
+  final Color? nameColor;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +61,7 @@ class AssalBrandMark extends StatelessWidget {
             Text(
               'عسلكم',
               style: AssalTypography.heading3.copyWith(
-                color: AssalColors.deepBrown,
+                color: nameColor ?? AssalColors.deepBrown,
               ),
             ),
           ],
@@ -84,14 +92,14 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.actions,
     this.showBrand = true,
-      this.bottom,
+    this.bottom,
   });
 
   final String title;
   final List<Widget>? actions;
   final bool showBrand;
 
-    final PreferredSizeWidget? bottom;
+  final PreferredSizeWidget? bottom;
 @override
   Widget build(BuildContext context) {
     final canPop = ModalRoute.of(context)?.canPop ?? false;

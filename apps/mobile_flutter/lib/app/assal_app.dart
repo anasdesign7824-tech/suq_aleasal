@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/demo_repository.dart';
-import '../core/demo_loader.dart';
+import 'package:assalkom_design/assal_tokens.dart';
 import '../core/assal_widgets.dart';
 import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
