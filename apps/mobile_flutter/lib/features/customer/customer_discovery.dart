@@ -591,10 +591,10 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
 
   @override
-  double get minExtent => 156;
+  double get minExtent => 160;
 
   @override
-  double get maxExtent => 156;
+  double get maxExtent => 160;
 
   @override
   Widget build(
@@ -747,7 +747,7 @@ class _Header extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: AssalSpacing.sm),
+          const SizedBox(height: AssalSpacing.md),
           SizedBox(
             height: 48,
             child: TextField(
@@ -792,54 +792,32 @@ class _HomeIntroTicker extends StatefulWidget {
 
 class _HomeIntroTickerState extends State<_HomeIntroTicker>
     with SingleTickerProviderStateMixin {
-  AnimationController? controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _syncController();
-  }
-
-  @override
-  void didUpdateWidget(covariant _HomeIntroTicker oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.items.isEmpty != widget.items.isEmpty) {
-      _syncController();
-    }
-  }
-
-  void _syncController() {
-    if (widget.items.isEmpty) {
-      controller?.dispose();
-      controller = null;
-      return;
-    }
-    controller ??= AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 12),
-    )..repeat();
-  }
+  static const _introText =
+      'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بسهولة';
+  late final AnimationController controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 16),
+  )..repeat();
 
   @override
   void dispose() {
-    controller?.dispose();
-    controller = null;
+    controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.items.isEmpty || controller == null) {
-      return const SizedBox.shrink();
-    }
-    final text = widget.items
+    final bannerText = widget.items
         .map((item) => item.titleAr.trim())
         .where((item) => item.isNotEmpty)
         .join('   •   ');
-    if (text.isEmpty) return const SizedBox.shrink();
-    final style = AssalTypography.caption.copyWith(
+    final text = bannerText.isEmpty
+        ? _introText
+        : '$_introText   •   $bannerText';
+    final style = AssalTypography.bodySmall.copyWith(
       color: AssalColors.cream,
       fontWeight: FontWeight.w600,
+      letterSpacing: .1,
     );
     return Material(
       color: Colors.transparent,
@@ -847,12 +825,27 @@ class _HomeIntroTickerState extends State<_HomeIntroTicker>
         onTap: widget.onTap,
         borderRadius: BorderRadius.circular(AssalRadius.medium),
         child: Container(
-          height: 32,
+          height: 42,
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: .12),
-            borderRadius: BorderRadius.circular(AssalRadius.medium),
-            border: Border.all(color: Colors.white.withValues(alpha: .28)),
+            gradient: LinearGradient(
+              begin: AlignmentDirectional.centerStart,
+              end: AlignmentDirectional.centerEnd,
+              colors: [
+                Colors.white.withValues(alpha: .20),
+                Colors.white.withValues(alpha: .07),
+                Colors.white.withValues(alpha: .16),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AssalRadius.large),
+            border: Border.all(color: Colors.white.withValues(alpha: .34)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .10),
+                blurRadius: 12,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -865,9 +858,9 @@ class _HomeIntroTickerState extends State<_HomeIntroTicker>
               final start = constraints.maxWidth + AssalSpacing.md;
               final end = -textWidth - AssalSpacing.md;
               return AnimatedBuilder(
-                animation: controller!,
+                animation: controller,
                 builder: (context, child) {
-                  final x = start + (end - start) * controller!.value;
+                  final x = start + (end - start) * controller.value;
                   return ClipRect(
                     child: Stack(
                       fit: StackFit.expand,

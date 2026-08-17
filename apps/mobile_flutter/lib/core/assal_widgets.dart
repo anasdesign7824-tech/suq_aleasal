@@ -113,11 +113,13 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
         decoration: BoxDecoration(gradient: assalDarkGradient),
       ),
       systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: AssalColors.deepBrown,
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: AssalColors.deepBrown,
+        systemNavigationBarColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarContrastEnforced: false,
+        systemNavigationBarDividerColor: Colors.transparent,
       ),
       titleSpacing: AssalSpacing.sm,
       leading: canPop

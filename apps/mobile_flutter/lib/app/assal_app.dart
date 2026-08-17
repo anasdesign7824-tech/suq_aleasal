@@ -24,14 +24,14 @@ class AssalApp extends StatelessWidget {
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
             value: const SystemUiOverlayStyle(
-              statusBarColor: AssalColors.deepBrown,
+              statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.light,
               statusBarBrightness: Brightness.dark,
-              systemNavigationBarColor: AssalColors.deepBrown,
+              systemNavigationBarColor: Colors.transparent,
               systemNavigationBarIconBrightness: Brightness.light,
               systemStatusBarContrastEnforced: false,
               systemNavigationBarContrastEnforced: false,
-              systemNavigationBarDividerColor: AssalColors.deepBrown,
+              systemNavigationBarDividerColor: Colors.transparent,
             ),
             child: Directionality(
                 textDirection: TextDirection.rtl,
@@ -138,8 +138,9 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
     ];
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 900;
-      final content =
-          SafeArea(child: IndexedStack(index: selectedIndex, children: pages));
+      final content = SafeArea(
+        child: IndexedStack(index: selectedIndex, children: pages),
+      );
       if (wide) {
         return Scaffold(
             backgroundColor: AssalColors.deepBrown,
@@ -161,11 +162,14 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
       return Scaffold(
           backgroundColor: AssalColors.deepBrown,
           body: content,
-          bottomNavigationBar: NavigationBar(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) =>
-                  setState(() => selectedIndex = index),
-              destinations: destinations));
+          bottomNavigationBar: DecoratedBox(
+            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            child: NavigationBar(
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (index) =>
+                    setState(() => selectedIndex = index),
+                destinations: destinations),
+          ));
     });
   }
 
