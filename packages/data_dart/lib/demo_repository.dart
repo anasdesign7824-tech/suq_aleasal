@@ -619,6 +619,12 @@ class DemoRepository implements AssalRepository {
       code: 'demo_password_reset_unavailable');
 
   @override
+  Future<AssalLoadState<void>> resendEmailConfirmation(String email) async =>
+      const AssalError(
+          'إعادة إرسال تأكيد البريد متاحة في Production Mode فقط.',
+          code: 'demo_email_confirmation_unavailable');
+
+  @override
   Future<AssalLoadState<void>> deleteAccount() async =>
       const AssalError('حذف الحساب متاح في Production فقط من إعدادات الحساب.',
           code: 'demo_account_delete_unavailable');

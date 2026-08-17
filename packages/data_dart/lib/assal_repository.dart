@@ -148,6 +148,7 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<AssalSession>> register(
       String name, String email, String password);
   Future<AssalLoadState<void>> requestPasswordReset(String email);
+  Future<AssalLoadState<void>> resendEmailConfirmation(String email);
   Future<AssalLoadState<void>> deleteAccount();
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
       submitMerchantApplication(
@@ -183,6 +184,7 @@ abstract interface class AssalAuthGateway {
   Future<AssalAuthIdentity?> signUp(
       {required String name, required String email, required String password});
   Future<void> requestPasswordReset(String email);
+  Future<void> resendEmailConfirmation(String email);
   Future<void> deleteAccount();
   Future<AssalAuthIdentity?> signInWithGoogle();
   Future<AssalAuthIdentity?> signInWithFacebook();

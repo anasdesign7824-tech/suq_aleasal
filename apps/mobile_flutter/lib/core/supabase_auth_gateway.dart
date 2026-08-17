@@ -3,9 +3,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:assalkom_data/assal_repository.dart';
 
 class SupabaseAuthGateway implements AssalAuthGateway {
-  const SupabaseAuthGateway({required this.client});
+  const SupabaseAuthGateway({required this.client, this.emailRedirectTo});
 
   final SupabaseClient client;
+  final String? emailRedirectTo;
 
   @override
   Future<AssalAuthIdentity?> currentIdentity() async =>
@@ -33,6 +34,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       final response = await client.auth.signUp(
         email: email.trim(),
         password: password,
+        emailRedirectTo: emailRedirectTo,
         data: <String, Object?>{'display_name': name.trim()},
       );
       final identity = _identity(response.user);
@@ -55,7 +57,22 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   @override
   Future<void> requestPasswordReset(String email) async {
     try {
-      await client.auth.resetPasswordForEmail(email.trim());
+      await client.auth
+          .resetPasswordForEmail(email.trim(), redirectTo: emailRedirectTo);
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.statusCode ?? error.code);
+    }
+  }
+
+  @override
+  Future<void> resendEmailConfirmation(String email) async {
+    try {
+      await client.auth.resend(
+        email: email.trim(),
+        type: OtpType.signup,
+        emailRedirectTo: emailRedirectTo,
+      );
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
           code: error.statusCode ?? error.code);
@@ -113,6 +130,13 @@ class SupabaseAuthGateway implements AssalAuthGateway {
     if (code == 'email_not_confirmed') {
       return 'تحقق من بريدك الإلكتروني قبل تسجيل الدخول.';
     }
+    if (code == 'bad_code' ||
+        code == 'otp_expired' ||
+        code == 'token_expired' ||
+        code == 'invalid_token' ||
+        code == 'invalid_or_already_used_token') {
+      return 'رابط التحقق غير صالح أو انتهت صلاحيته. اطلب رسالة تأكيد جديدة ثم افتح أحدث رابط مرة واحدة فقط.';
+    }
     if (code == 'user_already_exists') {
       return 'يوجد حساب بهذا البريد الإلكتروني.';
     }
@@ -127,8 +151,6 @@ class SupabaseAuthGateway implements AssalAuthGateway {
     if (code == 'over_request_rate_limit') {
       return 'تم تجاوز عدد المحاولات. انتظر قليلًا ثم حاول مرة أخرى.';
     }
-    return error.message.isEmpty
-        ? 'تعذر إكمال المصادقة. حاول مرة أخرى.'
-        : error.message;
+    return 'تعذر إكمال المصادقة. تحقق من البيانات وحاول مرة أخرى.';
   }
 }

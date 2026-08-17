@@ -2,7 +2,7 @@
 
 **التاريخ:** 17 أغسطس 2026
 
-**آخر commit مدفوع:** قيد الدفع بعد إصلاح release INTERNET permission
+**آخر commit مدفوع:** قيد الدفع بعد إصلاح redirect ورسائل Auth
 
 ## الحكم المختصر
 
@@ -20,18 +20,24 @@
 | Flutter APK Release build | PASS — 82.5 MB — rebuilt after INTERNET fix |
 | Flutter AAB Release build | PASS — 80.6 MB — rebuilt after INTERNET fix |
 | Package | `com.assalkom.assalkom` |
-| APK SHA-256 | `3f385afa64f7d3b7ee8e9ea69161e8d12828461412e2098a977ff2be59c9e4ef` |
-| AAB SHA-256 | `69edca8fde64a9f003f7ea64e67fc208081c8d5238da0528de45bb61a4ed87d6` |
+| APK SHA-256 | `17b9ddcebb7934cbd2393f8f0bf771a68c1fb5951b1f24008b75bb07a001356e` |
+| AAB SHA-256 | `46f16069889e63f64f8bbb52c89e6bd16261738b684fd5583c69f72a2ac1becb` |
 | Social dependency scan | لا توجد `google_sign_in` أو `google_identity_services` في lockfile |
 | OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback`؛ manifest يحتوي launcher `MAIN` فقط للتطبيق، دون `VIEW`/`BROWSABLE` deep-link خارجي |
 | Supabase delete RPC ACL | `security_definer=true`, `anon=false`, `authenticated=true` بعد migration 0007 |
-| GitHub | سيُحدّث بعد دفع إصلاح INTERNET permission |
+| GitHub | سيُحدّث بعد دفع إصلاح redirect ورسائل Auth |
 
 فحص `aapt` النهائي أكد أن `com.assalkom.assalkom.MainActivity` هي launchable activity الوحيدة، وأن manifest لا يعلن `VIEW` أو `BROWSABLE` للتطبيق. ظهور marker عام لـ`android.intent.action.VIEW` داخل dex لا يساوي callback خارجيًا؛ مصدره مكتبات Android/Flutter العامة، وليس intent-filter في manifest.
 
 ## سبب الفشل الذي ظهر على Mimo والهاتف الحقيقي
 
 كان عنوان Supabase صحيحًا ويستجيب من خارج التطبيق، لكن `AndroidManifest.xml` الأساسي لم يكن يعلن صلاحية `android.permission.INTERNET`؛ الصلاحية كانت موجودة في debug/profile فقط. لذلك كان إصدار release يمرر طلبات Supabase إلى طبقة الشبكة دون صلاحية Android، فتظهر رسالة `Failed host lookup` حتى على هاتف حقيقي. أضيفت الصلاحية الآن إلى manifest الأساسي، وتم التحقق بـ`aapt dump permissions` من وجودها داخل APK الجديد.
+
+## إصلاحات Auth الأخيرة
+
+أصبح `signUp` يمرر `emailRedirectTo` من عنوان Supabase HTTPS الإنتاجي، وأصبح `resetPasswordForEmail` و`resend` يستخدمان العنوان نفسه بدل الاعتماد على redirect قديم. أضيف زر «إعادة إرسال رسالة تأكيد البريد» لتوليد رابط جديد عند انتهاء الرابط أو استهلاكه. تمت ترجمة أخطاء `bad_code` و`otp_expired` و`token_expired` و`invalid_token` إلى رسالة عربية، وأزيل إرجاع رسالة Supabase الخام حتى لا تظهر الإنجليزية التقنية للمستخدم.
+
+أضيف مؤشر تفاعلي لقوة كلمة المرور أثناء الكتابة، مع مؤشرات خضراء/حمراء للطول والحرف والرقم والرمز، ويدعم الحروف والأرقام العربية. كما أضيفت مزامنة Profile بعد الدخول وحذف الحساب دون `Navigator.pop` من جذر التطبيق.
 
 ## ما تم على Supabase
 

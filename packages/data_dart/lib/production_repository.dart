@@ -494,6 +494,25 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<void>> resendEmailConfirmation(String email) async {
+    final auth = _authGateway;
+    if (auth == null) {
+      return const AssalError('المصادقة الإنتاجية غير مهيأة بعد.',
+          code: 'production_auth_not_configured');
+    }
+    try {
+      await auth.resendEmailConfirmation(email.trim());
+      return const AssalData(null);
+    } on AssalAuthFailure catch (error) {
+      return AssalError(error.messageAr, code: error.code);
+    } on Object {
+      return const AssalError(
+          'تعذر إرسال رسالة التأكيد الآن. انتظر قليلًا ثم حاول مرة أخرى.',
+          code: 'email_confirmation_resend_failed');
+    }
+  }
+
+  @override
   Future<AssalLoadState<void>> deleteAccount() async {
     final auth = _authGateway;
     if (auth == null) {

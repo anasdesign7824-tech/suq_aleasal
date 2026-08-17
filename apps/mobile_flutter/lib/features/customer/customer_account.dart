@@ -74,8 +74,11 @@ class _AuthScreenState extends State<AuthScreen> {
         TextField(
             controller: passwordController,
             obscureText: true,
+            onChanged: (_) => setState(() {}),
             decoration: const InputDecoration(labelText: 'كلمة المرور')),
         if (registerMode) ...[
+          const SizedBox(height: AssalSpacing.sm),
+          _PasswordStrength(value: passwordController.text),
           const SizedBox(height: AssalSpacing.md),
           TextField(
               controller: confirmPasswordController,
@@ -93,10 +96,14 @@ class _AuthScreenState extends State<AuthScreen> {
                         child: AssalGlassLoading(
                             height: 44, label: 'جارٍ تسجيل الدخول...'))
                     : Text(registerMode ? 'إنشاء الحساب' : 'تسجيل الدخول'))),
-        if (!registerMode)
+        if (!registerMode) ...[
           TextButton(
               onPressed: loading ? null : _requestPasswordReset,
               child: const Text('نسيت كلمة المرور؟')),
+          TextButton(
+              onPressed: loading ? null : _resendEmailConfirmation,
+              child: const Text('إعادة إرسال رسالة تأكيد البريد')),
+        ],
         TextButton(
             onPressed: loading
                 ? null
@@ -155,6 +162,26 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  Future<void> _resendEmailConfirmation() async {
+    final email = emailController.text.trim();
+    if (!email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('أدخل بريدك الإلكتروني أولًا لإرسال رسالة التأكيد.')));
+      return;
+    }
+    setState(() => loading = true);
+    final result = await widget.repository.resendEmailConfirmation(email);
+    if (!mounted) return;
+    setState(() => loading = false);
+    if (result is AssalData<void>) {
+      setState(() => _authNotice =
+          'تم إرسال رسالة تأكيد جديدة. افتح أحدث رسالة واضغط الرابط مرة واحدة فقط.');
+    } else if (result is AssalError<void>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
   Future<void> _requestPasswordReset() async {
     final email = emailController.text.trim();
     if (!email.contains('@')) {
@@ -175,6 +202,63 @@ class _AuthScreenState extends State<AuthScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result.messageAr)));
     }
+  }
+}
+
+class _PasswordStrength extends StatelessWidget {
+  const _PasswordStrength({required this.value});
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final checks = <({String label, bool valid})>[
+      (label: '8 أحرف على الأقل', valid: value.length >= 8),
+      (
+        label: 'حرف عربي أو لاتيني',
+        valid: RegExp(r'[A-Za-z\u0600-\u06FF]').hasMatch(value)
+      ),
+      (label: 'رقم', valid: RegExp(r'[0-9٠-٩]').hasMatch(value)),
+      (
+        label: 'رمز خاص',
+        valid: RegExp(r'[^A-Za-z0-9\u0600-\u06FF٠-٩]').hasMatch(value)
+      ),
+    ];
+    final strong = checks.every((check) => check.valid);
+    final color = strong ? AssalColors.success : AssalColors.error;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AssalSpacing.sm),
+      decoration: BoxDecoration(
+        color: color.withAlpha(18),
+        borderRadius: BorderRadius.circular(AssalRadius.medium),
+        border: Border.all(color: color.withAlpha(100)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(strong ? 'كلمة المرور قوية' : 'كلمة المرور تحتاج إلى تقوية',
+            style: AssalTypography.caption
+                .copyWith(color: color, fontWeight: FontWeight.w700)),
+        const SizedBox(height: AssalSpacing.xs),
+        Wrap(
+          spacing: AssalSpacing.sm,
+          runSpacing: AssalSpacing.xs,
+          children: checks
+              .map((check) => Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(check.valid ? Icons.check_circle : Icons.cancel,
+                        size: 15,
+                        color: check.valid
+                            ? AssalColors.success
+                            : AssalColors.error),
+                    const SizedBox(width: 3),
+                    Text(check.label,
+                        style: AssalTypography.caption.copyWith(
+                            color: check.valid
+                                ? AssalColors.success
+                                : AssalColors.error)),
+                  ]))
+              .toList(),
+        ),
+      ]),
+    );
   }
 }
 
