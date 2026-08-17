@@ -8,28 +8,58 @@ import 'package:assalkom_design/assal_tokens.dart';
 import 'assal_assets.dart';
 
 class AssalBrandMark extends StatelessWidget {
-  const AssalBrandMark({super.key, this.size = 44, this.showName = true});
+  const AssalBrandMark({
+    super.key,
+    this.size = 44,
+    this.showName = false,
+    this.framed = false,
+  });
   final double size;
   final bool showName;
+  final bool framed;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-        label: 'عسلكم',
-        image: true,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(AssalAssets.logoInternal,
-                width: size, height: size),
-            if (showName) ...[
-              const SizedBox(width: AssalSpacing.sm),
-              Text('عسلكم',
-                  style: AssalTypography.heading3
-                      .copyWith(color: AssalColors.deepBrown)),
-            ],
+  Widget build(BuildContext context) {
+    final mark = framed
+        ? Container(
+            width: size,
+            height: size,
+            padding:
+                EdgeInsets.all(size >= 64 ? AssalSpacing.sm : AssalSpacing.xs),
+            decoration: BoxDecoration(
+              color: AssalColors.cream,
+              borderRadius: BorderRadius.circular(AssalRadius.small),
+              border:
+                  Border.all(color: AssalColors.cream.withValues(alpha: .9)),
+            ),
+            child: SvgPicture.asset(AssalAssets.logoInternal),
+          )
+        : SvgPicture.asset(
+            AssalAssets.logoInternal,
+            width: size,
+            height: size,
+          );
+
+    return Semantics(
+      label: 'عسلكم',
+      image: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          mark,
+          if (showName) ...[
+            const SizedBox(width: AssalSpacing.sm),
+            Text(
+              'عسلكم',
+              style: AssalTypography.heading3.copyWith(
+                color: AssalColors.deepBrown,
+              ),
+            ),
           ],
-        ),
-      );
+        ],
+      ),
+    );
+  }
 }
 
 class DemoModePill extends StatelessWidget {
@@ -60,17 +90,39 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBrand;
 
   @override
-  Widget build(BuildContext context) => AppBar(
-        titleSpacing: showBrand ? AssalSpacing.sm : null,
-        leading: showBrand
-            ? const Padding(
-                padding: EdgeInsets.all(AssalSpacing.sm),
-                child: AssalBrandMark(size: 36, showName: false),
-              )
-            : null,
-        title: Text(title),
-        actions: actions,
-      );
+  Widget build(BuildContext context) {
+    final canPop = ModalRoute.of(context)?.canPop ?? false;
+    return AppBar(
+      titleSpacing: AssalSpacing.sm,
+      leading: canPop
+          ? IconButton(
+              tooltip: 'رجوع',
+              icon: const Icon(Icons.arrow_forward_rounded),
+              onPressed: () => Navigator.of(context).maybePop(),
+            )
+          : showBrand
+              ? const Padding(
+                  padding: EdgeInsets.all(AssalSpacing.sm),
+                  child: AssalBrandMark(
+                    size: 36,
+                    showName: false,
+                    framed: true,
+                  ),
+                )
+              : null,
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showBrand && canPop) ...[
+            const AssalBrandMark(size: 28, showName: false, framed: true),
+            const SizedBox(width: AssalSpacing.sm),
+          ],
+          Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+      actions: actions,
+    );
+  }
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -104,73 +156,73 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
         label: widget.label,
         child: Center(
           child: SizedBox(
-          height: widget.height,
-          width: double.infinity,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [
-                    AssalColors.cream.withValues(alpha: .72),
-                    AssalColors.honeyLight.withValues(alpha: .48)
-                  ]),
-                  border: Border.all(
-                      color: AssalColors.cream.withValues(alpha: .85)),
-                  boxShadow: [
-                    BoxShadow(
-                        color: AssalColors.deepBrown.withValues(alpha: .08),
-                        blurRadius: 18,
-                        offset: const Offset(0, 8))
-                  ],
-                ),
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) => ShaderMask(
-                    blendMode: BlendMode.srcIn,
-                    shaderCallback: (bounds) {
-                      final shift = -1.2 + (_controller.value * 2.4);
-                      return LinearGradient(
-                          begin: Alignment(shift, -0.3),
-                          end: Alignment(shift + 1.2, 0.3),
-                          colors: const [
-                            AssalColors.textMuted,
-                            AssalColors.cream,
-                            AssalColors.textMuted
-                          ]).createShader(bounds);
-                    },
-                    child: child,
+            height: widget.height,
+            width: double.infinity,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                      AssalColors.cream.withValues(alpha: .72),
+                      AssalColors.honeyLight.withValues(alpha: .48)
+                    ]),
+                    border: Border.all(
+                        color: AssalColors.cream.withValues(alpha: .85)),
+                    boxShadow: [
+                      BoxShadow(
+                          color: AssalColors.deepBrown.withValues(alpha: .08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8))
+                    ],
                   ),
-                  child: widget.height < 90
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                              const Icon(Icons.hive_outlined, size: 18),
-                              const SizedBox(width: AssalSpacing.xs),
-                              Text(widget.label,
-                                  style: AssalTypography.caption),
-                            ])
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                              const Icon(Icons.hive_outlined, size: 34),
-                              const SizedBox(height: AssalSpacing.sm),
-                              Text(widget.label,
-                                  textAlign: TextAlign.center,
-                                  style: AssalTypography.bodySmall),
-                              const SizedBox(height: AssalSpacing.md),
-                              const _SkeletonBar(width: 150),
-                              const SizedBox(height: AssalSpacing.sm),
-                              const _SkeletonBar(width: 116),
-                              const SizedBox(height: AssalSpacing.sm),
-                              const _SkeletonBar(width: 82),
-                            ]),
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) => ShaderMask(
+                      blendMode: BlendMode.srcIn,
+                      shaderCallback: (bounds) {
+                        final shift = -1.2 + (_controller.value * 2.4);
+                        return LinearGradient(
+                            begin: Alignment(shift, -0.3),
+                            end: Alignment(shift + 1.2, 0.3),
+                            colors: const [
+                              AssalColors.textMuted,
+                              AssalColors.cream,
+                              AssalColors.textMuted
+                            ]).createShader(bounds);
+                      },
+                      child: child,
+                    ),
+                    child: widget.height < 90
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                                const Icon(Icons.hive_outlined, size: 18),
+                                const SizedBox(width: AssalSpacing.xs),
+                                Text(widget.label,
+                                    style: AssalTypography.caption),
+                              ])
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                                const Icon(Icons.hive_outlined, size: 34),
+                                const SizedBox(height: AssalSpacing.sm),
+                                Text(widget.label,
+                                    textAlign: TextAlign.center,
+                                    style: AssalTypography.bodySmall),
+                                const SizedBox(height: AssalSpacing.md),
+                                const _SkeletonBar(width: 150),
+                                const SizedBox(height: AssalSpacing.sm),
+                                const _SkeletonBar(width: 116),
+                                const SizedBox(height: AssalSpacing.sm),
+                                const _SkeletonBar(width: 82),
+                              ]),
+                  ),
                 ),
               ),
             ),
-          ),
           ),
         ),
       );
@@ -229,7 +281,8 @@ class AssalStateView<T> extends StatelessWidget {
     required this.state,
     required this.builder,
     this.onRetry,
-    this.emptyMessageAr = 'لا توجد نتائج متاحة الآن. جرّب تغيير الفلاتر أو البحث مرة أخرى.',
+    this.emptyMessageAr =
+        'لا توجد نتائج متاحة الآن. جرّب تغيير الفلاتر أو البحث مرة أخرى.',
   });
   final AssalLoadState<T> state;
   final Widget Function(T value) builder;
@@ -251,39 +304,65 @@ class AssalStateView<T> extends StatelessWidget {
             message: messageAr,
             onRetry: onRetry,
           ),
-        AssalError<T>(:final messageAr, :final code) => AssalMessageCard(
-            icon: Icons.error_outline,
-            message: '$messageAr${code == null ? '' : '\nرمز: $code'}',
-            onRetry: onRetry),
+        AssalError<T>(:final messageAr) => AssalMessageCard(
+            icon: Icons.error_outline, message: messageAr, onRetry: onRetry),
       };
 }
 
 class AssalMessageCard extends StatelessWidget {
-  const AssalMessageCard(
-      {super.key, required this.icon, required this.message, this.onRetry});
+  const AssalMessageCard({
+    super.key,
+    required this.icon,
+    required this.message,
+    this.onRetry,
+  });
   final IconData icon;
   final String message;
   final VoidCallback? onRetry;
+
   @override
-  Widget build(BuildContext context) => Card(
-        margin: const EdgeInsets.symmetric(vertical: AssalSpacing.md),
-        child: Padding(
-          padding: const EdgeInsets.all(AssalSpacing.x2l),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(icon, size: 42, color: AssalColors.textMuted),
-            const SizedBox(height: AssalSpacing.md),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: AssalTypography.body
-                    .copyWith(color: AssalColors.textSecondary)),
-            if (onRetry != null) ...[
-              const SizedBox(height: AssalSpacing.md),
-              OutlinedButton.icon(
-                  onPressed: onRetry,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('إعادة المحاولة')),
-            ],
-          ]),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: AssalSpacing.md),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AssalSpacing.lg,
+                vertical: AssalSpacing.md,
+              ),
+              decoration: BoxDecoration(
+                color: AssalColors.surfaceVariant.withValues(alpha: .46),
+                borderRadius: BorderRadius.circular(AssalRadius.medium),
+                border: Border.all(color: AssalColors.border),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 28, color: AssalColors.textMuted),
+                  const SizedBox(width: AssalSpacing.md),
+                  Expanded(
+                    child: Text(
+                      message,
+                      textAlign: TextAlign.start,
+                      style: AssalTypography.body.copyWith(
+                        color: AssalColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  if (onRetry != null) ...[
+                    const SizedBox(width: AssalSpacing.sm),
+                    IconButton(
+                      tooltip: 'إعادة المحاولة',
+                      onPressed: onRetry,
+                      icon: const Icon(Icons.refresh_rounded),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
         ),
       );
 }
@@ -343,14 +422,13 @@ String formatAssalPrice(double? price, String currencyCode) {
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard(
-      {
-        super.key,
-        required this.product,
-        required this.onTap,
-        this.onFavorite,
-        this.showVerifiedBadge = false,
-      });
+  const ProductCard({
+    super.key,
+    required this.product,
+    required this.onTap,
+    this.onFavorite,
+    this.showVerifiedBadge = false,
+  });
   final AssalProductSummary product;
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
@@ -392,9 +470,11 @@ class ProductCard extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.verified, size: 14, color: AssalColors.cream),
+                            Icon(Icons.verified,
+                                size: 14, color: AssalColors.cream),
                             SizedBox(width: AssalSpacing.xs),
-                            Text('موثق', style: TextStyle(color: AssalColors.cream)),
+                            Text('موثق',
+                                style: TextStyle(color: AssalColors.cream)),
                           ],
                         ),
                       ),

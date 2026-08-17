@@ -44,24 +44,22 @@ class _AuthScreenState extends State<AuthScreen> {
           child: AssalBrandMark(size: 92, showName: false),
         ),
         const SizedBox(height: AssalSpacing.xl),
-        Text(registerMode ? 'أنشئ حسابك في عسلكم' : 'تسجيل الدخول',
-            style: AssalTypography.heading1
-                .copyWith(color: AssalColors.deepBrown)),
+        Text(
+          registerMode ? 'ابدأ تجربتك مع العسل' : 'مرحبًا بك من جديد',
+          textAlign: TextAlign.center,
+          style: AssalTypography.heading1.copyWith(
+            color: AssalColors.deepBrown,
+          ),
+        ),
         const SizedBox(height: AssalSpacing.sm),
         Text(
-            registerMode
-                ? 'أنشئ حسابك للوصول إلى الحفظ والمتابعة والطلبات والمراسلة.'
-                : 'أدخل بريدك الإلكتروني فقط، وسنرسل لك رمز دخول آمنًا.',
-            style: AssalTypography.bodyLarge
-                .copyWith(color: AssalColors.textSecondary)),
-        const SizedBox(height: AssalSpacing.md),
-        Text(
           registerMode
-              ? 'أنشئ حسابًا جديدًا للبدء.'
-              : 'هل لديك حساب؟ سجّل الدخول إلى حسابك الموجود.',
+              ? 'أنشئ حسابك للوصول إلى الحفظ والمتابعة والطلبات والمراسلة.'
+              : 'سجّل دخولك بالبريد الإلكتروني، وسنرسل لك رمز التحقق.',
           textAlign: TextAlign.center,
-          style: AssalTypography.body.copyWith(
-              color: AssalColors.textSecondary, fontWeight: FontWeight.w600),
+          style: AssalTypography.bodyLarge.copyWith(
+            color: AssalColors.textSecondary,
+          ),
         ),
         const SizedBox(height: AssalSpacing.xl),
         if (registerMode) ...[
