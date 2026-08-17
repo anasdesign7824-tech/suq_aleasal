@@ -481,8 +481,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<AssalSession>(
-      future: repository.getSession(),
+    return Scaffold(
+      appBar: const AssalAppBar(title: 'حسابي'),
+      body: FutureBuilder<AssalSession>(
+        future: repository.getSession(),
       builder: (context, snapshot) {
         final session = snapshot.data ?? AssalSession.guest;
         return ListView(
@@ -530,7 +532,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ]))
               ])),
             ]);
-      },
+        },
+      ),
     );
   }
 

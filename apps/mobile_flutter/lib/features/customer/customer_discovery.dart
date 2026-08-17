@@ -223,6 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _PinnedHeaderDelegate(
+                  topInset: MediaQuery.paddingOf(context).top,
                   child: _Header(
                     repository: widget.repository,
                     notificationsFuture: notificationsFuture,
@@ -458,6 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SliverPersistentHeader(
           pinned: true,
           delegate: _PinnedHeaderDelegate(
+            topInset: MediaQuery.paddingOf(context).top,
             child: _Header(
               repository: widget.repository,
               notificationsFuture: notificationsFuture,
@@ -587,14 +589,16 @@ class _NewsTickerState extends State<_NewsTicker> {
 }
 
 class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
-  const _PinnedHeaderDelegate({required this.child});
+  const _PinnedHeaderDelegate({required this.topInset, required this.child});
+  static const contentExtent = 160.0;
+  final double topInset;
   final Widget child;
 
   @override
-  double get minExtent => 160;
+  double get minExtent => topInset + contentExtent;
 
   @override
-  double get maxExtent => 160;
+  double get maxExtent => topInset + contentExtent;
 
   @override
   Widget build(
@@ -605,14 +609,14 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
           color: Colors.transparent,
           elevation: overlapsContent ? 4 : 0,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               AssalSpacing.lg,
-              AssalSpacing.xs,
+              topInset + AssalSpacing.xs,
               AssalSpacing.lg,
               AssalSpacing.sm,
             ),
             child: SizedBox(
-              height: maxExtent,
+              height: contentExtent - AssalSpacing.xs - AssalSpacing.sm,
               child: child,
             ),
           ),
