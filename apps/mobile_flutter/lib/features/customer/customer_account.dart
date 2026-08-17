@@ -20,6 +20,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final confirmPasswordController = TextEditingController();
   bool registerMode = false;
   bool loading = false;
+  String? _authNotice;
   @override
   void dispose() {
     nameController.dispose();
@@ -44,6 +45,20 @@ class _AuthScreenState extends State<AuthScreen> {
             style: AssalTypography.bodyLarge
                 .copyWith(color: AssalColors.textSecondary)),
         const SizedBox(height: AssalSpacing.xl),
+        if (_authNotice != null) ...[
+          Container(
+            padding: const EdgeInsets.all(AssalSpacing.md),
+            decoration: BoxDecoration(
+              color: AssalColors.honeyLight,
+              borderRadius: BorderRadius.circular(AssalRadius.medium),
+              border: Border.all(color: AssalColors.primary.withAlpha(80)),
+            ),
+            child: Text(_authNotice!,
+                style: AssalTypography.body.copyWith(
+                    color: AssalColors.deepBrown, fontWeight: FontWeight.w600)),
+          ),
+          const SizedBox(height: AssalSpacing.md),
+        ],
         if (registerMode) ...[
           TextField(
               controller: nameController,
@@ -85,17 +100,26 @@ class _AuthScreenState extends State<AuthScreen> {
         TextButton(
             onPressed: loading
                 ? null
-                : () => setState(() => registerMode = !registerMode),
+                : () => setState(() {
+                      registerMode = !registerMode;
+                      _authNotice = null;
+                    }),
             child: Text(registerMode
                 ? 'لديك حساب؟ تسجيل الدخول'
                 : 'ليس لديك حساب؟ إنشاء حساب'))
       ]));
   Future<void> _submit() async {
-    if (emailController.text.trim().isEmpty ||
-        !emailController.text.contains('@') ||
-        passwordController.text.length < 8) {
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    if (email.isEmpty || !email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('أدخل بريدًا إلكترونيًا صالحًا.')));
+      return;
+    }
+    if (password.isEmpty || (registerMode && password.length < 8)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('أدخل بريدًا صالحًا وكلمة مرور من 8 أحرف على الأقل.')));
+          content: Text(
+              'اختر كلمة مرور أقوى: 8 أحرف على الأقل ويفضل أن تجمع بين حروف وأرقام ورموز.')));
       return;
     }
     if (registerMode &&
@@ -113,8 +137,18 @@ class _AuthScreenState extends State<AuthScreen> {
             .signIn(emailController.text, passwordController.text);
     if (!mounted) return;
     setState(() => loading = false);
+    if (result is AssalError<AssalSession> &&
+        result.code == 'email_confirmation_required') {
+      setState(() {
+        registerMode = false;
+        _authNotice = result.messageAr;
+        passwordController.clear();
+        confirmPasswordController.clear();
+      });
+      return;
+    }
     if (result is AssalData<AssalSession>) {
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else if (result is AssalError<AssalSession>) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result.messageAr)));
@@ -144,9 +178,16 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, required this.repository});
   final AssalRepository repository;
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  AssalRepository get repository => widget.repository;
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +263,10 @@ class ProfileScreen extends StatelessWidget {
           const Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'),
           const SizedBox(height: AssalSpacing.lg),
           FilledButton(
-              onPressed: () => openAuth(context, repository),
+              onPressed: () async {
+                final authenticated = await openAuth(context, repository);
+                if (mounted && authenticated) setState(() {});
+              },
               child: const Text('تسجيل الدخول أو إنشاء حساب')),
         ]),
       ),
@@ -308,7 +352,11 @@ class ProfileScreen extends StatelessWidget {
     final result = await repository.deleteAccount();
     if (!context.mounted) return;
     if (result is AssalData<void>) {
-      Navigator.of(context).pop();
+      if (context.mounted) {
+        setState(() {});
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم حذف الحساب وتسجيل الخروج.')));
+      }
     } else if (result is AssalError<void>) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result.messageAr)));

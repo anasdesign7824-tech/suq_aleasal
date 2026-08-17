@@ -36,7 +36,9 @@ class SupabaseAuthGateway implements AssalAuthGateway {
         data: <String, Object?>{'display_name': name.trim()},
       );
       final identity = _identity(response.user);
-      if (identity == null && response.session == null) {
+      // Supabase returns a user but no session when email confirmation is required.
+      // Never treat that response as an authenticated login.
+      if (response.session == null) {
         throw const AssalAuthFailure(
             'تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتأكيد الحساب ثم سجّل الدخول.',
             code: 'email_confirmation_required');
@@ -114,8 +116,13 @@ class SupabaseAuthGateway implements AssalAuthGateway {
     if (code == 'user_already_exists') {
       return 'يوجد حساب بهذا البريد الإلكتروني.';
     }
-    if (code == 'weak_password') {
-      return 'اختر كلمة مرور أقوى.';
+    if (code == 'weak_password' ||
+        code == 'password_too_short' ||
+        code == 'password_strength') {
+      return 'اختر كلمة مرور أقوى: استخدم 8 أحرف على الأقل وامزج بين الحروف والأرقام والرموز.';
+    }
+    if (code == 'invalid_email' || code == 'email_address_invalid') {
+      return 'أدخل بريدًا إلكترونيًا صالحًا.';
     }
     if (code == 'over_request_rate_limit') {
       return 'تم تجاوز عدد المحاولات. انتظر قليلًا ثم حاول مرة أخرى.';
