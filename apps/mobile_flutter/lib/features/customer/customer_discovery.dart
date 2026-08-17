@@ -226,6 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: _Header(
                     repository: widget.repository,
                     notificationsFuture: notificationsFuture,
+                    bannersFuture: bannersFuture,
                     onOpenNotifications: widget.onOpenNotifications,
                     searchController: searchController,
                     onOpenSearch: widget.onOpenSearch,
@@ -460,6 +461,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: _Header(
               repository: widget.repository,
               notificationsFuture: notificationsFuture,
+              bannersFuture: bannersFuture,
               onOpenNotifications: widget.onOpenNotifications,
               searchController: searchController,
               onOpenSearch: widget.onOpenSearch,
@@ -625,6 +627,7 @@ class _Header extends StatelessWidget {
   const _Header({
     required this.repository,
     required this.notificationsFuture,
+    required this.bannersFuture,
     required this.onOpenNotifications,
     required this.searchController,
     required this.onOpenSearch,
@@ -632,6 +635,7 @@ class _Header extends StatelessWidget {
   final AssalRepository repository;
   final Future<AssalLoadState<List<AssalNotificationSummary>>>
       notificationsFuture;
+  final Future<AssalLoadState<List<AssalBannerSummary>>> bannersFuture;
   final VoidCallback onOpenNotifications;
   final TextEditingController searchController;
   final VoidCallback onOpenSearch;
@@ -717,8 +721,33 @@ class _Header extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AssalSpacing.xs),
-          const _HomeIntroTicker(),
-          const SizedBox(height: AssalSpacing.xs),
+          FutureBuilder<AssalLoadState<List<AssalBannerSummary>>>(
+            future: bannersFuture,
+            builder: (context, snapshot) {
+              final state = snapshot.data;
+              final items = state is AssalData<List<AssalBannerSummary>>
+                  ? state.value
+                  : const <AssalBannerSummary>[];
+              final tickerItems = items.isNotEmpty ||
+                      repository.mode != AssalDataSourceMode.demo ||
+                      state != null
+                  ? items
+                  : const <AssalBannerSummary>[
+                      AssalBannerSummary(
+                        id: 'demo-ticker-loading',
+                        titleAr: 'الثقة تبدأ من المصدر   •   سدر يمني من وديانه',
+                        descriptionAr: '',
+                        ctaLabelAr: 'استكشف',
+                        imageUrl: '',
+                      ),
+                    ];
+              return _HomeIntroTicker(
+                items: tickerItems,
+                onTap: onOpenSearch,
+              );
+            },
+          ),
+          const SizedBox(height: AssalSpacing.sm),
           SizedBox(
             height: 48,
             child: TextField(
@@ -753,7 +782,9 @@ class _Header extends StatelessWidget {
 }
 
 class _HomeIntroTicker extends StatefulWidget {
-  const _HomeIntroTicker();
+  const _HomeIntroTicker({required this.items, required this.onTap});
+  final List<AssalBannerSummary> items;
+  final VoidCallback onTap;
 
   @override
   State<_HomeIntroTicker> createState() => _HomeIntroTickerState();
@@ -761,67 +792,114 @@ class _HomeIntroTicker extends StatefulWidget {
 
 class _HomeIntroTickerState extends State<_HomeIntroTicker>
     with SingleTickerProviderStateMixin {
-  late final AnimationController controller = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 9),
-  )..repeat(reverse: true);
+  AnimationController? controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncController();
+  }
+
+  @override
+  void didUpdateWidget(covariant _HomeIntroTicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items.isEmpty != widget.items.isEmpty) {
+      _syncController();
+    }
+  }
+
+  void _syncController() {
+    if (widget.items.isEmpty) {
+      controller?.dispose();
+      controller = null;
+      return;
+    }
+    controller ??= AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 12),
+    )..repeat();
+  }
 
   @override
   void dispose() {
-    controller.dispose();
+    controller?.dispose();
+    controller = null;
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-        height: 30,
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .12),
-          borderRadius: BorderRadius.circular(AssalRadius.medium),
-          border: Border.all(color: Colors.white.withValues(alpha: .28)),
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final style = AssalTypography.caption.copyWith(
-              color: AssalColors.cream,
-              fontWeight: FontWeight.w600,
-            );
-            final painter = TextPainter(
-              text: TextSpan(
-                text:
-                    'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بالطريقة المناسبة لك',
-                style: style,
-              ),
-              textDirection: TextDirection.rtl,
-            )..layout();
-            final overflow = (painter.width - constraints.maxWidth).clamp(
-              0.0,
-              double.infinity,
-            );
-            return AnimatedBuilder(
-              animation: controller,
-              builder: (context, child) => Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Transform.translate(
-                  offset: Offset(-overflow * controller.value, 0),
-                  child: child,
+  Widget build(BuildContext context) {
+    if (widget.items.isEmpty || controller == null) {
+      return const SizedBox.shrink();
+    }
+    final text = widget.items
+        .map((item) => item.titleAr.trim())
+        .where((item) => item.isNotEmpty)
+        .join('   •   ');
+    if (text.isEmpty) return const SizedBox.shrink();
+    final style = AssalTypography.caption.copyWith(
+      color: AssalColors.cream,
+      fontWeight: FontWeight.w600,
+    );
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(AssalRadius.medium),
+        child: Container(
+          height: 32,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: .12),
+            borderRadius: BorderRadius.circular(AssalRadius.medium),
+            border: Border.all(color: Colors.white.withValues(alpha: .28)),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final painter = TextPainter(
+                text: TextSpan(text: text, style: style),
+                textDirection: TextDirection.rtl,
+                maxLines: 1,
+              )..layout();
+              final textWidth = painter.width + AssalSpacing.lg;
+              final start = constraints.maxWidth + AssalSpacing.md;
+              final end = -textWidth - AssalSpacing.md;
+              return AnimatedBuilder(
+                animation: controller!,
+                builder: (context, child) {
+                  final x = start + (end - start) * controller!.value;
+                  return ClipRect(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Positioned(
+                          left: x,
+                          top: 0,
+                          bottom: 0,
+                          width: textWidth,
+                          child: Center(child: child),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Text(
+                    text,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    style: style,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AssalSpacing.md),
-                child: Text(
-                  'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بالطريقة المناسبة لك',
-                  maxLines: 1,
-                  softWrap: false,
-                  style: style,
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _BannersCarousel extends StatefulWidget {
@@ -848,6 +926,7 @@ class _BannersCarouselState extends State<_BannersCarousel> {
   List<AssalBannerSummary> get visibleBanners => widget.banners
       .where((item) => item.imageUrl.trim().startsWith('http') ||
           item.imageUrl.trim().startsWith('assets/'))
+      .take(4)
       .toList(growable: false);
 
   @override
@@ -1040,7 +1119,10 @@ class _CategoryTile extends StatelessWidget {
               border: Border.all(color: AssalColors.border),
               borderRadius: BorderRadius.circular(AssalRadius.large)),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Icon(Icons.category_outlined, color: AssalColors.primaryDark),
+            Icon(
+              _taxonomyIcon(item.nameAr),
+              color: AssalColors.primaryDark,
+            ),
             const SizedBox(height: AssalSpacing.xs),
             Text(item.nameAr,
                 maxLines: 2,
@@ -1152,18 +1234,26 @@ class CategoriesScreen extends StatelessWidget {
                   const SizedBox(height: AssalSpacing.sm),
               itemBuilder: (_, index) {
                 final category = categories[index];
+                final description = category.description?.trim();
+                final subtitle = <String>[
+                  if (description != null &&
+                      description.isNotEmpty &&
+                      !description.contains('Master'))
+                    description,
+                  '${category.productCount} منتج متاح',
+                ].join('\n');
                 return Card(
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: AssalColors.honeyLight,
-                      child: Icon(_categoryIcon(category.productType),
-                          color: AssalColors.primaryDark),
+                      child: Icon(
+                        _taxonomyIcon(category.nameAr, category.productType),
+                        color: AssalColors.primaryDark,
+                      ),
                     ),
                     title: Text(category.nameAr),
-                    subtitle: Text(
-                      '${category.description ?? 'قسم مرجعي من Honey Master Database'}\n${category.productCount} منتج متاح',
-                    ),
-                    isThreeLine: true,
+                    subtitle: Text(subtitle),
+                    isThreeLine: subtitle.contains('\n'),
                     trailing: const Icon(Icons.chevron_left),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -1183,13 +1273,29 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-  IconData _categoryIcon(ProductType type) => switch (type) {
-        ProductType.honey => Icons.water_drop_outlined,
-        ProductType.wax => Icons.hexagon_outlined,
-        ProductType.mix => Icons.local_florist_outlined,
-        ProductType.raw => Icons.hive_outlined,
-        ProductType.gift => Icons.card_giftcard_outlined,
-      };
+}
+
+IconData _taxonomyIcon(String nameAr, [ProductType? type]) {
+  final name = nameAr.trim();
+  if (name.contains('شمع')) return Icons.hexagon_outlined;
+  if (name.contains('سدر')) return Icons.water_drop_outlined;
+  if (name.contains('سمر') || name.contains('طلح')) {
+    return Icons.eco_outlined;
+  }
+  if (name.contains('خلط') || name.contains('مزيج')) {
+    return Icons.local_florist_outlined;
+  }
+  if (name.contains('هد')) return Icons.card_giftcard_outlined;
+  if (name.contains('صافي') || name.contains('سائل')) {
+    return Icons.opacity_outlined;
+  }
+  return switch (type ?? ProductType.honey) {
+    ProductType.honey => Icons.water_drop_outlined,
+    ProductType.wax => Icons.hexagon_outlined,
+    ProductType.mix => Icons.local_florist_outlined,
+    ProductType.raw => Icons.hive_outlined,
+    ProductType.gift => Icons.card_giftcard_outlined,
+  };
 }
 
 class SearchScreen extends StatefulWidget {
@@ -1238,6 +1344,8 @@ class _SearchScreenState extends State<SearchScreen> {
   double? dataMaxPrice;
   double dataMaxRating = 5;
   YemenLocationReference? locationReference;
+  List<AssalCategorySummary> filterCategories = const <AssalCategorySummary>[];
+  List<AssalTaxonomy> filterTaxonomy = const <AssalTaxonomy>[];
   late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
   late Future<AssalLoadState<List<String>>> popularSearchesFuture;
 
@@ -1247,6 +1355,8 @@ class _SearchScreenState extends State<SearchScreen> {
     categoryId = widget.initialCategoryId;
     subcategoryId = widget.initialSubcategoryId;
     verifiedOnly = widget.verifiedOnly;
+    unawaited(_primeFilterLabels());
+    unawaited(_primeLocationReference());
     _search();
   }
 
@@ -1255,6 +1365,46 @@ class _SearchScreenState extends State<SearchScreen> {
     controller.dispose();
     super.dispose();
   }
+
+  Future<void> _primeFilterLabels() async {
+    final categories = await widget.repository.listCategories();
+    final taxonomy = await widget.repository.listTaxonomy();
+    if (!mounted) return;
+    setState(() {
+      if (categories is AssalData<List<AssalCategorySummary>>) {
+        filterCategories = categories.value;
+      }
+      if (taxonomy is AssalData<List<AssalTaxonomy>>) {
+        filterTaxonomy = taxonomy.value;
+      }
+    });
+  }
+
+  Future<void> _primeLocationReference() async {
+    try {
+      final reference = await YemenLocationReference.load();
+      if (mounted) locationReference = reference;
+    } on Object {
+      // The filter sheet retries explicitly and owns the user-facing message.
+    }
+  }
+
+  String _categoryLabel(String id) => filterCategories
+      .where((item) => item.id == id)
+      .map((item) => item.nameAr)
+      .firstWhere((name) => name.isNotEmpty, orElse: () => 'القسم المحدد');
+
+  String _subcategoryLabel(String id) => filterTaxonomy
+      .where((item) => item.id == id)
+      .map((item) => item.nameAr)
+      .firstWhere((name) => name.isNotEmpty, orElse: () => 'التصنيف المحدد');
+
+  String _regionLabel(String id) => locationReference?.governorateByCode(id)?.nameAr ??
+      locationReference?.governorateByCode(id)?.nameAr ??
+      'المحافظة المحددة';
+
+  String _provinceLabel(String id) => locationReference?.districtByCode(id)?.nameAr ??
+      'المديرية المحددة';
 
   void _search() {
     final query = AssalProductQuery(
@@ -1335,21 +1485,21 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Widget> _activeFilterChips() => [
         if (categoryId != null)
           InputChip(
-              label: Text('القسم: $categoryId'),
+              label: Text('القسم: ${_categoryLabel(categoryId!)}'),
               onDeleted: () => setState(() {
                     categoryId = null;
                     _search();
                   })),
         if (subcategoryId != null)
           InputChip(
-              label: Text('التصنيف: $subcategoryId'),
+              label: Text('التصنيف: ${_subcategoryLabel(subcategoryId!)}'),
               onDeleted: () => setState(() {
                     subcategoryId = null;
                     _search();
                   })),
         if (regionId != null)
           InputChip(
-              label: Text('المحافظة: $regionId'),
+              label: Text('المحافظة: ${_regionLabel(regionId!)}'),
               onDeleted: () => setState(() {
                     regionId = null;
                     provinceId = null;
@@ -1357,7 +1507,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   })),
         if (provinceId != null)
           InputChip(
-              label: Text('المديرية: $provinceId'),
+              label: Text('المديرية: ${_provinceLabel(provinceId!)}'),
               onDeleted: () => setState(() {
                     provinceId = null;
                     _search();
@@ -1623,8 +1773,8 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _showFilters() async {
-    final reference = locationReference ??= await _loadLocationReference();
-    if (reference == null || !mounted) return;
+    final reference = locationReference ?? await _loadLocationReference();
+    if (!mounted) return;
     var draftRegion = regionId ?? '';
     var draftProvince = provinceId ?? '';
     var draftCategory = categoryId ?? '';
@@ -1652,6 +1802,12 @@ class _SearchScreenState extends State<SearchScreen> {
     final categoryState = await widget.repository.listCategories();
     final taxonomyState = await widget.repository.listTaxonomy();
     if (!mounted) return;
+    if (categoryState is AssalData<List<AssalCategorySummary>>) {
+      filterCategories = categoryState.value;
+    }
+    if (taxonomyState is AssalData<List<AssalTaxonomy>>) {
+      filterTaxonomy = taxonomyState.value;
+    }
     final categoryItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل الأقسام')),
       if (categoryState is AssalData<List<AssalCategorySummary>>)
@@ -1662,19 +1818,35 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
     ];
-    final subcategoryItems = <DropdownMenuItem<String>>[
-      const DropdownMenuItem<String>(
-        value: '',
-        child: Text('كل التصنيفات الفرعية'),
-      ),
-      if (taxonomyState is AssalData<List<AssalTaxonomy>>)
-        ...taxonomyState.value.map(
+    List<DropdownMenuItem<String>> subcategoryItemsFor(String selectedCategory) {
+      final taxonomies = filterTaxonomy.where((taxonomy) {
+        final parentId = taxonomy.metadata['category_id'] ??
+            taxonomy.metadata['parent_category_id'] ??
+            taxonomy.metadata['parent_id'];
+        return selectedCategory.isEmpty ||
+            parentId == null ||
+            parentId.toString() == selectedCategory;
+      });
+      return [
+        const DropdownMenuItem<String>(
+          value: '',
+          child: Text('كل التصنيفات الفرعية'),
+        ),
+        ...taxonomies.map(
           (taxonomy) => DropdownMenuItem<String>(
             value: taxonomy.id,
             child: Text(taxonomy.nameAr),
           ),
         ),
-    ];
+      ];
+    }
+    if (!categoryItems.any((item) => item.value == draftCategory)) {
+      draftCategory = '';
+    }
+    if (!subcategoryItemsFor(draftCategory)
+        .any((item) => item.value == draftSubcategory)) {
+      draftSubcategory = '';
+    }
     final typeItems = <DropdownMenuItem<ProductType?>>[
       const DropdownMenuItem<ProductType?>(
           value: null, child: Text('كل الأنواع')),
@@ -1693,13 +1865,22 @@ class _SearchScreenState extends State<SearchScreen> {
     final availabilityItems = _stringOptions(availabilityOptions);
     final regionItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل المحافظات')),
-      ...reference.governorates.map(
+          ...(reference?.governorates ?? const <AssalRegion>[]).map(
         (region) => DropdownMenuItem<String>(
           value: region.code ?? region.id,
           child: Text(region.nameAr),
         ),
       ),
     ];
+    if (!regionItems.any((item) => item.value == draftRegion)) {
+      draftRegion = '';
+    }
+    final validDistricts = reference?.districtsFor(draftRegion) ??
+        const <AssalRegion>[];
+    if (!validDistricts.any((item) =>
+        (item.code ?? item.id) == draftProvince)) {
+      draftProvince = '';
+    }
     final apply = await showModalBottomSheet<bool>(
       context: context,
       showDragHandle: true,
@@ -1737,7 +1918,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           items: [
                             const DropdownMenuItem<String>(
                                 value: '', child: Text('كل المديريات')),
-                            ...reference.districtsFor(draftRegion).map(
+                            ...(reference?.districtsFor(draftRegion) ??
+                                    const <AssalRegion>[])
+                                .map(
                                 (district) => DropdownMenuItem<String>(
                                     value: district.code ?? district.id,
                                     child: Text(district.nameAr)))
@@ -1758,7 +1941,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           initialValue: draftSubcategory,
                           decoration: const InputDecoration(
                               labelText: 'التصنيف الفرعي'),
-                          items: subcategoryItems,
+                          items: subcategoryItemsFor(draftCategory),
                           onChanged: (value) => setModalState(
                               () => draftSubcategory = value ?? '')),
                       DropdownButtonFormField<ProductType?>(

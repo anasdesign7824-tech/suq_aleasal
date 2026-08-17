@@ -103,6 +103,15 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     return AppBar(
       bottom: bottom,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      iconTheme: const IconThemeData(color: Colors.white),
+      titleTextStyle: AssalTypography.heading3.copyWith(color: Colors.white),
+      flexibleSpace: const DecoratedBox(
+        decoration: BoxDecoration(gradient: assalDarkGradient),
+      ),
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: AssalColors.deepBrown,
         statusBarIconBrightness: Brightness.light,
@@ -124,6 +133,7 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
                     size: 36,
                     showName: false,
                     framed: true,
+                    nameColor: Colors.white,
                   ),
                 )
               : null,
@@ -131,7 +141,12 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (showBrand && canPop) ...[
-            const AssalBrandMark(size: 28, showName: false, framed: true),
+            const AssalBrandMark(
+              size: 28,
+              showName: true,
+              framed: true,
+              nameColor: Colors.white,
+            ),
             const SizedBox(width: AssalSpacing.sm),
           ],
           Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
@@ -286,45 +301,31 @@ class AssalMessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: AssalSpacing.md),
+        padding: const EdgeInsets.symmetric(vertical: AssalSpacing.lg),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AssalSpacing.lg,
-                vertical: AssalSpacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: AssalColors.surfaceVariant.withValues(alpha: .46),
-                borderRadius: BorderRadius.circular(AssalRadius.medium),
-                border: Border.all(color: AssalColors.border),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(icon, size: 28, color: AssalColors.textMuted),
-                  const SizedBox(width: AssalSpacing.md),
-                  Expanded(
-                    child: Text(
-                      message,
-                      textAlign: TextAlign.start,
-                      style: AssalTypography.body.copyWith(
-                        color: AssalColors.textSecondary,
-                      ),
-                    ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 34, color: AssalColors.textMuted),
+                const SizedBox(height: AssalSpacing.sm),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: AssalTypography.body.copyWith(
+                    color: AssalColors.textSecondary,
                   ),
-                  if (onRetry != null) ...[
-                    const SizedBox(width: AssalSpacing.sm),
-                    IconButton(
-                      tooltip: 'إعادة المحاولة',
-                      onPressed: onRetry,
-                      icon: const Icon(Icons.refresh_rounded),
-                    ),
-                  ],
+                ),
+                if (onRetry != null) ...[
+                  const SizedBox(height: AssalSpacing.sm),
+                  TextButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('إعادة المحاولة'),
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         ),

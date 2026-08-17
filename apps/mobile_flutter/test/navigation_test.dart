@@ -8,9 +8,9 @@ void main() {
     await tester.pumpWidget(const AssalApp());
     await tester.pump();
     await tester
-        .runAsync(() => Future<void>.delayed(const Duration(seconds: 1)));
+        .runAsync(() => Future<void>.delayed(const Duration(seconds: 3)));
     await tester.pump();
-    expect(find.textContaining('اكتشف العسل من مصدره'), findsOneWidget);
+    expect(find.textContaining('الثقة تبدأ من المصدر'), findsOneWidget);
 
     await tester.tap(find.text('التصنيفات').last);
     await tester.pump();

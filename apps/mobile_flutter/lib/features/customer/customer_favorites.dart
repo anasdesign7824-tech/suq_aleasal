@@ -81,7 +81,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
               separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
-              itemBuilder: (_, index) => Card(child: ListTile(leading: const Icon(Icons.category_outlined, color: AssalColors.primaryDark), title: Text(items[index].nameAr), subtitle: Text(items[index].description ?? 'تصنيف محفوظ مرتبط بمنتجاتك'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: widget.repository, initialSubcategoryId: items[index].id))))),
+              itemBuilder: (_, index) => Card(child: ListTile(leading: Icon(_favoriteTaxonomyIcon(items[index].nameAr), color: AssalColors.primaryDark), title: Text(items[index].nameAr), subtitle: Text(items[index].description ?? 'تصنيف محفوظ مرتبط بمنتجاتك'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: widget.repository, initialSubcategoryId: items[index].id))))),
             ),
           );
         },
@@ -103,4 +103,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
           );
         },
       );
+}
+
+
+IconData _favoriteTaxonomyIcon(String name) {
+  if (name.contains('شمع')) return Icons.hexagon_outlined;
+  if (name.contains('سدر')) return Icons.water_drop_outlined;
+  if (name.contains('سمر') || name.contains('طلح')) return Icons.eco_outlined;
+  if (name.contains('خلط') || name.contains('مزيج')) {
+    return Icons.local_florist_outlined;
+  }
+  if (name.contains('هد')) return Icons.card_giftcard_outlined;
+  return Icons.hive_outlined;
 }

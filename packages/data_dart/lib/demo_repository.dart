@@ -99,6 +99,9 @@ class DemoRepository implements AssalRepository {
           code: id,
           nameAr: name,
           description: 'تصنيف لاكتشاف منتجات العسل اليمني',
+          metadata: {
+            'category_id': product['category_id'],
+          },
         ),
       );
     }
@@ -118,7 +121,7 @@ class DemoRepository implements AssalRepository {
       byId[id] ??= AssalCategorySummary(
         id: id,
         nameAr: name,
-        description: 'قسم مرجعي من Honey Master Database',
+        description: 'منتجات العسل اليمني حسب النوع والتخصص',
         productType: _demoProductType(product['product_type']),
       );
     }

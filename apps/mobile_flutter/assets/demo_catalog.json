@@ -1,9 +1,9 @@
 {
   "demo_only": true,
   "source": {
-    "title": "Yemeni Honey Master Database (Official Application Schema)",
+    "title": "Yemeni Honey Marketplace Catalog",
     "version": "5.0.0",
-    "description": "قاعدة البيانات المركزية الشاملة لكافة تصنيفات ومنتجات العسل في السوق اليمني والعالمي، مرتبة هرمياً لتسهيل الاستخدام البرمجي والتجاري.",
+    "description": "كتالوج تجريبي لمنتجات العسل اليمني وتصنيفاتها، مرتب بطريقة واضحة للتصفح التجاري.",
     "last_updated": "2026-08-05"
   },
   "global_settings": {
@@ -198,9 +198,9 @@
       "slug": "manahil-jabal-sabr",
       "description": "عسل جبلي من مدرجات تعز، مع توثيق القطفة وخيارات شحن مرنة.",
       "region_id": "region-taiz",
-      "logo_url": "assets/brand/logo-internal-runtime.svg",
-      "cover_url": "assets/brand/logo-internal-runtime.svg",
-      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "logo_url": "assets/logo-internal-runtime.svg",
+      "cover_url": "assets/logo-internal-runtime.svg",
+      "avatar_url": "assets/logo-internal-runtime.svg",
       "is_verified": true,
       "status": "active",
       "followers_count": 118,
@@ -218,9 +218,9 @@
         "هوية متجر"
       ],
       "gallery_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "social_links": {
         "whatsapp": "+967700000000",
@@ -244,9 +244,9 @@
       "slug": "marai-marib-honey",
       "description": "منتجات سمر ومراعي مأرب من النحال إلى الباحث عن المصدر.",
       "region_id": "region-marib",
-      "logo_url": "assets/brand/logo-internal-runtime.svg",
-      "cover_url": "assets/brand/logo-internal-runtime.svg",
-      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "logo_url": "assets/logo-internal-runtime.svg",
+      "cover_url": "assets/logo-internal-runtime.svg",
+      "avatar_url": "assets/logo-internal-runtime.svg",
       "is_verified": true,
       "status": "active",
       "followers_count": 203,
@@ -264,9 +264,9 @@
         "هوية متجر"
       ],
       "gallery_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "social_links": {
         "whatsapp": "+967700000000",
@@ -290,9 +290,9 @@
       "slug": "honey-tihama-hajjah",
       "description": "متجر محلي متخصص في الأعسال الساحلية والجبال الغربية.",
       "region_id": "region-hajjah",
-      "logo_url": "assets/brand/logo-internal-runtime.svg",
-      "cover_url": "assets/brand/logo-internal-runtime.svg",
-      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "logo_url": "assets/logo-internal-runtime.svg",
+      "cover_url": "assets/logo-internal-runtime.svg",
+      "avatar_url": "assets/logo-internal-runtime.svg",
       "is_verified": true,
       "status": "active",
       "followers_count": 76,
@@ -310,9 +310,9 @@
         "هوية متجر"
       ],
       "gallery_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "social_links": {
         "whatsapp": "+967700000000",
@@ -336,9 +336,9 @@
       "slug": "rawdat-ibb-honey",
       "description": "أعسال الحمضيات والزهور من وديان إب الخضراء.",
       "region_id": "region-ibb",
-      "logo_url": "assets/brand/logo-internal-runtime.svg",
-      "cover_url": "assets/brand/logo-internal-runtime.svg",
-      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "logo_url": "assets/logo-internal-runtime.svg",
+      "cover_url": "assets/logo-internal-runtime.svg",
+      "avatar_url": "assets/logo-internal-runtime.svg",
       "is_verified": false,
       "status": "active",
       "followers_count": 64,
@@ -355,9 +355,9 @@
         "بيانات متجر"
       ],
       "gallery_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "social_links": {
         "whatsapp": "+967700000000",
@@ -381,9 +381,9 @@
       "slug": "beekeepers-dhamar",
       "description": "تعاون نحالين يقدم منتجات موثقة وتواصلًا مباشرًا.",
       "region_id": "region-dhamar",
-      "logo_url": "assets/brand/logo-internal-runtime.svg",
-      "cover_url": "assets/brand/logo-internal-runtime.svg",
-      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "logo_url": "assets/logo-internal-runtime.svg",
+      "cover_url": "assets/logo-internal-runtime.svg",
+      "avatar_url": "assets/logo-internal-runtime.svg",
       "is_verified": true,
       "status": "active",
       "followers_count": 91,
@@ -401,9 +401,9 @@
         "هوية متجر"
       ],
       "gallery_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "social_links": {
         "whatsapp": "+967700000000",
@@ -427,9 +427,9 @@
       "slug": "almahrah-bee-treasures",
       "description": "عسل مراعي الشرق اليمني ومنتجات نحلية مختارة.",
       "region_id": "region-almahrah",
-      "logo_url": "assets/brand/logo-internal-runtime.svg",
-      "cover_url": "assets/brand/logo-internal-runtime.svg",
-      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "logo_url": "assets/logo-internal-runtime.svg",
+      "cover_url": "assets/logo-internal-runtime.svg",
+      "avatar_url": "assets/logo-internal-runtime.svg",
       "is_verified": false,
       "status": "active",
       "followers_count": 42,
@@ -446,9 +446,9 @@
         "بيانات متجر"
       ],
       "gallery_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "social_links": {
         "whatsapp": "+967700000000",
@@ -472,9 +472,9 @@
       "slug": "modern-sanhan-apiaries",
       "description": "مناحل حضرية تجمع بين التوثيق والتعبئة الحديثة.",
       "region_id": "region-sanaa",
-      "logo_url": "assets/brand/logo-internal-runtime.svg",
-      "cover_url": "assets/brand/logo-internal-runtime.svg",
-      "avatar_url": "assets/brand/logo-internal-runtime.svg",
+      "logo_url": "assets/logo-internal-runtime.svg",
+      "cover_url": "assets/logo-internal-runtime.svg",
+      "avatar_url": "assets/logo-internal-runtime.svg",
       "is_verified": true,
       "status": "active",
       "followers_count": 155,
@@ -492,9 +492,9 @@
         "هوية متجر"
       ],
       "gallery_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "social_links": {
         "whatsapp": "+967700000000",
@@ -581,9 +581,9 @@
         "LAB-TESTED"
       ],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 18000,
       "currency_code": "YER"
@@ -652,9 +652,9 @@
         "LAB-TESTED"
       ],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 20500,
       "currency_code": "YER"
@@ -720,9 +720,9 @@
         "GOLD-MEDAL"
       ],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 23000,
       "currency_code": "YER"
@@ -786,9 +786,9 @@
         "SEASONAL"
       ],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 25500,
       "currency_code": "YER"
@@ -854,9 +854,9 @@
         "LAB-TESTED"
       ],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 28000,
       "currency_code": "YER"
@@ -914,9 +914,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 18000,
       "currency_code": "YER"
@@ -975,9 +975,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 20500,
       "currency_code": "YER"
@@ -1041,9 +1041,9 @@
         "SEASONAL"
       ],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 23000,
       "currency_code": "YER"
@@ -1101,9 +1101,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 25500,
       "currency_code": "YER"
@@ -1161,9 +1161,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 28000,
       "currency_code": "YER"
@@ -1223,9 +1223,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 18000,
       "currency_code": "YER"
@@ -1284,9 +1284,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 20500,
       "currency_code": "YER"
@@ -1343,9 +1343,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 23000,
       "currency_code": "YER"
@@ -1402,9 +1402,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 25500,
       "currency_code": "YER"
@@ -1462,9 +1462,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 22000,
       "currency_code": "YER"
@@ -1521,9 +1521,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 12000,
       "currency_code": "YER"
@@ -1580,9 +1580,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 14500,
       "currency_code": "YER"
@@ -1640,9 +1640,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 17000,
       "currency_code": "YER"
@@ -1697,9 +1697,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 19500,
       "currency_code": "YER"
@@ -1760,9 +1760,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 26000,
       "currency_code": "YER"
@@ -1821,9 +1821,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 16000,
       "currency_code": "YER"
@@ -1878,9 +1878,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 18500,
       "currency_code": "YER"
@@ -1940,9 +1940,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 21000,
       "currency_code": "YER"
@@ -2003,9 +2003,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 21500,
       "currency_code": "YER"
@@ -2063,9 +2063,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 24000,
       "currency_code": "YER"
@@ -2124,9 +2124,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 14000,
       "currency_code": "YER"
@@ -2181,9 +2181,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 16500,
       "currency_code": "YER"
@@ -2238,9 +2238,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 27000,
       "currency_code": "YER"
@@ -2295,9 +2295,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 29500,
       "currency_code": "YER"
@@ -2352,9 +2352,9 @@
       "harvest_label": "قطفة ربيع 2026",
       "certifications": [],
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "price": 32000,
       "currency_code": "YER"
@@ -2393,11 +2393,11 @@
         "سائل"
       ],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "إب",
@@ -2464,11 +2464,11 @@
         "سائل"
       ],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "حجة",
@@ -2532,11 +2532,11 @@
         "سائل"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "حجة",
@@ -2601,11 +2601,11 @@
         "سائل"
       ],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "مأرب",
@@ -2670,11 +2670,11 @@
         "سائل"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "صنعاء",
@@ -2736,11 +2736,11 @@
         "سائل"
       ],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "مأرب",
@@ -2805,11 +2805,11 @@
         "سائل"
       ],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "تعز",
@@ -2870,11 +2870,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "المهرة",
@@ -2936,11 +2936,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "حضرموت",
@@ -3002,11 +3002,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "صنعاء",
@@ -3066,11 +3066,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "تعز",
@@ -3134,11 +3134,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "مأرب",
@@ -3200,11 +3200,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "ذمار",
@@ -3263,11 +3263,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "ذمار",
@@ -3325,11 +3325,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "ذمار",
@@ -3386,11 +3386,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "إب",
@@ -3447,11 +3447,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "المهرة",
@@ -3511,11 +3511,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": true,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "تعز",
@@ -3575,11 +3575,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "مأرب",
@@ -3637,11 +3637,11 @@
       "purpose": null,
       "forms": [],
       "is_featured": false,
-      "primary_image_url": "assets/brand/logo-internal-runtime.svg",
+      "primary_image_url": "assets/logo-internal-runtime.svg",
       "image_urls": [
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg",
-        "assets/brand/logo-internal-runtime.svg"
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg",
+        "assets/logo-internal-runtime.svg"
       ],
       "origin_country": "اليمن",
       "province_name_ar": "صنعاء",
@@ -4207,7 +4207,7 @@
       "title_ar": "الثقة تبدأ من المصدر",
       "description_ar": "اكتشف النوع والمنطقة والتوثيق قبل أن تتواصل.",
       "cta_label_ar": "ابدأ الاكتشاف",
-      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_url": "assets/logo-internal-runtime.svg",
       "target_query": null,
       "sort_order": 1,
       "is_active": true
@@ -4217,7 +4217,7 @@
       "title_ar": "سدر يمني من وديانه",
       "description_ar": "قارن بين دوعن والعصيمات وحجة من مكان واحد.",
       "cta_label_ar": "اكتشف السدر",
-      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_url": "assets/logo-internal-runtime.svg",
       "target_query": "سدر",
       "sort_order": 2,
       "is_active": true
@@ -4227,7 +4227,7 @@
       "title_ar": "متاجر موثقة بالقرب منك",
       "description_ar": "تواصل مع التاجر واختر طريقة التسليم المناسبة.",
       "cta_label_ar": "شاهد المتاجر",
-      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_url": "assets/logo-internal-runtime.svg",
       "target_query": null,
       "sort_order": 3,
       "is_active": true
@@ -4237,7 +4237,7 @@
       "title_ar": "هدايا تحمل قصة اليمن",
       "description_ar": "عبوات تراثية وباقات للمناسبات دون Checkout مفروض.",
       "cta_label_ar": "تصفح الهدايا",
-      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_url": "assets/logo-internal-runtime.svg",
       "target_query": "هدية",
       "sort_order": 4,
       "is_active": true
@@ -4247,7 +4247,7 @@
       "title_ar": "قطفة الموسم وصلت",
       "description_ar": "تعرف على الإنتاج الحديث ومعلومات التعبئة.",
       "cta_label_ar": "شاهد الجديد",
-      "image_url": "assets/brand/logo-internal-runtime.svg",
+      "image_url": "assets/logo-internal-runtime.svg",
       "target_query": null,
       "sort_order": 5,
       "is_active": true
