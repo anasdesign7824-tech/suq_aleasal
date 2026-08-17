@@ -2,7 +2,7 @@
 
 **التاريخ:** 17 أغسطس 2026
 
-**آخر commit مدفوع:** قيد الدفع بعد تنفيذ Email OTP
+**آخر commit مدفوع:** `3926226 feat: finalize mandatory email otp flow`
 
 ## الحكم المختصر
 
@@ -25,7 +25,7 @@
 | Social dependency scan | لا توجد `google_sign_in` أو `google_identity_services` في lockfile |
 | OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback`؛ manifest يحتوي launcher `MAIN` فقط للتطبيق، دون `VIEW`/`BROWSABLE` deep-link خارجي |
 | Supabase delete RPC ACL | `security_definer=true`, `anon=false`, `authenticated=true` بعد migration 0007 |
-| GitHub | سيُحدّث بعد دفع تنفيذ Email OTP |
+| GitHub | PASS — `3926226` مدفوع إلى `origin/main` |
 
 فحص `aapt` النهائي أكد أن `com.assalkom.assalkom.MainActivity` هي launchable activity الوحيدة، وأن manifest لا يعلن `VIEW` أو `BROWSABLE` للتطبيق. ظهور marker عام لـ`android.intent.action.VIEW` داخل dex لا يساوي callback خارجيًا؛ مصدره مكتبات Android/Flutter العامة، وليس intent-filter في manifest.
 
