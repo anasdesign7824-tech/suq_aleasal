@@ -17,11 +17,11 @@
 | `flutter analyze --no-pub` | PASS — لا توجد Issues |
 | `flutter test --no-pub` | PASS — 9/9 |
 | Passwordless navigation assertion | PASS — شاشة الدخول تحتوي حقل بريد واحدًا وزر OTP، دون كلمة مرور أو reset أو Google/Facebook |
-| Flutter APK Release build | PASS — 82.8 MB — rebuilt with Passwordless Email OTP |
-| Flutter AAB Release build | PASS — 80.8 MB — rebuilt with Passwordless Email OTP |
+| Flutter APK Release build | PASS — baseline 82.787 MB → optimized Universal 59.070 MB |
+| Flutter AAB Release build | PASS — baseline 80.829 MB → optimized AAB 57.111 MB |
 | Package | `com.assalkom.assalkom` |
-| APK SHA-256 | `af1ff36cedd6ccdc5adb143d597dcf084e5442143b1691137a8ef9e6f9999fd8` |
-| AAB SHA-256 | `aeb1f82f7256f24114c078738e2a06889e2a5c9d24b1c4de65fc660059ef3406` |
+| Optimized Universal APK SHA-256 | `e1032e25b9a792564647a9ac46e87fb198678d4cd234195cd3754d180c953966` |
+| Optimized AAB SHA-256 | `096edae1cc5b6f22167e4315da515b95b1591b309545466a0d85a88884119b59` |
 | Social dependency scan | لا توجد `google_sign_in` أو `google_identity_services` في lockfile |
 | OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback`؛ manifest يحتوي launcher `MAIN` فقط للتطبيق، دون `VIEW`/`BROWSABLE` deep-link خارجي |
 | Supabase delete RPC ACL | `security_definer=true`, `anon=false`, `authenticated=true` بعد migration 0007 |
@@ -62,6 +62,22 @@
 3. إنشاء upload keystore، حفظه خارج Git، تفعيل Play App Signing، وإعادة بناء AAB release به بدل شهادة Android Debug الحالية.
 4. إجراء Internal/Closed Testing على Google Play بحساب اختبار قابل للمراجعة، ثم اختبار دورة Email الكاملة على artifact الذي سيصل للمستخدم.
 5. إدخال محتوى إنتاجي فعلي؛ قاعدة البيانات ما زالت تحتاج stores/products/banners حقيقية قبل استقبال الجمهور.
+
+## ملحق تحسين الحجم — 17 أغسطس 2026
+
+أُعيد بناء artifacts بعد حصر الأصول والخطوط المستخدمة، وإزالة ثلاثة شعارات SVG غير مستخدمة، وتقليص شعار runtime lossless إلى دقة عملية، وحصر IBM Plex Sans Arabic في الأوزان 400 و500 و600 و700. انخفض Universal APK من `82,786,915` إلى `59,069,723` بايت، بتخفيض `23,717,192` بايت (`28.65%`). وانخفض AAB من `80,828,731` إلى `57,110,915` بايت، بتخفيض `23,717,816` بايت (`29.34%`).
+
+| Artifact | الحجم النهائي | SHA-256 |
+|---|---:|---|
+| Universal APK | 59,069,723 B | `e1032e25b9a792564647a9ac46e87fb198678d4cd234195cd3754d180c953966` |
+| `arm64-v8a` APK | 21,000,058 B | `4dbdc6ba18e7fdf175c8d9e4a702d08f421d3451174da4a8d7993a34d5c588e4` |
+| `armeabi-v7a` APK | 18,654,436 B | `20ff5b4a5116258c4e2a89b4998b4132a77ff06b888b77cc757aca9f350f0992` |
+| `x86_64` APK | 22,500,169 B | `093b7d2a0ec87258b0d86abaf92cd1590034c9a85d0258cacd354b14a10f1cfb` |
+| AAB | 57,110,915 B | `096edae1cc5b6f22167e4315da515b95b1591b309545466a0d85a88884119b59` |
+
+تم تثبيت split `x86_64` النهائي على Mimo بنجاح وتشغيله؛ ظهر `MainActivity` كـFully drawn خلال نحو 620ms، ولم يظهر `FATAL EXCEPTION` أو `Unable to load asset` في آخر 300 سجل. كما أكد فحص محتويات APK وجود الشعار runtime والأوزان الأربعة فقط، وعدم وجود أوزان Thin/ExtraLight/Light.
+
+التفاصيل الكاملة محفوظة في `docs/evidence/size_optimization_final_2026-08-17.md`. ما يزال التوقيع الحالي Debug certificate؛ ويلزم قبل Google Play إنشاء upload keystore خارج Git وإعادة بناء AAB موقّعًا به.
 
 ## المراجع
 

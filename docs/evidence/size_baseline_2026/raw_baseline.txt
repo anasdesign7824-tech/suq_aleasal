@@ -1,0 +1,101 @@
+=== SOURCE ===
+9d118c1586372967e6d8ee7e335b9fda75a3db1f
+[31m??[m .tmp_clean_honey_mark.py
+[31m??[m .tmp_crop_logo.py
+[31m??[m .tmp_extract_mark_only.py
+[31m??[m .tmp_inspect_logo_pixels.py
+[31m??[m .tmp_logo_on_light.py
+[31m??[m .tmp_render_internal_logo.py
+[31m??[m .tmp_render_logo.py
+[31m??[m .tmp_upload_email_logo.py
+[31m??[m assalkom_android_standalone.apk
+[31m??[m assalkom_email_only_release.aab
+[31m??[m assalkom_email_only_release.apk
+[31m??[m assalkom_email_otp_release.aab
+[31m??[m assalkom_email_otp_release.apk
+[31m??[m assalkom_email_otp_release_v3.apk
+[31m??[m assalkom_email_otp_release_v4.apk
+[31m??[m docs/evidence/size_baseline_2026/
+[31m??[m docs/evidence/supabase_magic_link_current_state_2026.md
+[31m??[m docs/evidence/supabase_magic_link_saved_state_2026.md
+[31m??[m email_brand_logo.png
+[31m??[m email_brand_logo_cropped.png
+[31m??[m email_honey_mark.png
+[31m??[m email_honey_mark_clean.png
+[31m??[m email_internal_logo.png
+[31m??[m email_internal_logo_light.png
+[31m??[m email_logo_public_url.txt
+=== ARTIFACTS ===
+-rw-r--r-- 1 ubuntu ubuntu 78M Aug 17 08:22 apps/mobile_flutter/build/app/outputs/bundle/release/app-release.aab
+-rw-r--r-- 1 ubuntu ubuntu 43M Aug 17 08:21 apps/mobile_flutter/build/app/outputs/flutter-apk/app-release.apk
+-rw-r--r-- 1 ubuntu ubuntu 79M Aug 17 07:43 assalkom_email_otp_release_v4.apk
+=== HASHES ===
+2fd78df54b6135260e349d833793ace7dd3524389cab9018cbdcae8c83ba4a0f  assalkom_email_otp_release_v4.apk
+0d3eeaed6b9a89bab13703b46d8f2763863b205c10f4373e9957d89934c03a9e  apps/mobile_flutter/build/app/outputs/bundle/release/app-release.aab
+353a06f331f778381b7be7a8d1bca50af7dc8573798d905924b747f9a0548598  apps/mobile_flutter/build/app/outputs/flutter-apk/app-release.apk
+=== APK CONTENT BY PREFIX ===
+      1 AndroidManifest.xml
+      1 DebugProbesKt.bin
+     62 META-INF
+     22 assets
+      1 classes.dex
+      8 kotlin
+      1 kotlin-tooling-metadata.json
+      9 lib
+    274 res
+      1 resources.arsc
+=== APK NATIVE LIBRARIES ===
+  7668616  1981-01-01 01:01   lib/arm64-v8a/libapp.so
+     7112  1981-01-01 01:01   lib/arm64-v8a/libdatastore_shared_counter.so
+ 11747528  1981-01-01 01:01   lib/arm64-v8a/libflutter.so
+  8454728  1981-01-01 01:01   lib/armeabi-v7a/libapp.so
+     4416  1981-01-01 01:01   lib/armeabi-v7a/libdatastore_shared_counter.so
+  8615468  1981-01-01 01:01   lib/armeabi-v7a/libflutter.so
+  7865224  1981-01-01 01:01   lib/x86_64/libapp.so
+     6224  1981-01-01 01:01   lib/x86_64/libdatastore_shared_counter.so
+ 13051040  1981-01-01 01:01   lib/x86_64/libflutter.so
+=== APK ASSET CONTENT ===
+     1127  1981-01-01 01:01   assets/flutter_assets/AssetManifest.bin
+      597  1981-01-01 01:01   assets/flutter_assets/FontManifest.json
+   106576  1981-01-01 01:01   assets/flutter_assets/NOTICES.Z
+       45  1981-01-01 01:01   assets/flutter_assets/NativeAssetsManifest.json
+   147760  1981-01-01 01:01   assets/flutter_assets/assets/demo_catalog.json
+   236256  1981-01-01 01:01   assets/flutter_assets/assets/fonts/IBMPlexSansArabic-Bold.ttf
+   232212  1981-01-01 01:01   assets/flutter_assets/assets/fonts/IBMPlexSansArabic-ExtraLight.ttf
+   229156  1981-01-01 01:01   assets/flutter_assets/assets/fonts/IBMPlexSansArabic-Light.ttf
+   231796  1981-01-01 01:01   assets/flutter_assets/assets/fonts/IBMPlexSansArabic-Medium.ttf
+   226560  1981-01-01 01:01   assets/flutter_assets/assets/fonts/IBMPlexSansArabic-Regular.ttf
+   234232  1981-01-01 01:01   assets/flutter_assets/assets/fonts/IBMPlexSansArabic-SemiBold.ttf
+   232408  1981-01-01 01:01   assets/flutter_assets/assets/fonts/IBMPlexSansArabic-Thin.ttf
+  7937162  1981-01-01 01:01   assets/flutter_assets/assets/logo-external-runtime.svg
+  7937603  1981-01-01 01:01   assets/flutter_assets/assets/logo-external.svg
+  7940041  1981-01-01 01:01   assets/flutter_assets/assets/logo-internal-runtime.svg
+  7940482  1981-01-01 01:01   assets/flutter_assets/assets/logo-internal.svg
+   108565  1981-01-01 01:01   assets/flutter_assets/assets/yemen_governorates_districts.json
+    10224  1981-01-01 01:01   assets/flutter_assets/fonts/MaterialIcons-Regular.otf
+    21856  1981-01-01 01:01   assets/flutter_assets/shaders/ink_sparkle.frag
+    17616  1981-01-01 01:01   assets/flutter_assets/shaders/stretch_effect.frag
+      626  1981-01-01 01:01   kotlin-tooling-metadata.json
+=== AAB CONTENT BY PREFIX ===
+     12 BUNDLE-METADATA
+      1 BundleConfig.pb
+      3 META-INF
+    380 base
+=== ASSET SIZES ===
+7940482 apps/mobile_flutter/assets/logo-internal.svg
+7940041 apps/mobile_flutter/assets/logo-internal-runtime.svg
+7937603 apps/mobile_flutter/assets/logo-external.svg
+7937162 apps/mobile_flutter/assets/logo-external-runtime.svg
+236256 apps/mobile_flutter/assets/fonts/IBMPlexSansArabic-Bold.ttf
+234232 apps/mobile_flutter/assets/fonts/IBMPlexSansArabic-SemiBold.ttf
+232408 apps/mobile_flutter/assets/fonts/IBMPlexSansArabic-Thin.ttf
+232212 apps/mobile_flutter/assets/fonts/IBMPlexSansArabic-ExtraLight.ttf
+231796 apps/mobile_flutter/assets/fonts/IBMPlexSansArabic-Medium.ttf
+229156 apps/mobile_flutter/assets/fonts/IBMPlexSansArabic-Light.ttf
+226560 apps/mobile_flutter/assets/fonts/IBMPlexSansArabic-Regular.ttf
+147760 apps/mobile_flutter/assets/demo_catalog.json
+108565 apps/mobile_flutter/assets/yemen_governorates_districts.json
+=== ASSET TOTALS ===
+33M	apps/mobile_flutter/assets
+65M	apps/mobile_flutter/build/app/intermediates/flutter/release
+=== SIZE ANALYSIS FILES ===
