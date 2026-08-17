@@ -139,13 +139,20 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 900;
       final content = SafeArea(
-        child: IndexedStack(index: selectedIndex, children: pages),
+        top: false,
+        bottom: false,
+        child: ColoredBox(
+          color: AssalColors.cream,
+          child: IndexedStack(index: selectedIndex, children: pages),
+        ),
       );
       if (wide) {
         return Scaffold(
-            backgroundColor: AssalColors.deepBrown,
+            backgroundColor: AssalColors.cream,
             body: Row(children: [
-          NavigationRail(
+          DecoratedBox(
+            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            child: NavigationRail(
               selectedIndex: selectedIndex,
               onDestinationSelected: (index) =>
                   setState(() => selectedIndex = index),
@@ -156,11 +163,13 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
                       selectedIcon: item.selectedIcon ?? item.icon,
                       label: Text(item.label)))
                   .toList()),
+          ),
           Expanded(child: content)
         ]));
       }
       return Scaffold(
-          backgroundColor: AssalColors.deepBrown,
+          backgroundColor: AssalColors.cream,
+          extendBody: true,
           body: content,
           bottomNavigationBar: DecoratedBox(
             decoration: const BoxDecoration(gradient: assalDarkGradient),
