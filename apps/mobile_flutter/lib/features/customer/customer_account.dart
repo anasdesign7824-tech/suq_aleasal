@@ -469,8 +469,13 @@ bool _passwordIsStrong(String value) {
 }
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key, required this.repository});
+  const ProfileScreen({
+    super.key,
+    required this.repository,
+    this.showAppBar = true,
+  });
   final AssalRepository repository;
+  final bool showAppBar;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -482,7 +487,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AssalAppBar(title: 'حسابي'),
+      appBar: widget.showAppBar ? const AssalAppBar(title: 'حسابي') : null,
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
       builder: (context, snapshot) {
@@ -918,13 +923,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
 }
 
 class MessagesScreen extends StatelessWidget {
-  const MessagesScreen({super.key, required this.repository});
+  const MessagesScreen({
+    super.key,
+    required this.repository,
+    this.showAppBar = true,
+  });
   final AssalRepository repository;
+  final bool showAppBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AssalAppBar(title: 'المراسلات'),
+      appBar: showAppBar ? const AssalAppBar(title: 'المراسلات') : null,
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {

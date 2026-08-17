@@ -1205,13 +1205,18 @@ class _ProductRail extends StatelessWidget {
 }
 
 class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen({super.key, required this.repository});
+  const CategoriesScreen({
+    super.key,
+    required this.repository,
+    this.showAppBar = true,
+  });
   final AssalRepository repository;
+  final bool showAppBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AssalAppBar(title: 'التصنيفات'),
+      appBar: showAppBar ? const AssalAppBar(title: 'التصنيفات') : null,
       body: FutureBuilder<AssalLoadState<List<AssalCategorySummary>>>(
         future: repository.listCategories(),
         builder: (context, snapshot) {
@@ -2091,8 +2096,13 @@ String _productTypeLabel(ProductType type) => switch (type) {
     };
 
 class StoresScreen extends StatefulWidget {
-  const StoresScreen({super.key, required this.repository});
+  const StoresScreen({
+    super.key,
+    required this.repository,
+    this.showAppBar = true,
+  });
   final AssalRepository repository;
+  final bool showAppBar;
 
   @override
   State<StoresScreen> createState() => _StoresScreenState();
@@ -2135,7 +2145,7 @@ class _StoresScreenState extends State<StoresScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AssalAppBar(title: 'المتاجر'),
+      appBar: widget.showAppBar ? const AssalAppBar(title: 'المتاجر') : null,
       body: Column(
         children: [
           Padding(

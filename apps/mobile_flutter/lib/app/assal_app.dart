@@ -104,10 +104,10 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         onOpenSearch: _openSearch,
         onOpenNotifications: _openNotifications,
       ),
-      StoresScreen(repository: repository),
-      CategoriesScreen(repository: repository),
-      MessagesScreen(repository: repository),
-      ProfileScreen(repository: repository),
+      StoresScreen(repository: repository, showAppBar: false),
+      CategoriesScreen(repository: repository, showAppBar: false),
+      MessagesScreen(repository: repository, showAppBar: false),
+      ProfileScreen(repository: repository, showAppBar: false),
     ];
     const destinations = [
       NavigationDestination(
@@ -146,6 +146,20 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
           child: IndexedStack(index: selectedIndex, children: pages),
         ),
       );
+      final pageTitle = switch (selectedIndex) {
+        1 => 'المتاجر',
+        2 => 'التصنيفات',
+        3 => 'المراسلات',
+        4 => 'حسابي',
+        _ => 'عسلكم',
+      };
+      final framedContent = selectedIndex == 0
+          ? content
+          : Scaffold(
+              backgroundColor: AssalColors.cream,
+              appBar: AssalAppBar(title: pageTitle),
+              body: content,
+            );
       if (wide) {
         return Scaffold(
             backgroundColor: AssalColors.cream,
@@ -164,13 +178,13 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
                       label: Text(item.label)))
                   .toList()),
           ),
-          Expanded(child: content)
+          Expanded(child: framedContent)
         ]));
       }
       return Scaffold(
           backgroundColor: AssalColors.cream,
           extendBody: true,
-          body: content,
+          body: framedContent,
           bottomNavigationBar: DecoratedBox(
             decoration: const BoxDecoration(gradient: assalDarkGradient),
             child: NavigationBar(
