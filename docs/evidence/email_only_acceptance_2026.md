@@ -2,13 +2,13 @@
 
 **التاريخ:** 17 أغسطس 2026
 
-**آخر commit مدفوع:** قيد الدفع بعد إصلاح redirect ورسائل Auth
+**آخر commit مدفوع:** قيد الدفع بعد تنفيذ Email OTP
 
 ## الحكم المختصر
 
 تم تحويل مسار Android في المصدر الرسمي إلى **Email/Password فقط**. أزيلت أزرار Google وFacebook من AuthScreen، أزيلت dependency الخاصة بـ`google_sign_in`، أزيلت حقول Google/redirect من runtime config وbootstrap، وأصبح Google وFacebook يرجعان حالة مؤجلة فقط إذا استُدعيا برمجيًا من مسار داخلي قديم. لا يوجد في APK الجديد استدعاء OAuth أو deep-link `login-callback`.
 
-تمت إضافة تجربة تسجيل محسّنة تشمل تأكيد كلمة المرور عند إنشاء الحساب، حدًا أدنى من 8 أحرف في واجهة APK، رسالة تأكيد البريد عند عدم وجود session، رابط «نسيت كلمة المرور؟» موصولًا بـ`resetPasswordForEmail`، وحذف الحساب من داخل Profile بعد تأكيد صريح. أضيفت migrations `0005_email_account_deletion` و`0006_revoke_anon_account_delete` إلى المصدر وطُبقتا على Supabase، ثم أضيفت وطُبقت migration `0007_harden_account_deletion_search_path` لتحصين `search_path` دون تعديل سجل migration تاريخي.
+تمت إضافة تجربة تسجيل محسّنة تشمل تأكيد كلمة المرور عند إنشاء الحساب، حدًا أدنى من 8 أحرف في واجهة APK، مؤشر قوة يلوّن مربع كلمة المرور نفسه بالأخضر عند الاكتمال وبالأحمر عند النقص، قبول الحروف الإنجليزية والأرقام الإنجليزية والرموز ASCII فقط، وإدخال Email OTP من 6 أرقام داخل التطبيق بعد التسجيل. كما بقي رابط «نسيت كلمة المرور؟» موصولًا بـ`resetPasswordForEmail`، وحذف الحساب من داخل Profile بعد تأكيد صريح. أضيفت migrations `0005_email_account_deletion` و`0006_revoke_anon_account_delete` إلى المصدر وطُبقتا على Supabase، ثم أضيفت وطُبقت migration `0007_harden_account_deletion_search_path` لتحصين `search_path` دون تعديل سجل migration تاريخي.
 
 ## نتائج التحقق
 
@@ -17,15 +17,15 @@
 | `flutter analyze --no-pub` | PASS — لا توجد Issues |
 | `flutter test --no-pub` | PASS — 8/8 |
 | Email-only navigation assertion | PASS — حقلا Email/Password وReset موجودة، Google/Facebook غير موجودين |
-| Flutter APK Release build | PASS — 82.5 MB — rebuilt after INTERNET fix |
-| Flutter AAB Release build | PASS — 80.6 MB — rebuilt after INTERNET fix |
+| Flutter APK Release build | PASS — 82.8 MB — rebuilt with Email OTP |
+| Flutter AAB Release build | PASS — 80.8 MB — rebuilt with Email OTP |
 | Package | `com.assalkom.assalkom` |
-| APK SHA-256 | `17b9ddcebb7934cbd2393f8f0bf771a68c1fb5951b1f24008b75bb07a001356e` |
-| AAB SHA-256 | `46f16069889e63f64f8bbb52c89e6bd16261738b684fd5583c69f72a2ac1becb` |
+| APK SHA-256 | `c7edaafc5dde3d65bd4e6ba80d7fc530f11b247e9fb0e064577157f1e5c42e56` |
+| AAB SHA-256 | `d7b4b96f003624501c989caf7f3644e9385a566185bcf1331cee2f17845d8bb9` |
 | Social dependency scan | لا توجد `google_sign_in` أو `google_identity_services` في lockfile |
 | OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback`؛ manifest يحتوي launcher `MAIN` فقط للتطبيق، دون `VIEW`/`BROWSABLE` deep-link خارجي |
 | Supabase delete RPC ACL | `security_definer=true`, `anon=false`, `authenticated=true` بعد migration 0007 |
-| GitHub | سيُحدّث بعد دفع إصلاح redirect ورسائل Auth |
+| GitHub | سيُحدّث بعد دفع تنفيذ Email OTP |
 
 فحص `aapt` النهائي أكد أن `com.assalkom.assalkom.MainActivity` هي launchable activity الوحيدة، وأن manifest لا يعلن `VIEW` أو `BROWSABLE` للتطبيق. ظهور marker عام لـ`android.intent.action.VIEW` داخل dex لا يساوي callback خارجيًا؛ مصدره مكتبات Android/Flutter العامة، وليس intent-filter في manifest.
 
@@ -35,9 +35,9 @@
 
 ## إصلاحات Auth الأخيرة
 
-أصبح `signUp` يمرر `emailRedirectTo` من عنوان Supabase HTTPS الإنتاجي، وأصبح `resetPasswordForEmail` و`resend` يستخدمان العنوان نفسه بدل الاعتماد على redirect قديم. أضيف زر «إعادة إرسال رسالة تأكيد البريد» لتوليد رابط جديد عند انتهاء الرابط أو استهلاكه. تمت ترجمة أخطاء `bad_code` و`otp_expired` و`token_expired` و`invalid_token` إلى رسالة عربية، وأزيل إرجاع رسالة Supabase الخام حتى لا تظهر الإنجليزية التقنية للمستخدم.
+أصبح `signUp` يمرر `emailRedirectTo` من عنوان Supabase HTTPS الإنتاجي، وأضيفت طبقة `verifyEmailConfirmation` التي تستقبل رمزًا من 6 أرقام وتستدعي `verifyOTP` بنوع `signup`، مع إعادة session إلى التطبيق بعد نجاح التحقق. أضيف زر «إعادة إرسال رمز التحقق» يظهر فقط أثناء حالة انتظار OTP. يجب تغيير قالب Confirmation في Supabase إلى `{{ .Token }}` بدل `{{ .ConfirmationURL }}` حتى تصل الرسالة كرمز فقط؛ هذا التغيير في لوحة Supabase لم يُثبت آليًا لأن جلسة لوحة المستخدم غير متاحة حاليًا.
 
-أضيف مؤشر تفاعلي لقوة كلمة المرور أثناء الكتابة، مع مؤشرات خضراء/حمراء للطول والحرف والرقم والرمز، ويدعم الحروف والأرقام العربية. كما أضيفت مزامنة Profile بعد الدخول وحذف الحساب دون `Navigator.pop` من جذر التطبيق.
+أضيف مؤشر تفاعلي لقوة كلمة المرور أثناء الكتابة، مع تلوين مربع كلمة المرور نفسه، ومرشح إدخال يمنع الحروف العربية ويقبل الحروف الإنجليزية والأرقام الإنجليزية والرموز فقط. كما أزيلت رسائل Supabase الإنجليزية الخام، وأضيفت مزامنة Profile بعد الدخول وحذف الحساب دون `Navigator.pop` من جذر التطبيق.
 
 ## ما تم على Supabase
 
@@ -49,7 +49,7 @@
 
 ## ما لم أعتبره مكتملًا دون دليل خارجي
 
-إعداد `mailer_autoconfirm=false` ما زال يعني أن التسجيل الإنتاجي يعتمد على رسالة تأكيد البريد. الكود يتعامل مع هذا الوضع ويعرض رسالة صحيحة بدل فتح session وهمية، لكن نجاح التسليم الفعلي للبريد يحتاج SMTP إنتاجيًا واختبارًا بصندوق بريد حقيقي. لا أستطيع اختراع SMTP credentials أو اعتبار endpoint العام لإعدادات Auth دليلًا على أن SMTP الإنتاجي يعمل.
+إعداد `mailer_autoconfirm=false` ما زال يعني أن التسجيل الإنتاجي يعتمد على رسالة تأكيد البريد. الكود أصبح جاهزًا لتدفق OTP، لكن قالب Confirmation في Supabase يجب أن يحتوي `{{ .Token }}` فقط/ضمن نص الرسالة حتى لا يستمر إرسال رابط redirect. نجاح التسليم الفعلي يحتاج اختبارًا بصندوق بريد حقيقي باستخدام المرسل الجديد `info.assalkom@gmail.com` واسم العرض `خدمة دعم تطبيق عسلكم`.
 
 كما أن artifact الحالي مبني وموقّع بشهادة `Android Debug` داخل بيئة البناء الذاتية، وليس upload key خاصًا بـGoogle Play. لذلك يجب قبل النشر إنشاء keystore release خارج Git، بناء AAB به، تفعيل Play App Signing، ثم اختبار التسجيل وتأكيد البريد وإعادة تعيين كلمة المرور وحذف الحساب على Internal Testing أو جهاز Android حقيقي.
 

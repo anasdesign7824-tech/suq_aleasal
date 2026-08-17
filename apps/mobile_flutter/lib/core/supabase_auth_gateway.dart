@@ -80,6 +80,22 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   }
 
   @override
+  Future<AssalAuthIdentity?> verifyEmailConfirmation(
+      String email, String token) async {
+    try {
+      final response = await client.auth.verifyOTP(
+        email: email.trim(),
+        token: token.trim(),
+        type: OtpType.signup,
+      );
+      return _identity(response.user);
+    } on AuthException catch (error) {
+      throw AssalAuthFailure(_messageFor(error),
+          code: error.statusCode ?? error.code);
+    }
+  }
+
+  @override
   Future<void> deleteAccount() async {
     try {
       await client.rpc('delete_my_account');
@@ -135,7 +151,7 @@ class SupabaseAuthGateway implements AssalAuthGateway {
         code == 'token_expired' ||
         code == 'invalid_token' ||
         code == 'invalid_or_already_used_token') {
-      return 'رابط التحقق غير صالح أو انتهت صلاحيته. اطلب رسالة تأكيد جديدة ثم افتح أحدث رابط مرة واحدة فقط.';
+      return 'رمز التحقق غير صحيح أو انتهت صلاحيته. اطلب رمزًا جديدًا وأدخله مرة واحدة.';
     }
     if (code == 'user_already_exists') {
       return 'يوجد حساب بهذا البريد الإلكتروني.';

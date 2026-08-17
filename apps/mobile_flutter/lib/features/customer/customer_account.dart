@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
@@ -18,7 +19,9 @@ class _AuthScreenState extends State<AuthScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final otpController = TextEditingController();
   bool registerMode = false;
+  bool awaitingEmailOtp = false;
   bool loading = false;
   String? _authNotice;
   @override
@@ -27,6 +30,7 @@ class _AuthScreenState extends State<AuthScreen> {
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    otpController.dispose();
     super.dispose();
   }
 
@@ -70,12 +74,63 @@ class _AuthScreenState extends State<AuthScreen> {
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(labelText: 'البريد الإلكتروني')),
+        if (awaitingEmailOtp) ...[
+          const SizedBox(height: AssalSpacing.sm),
+          Text(
+              'أدخل رمز التحقق المكوّن من 6 أرقام المرسل إلى بريدك الإلكتروني.',
+              style: AssalTypography.caption
+                  .copyWith(color: AssalColors.textSecondary)),
+          const SizedBox(height: AssalSpacing.xs),
+          TextField(
+            controller: otpController,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            textAlign: TextAlign.center,
+            decoration:
+                const InputDecoration(labelText: 'رمز التحقق', counterText: ''),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: loading ? null : _verifyEmailOtp,
+              child: const Text('تحقق من الرمز'),
+            ),
+          ),
+        ],
         const SizedBox(height: AssalSpacing.md),
         TextField(
             controller: passwordController,
             obscureText: true,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(
+                  RegExp(r'[A-Za-z0-9!@#\$%^&*()_+\-=\[\]{};:"\\|,.<>/?]')),
+            ],
             onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(labelText: 'كلمة المرور')),
+            decoration: InputDecoration(
+              labelText: 'كلمة المرور',
+              filled: registerMode,
+              fillColor: registerMode
+                  ? (_passwordIsStrong(passwordController.text)
+                      ? AssalColors.success.withAlpha(18)
+                      : AssalColors.error.withAlpha(12))
+                  : null,
+              enabledBorder: registerMode
+                  ? OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: _passwordIsStrong(passwordController.text)
+                              ? AssalColors.success
+                              : AssalColors.error))
+                  : null,
+              focusedBorder: registerMode
+                  ? OutlineInputBorder(
+                      borderSide: BorderSide(
+                          color: _passwordIsStrong(passwordController.text)
+                              ? AssalColors.success
+                              : AssalColors.error,
+                          width: 2))
+                  : null,
+            )),
         if (registerMode) ...[
           const SizedBox(height: AssalSpacing.sm),
           _PasswordStrength(value: passwordController.text),
@@ -100,15 +155,18 @@ class _AuthScreenState extends State<AuthScreen> {
           TextButton(
               onPressed: loading ? null : _requestPasswordReset,
               child: const Text('نسيت كلمة المرور؟')),
-          TextButton(
-              onPressed: loading ? null : _resendEmailConfirmation,
-              child: const Text('إعادة إرسال رسالة تأكيد البريد')),
+          if (awaitingEmailOtp)
+            TextButton(
+                onPressed: loading ? null : _resendEmailConfirmation,
+                child: const Text('إعادة إرسال رمز التحقق')),
         ],
         TextButton(
             onPressed: loading
                 ? null
                 : () => setState(() {
                       registerMode = !registerMode;
+                      awaitingEmailOtp = false;
+                      otpController.clear();
                       _authNotice = null;
                     }),
             child: Text(registerMode
@@ -145,10 +203,14 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!mounted) return;
     setState(() => loading = false);
     if (result is AssalError<AssalSession> &&
-        result.code == 'email_confirmation_required') {
+        (result.code == 'email_confirmation_required' ||
+            result.code == 'email_not_confirmed')) {
       setState(() {
         registerMode = false;
-        _authNotice = result.messageAr;
+        awaitingEmailOtp = true;
+        _authNotice = result.code == 'email_not_confirmed'
+            ? 'أكد بريدك الإلكتروني أولًا. أدخل رمز التحقق المرسل إلى بريدك أو اطلب رمزًا جديدًا.'
+            : 'تم إنشاء الحساب. أدخل رمز التحقق المكوّن من 6 أرقام المرسل إلى بريدك الإلكتروني.';
         passwordController.clear();
         confirmPasswordController.clear();
       });
@@ -159,6 +221,31 @@ class _AuthScreenState extends State<AuthScreen> {
     } else if (result is AssalError<AssalSession>) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
+  Future<void> _verifyEmailOtp() async {
+    final email = emailController.text.trim();
+    final token = otpController.text.trim();
+    if (!email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('أدخل بريدك الإلكتروني أولًا.')));
+      return;
+    }
+    if (!RegExp(r'^\d{6}$').hasMatch(token)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('أدخل رمز التحقق المكوّن من 6 أرقام.')));
+      return;
+    }
+    setState(() => loading = true);
+    final result =
+        await widget.repository.verifyEmailConfirmation(email, token);
+    if (!mounted) return;
+    setState(() => loading = false);
+    if (result is AssalData<AssalSession>) {
+      Navigator.pop(context, true);
+    } else if (result is AssalError<AssalSession>) {
+      setState(() => _authNotice = result.messageAr);
     }
   }
 
@@ -175,7 +262,7 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => loading = false);
     if (result is AssalData<void>) {
       setState(() => _authNotice =
-          'تم إرسال رسالة تأكيد جديدة. افتح أحدث رسالة واضغط الرابط مرة واحدة فقط.');
+          'تم إرسال رمز تحقق جديد. أدخل أحدث رمز مكوّن من 6 أرقام مرة واحدة فقط.');
     } else if (result is AssalError<void>) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result.messageAr)));
@@ -213,17 +300,16 @@ class _PasswordStrength extends StatelessWidget {
   Widget build(BuildContext context) {
     final checks = <({String label, bool valid})>[
       (label: '8 أحرف على الأقل', valid: value.length >= 8),
+      (label: 'حرف إنجليزي', valid: RegExp(r'[A-Za-z]').hasMatch(value)),
+      (label: 'رقم إنجليزي', valid: RegExp(r'[0-9]').hasMatch(value)),
       (
-        label: 'حرف عربي أو لاتيني',
-        valid: RegExp(r'[A-Za-z\u0600-\u06FF]').hasMatch(value)
-      ),
-      (label: 'رقم', valid: RegExp(r'[0-9٠-٩]').hasMatch(value)),
-      (
-        label: 'رمز خاص',
-        valid: RegExp(r'[^A-Za-z0-9\u0600-\u06FF٠-٩]').hasMatch(value)
+        label: 'رمز خاص إنجليزي',
+        valid: RegExp(r'[!@#\$%^&*()_+\-=\[\]{};:"\\|,.<>/?]').hasMatch(value)
       ),
     ];
-    final strong = checks.every((check) => check.valid);
+    final asciiOnly =
+        value.isEmpty || RegExp(r'^[\x21-\x7E]+$').hasMatch(value);
+    final strong = asciiOnly && checks.every((check) => check.valid);
     final color = strong ? AssalColors.success : AssalColors.error;
     return Container(
       width: double.infinity,
@@ -234,7 +320,10 @@ class _PasswordStrength extends StatelessWidget {
         border: Border.all(color: color.withAlpha(100)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(strong ? 'كلمة المرور قوية' : 'كلمة المرور تحتاج إلى تقوية',
+        Text(
+            !asciiOnly && value.isNotEmpty
+                ? 'استخدم الحروف الإنجليزية والأرقام والرموز فقط'
+                : (strong ? 'كلمة المرور قوية' : 'كلمة المرور تحتاج إلى تقوية'),
             style: AssalTypography.caption
                 .copyWith(color: color, fontWeight: FontWeight.w700)),
         const SizedBox(height: AssalSpacing.xs),
@@ -260,6 +349,15 @@ class _PasswordStrength extends StatelessWidget {
       ]),
     );
   }
+}
+
+bool _passwordIsStrong(String value) {
+  if (value.length < 8 || !RegExp(r'^[\x21-\x7E]+$').hasMatch(value)) {
+    return false;
+  }
+  return RegExp(r'[A-Za-z]').hasMatch(value) &&
+      RegExp(r'[0-9]').hasMatch(value) &&
+      RegExp(r'[!@#\$%^&*()_+\-=\[\]{};:"\\|,.<>/?]').hasMatch(value);
 }
 
 class ProfileScreen extends StatefulWidget {

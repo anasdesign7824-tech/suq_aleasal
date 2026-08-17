@@ -513,6 +513,30 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<AssalSession>> verifyEmailConfirmation(
+      String email, String token) async {
+    final auth = _authGateway;
+    if (auth == null) {
+      return const AssalError('المصادقة الإنتاجية غير مهيأة بعد.',
+          code: 'production_auth_not_configured');
+    }
+    try {
+      final identity = await auth.verifyEmailConfirmation(email.trim(), token);
+      if (identity == null) {
+        return const AssalError('لم يكتمل التحقق من البريد الإلكتروني.',
+            code: 'email_otp_session_missing');
+      }
+      return AssalData(await _sessionForIdentity(identity));
+    } on AssalAuthFailure catch (error) {
+      return AssalError(error.messageAr, code: error.code);
+    } on Object {
+      return const AssalError(
+          'تعذر التحقق من الرمز الآن. تحقق من الرمز وحاول مرة أخرى.',
+          code: 'email_otp_verify_failed');
+    }
+  }
+
+  @override
   Future<AssalLoadState<void>> deleteAccount() async {
     final auth = _authGateway;
     if (auth == null) {
