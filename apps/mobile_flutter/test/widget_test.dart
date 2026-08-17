@@ -10,7 +10,7 @@ void main() {
     await tester.pump();
     final bootException = tester.takeException();
     expect(bootException, isNull);
-    expect(find.text('اكتشف العسل من مصدره'), findsOneWidget);
-    expect(find.text('تصفح'), findsNothing);
+    expect(find.textContaining('اكتشف العسل من مصدره'), findsOneWidget);
+    expect(find.textContaining('تصفح المتاجر والمنتجات اليمنية الموثوقة'), findsOneWidget);
   });
 }
