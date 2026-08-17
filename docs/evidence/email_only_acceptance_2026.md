@@ -2,7 +2,7 @@
 
 **التاريخ:** 17 أغسطس 2026
 
-**آخر commit مدفوع:** `cd9a3ed docs: record final apk and supabase verification`
+**آخر commit مدفوع:** قيد الدفع بعد إصلاح release INTERNET permission
 
 ## الحكم المختصر
 
@@ -17,17 +17,21 @@
 | `flutter analyze --no-pub` | PASS — لا توجد Issues |
 | `flutter test --no-pub` | PASS — 8/8 |
 | Email-only navigation assertion | PASS — حقلا Email/Password وReset موجودة، Google/Facebook غير موجودين |
-| Flutter APK Release build | PASS — 82.5 MB |
-| Flutter AAB Release build | PASS — 80.6 MB |
+| Flutter APK Release build | PASS — 82.5 MB — rebuilt after INTERNET fix |
+| Flutter AAB Release build | PASS — 80.6 MB — rebuilt after INTERNET fix |
 | Package | `com.assalkom.assalkom` |
-| APK SHA-256 | `5a093bbd82faf7ac5018e91961cdf0ff971f05db39e74261e61fc3611430f680` |
-| AAB SHA-256 | `2a081658d29cfccd634e1b7c2a74772c35a17a8c060b35cc55ce8bcd32c7cf35` |
+| APK SHA-256 | `3f385afa64f7d3b7ee8e9ea69161e8d12828461412e2098a977ff2be59c9e4ef` |
+| AAB SHA-256 | `69edca8fde64a9f003f7ea64e67fc208081c8d5238da0528de45bb61a4ed87d6` |
 | Social dependency scan | لا توجد `google_sign_in` أو `google_identity_services` في lockfile |
 | OAuth/deep-link scan | لا توجد `signInWithOAuth` أو `login-callback`؛ manifest يحتوي launcher `MAIN` فقط للتطبيق، دون `VIEW`/`BROWSABLE` deep-link خارجي |
 | Supabase delete RPC ACL | `security_definer=true`, `anon=false`, `authenticated=true` بعد migration 0007 |
-| GitHub | `origin/main` عند `cd9a3ed` |
+| GitHub | سيُحدّث بعد دفع إصلاح INTERNET permission |
 
 فحص `aapt` النهائي أكد أن `com.assalkom.assalkom.MainActivity` هي launchable activity الوحيدة، وأن manifest لا يعلن `VIEW` أو `BROWSABLE` للتطبيق. ظهور marker عام لـ`android.intent.action.VIEW` داخل dex لا يساوي callback خارجيًا؛ مصدره مكتبات Android/Flutter العامة، وليس intent-filter في manifest.
+
+## سبب الفشل الذي ظهر على Mimo والهاتف الحقيقي
+
+كان عنوان Supabase صحيحًا ويستجيب من خارج التطبيق، لكن `AndroidManifest.xml` الأساسي لم يكن يعلن صلاحية `android.permission.INTERNET`؛ الصلاحية كانت موجودة في debug/profile فقط. لذلك كان إصدار release يمرر طلبات Supabase إلى طبقة الشبكة دون صلاحية Android، فتظهر رسالة `Failed host lookup` حتى على هاتف حقيقي. أضيفت الصلاحية الآن إلى manifest الأساسي، وتم التحقق بـ`aapt dump permissions` من وجودها داخل APK الجديد.
 
 ## ما تم على Supabase
 
