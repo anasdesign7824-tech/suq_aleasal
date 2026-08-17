@@ -354,7 +354,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 dialogError = 'أدخل بريدًا إلكترونيًا صالحًا.');
                             return;
                           }
-                          if (!RegExp(r'^\\d{6,9}$').hasMatch(token)) {
+                          if (!RegExp(r'^\d{6,9}$').hasMatch(token)) {
                             setDialogState(() => dialogError =
                                 'أدخل رمز التحقق كاملًا (من 6 إلى 9 أرقام).');
                             return;
