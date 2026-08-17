@@ -29,6 +29,9 @@ class AssalApp extends StatelessWidget {
               statusBarBrightness: Brightness.dark,
               systemNavigationBarColor: AssalColors.deepBrown,
               systemNavigationBarIconBrightness: Brightness.light,
+              systemStatusBarContrastEnforced: false,
+              systemNavigationBarContrastEnforced: false,
+              systemNavigationBarDividerColor: AssalColors.deepBrown,
             ),
             child: Directionality(
                 textDirection: TextDirection.rtl,
@@ -139,6 +142,7 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
           SafeArea(child: IndexedStack(index: selectedIndex, children: pages));
       if (wide) {
         return Scaffold(
+            backgroundColor: AssalColors.deepBrown,
             body: Row(children: [
           NavigationRail(
               selectedIndex: selectedIndex,
@@ -155,6 +159,7 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         ]));
       }
       return Scaffold(
+          backgroundColor: AssalColors.deepBrown,
           body: content,
           bottomNavigationBar: NavigationBar(
               selectedIndex: selectedIndex,
