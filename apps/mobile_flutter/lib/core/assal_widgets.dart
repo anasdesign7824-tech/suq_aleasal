@@ -78,7 +78,7 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading> with SingleTicker
                     blendMode: BlendMode.srcIn,
                     shaderCallback: (bounds) {
                       final shift = -1.2 + (_controller.value * 2.4);
-                      return LinearGradient(begin: Alignment(shift, -0.3), end: Alignment(shift + 1.2, 0.3), colors: [AssalColors.textMuted, AssalColors.cream, AssalColors.textMuted]).createShader(bounds);
+                      return LinearGradient(begin: Alignment(shift, -0.3), end: Alignment(shift + 1.2, 0.3), colors: const [AssalColors.textMuted, AssalColors.cream, AssalColors.textMuted]).createShader(bounds);
                     },
                     child: child,
                   ),

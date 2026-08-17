@@ -26,7 +26,7 @@ Future<void> main() async {
     final client = Supabase.instance.client;
     final repository = ProductionRepository(
       gateway: SupabaseQueryGateway(client),
-      authGateway: SupabaseAuthGateway(client: client, androidRedirect: config.androidRedirect),
+      authGateway: SupabaseAuthGateway(client: client, androidRedirect: config.androidRedirect, googleServerClientId: config.googleServerClientId),
     );
     runApp(AssalApp(repository: repository));
   } on Object catch (error) {

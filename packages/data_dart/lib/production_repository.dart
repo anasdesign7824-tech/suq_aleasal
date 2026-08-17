@@ -1,4 +1,7 @@
 import 'package:assalkom_contracts/assal_domain.dart';
+import 'dart:async';
+import 'dart:developer' as developer;
+
 import 'assal_repository.dart';
 
 class ProductionRepository implements AssalRepository {
@@ -10,6 +13,26 @@ class ProductionRepository implements AssalRepository {
   AssalDataSourceMode get mode => AssalDataSourceMode.production;
 
   AssalLoadState<List<T>> _state<T>(List<T> values, String emptyMessage) => values.isEmpty ? AssalEmpty<List<T>>(emptyMessage) : AssalData<List<T>>(values);
+
+  Future<AssalLoadState<List<T>>> _readList<T>({required String resource, required String emptyMessage, required Future<List<T>> Function() read}) async {
+    final started = DateTime.now();
+    try {
+      final values = await read();
+      developer.log('read_ok resource=$resource count=${values.length} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      return _state(values, emptyMessage);
+    } on TimeoutException catch (error, stackTrace) {
+      developer.log('read_timeout resource=$resource', name: 'assalkom.production', error: error, stackTrace: stackTrace);
+      return AssalError<List<T>>('تأخر الاتصال بالخدمة. حاول مرة أخرى.', code: 'timeout');
+    } on Object catch (error, stackTrace) {
+      final raw = error.toString();
+      final isSchema = raw.contains('PGRST205') || raw.contains('PGRST204') || raw.contains('column') || raw.contains('relation');
+      final isNetwork = raw.contains('SocketException') || raw.contains('Failed host lookup') || raw.contains('Connection reset');
+      final code = isSchema ? 'schema_mismatch' : (isNetwork ? 'network' : 'data_read_failed');
+      final message = isSchema ? 'تعذر قراءة إعدادات الخدمة. يحتاج هذا الجزء إلى تحديث قاعدة البيانات.' : (isNetwork ? 'تعذر الوصول إلى الخدمة الآن. تحقق من الاتصال ثم أعد المحاولة.' : 'تعذر قراءة البيانات الآن. حاول مرة أخرى.');
+      developer.log('read_failed resource=$resource code=$code elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production', error: error, stackTrace: stackTrace);
+      return AssalError<List<T>>(message, code: code);
+    }
+  }
 
   @override
   Future<AssalSession> getSession() async {
@@ -80,25 +103,23 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
-  Future<AssalLoadState<List<AssalRegion>>> listRegions() async {
+  Future<AssalLoadState<List<AssalRegion>>> listRegions() => _readList(resource: 'regions', emptyMessage: 'لا توجد مناطق منشورة بعد', read: () async {
     final rows = await _gateway.select('regions', filters: const {'is_active': true});
-    final values = rows.map(AssalRegion.fromJson).toList(growable: false);
-    return _state(values, 'لا توجد مناطق متاحة');
-  }
+    return rows.map(AssalRegion.fromJson).toList(growable: false);
+  });
 
   @override
-  Future<AssalLoadState<List<AssalTaxonomy>>> listTaxonomy() async {
+  Future<AssalLoadState<List<AssalTaxonomy>>> listTaxonomy() => _readList(resource: 'honey_taxonomy', emptyMessage: 'لا توجد تصنيفات منشورة بعد', read: () async {
     final rows = await _gateway.select('honey_taxonomy', filters: const {'is_active': true});
-    final values = rows.map(AssalTaxonomy.fromJson).toList(growable: false);
-    return _state(values, 'لا توجد تصنيفات متاحة');
-  }
+    return rows.map(AssalTaxonomy.fromJson).toList(growable: false);
+  });
 
   @override
-  Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() async {
-    final rows = await _gateway.select('banners', filters: const {'is_active': true});
+  Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() => _readList(resource: 'banners', emptyMessage: 'لا توجد حملات استكشاف منشورة بعد', read: () async {
+    final rows = await _gateway.select('customer_banners', filters: const {'is_active': true});
     final values = rows.map(AssalBannerSummary.fromJson).toList(growable: false)..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-    return _state(values, 'لا توجد حملات استكشاف متاحة');
-  }
+    return values;
+  });
 
   @override
   Future<AssalLoadState<List<String>>> listPopularSearches() async {
@@ -112,51 +133,50 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
-  Future<AssalLoadState<List<AssalStoreSummary>>> listStores({String? regionId}) async {
-    final rows = await _gateway.select('stores', filters: {'status': 'active', if (regionId != null) 'region_id': regionId});
-    final values = rows.map(AssalStoreSummary.fromJson).toList(growable: false);
-    return _state(values, 'لا توجد متاجر متاحة');
-  }
+  Future<AssalLoadState<List<AssalStoreSummary>>> listStores({String? regionId}) => _readList(resource: 'stores', emptyMessage: 'لا توجد متاجر منشورة بعد', read: () async {
+    final rows = await _gateway.select('customer_stores', filters: {'status': 'active', if (regionId != null) 'region_id': regionId});
+    return rows.map(AssalStoreSummary.fromJson).toList(growable: false);
+  });
 
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(String userId) async {
-    final rows = await _gateway.select('favorites', filters: {'user_id': userId, 'target_type': 'product'});
-    final ids = rows.map((row) => row['target_id']).whereType<String>().toSet();
+    final rows = await _gateway.select('favorites', filters: {'user_id': userId});
+    final ids = rows.map((row) => row['product_id']).whereType<String>().toSet();
     if (ids.isEmpty) return const AssalEmpty('لا توجد منتجات محفوظة');
-    final products = await _gateway.select('products', filters: const {'status': 'active'});
+    final products = await _gateway.select('customer_products', filters: const {'status': 'active'});
     return _state(products.where((row) => ids.contains(row['id'])).map(AssalProductSummary.fromJson).toList(growable: false), 'لا توجد منتجات محفوظة');
   }
 
   @override
   Future<AssalLoadState<List<AssalTaxonomy>>> listFavoriteTaxonomies(String userId) async {
-    final favoriteRows = await _gateway.select('favorites', filters: {'user_id': userId, 'target_type': 'product'});
-    final productIds = favoriteRows.map((row) => row['target_id']).whereType<String>().toSet();
+    final favoriteRows = await _gateway.select('favorites', filters: {'user_id': userId});
+    final productIds = favoriteRows.map((row) => row['product_id']).whereType<String>().toSet();
     if (productIds.isEmpty) return const AssalEmpty('لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
-    final products = await _gateway.select('products', filters: const {'status': 'active'});
+    final products = await _gateway.select('customer_products', filters: const {'status': 'active'});
     final taxonomyIds = products.where((row) => productIds.contains(row['id'])).map((row) => row['subcategory_id'] ?? row['category_id']).whereType<String>().toSet();
-    final taxonomies = await _gateway.select('taxonomies', filters: const {'status': 'active'});
+    final taxonomies = await _gateway.select('honey_taxonomy', filters: const {'is_active': true});
     return _state(taxonomies.where((row) => taxonomyIds.contains(row['id'])).map(AssalTaxonomy.fromJson).toList(growable: false), 'لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
   }
 
   @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(String userId) async {
-    final rows = await _gateway.select('store_follows', filters: {'user_id': userId});
+    final rows = await _gateway.select('store_followers', filters: {'user_id': userId});
     final ids = rows.map((row) => row['store_id']).whereType<String>().toSet();
     if (ids.isEmpty) return const AssalEmpty('لا توجد متاجر متابَعة');
-    final stores = await _gateway.select('stores', filters: const {'status': 'active'});
+    final stores = await _gateway.select('customer_stores', filters: const {'status': 'active'});
     return _state(stores.where((row) => ids.contains(row['id'])).map(AssalStoreSummary.fromJson).toList(growable: false), 'لا توجد متاجر متابَعة');
   }
 
   @override
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId) async {
-    final rows = await _gateway.select('stores', filters: {'id': storeId, 'status': 'active'});
+    final rows = await _gateway.select('customer_stores', filters: {'id': storeId, 'status': 'active'});
     if (rows.isEmpty) return const AssalError('المتجر غير موجود', code: 'not_found');
     return AssalData(AssalStoreSummary.fromJson(rows.first));
   }
 
   @override
-  Future<AssalLoadState<List<AssalProductSummary>>> listProducts({AssalProductQuery query = const AssalProductQuery()}) async {
-    final rows = await _gateway.select('products', filters: {
+  Future<AssalLoadState<List<AssalProductSummary>>> listProducts({AssalProductQuery query = const AssalProductQuery()}) => _readList(resource: 'products', emptyMessage: 'لا توجد منتجات منشورة بعد', read: () async {
+    final rows = await _gateway.select('customer_products', filters: {
       'status': 'active',
       if (query.storeId != null) 'store_id': query.storeId,
       if (query.categoryId != null) 'category_id': query.categoryId,
@@ -179,7 +199,7 @@ class ProductionRepository implements AssalRepository {
     if (query.minPrice != null) values = values.where((item) => item.price != null && item.price! >= query.minPrice!).toList(growable: false);
     if (query.maxPrice != null) values = values.where((item) => item.price != null && item.price! <= query.maxPrice!).toList(growable: false);
     if (query.verifiedStoresOnly) {
-      final stores = await _gateway.select('stores', filters: const {'status': 'active', 'is_verified': true});
+      final stores = await _gateway.select('customer_stores', filters: const {'status': 'active', 'is_verified': true});
       final ids = stores.map((row) => row['id']).whereType<String>().toSet();
       values = values.where((item) => ids.contains(item.storeId)).toList(growable: false);
     }
@@ -195,12 +215,12 @@ class ProductionRepository implements AssalRepository {
       case AssalSort.featured:
         values = [...values]..sort((a, b) => (b.isFeatured ? 1 : 0).compareTo(a.isFeatured ? 1 : 0));
     }
-    return _state(values, 'لا توجد منتجات مطابقة للبحث');
-  }
+    return values;
+  });
 
   @override
   Future<AssalLoadState<AssalProductSummary>> getProduct(String productId) async {
-    final rows = await _gateway.select('products', filters: {'id': productId, 'status': 'active'});
+    final rows = await _gateway.select('customer_products', filters: {'id': productId, 'status': 'active'});
     if (rows.isEmpty) return const AssalError('المنتج غير موجود', code: 'not_found');
     return AssalData(AssalProductSummary.fromJson(rows.first));
   }
