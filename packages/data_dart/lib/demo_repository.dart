@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:assalkom_contracts/assal_domain.dart';
 
@@ -795,6 +796,17 @@ class DemoRepository implements AssalRepository {
     _merchantDrafts.remove(userId);
     return const AssalData(null);
   }
+
+  @override
+  Future<AssalLoadState<String>> uploadMerchantImage(
+    String userId,
+    String kind,
+    Uint8List bytes,
+    String extension,
+  ) async => const AssalError(
+    'رفع صور المتجر متاح في Production Mode فقط.',
+    code: 'demo_image_upload_unavailable',
+  );
 
   @override
   Future<AssalLoadState<AssalSession>> signIn(

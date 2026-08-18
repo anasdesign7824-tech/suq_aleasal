@@ -64,14 +64,18 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
     final statusLabel = switch (status) {
       'submitted' => 'تم الإرسال',
       'under_review' => 'قيد المراجعة',
-      'verified' => 'موثق',
+      'approved' => 'تم تفعيل المتجر',
+      'verified' => 'تم تفعيل المتجر',
+      'needs_more_info' => 'تحتاج إلى معلومات إضافية',
       'rejected' => 'مرفوض — يحتاج إلى تعديل',
       _ => 'لم يبدأ طلب التاجر بعد',
     };
     final statusDescription = switch (status) {
       'submitted' => 'تم استلام طلبك وينتظر المراجعة.',
       'under_review' => 'يراجع الفريق بيانات النشاط والمصدر.',
-      'verified' => 'تم اعتماد المتجر كمتجر موثق.',
+      'approved' => 'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
+      'verified' => 'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
+      'needs_more_info' => 'راجع ملاحظة الإدارة وأكمل البيانات ثم أرسل الطلب من جديد.',
       'rejected' => 'راجع بياناتك وملاحظات المراجعة قبل إعادة الإرسال.',
       _ => 'ابدأ من شاشة «كن تاجرًا» لإرسال بيانات نشاطك.',
     };
@@ -84,7 +88,9 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               AssalTypography.heading1.copyWith(color: AssalColors.deepBrown),
         ),
         const SizedBox(height: AssalSpacing.sm),
-        const Text('تعرض هذه الصفحة الحالة القادمة من Repository فقط.'),
+        const Text(
+          'هذه الحالة متزامنة مع طلبك والمتجر المسجل في Supabase Production.',
+        ),
         const SizedBox(height: AssalSpacing.xl),
         Card(
           child: ListTile(
@@ -98,9 +104,9 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           child: ListTile(
             leading: const Icon(Icons.inventory_2_outlined),
             title: const Text('المنتجات'),
-            subtitle: Text(application == null
-                ? 'يتاح تجهيز الكتالوج بعد إنشاء طلب التاجر واعتماده.'
-                : 'يتاح تجهيز الكتالوج بعد اكتمال التحقق.'),
+            subtitle: Text(application?.storeStatus == 'active' && application?.storeVerified == true
+                ? 'متجرك مفعّل. يمكنك تجهيز المنتجات وإرسالها للنشر حسب دورة المراجعة.'
+                : 'لا تتاح إدارة المنتجات قبل تفعيل المتجر من لوحة الإدارة.'),
           ),
         ),
       ],

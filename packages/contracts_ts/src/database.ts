@@ -642,35 +642,54 @@ export type Database = {
       merchant_application_drafts: {
         Row: {
           certificate_note: string | null
+          cover_url: string | null
           display_name: string
           experience: string
           location: string
+          logo_url: string | null
           phone: string
+          region_id: string | null
           specialties: string
+          store_description: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           certificate_note?: string | null
+          cover_url?: string | null
           display_name?: string
           experience?: string
           location?: string
+          logo_url?: string | null
           phone?: string
+          region_id?: string | null
           specialties?: string
+          store_description?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           certificate_note?: string | null
+          cover_url?: string | null
           display_name?: string
           experience?: string
           location?: string
+          logo_url?: string | null
           phone?: string
+          region_id?: string | null
           specialties?: string
+          store_description?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "merchant_application_drafts_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "merchant_application_drafts_user_id_fkey"
             columns: ["user_id"]
@@ -683,50 +702,69 @@ export type Database = {
       merchant_applications: {
         Row: {
           certificate_note: string | null
+          cover_url: string | null
           display_name: string
           experience: string
           id: string
           location: string
+          logo_url: string | null
           phone: string
+          region_id: string | null
           review_note: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           specialties: string
           status: string
+          store_description: string | null
           submitted_at: string
           user_id: string
         }
         Insert: {
           certificate_note?: string | null
+          cover_url?: string | null
           display_name: string
           experience: string
           id?: string
           location: string
+          logo_url?: string | null
           phone: string
+          region_id?: string | null
           review_note?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           specialties: string
           status?: string
+          store_description?: string | null
           submitted_at?: string
           user_id: string
         }
         Update: {
           certificate_note?: string | null
+          cover_url?: string | null
           display_name?: string
           experience?: string
           id?: string
           location?: string
+          logo_url?: string | null
           phone?: string
+          region_id?: string | null
           review_note?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           specialties?: string
           status?: string
+          store_description?: string | null
           submitted_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "merchant_applications_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "merchant_applications_reviewed_by_fkey"
             columns: ["reviewed_by"]
@@ -2057,6 +2095,15 @@ export type Database = {
       }
     }
     Functions: {
+      admin_review_merchant_application: {
+        Args: {
+          p_application_id: string
+          p_review_note?: string
+          p_reviewer_id?: string
+          p_status: string
+        }
+        Returns: Json
+      }
       delete_my_account: { Args: never; Returns: undefined }
       has_admin_permission: {
         Args: { permission_code: string }

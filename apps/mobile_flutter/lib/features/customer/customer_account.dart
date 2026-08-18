@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
 import 'customer_favorites.dart';
+import '../merchant/merchant_dashboard.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key, required this.repository});
@@ -459,6 +461,15 @@ class _PasswordStrength extends StatelessWidget {
   }
 }
 
+String _merchantStatusLabel(String status) => switch (status) {
+      'submitted' => 'تم الإرسال',
+      'under_review' => 'قيد المراجعة',
+      'approved' || 'verified' => 'تم تفعيل المتجر',
+      'needs_more_info' => 'تحتاج إلى معلومات إضافية',
+      'rejected' => 'مرفوض — يحتاج إلى تعديل',
+      _ => 'غير محددة',
+    };
+
 bool _passwordIsStrong(String value) {
   if (value.length < 8 || !RegExp(r'^[\x21-\x7E]+$').hasMatch(value)) {
     return false;
@@ -627,10 +638,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) =>
-                      BecomeMerchantScreen(repository: repository))),
-              icon: const Icon(Icons.storefront_outlined),
-              label: const Text('كن تاجرًا'),
+                builder: (_) => session.role == AssalRole.merchant
+                    ? MerchantDashboard(repository: repository)
+                    : BecomeMerchantScreen(repository: repository),
+              )),
+              icon: Icon(session.role == AssalRole.merchant
+                  ? Icons.dashboard_outlined
+                  : Icons.storefront_outlined),
+              label: Text(session.role == AssalRole.merchant
+                  ? 'لوحة التاجر'
+                  : 'كن تاجرًا'),
             ),
           ],
         ),
@@ -1097,7 +1114,11 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
   final locationController = TextEditingController();
   final specialtiesController = TextEditingController();
   final certificateController = TextEditingController();
+  final storeDescriptionController = TextEditingController();
   bool loading = false;
+  bool uploadingImage = false;
+  String? logoUrl;
+  String? coverUrl;
   bool draftLoading = true;
   String? draftUserId;
   AssalMerchantApplicationSummary? application;
@@ -1117,6 +1138,7 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
     locationController.dispose();
     specialtiesController.dispose();
     certificateController.dispose();
+    storeDescriptionController.dispose();
     super.dispose();
   }
 
@@ -1153,7 +1175,7 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
                   border: Border.all(color: AssalColors.border),
                 ),
                 child: Text(
-                  'رفع المستندات غير متاح في هذه المرحلة. يمكنك إضافة معلومات المصدر أو الشهادات في الحقل الاختياري، وسيُفتح الرفع الحقيقي بعد تهيئة التخزين والمراجعة الإدارية.',
+                  'بعد تفعيل المتجر من لوحة الإدارة يصبح حسابك مؤهلًا لإدارة المتجر وإضافة المنتجات والصور. تبقى المنتجات مخفية عن المستخدمين حتى تُنشر وفق حالة المنتج.',
                   style: AssalTypography.caption
                       .copyWith(color: AssalColors.textSecondary),
                 ),
@@ -1217,6 +1239,47 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
                   maxLines: 2,
                   decoration: const InputDecoration(
                       labelText: 'الشهادات أو معلومات المصدر (اختياري)')),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                  controller: storeDescriptionController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                      labelText: 'وصف المتجر (اختياري)',
+                      hintText: 'عرّف المستخدمين بمصدر العسل ونشاط المتجر.')),
+              const SizedBox(height: AssalSpacing.md),
+              Text(
+                'صور المتجر',
+                style: AssalTypography.body.copyWith(
+                  color: AssalColors.deepBrown,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.xs),
+              Text(
+                'تُرفع الصور إلى Storage Production وتُربط بالطلب ثم بالمتجر عند التفعيل.',
+                style: AssalTypography.caption.copyWith(
+                  color: AssalColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: [
+                  _imagePickerButton(
+                    kind: 'logo',
+                    label: 'رفع شعار المتجر',
+                    icon: Icons.storefront_outlined,
+                    url: logoUrl,
+                  ),
+                  _imagePickerButton(
+                    kind: 'cover',
+                    label: 'رفع غلاف المتجر',
+                    icon: Icons.photo_size_select_actual_outlined,
+                    url: coverUrl,
+                  ),
+                ],
+              ),
               const SizedBox(height: AssalSpacing.sm),
               Align(
                 alignment: AlignmentDirectional.centerStart,
@@ -1249,6 +1312,11 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
         certificateNote: certificateController.text.trim().isEmpty
             ? null
             : certificateController.text.trim(),
+        storeDescription: storeDescriptionController.text.trim().isEmpty
+            ? null
+            : storeDescriptionController.text.trim(),
+        logoUrl: logoUrl,
+        coverUrl: coverUrl,
       );
 
   Future<void> _restoreDraft() async {
@@ -1281,8 +1349,74 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
       locationController.text = draft.location;
       specialtiesController.text = draft.specialties;
       certificateController.text = draft.certificateNote ?? '';
+      storeDescriptionController.text = draft.storeDescription ?? '';
+      logoUrl = draft.logoUrl;
+      coverUrl = draft.coverUrl;
     }
     setState(() => draftLoading = false);
+  }
+
+  Widget _imagePickerButton({
+    required String kind,
+    required String label,
+    required IconData icon,
+    required String? url,
+  }) => OutlinedButton.icon(
+        onPressed: loading || uploadingImage ? null : () => _pickImage(kind),
+        icon: uploadingImage
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(icon),
+        label: Text(url == null ? label : '$label — تم الرفع'),
+      );
+
+  Future<void> _pickImage(String kind) async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('سجّل الدخول قبل رفع صورة المتجر.')),
+        );
+      }
+      return;
+    }
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+    setState(() => uploadingImage = true);
+    final extension = picked.name.contains('.')
+        ? picked.name.split('.').last.toLowerCase()
+        : 'jpg';
+    final result = await widget.repository.uploadMerchantImage(
+      session.user!.id,
+      kind,
+      await picked.readAsBytes(),
+      extension,
+    );
+    if (!mounted) return;
+    setState(() => uploadingImage = false);
+    if (result is AssalData<String>) {
+      setState(() {
+        if (kind == 'cover') {
+          coverUrl = result.value;
+        } else {
+          logoUrl = result.value;
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم رفع الصورة وربطها بالطلب.')),
+      );
+    } else if (result is AssalError<String>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.messageAr)),
+      );
+    }
   }
 
   Future<bool> _saveDraft({bool showFeedback = true}) async {
@@ -1345,7 +1479,7 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
           builder: (dialogContext) => AlertDialog(
                   title: const Text('تم استلام طلبك'),
                   content: Text(
-                      'رقم الطلب: ${result.value.id}\nالحالة: ${result.value.status}'),
+                      'رقم الطلب: ${result.value.id}\nالحالة: ${_merchantStatusLabel(result.value.status)}'),
                   actions: [
                     FilledButton(
                         onPressed: () => Navigator.pop(dialogContext),
@@ -1369,14 +1503,18 @@ class _VerificationStatusCard extends StatelessWidget {
     final label = switch (status) {
       'submitted' => 'تم الإرسال',
       'under_review' => 'قيد المراجعة',
-      'verified' => 'موثق',
+      'approved' => 'تم تفعيل المتجر',
+      'verified' => 'تم تفعيل المتجر',
+      'needs_more_info' => 'تحتاج إلى معلومات إضافية',
       'rejected' => 'مرفوض — يحتاج إلى تعديل',
       _ => 'لم يبدأ بعد',
     };
     final description = switch (status) {
       'submitted' => 'استلمنا الطلب وينتظر انتقاله إلى المراجعة.',
       'under_review' => 'يجري فريق التحقق مراجعة بيانات النشاط والمصدر.',
-      'verified' => 'تم اعتماد النشاط كمتجر موثق.',
+      'approved' => 'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
+      'verified' => 'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
+      'needs_more_info' => 'راجع ملاحظة الإدارة وأكمل البيانات ثم أرسل الطلب من جديد.',
       'rejected' => 'راجع ملاحظات المراجعة ثم أرسل البيانات بعد تعديلها.',
       _ => 'أكمل البيانات ثم أرسل طلب فتح المتجر للبدء.',
     };

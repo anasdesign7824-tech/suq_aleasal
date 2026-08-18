@@ -86,7 +86,7 @@ export async function listMerchantApplications(options: QueryOptions = {}) {
   const service = createServiceSupabaseClient();
   let query = service
     .from("merchant_applications")
-    .select("id, user_id, display_name, experience, location, phone, specialties, certificate_note, status, review_note, reviewed_at, reviewed_by, submitted_at", { count: "exact" })
+    .select("id, user_id, display_name, experience, location, phone, specialties, certificate_note, store_description, region_id, logo_url, cover_url, status, review_note, reviewed_at, reviewed_by, submitted_at", { count: "exact" })
     .order("submitted_at", { ascending: false })
     .range(from, to);
   if (options.search?.trim()) query = query.ilike("display_name", `%${options.search.trim()}%`);
@@ -103,20 +103,31 @@ export async function reviewMerchantApplication(
   if (!hasPermission(session, "merchant.review")) throw new Error("لا تملك صلاحية مراجعة طلبات التجار.");
   const reviewNote = input.reviewNote?.trim() || null;
   const service = createServiceSupabaseClient();
-  const result = await service
-    .from("merchant_applications")
-    .update({ status: input.status, review_note: reviewNote, reviewed_at: new Date().toISOString(), reviewed_by: session.user.id })
-    .eq("id", applicationId)
-    .select("id, user_id, display_name, status, review_note, reviewed_at, reviewed_by, submitted_at")
-    .single();
+  const result = await service.rpc("admin_review_merchant_application", {
+    p_application_id: applicationId,
+    p_status: input.status,
+    p_review_note: reviewNote ?? undefined,
+    p_reviewer_id: session.user.id,
+  });
   if (result.error) throw result.error;
+  const payload = (result.data ?? {}) as {
+    application?: Record<string, unknown>;
+    store?: Record<string, unknown> | null;
+    notification?: Record<string, unknown> | null;
+  };
+  const application = payload.application ?? (result.data as Record<string, unknown>);
   await recordAudit(session, {
     action: `merchant_application.${input.status}`,
     entityType: "merchant_applications",
     entityId: applicationId,
-    metadata: { reviewNote },
+    metadata: {
+      reviewNote,
+      synchronized: input.status === "approved",
+      storeId: payload.store?.id ?? null,
+      notificationId: payload.notification?.id ?? null,
+    },
   });
-  return result.data;
+  return { ...application, store: payload.store ?? null, notification: payload.notification ?? null };
 }
 
 export async function listRegions() {
@@ -440,16 +451,34 @@ export async function listUsers() {
   if (users.error) throw users.error;
   const profiles = await service.from("profiles").select("user_id, display_name, phone, avatar_url, bio, locale, role, is_active, created_at, updated_at").limit(100);
   if (profiles.error) throw profiles.error;
+  const applications = await service.from("merchant_applications").select("id, user_id, status, location, review_note, submitted_at, reviewed_at").order("submitted_at", { ascending: false }).limit(200);
+  if (applications.error) throw applications.error;
+  const stores = await service.from("stores").select("id, merchant_id, name_ar, status, is_verified, updated_at").limit(200);
+  if (stores.error) throw stores.error;
   const identities = await service.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (identities.error) throw identities.error;
   const profileByUserId = new Map((profiles.data ?? []).map((profile) => [profile.user_id, profile]));
+  const applicationByUserId = new Map((applications.data ?? []).map((application) => [application.user_id, application]));
+  const storeByMerchantId = new Map((stores.data ?? []).map((store) => [store.merchant_id, store]));
   const identityByUserId = new Map(identities.data.users.map((user) => [user.id, user]));
-  return (users.data ?? []).map((user) => ({
-    ...user,
-    email: identityByUserId.get(user.id)?.email ?? null,
-    emailConfirmedAt: identityByUserId.get(user.id)?.email_confirmed_at ?? null,
-    profile: profileByUserId.get(user.id) ?? null,
-  }));
+  return (users.data ?? []).map((user) => {
+    const identity = identityByUserId.get(user.id);
+    const application = applicationByUserId.get(user.id) ?? null;
+    const store = storeByMerchantId.get(user.id) ?? null;
+    return {
+      ...user,
+      email: identity?.email ?? null,
+      emailConfirmedAt: identity?.email_confirmed_at ?? null,
+      authCreatedAt: identity?.created_at ?? null,
+      lastSignInAt: identity?.last_sign_in_at ?? null,
+      lastActiveAt: null,
+      phone: identity?.phone ?? null,
+      profile: profileByUserId.get(user.id) ?? null,
+      merchantApplication: application,
+      store,
+      networkTelemetry: { ipAddress: null, noteAr: "عنوان IP غير مسجل في مخطط Production الحالي." },
+    };
+  });
 }
 
 export async function listMessages() {

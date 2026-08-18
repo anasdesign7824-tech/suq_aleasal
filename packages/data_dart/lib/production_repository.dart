@@ -2,6 +2,7 @@ import 'package:assalkom_contracts/assal_domain.dart';
 
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'dart:typed_data';
 
 import 'assal_repository.dart';
 
@@ -159,6 +160,15 @@ class ProductionRepository implements AssalRepository {
       isAdmin = rows.isNotEmpty;
     } on Object {
       isAdmin = false;
+    }
+    try {
+      await _gateway.update(
+        'users',
+        {'last_seen_at': DateTime.now().toUtc().toIso8601String()},
+        id: identity.id,
+      );
+    } on Object {
+      // Activity telemetry must never invalidate an otherwise valid session.
     }
     return _sessionFromIdentity(identity, profile: profile, isAdmin: isAdmin);
   }
@@ -986,6 +996,12 @@ class ProductionRepository implements AssalRepository {
     status: '${row['status'] ?? 'submitted'}',
     displayName: '${row['display_name'] ?? ''}',
     submittedAt: DateTime.tryParse('${row['submitted_at'] ?? ''}') ?? DateTime.now(),
+    reviewNote: row['review_note'] as String?,
+    storeId: row['store_id'] is String ? row['store_id'] as String : null,
+    storeStatus: row['store_status'] as String?,
+    storeVerified: row['store_verified'] == true,
+    storeLogoUrl: row['store_logo_url'] as String?,
+    storeCoverUrl: row['store_cover_url'] as String?,
   );
 
   @override
@@ -1005,6 +1021,10 @@ class ProductionRepository implements AssalRepository {
         'location': draft.location.trim(),
         'specialties': draft.specialties.trim(),
         'certificate_note': draft.certificateNote?.trim(),
+        'store_description': draft.storeDescription?.trim(),
+        'region_id': draft.regionId,
+        'logo_url': draft.logoUrl,
+        'cover_url': draft.coverUrl,
         'status': 'submitted',
         'submitted_at': DateTime.now().toIso8601String(),
       });
@@ -1019,7 +1039,18 @@ class ProductionRepository implements AssalRepository {
     resource: 'merchant_applications.read',
     write: () async {
       final rows = await _gateway.select('merchant_applications', filters: {'user_id': userId});
-      return rows.isEmpty ? null : _merchantApplicationFromRow(rows.first);
+      if (rows.isEmpty) return null;
+      final value = Map<String, Object?>.from(rows.first);
+      final stores = await _gateway.select('customer_stores', filters: {'merchant_id': userId});
+      if (stores.isNotEmpty) {
+        final store = stores.first;
+        value['store_id'] = store['id'];
+        value['store_status'] = store['status'];
+        value['store_verified'] = store['is_verified'];
+        value['store_logo_url'] = store['logo_url'];
+        value['store_cover_url'] = store['cover_url'];
+      }
+      return _merchantApplicationFromRow(value);
     },
   );
 
@@ -1038,6 +1069,10 @@ class ProductionRepository implements AssalRepository {
         location: '${row['location'] ?? ''}',
         specialties: '${row['specialties'] ?? ''}',
         certificateNote: row['certificate_note'] as String?,
+        storeDescription: row['store_description'] as String?,
+        regionId: row['region_id'] as String?,
+        logoUrl: row['logo_url'] as String?,
+        coverUrl: row['cover_url'] as String?,
       );
     },
   );
@@ -1057,6 +1092,10 @@ class ProductionRepository implements AssalRepository {
         'location': draft.location,
         'specialties': draft.specialties,
         'certificate_note': draft.certificateNote,
+        'store_description': draft.storeDescription,
+        'region_id': draft.regionId,
+        'logo_url': draft.logoUrl,
+        'cover_url': draft.coverUrl,
         'updated_at': DateTime.now().toIso8601String(),
       });
     },
@@ -1069,6 +1108,29 @@ class ProductionRepository implements AssalRepository {
     resource: 'merchant_application_drafts.delete',
     write: () => _gateway.delete('merchant_application_drafts', filters: {'user_id': userId}),
   );
+
+  @override
+  Future<AssalLoadState<String>> uploadMerchantImage(
+    String userId,
+    String kind,
+    Uint8List bytes,
+    String extension,
+  ) {
+    final safeKind = kind == 'cover' ? 'cover' : 'logo';
+    final safeExtension = switch (extension.toLowerCase()) {
+      'png' => 'png',
+      'webp' => 'webp',
+      _ => 'jpg',
+    };
+    return _write(
+      resource: 'merchant_image.upload',
+      write: () async {
+        final path = '$userId/merchant/$safeKind-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+        return _gateway.uploadPublicImage(path, bytes, safeExtension);
+      },
+    );
+  }
+
   @override
   Future<AssalLoadState<void>> signOut() async {
     final auth = _authGateway;

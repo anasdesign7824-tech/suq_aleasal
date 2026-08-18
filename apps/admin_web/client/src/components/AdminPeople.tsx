@@ -1,13 +1,41 @@
 import { useEffect, useState } from "react";
-import { BellRing, BarChart3, Mail, RefreshCw, Send, Users } from "lucide-react";
+import { Activity, BarChart3, BellRing, Clock3, Globe2, Mail, MapPin, RefreshCw, Send, ShieldCheck, Store, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { adminApi } from "@/lib/admin-api";
 
-type UserRow = { id: string; email?: string | null; last_seen_at?: string | null; profile?: { display_name?: string; role?: string; is_active?: boolean } | null };
+type UserRow = {
+  id: string;
+  email?: string | null;
+  phone?: string | null;
+  created_at?: string | null;
+  last_seen_at?: string | null;
+  authCreatedAt?: string | null;
+  lastSignInAt?: string | null;
+  lastActiveAt?: string | null;
+  emailConfirmedAt?: string | null;
+  profile?: { display_name?: string; phone?: string | null; role?: string; is_active?: boolean } | null;
+  merchantApplication?: { status?: string; location?: string | null; review_note?: string | null; submitted_at?: string | null; reviewed_at?: string | null } | null;
+  store?: { id?: string; name_ar?: string; status?: string; is_verified?: boolean; updated_at?: string | null } | null;
+  networkTelemetry?: { ipAddress?: string | null; noteAr?: string };
+};
 type NotificationRow = { id: string; user_id: string; title_ar: string; body_ar?: string | null; read_at?: string | null; created_at: string };
+
+function formatDate(value?: string | null): string {
+  if (!value) return "غير مسجل";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "غير صالح" : date.toLocaleString("ar-YE", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function roleLabel(value?: string): string {
+  return value === "merchant" ? "تاجر" : value === "admin" ? "مدير" : "عميل";
+}
+
+function applicationLabel(value?: string): string {
+  return value === "approved" ? "مفعّل" : value === "under_review" ? "قيد المراجعة" : value === "needs_more_info" ? "يحتاج معلومات" : value === "rejected" ? "مرفوض" : value === "submitted" ? "تم الإرسال" : "لا يوجد طلب";
+}
 
 export function UsersPanel() {
   const [items, setItems] = useState<UserRow[]>([]);
@@ -15,7 +43,7 @@ export function UsersPanel() {
   const [error, setError] = useState<string | null>(null);
   const load = async () => { setLoading(true); setError(null); try { setItems((await adminApi.users()).items as UserRow[]); } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "تعذر قراءة المستخدمين."); } finally { setLoading(false); } };
   useEffect(() => { void load(); }, []);
-  return <section className="admin-card overflow-hidden"><div className="flex items-start justify-between border-b border-[#eee1d0] px-5 py-5"><div><div className="section-kicker">Customer Directory</div><h2 className="mt-1 text-xl font-bold text-[#342118]">المستخدمون</h2><p className="mt-2 text-sm leading-7 text-[#806b5a]">قراءة من users وprofiles وAuth. لا تمنح هذه الشاشة صلاحيات إدارية تلقائيًا.</p></div><Button onClick={() => void load()} variant="ghost" size="icon" className="text-[#8b5a2b]"><RefreshCw className="size-4" /></Button></div>{loading ? <div className="p-8 text-center"><RefreshCw className="mx-auto size-5 animate-spin text-[#c77d1a]" /></div> : error ? <div className="p-6 text-sm text-red-800">{error}</div> : items.length === 0 ? <div className="p-8 text-center text-sm leading-7 text-[#806b5a]">لا يوجد مستخدمون في المصدر الحقيقي بعد.</div> : <div className="divide-y divide-[#f1e7da]">{items.map((user) => <div key={user.id} className="flex flex-wrap items-center gap-3 px-5 py-4"><div className="grid size-10 place-items-center rounded-2xl bg-[#f3e9df] text-[#4f2e1f]"><Users className="size-5" /></div><div className="min-w-48 flex-1"><p className="font-semibold text-[#432a1e]">{user.profile?.display_name ?? "مستخدم عسلكم"}</p><p className="mt-1 text-xs text-[#806b5a]" dir="ltr">{user.email ?? user.id}</p></div><Badge variant="outline" className="border-[#e3c28d] text-[#8b5a2b]">{user.profile?.role ?? "customer"}</Badge><span className="text-xs text-[#8e7a68]">{user.last_seen_at ? new Date(user.last_seen_at).toLocaleDateString("ar-YE") : "لم يسجل نشاطًا"}</span></div>)}</div>}</section>;
+  return <section className="admin-card overflow-hidden"><div className="flex items-start justify-between border-b border-[#eee1d0] px-5 py-5"><div><div className="section-kicker">Customer Directory</div><h2 className="mt-1 text-xl font-bold text-[#342118]">المستخدمون والتدقيق التشغيلي</h2><p className="mt-2 max-w-3xl text-sm leading-7 text-[#806b5a]">عرض مباشر من users وprofiles وSupabase Auth وطلبات التجار والمتاجر. لا تُعرض معلومات غير مسجلة، وعنوان IP يبقى غير متاح لأن مخطط Production الحالي لا يجمعه.</p></div><Button onClick={() => void load()} variant="ghost" size="icon" className="text-[#8b5a2b]"><RefreshCw className="size-4" /></Button></div>{loading ? <div className="p-8 text-center"><RefreshCw className="mx-auto size-5 animate-spin text-[#c77d1a]" /></div> : error ? <div className="p-6 text-sm text-red-800">{error}</div> : items.length === 0 ? <div className="p-8 text-center text-sm leading-7 text-[#806b5a]">لا يوجد مستخدمون في المصدر الحقيقي بعد.</div> : <div className="divide-y divide-[#f1e7da]">{items.map((user) => { const application = user.merchantApplication; const store = user.store; return <article key={user.id} className="p-5"><div className="flex flex-wrap items-start gap-4"><div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#f3e9df] text-[#4f2e1f]"><Users className="size-5" /></div><div className="min-w-56 flex-1"><div className="flex flex-wrap items-center gap-2"><h3 className="font-bold text-[#432a1e]">{user.profile?.display_name ?? "مستخدم عسلكم"}</h3><Badge variant="outline" className="border-[#e3c28d] text-[#8b5a2b]">{roleLabel(user.profile?.role)}</Badge><Badge variant="outline" className={user.profile?.is_active === false ? "border-red-200 bg-red-50 text-red-800" : "border-emerald-200 bg-emerald-50 text-emerald-800"}>{user.profile?.is_active === false ? "معطّل" : "نشط"}</Badge></div><p className="mt-1 text-xs text-[#806b5a]" dir="ltr">{user.email ?? "بريد غير متاح"}</p><p className="mt-1 text-[11px] text-[#a18d7a]" dir="ltr">ID: {user.id}</p></div><div className="rounded-2xl bg-[#fff7e9] px-3 py-2 text-right"><p className="text-[11px] text-[#8e7a68]">حالة التاجر</p><p className="mt-1 text-sm font-bold text-[#4f2e1f]">{applicationLabel(application?.status)}</p></div></div><div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4"><div className="rounded-2xl border border-[#eee1d0] bg-white/70 p-3"><div className="flex items-center gap-2 text-xs font-bold text-[#4f2e1f]"><Clock3 className="size-4 text-[#9c5a00]" />إنشاء الهوية</div><p className="mt-2 text-xs text-[#806b5a]" dir="ltr">{formatDate(user.authCreatedAt ?? user.created_at)}</p></div><div className="rounded-2xl border border-[#eee1d0] bg-white/70 p-3"><div className="flex items-center gap-2 text-xs font-bold text-[#4f2e1f]"><Activity className="size-4 text-[#9c5a00]" />آخر دخول</div><p className="mt-2 text-xs text-[#806b5a]" dir="ltr">{formatDate(user.lastSignInAt)}</p></div><div className="rounded-2xl border border-[#eee1d0] bg-white/70 p-3"><div className="flex items-center gap-2 text-xs font-bold text-[#4f2e1f]"><RefreshCw className="size-4 text-[#9c5a00]" />آخر نشاط مسجل</div><p className="mt-2 text-xs text-[#806b5a]" dir="ltr">{formatDate(user.last_seen_at ?? user.lastActiveAt)}</p></div><div className="rounded-2xl border border-[#eee1d0] bg-white/70 p-3"><div className="flex items-center gap-2 text-xs font-bold text-[#4f2e1f]"><ShieldCheck className="size-4 text-[#9c5a00]" />تأكيد البريد</div><p className="mt-2 text-xs text-[#806b5a]" dir="ltr">{formatDate(user.emailConfirmedAt)}</p></div></div><div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4"><div className="rounded-2xl bg-[#faf6f0] p-3"><p className="text-[11px] font-bold text-[#4f2e1f]">الهاتف</p><p className="mt-2 text-xs text-[#806b5a]" dir="ltr">{user.phone ?? user.profile?.phone ?? "غير مسجل"}</p></div><div className="rounded-2xl bg-[#faf6f0] p-3"><div className="flex items-center gap-2 text-[11px] font-bold text-[#4f2e1f]"><MapPin className="size-3.5 text-[#9c5a00]" />الموقع</div><p className="mt-2 text-xs text-[#806b5a]">{application?.location ?? "غير مسجل"}</p></div><div className="rounded-2xl bg-[#faf6f0] p-3"><div className="flex items-center gap-2 text-[11px] font-bold text-[#4f2e1f]"><Store className="size-3.5 text-[#9c5a00]" />المتجر</div><p className="mt-2 text-xs text-[#806b5a]">{store?.name_ar ?? "لا يوجد متجر"}{store ? ` — ${store.status === "active" ? "نشط" : store.status ?? "غير محدد"}` : ""}</p></div><div className="rounded-2xl bg-[#faf6f0] p-3"><div className="flex items-center gap-2 text-[11px] font-bold text-[#4f2e1f]"><Globe2 className="size-3.5 text-[#9c5a00]" />IP والشبكة</div><p className="mt-2 text-xs text-[#806b5a]">{user.networkTelemetry?.ipAddress ?? "غير مسجل"}</p></div></div>{application?.review_note && <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3 text-xs leading-6 text-blue-900"><span className="font-bold">ملاحظة مراجعة التاجر:</span> {application.review_note}</div>}<div className="mt-3 flex flex-wrap gap-3 text-[11px] text-[#9a8571]"><span>إرسال الطلب: <b dir="ltr">{formatDate(application?.submitted_at)}</b></span><span>مراجعة الطلب: <b dir="ltr">{formatDate(application?.reviewed_at)}</b></span><span>{user.networkTelemetry?.noteAr ?? "بيانات الشبكة حسب ما هو مسجل فعليًا."}</span></div></article>; })}</div>}</section>;
 }
 
 export function NotificationsPanel() {

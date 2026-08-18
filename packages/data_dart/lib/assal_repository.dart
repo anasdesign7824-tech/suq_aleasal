@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:assalkom_contracts/assal_domain.dart';
 
 enum AssalDataSourceMode { demo, production }
@@ -203,6 +205,12 @@ abstract interface class AssalRepository {
     AssalMerchantApplicationDraft draft,
   );
   Future<AssalLoadState<void>> clearMerchantApplicationDraft(String userId);
+  Future<AssalLoadState<String>> uploadMerchantImage(
+    String userId,
+    String kind,
+    Uint8List bytes,
+    String extension,
+  );
   Future<AssalLoadState<void>> signOut();
 }
 
@@ -231,6 +239,11 @@ abstract interface class ProductionQueryGateway {
   Future<Map<String, Object?>> upsert(
     String table,
     Map<String, Object?> values,
+  );
+  Future<String> uploadPublicImage(
+    String path,
+    Uint8List bytes,
+    String extension,
   );
 }
 

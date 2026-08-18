@@ -494,22 +494,55 @@ class AssalRequestSummary {
 }
 
 class AssalMerchantApplicationDraft {
-  const AssalMerchantApplicationDraft({required this.displayName, required this.phone, required this.experience, required this.location, required this.specialties, this.certificateNote});
+  const AssalMerchantApplicationDraft({
+    required this.displayName,
+    required this.phone,
+    required this.experience,
+    required this.location,
+    required this.specialties,
+    this.certificateNote,
+    this.storeDescription,
+    this.regionId,
+    this.logoUrl,
+    this.coverUrl,
+  });
   final String displayName;
   final String phone;
   final String experience;
   final String location;
   final String specialties;
   final String? certificateNote;
+  final String? storeDescription;
+  final String? regionId;
+  final String? logoUrl;
+  final String? coverUrl;
 }
 
 class AssalMerchantApplicationSummary {
-  const AssalMerchantApplicationSummary({required this.id, required this.userId, required this.status, required this.displayName, required this.submittedAt});
+  const AssalMerchantApplicationSummary({
+    required this.id,
+    required this.userId,
+    required this.status,
+    required this.displayName,
+    required this.submittedAt,
+    this.reviewNote,
+    this.storeId,
+    this.storeStatus,
+    this.storeVerified = false,
+    this.storeLogoUrl,
+    this.storeCoverUrl,
+  });
   final String id;
   final String userId;
   final String status;
   final String displayName;
   final DateTime submittedAt;
+  final String? reviewNote;
+  final String? storeId;
+  final String? storeStatus;
+  final bool storeVerified;
+  final String? storeLogoUrl;
+  final String? storeCoverUrl;
 }
 
 class AssalNotificationSummary {
