@@ -6,11 +6,7 @@ import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import 'assal_assets.dart';
 
-const assalDarkGradient = LinearGradient(
-  begin: Alignment.topRight,
-  end: Alignment.bottomLeft,
-  colors: [AssalColors.deepBrown, AssalColors.primaryDark],
-);
+const assalDarkGradient = AssalColors.darkGradient;
 
 class AssalBrandMark extends StatelessWidget {
   const AssalBrandMark({
@@ -103,7 +99,7 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     return AppBar(
       bottom: bottom,
-      backgroundColor: AssalColors.deepBrown,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       shadowColor: Colors.transparent,
@@ -113,7 +109,7 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
         decoration: BoxDecoration(gradient: assalDarkGradient),
       ),
       systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: AssalColors.deepBrown,
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: AssalColors.primaryDark,

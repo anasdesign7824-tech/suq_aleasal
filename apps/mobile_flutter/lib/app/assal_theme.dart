@@ -6,6 +6,38 @@ const _assalInteractionOverlay = WidgetStatePropertyAll<Color?>(
   Color(0x269C5A00),
 );
 
+Widget _assalGradientButtonBackground(
+  BuildContext context,
+  Set<WidgetState> states,
+  Widget? child,
+) {
+  final disabled = states.contains(WidgetState.disabled);
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      gradient: disabled
+          ? const LinearGradient(
+              colors: [AssalColors.border, AssalColors.surfaceVariant],
+            )
+          : AssalColors.darkGradient,
+    ),
+    child: child,
+  );
+}
+
+ButtonStyle _assalGradientButtonStyle() => ButtonStyle(
+      backgroundColor: const WidgetStatePropertyAll<Color?>(Colors.transparent),
+      foregroundColor: const WidgetStatePropertyAll<Color?>(AssalColors.cream),
+      overlayColor: _assalInteractionOverlay,
+      elevation: const WidgetStatePropertyAll<double>(0),
+      backgroundBuilder: _assalGradientButtonBackground,
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AssalRadius.medium),
+        ),
+      ),
+      textStyle: const WidgetStatePropertyAll(AssalTypography.button),
+    );
+
 ThemeData buildAssalTheme() {
   final scheme = ColorScheme.fromSeed(
     seedColor: AssalColors.primary,
@@ -61,7 +93,7 @@ ThemeData buildAssalTheme() {
       iconTheme: const IconThemeData(color: Colors.white),
       actionsIconTheme: const IconThemeData(color: Colors.white),
       systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: AssalColors.deepBrown,
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: AssalColors.primaryDark,
@@ -142,17 +174,10 @@ ThemeData buildAssalTheme() {
       suffixIconColor: AssalColors.primaryDark,
     ),
     filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: AssalColors.deepBrown,
-        foregroundColor: AssalColors.cream,
-        disabledBackgroundColor: AssalColors.border,
-        disabledForegroundColor: AssalColors.textMuted,
-        overlayColor: AssalColors.primary.withValues(alpha: .18),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AssalRadius.medium),
-        ),
-      ),
+      style: _assalGradientButtonStyle(),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: _assalGradientButtonStyle(),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
