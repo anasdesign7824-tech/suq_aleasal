@@ -588,6 +588,23 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<AssalConversationSummary>> createConversation(
+    String userId,
+    String storeId,
+  ) async {
+    final conversation = AssalConversationSummary(
+      id: 'local-conversation-${DateTime.now().microsecondsSinceEpoch}',
+      storeId: storeId,
+      storeName: 'متجر عسلكم',
+      lastMessage: 'ابدأ محادثة جديدة',
+      updatedAt: DateTime.now(),
+      participantIds: [userId],
+    );
+    _localConversations.insert(0, conversation);
+    return AssalData(conversation);
+  }
+
+  @override
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(
     String conversationId,
   ) async {

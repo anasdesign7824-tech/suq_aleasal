@@ -1,0 +1,505 @@
+--- /home/ubuntu/suq_aleasal/packages/contracts_ts/src/database.ts	2026-08-16 02:25:24.406186628 +0000
++++ /home/ubuntu/suq_aleasal/docs/database.generated.live.ts	2026-08-18 05:46:11.107607433 +0000
+@@ -199,6 +199,13 @@
+             referencedRelation: "categories"
+             referencedColumns: ["id"]
+           },
++          {
++            foreignKeyName: "categories_parent_id_fkey"
++            columns: ["parent_id"]
++            isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["category_id"]
++          },
+         ]
+       }
+       certifications: {
+@@ -314,6 +321,13 @@
+             foreignKeyName: "comments_product_id_fkey"
+             columns: ["product_id"]
+             isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "comments_product_id_fkey"
++            columns: ["product_id"]
++            isOneToOne: false
+             referencedRelation: "products"
+             referencedColumns: ["id"]
+           },
+@@ -380,6 +394,13 @@
+             foreignKeyName: "favorites_product_id_fkey"
+             columns: ["product_id"]
+             isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "favorites_product_id_fkey"
++            columns: ["product_id"]
++            isOneToOne: false
+             referencedRelation: "products"
+             referencedColumns: ["id"]
+           },
+@@ -387,6 +408,13 @@
+             foreignKeyName: "favorites_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "favorites_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -429,6 +457,13 @@
+             foreignKeyName: "handoff_options_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "handoff_options_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -523,6 +558,13 @@
+             foreignKeyName: "merchant_delivery_options_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "merchant_delivery_options_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -580,6 +622,13 @@
+             foreignKeyName: "merchant_pickup_locations_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "merchant_pickup_locations_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -689,6 +738,20 @@
+             referencedColumns: ["id"]
+           },
+           {
++            foreignKeyName: "product_categories_category_id_fkey"
++            columns: ["category_id"]
++            isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["category_id"]
++          },
++          {
++            foreignKeyName: "product_categories_product_id_fkey"
++            columns: ["product_id"]
++            isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["id"]
++          },
++          {
+             foreignKeyName: "product_categories_product_id_fkey"
+             columns: ["product_id"]
+             isOneToOne: false
+@@ -722,6 +785,13 @@
+             foreignKeyName: "product_certifications_product_id_fkey"
+             columns: ["product_id"]
+             isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "product_certifications_product_id_fkey"
++            columns: ["product_id"]
++            isOneToOne: false
+             referencedRelation: "products"
+             referencedColumns: ["id"]
+           },
+@@ -757,6 +827,13 @@
+             foreignKeyName: "product_images_product_id_fkey"
+             columns: ["product_id"]
+             isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "product_images_product_id_fkey"
++            columns: ["product_id"]
++            isOneToOne: false
+             referencedRelation: "products"
+             referencedColumns: ["id"]
+           },
+@@ -813,6 +890,13 @@
+             foreignKeyName: "products_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "products_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -879,8 +963,11 @@
+           id: string
+           is_active: boolean
+           name_ar: string
++          name_ar_normalized: string | null
+           name_en: string | null
++          name_en_normalized: string | null
+           parent_region_id: string | null
++          region_level: string
+         }
+         Insert: {
+           code?: string | null
+@@ -888,8 +975,11 @@
+           id?: string
+           is_active?: boolean
+           name_ar: string
++          name_ar_normalized?: string | null
+           name_en?: string | null
++          name_en_normalized?: string | null
+           parent_region_id?: string | null
++          region_level?: string
+         }
+         Update: {
+           code?: string | null
+@@ -897,8 +987,11 @@
+           id?: string
+           is_active?: boolean
+           name_ar?: string
++          name_ar_normalized?: string | null
+           name_en?: string | null
++          name_en_normalized?: string | null
+           parent_region_id?: string | null
++          region_level?: string
+         }
+         Relationships: [
+           {
+@@ -934,6 +1027,13 @@
+             foreignKeyName: "request_items_product_id_fkey"
+             columns: ["product_id"]
+             isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "request_items_product_id_fkey"
++            columns: ["product_id"]
++            isOneToOne: false
+             referencedRelation: "products"
+             referencedColumns: ["id"]
+           },
+@@ -1031,6 +1131,13 @@
+             foreignKeyName: "requests_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "requests_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -1115,6 +1222,13 @@
+             foreignKeyName: "reviews_product_id_fkey"
+             columns: ["product_id"]
+             isOneToOne: false
++            referencedRelation: "customer_products"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "reviews_product_id_fkey"
++            columns: ["product_id"]
++            isOneToOne: false
+             referencedRelation: "products"
+             referencedColumns: ["id"]
+           },
+@@ -1122,6 +1236,13 @@
+             foreignKeyName: "reviews_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "reviews_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -1154,6 +1275,13 @@
+             foreignKeyName: "social_links_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "social_links_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -1180,6 +1308,13 @@
+             foreignKeyName: "store_followers_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "store_followers_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -1222,6 +1357,13 @@
+             foreignKeyName: "store_gallery_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "store_gallery_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -1257,6 +1399,13 @@
+             foreignKeyName: "store_statistics_store_id_fkey"
+             columns: ["store_id"]
+             isOneToOne: true
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "store_statistics_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: true
+             referencedRelation: "stores"
+             referencedColumns: ["id"]
+           },
+@@ -1345,9 +1494,192 @@
+       }
+     }
+     Views: {
+-      [_ in never]: never
++      customer_banners: {
++        Row: {
++          created_at: string | null
++          cta_label_ar: string | null
++          description_ar: string | null
++          ends_at: string | null
++          id: string | null
++          image_url: string | null
++          is_active: boolean | null
++          sort_order: number | null
++          starts_at: string | null
++          target_query: string | null
++          title_ar: string | null
++          updated_at: string | null
++        }
++        Insert: {
++          created_at?: string | null
++          cta_label_ar?: never
++          description_ar?: string | null
++          ends_at?: string | null
++          id?: string | null
++          image_url?: string | null
++          is_active?: boolean | null
++          sort_order?: number | null
++          starts_at?: string | null
++          target_query?: string | null
++          title_ar?: string | null
++          updated_at?: string | null
++        }
++        Update: {
++          created_at?: string | null
++          cta_label_ar?: never
++          description_ar?: string | null
++          ends_at?: string | null
++          id?: string | null
++          image_url?: string | null
++          is_active?: boolean | null
++          sort_order?: number | null
++          starts_at?: string | null
++          target_query?: string | null
++          title_ar?: string | null
++          updated_at?: string | null
++        }
++        Relationships: []
++      }
++      customer_products: {
++        Row: {
++          availability: string | null
++          badges: string[] | null
++          category_id: string | null
++          category_name_ar: string | null
++          certifications: string[] | null
++          created_at: string | null
++          currency_code: string | null
++          delivery_options: string[] | null
++          description: string | null
++          forms: string[] | null
++          grade_label_ar: string | null
++          grade_level: number | null
++          harvest_label: string | null
++          honey_identity: string | null
++          id: string | null
++          image_urls: string[] | null
++          is_featured: boolean | null
++          likes_count: number | null
++          merchant_id: string | null
++          metadata: Json | null
++          name_ar: string | null
++          name_en: string | null
++          origin_country: string | null
++          packaged_date: string | null
++          packaging_label_ar: string | null
++          pickup_locations: string[] | null
++          price: number | null
++          primary_image_url: string | null
++          processing_method_ar: string | null
++          processing_status_ar: string | null
++          product_type: string | null
++          production_date: string | null
++          province_id: string | null
++          province_name_ar: string | null
++          purpose: string | null
++          quality_label_ar: string | null
++          rating_average: number | null
++          region_id: string | null
++          region_name_ar: string | null
++          regions: string[] | null
++          review_count: number | null
++          status: string | null
++          store_id: string | null
++          subcategory_id: string | null
++          subcategory_name_ar: string | null
++          tags: string[] | null
++          taxonomy_id: string | null
++          updated_at: string | null
++          views_count: number | null
++          weight_label: string | null
++        }
++        Relationships: [
++          {
++            foreignKeyName: "products_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
++            referencedRelation: "customer_stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "products_store_id_fkey"
++            columns: ["store_id"]
++            isOneToOne: false
++            referencedRelation: "stores"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "products_taxonomy_id_fkey"
++            columns: ["subcategory_id"]
++            isOneToOne: false
++            referencedRelation: "honey_taxonomy"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "products_taxonomy_id_fkey"
++            columns: ["taxonomy_id"]
++            isOneToOne: false
++            referencedRelation: "honey_taxonomy"
++            referencedColumns: ["id"]
++          },
++          {
++            foreignKeyName: "stores_merchant_id_fkey"
++            columns: ["merchant_id"]
++            isOneToOne: false
++            referencedRelation: "merchant_profiles"
++            referencedColumns: ["user_id"]
++          },
++        ]
++      }
++      customer_stores: {
++        Row: {
++          avatar_url: string | null
++          bio: string | null
++          certifications: string[] | null
++          contact_phone: string | null
++          contact_telegram: string | null
++          contact_whatsapp: string | null
++          cover_url: string | null
++          delivery_options: string[] | null
++          description: string | null
++          followers_count: number | null
++          gallery_urls: string[] | null
++          id: string | null
++          is_verified: boolean | null
++          logo_url: string | null
++          merchant_id: string | null
++          merchant_name_ar: string | null
++          name_ar: string | null
++          pickup_locations: string[] | null
++          rating_average: number | null
++          region_id: string | null
++          region_name_ar: string | null
++          review_count: number | null
++          slug: string | null
++          social_links: Json | null
++          specialties: string[] | null
++          status: string | null
++          years_experience: number | null
++        }
++        Relationships: [
++          {
++            foreignKeyName: "stores_merchant_id_fkey"
++            columns: ["merchant_id"]
++            isOneToOne: false
++            referencedRelation: "merchant_profiles"
++            referencedColumns: ["user_id"]
++          },
++          {
++            foreignKeyName: "stores_region_id_fkey"
++            columns: ["region_id"]
++            isOneToOne: false
++            referencedRelation: "regions"
++            referencedColumns: ["id"]
++          },
++        ]
++      }
+     }
+     Functions: {
++      delete_my_account: { Args: never; Returns: undefined }
+       is_admin: { Args: never; Returns: boolean }
+     }
+     Enums: {

@@ -147,6 +147,10 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(
     String userId,
   );
+  Future<AssalLoadState<AssalConversationSummary>> createConversation(
+    String userId,
+    String storeId,
+  );
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(
     String conversationId,
   );
@@ -220,6 +224,14 @@ abstract interface class ProductionQueryGateway {
     Map<String, Object?> values, {
     required String id,
   });
+  Future<void> delete(
+    String table, {
+    Map<String, Object?> filters = const <String, Object?>{},
+  });
+  Future<Map<String, Object?>> upsert(
+    String table,
+    Map<String, Object?> values,
+  );
 }
 
 class AssalAuthIdentity {

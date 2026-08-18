@@ -9,6 +9,7 @@ build/
 
 # Environment variables
 .env
+.admin-bootstrap/
 .env.local
 .env.development.local
 .env.test.local

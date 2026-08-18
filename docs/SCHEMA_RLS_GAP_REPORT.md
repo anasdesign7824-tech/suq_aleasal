@@ -1,0 +1,34 @@
+# SCHEMA / RLS GAP REPORT — عسلكم
+
+هذا التقرير Discovery-only. لا يمثل موافقة على Migration ولا ينفذ أي تغيير. كل بند يجب أن يمر بمراجعة عقدية وأمنية قبل Gate 2.
+
+| ID | الأولوية | GAP | ROOT CAUSE | IMPACT | REQUIRED CHANGE | Migration/Config | Verification |
+|---|---|---|---|---|---|---|---|
+| GAP-001 | P0 | لا توجد Admin Auth/Bootstrap محلية | Admin Web static shell فقط، ولا Backend/Auth gate | لا توجد إدارة خاصة قابلة للدخول | Local Admin Backend + Admin Auth Identity + one-time Bootstrap | قد يحتاج Backend/Edge/Auth config؛ لا تنفيذ قبل اعتماد | unauthenticated denied، admin allowed، bootstrap locked |
+| GAP-002 | P0 | Admin identity ليست مستقلة صراحة عن user capability | `users/profiles` trigger عام، و`ProductionRepository` يرفع admin من وجود `admin_users` فقط | خطر تفسير المدير كمستخدم عادي أعلى | فصل مفهوم Admin Identity/Member/Role عن Customer/Merchant Capability | عقد/Backend/RLS مراجعة، Migration فقط إن لزم | user OTP لا يفتح Admin، no capability required |
+| GAP-003 | P0 | صلاحيات admin_roles عامة وليست permission/scope model | permissions الحالية JSON coarse-grained، لا scope/status/invitation | Limited Admin قد يملك صلاحيات أوسع من المطلوب | Permission catalog + role assignments + scope/status + server/RLS checks | Additive tables/columns/functions بعد GAP approval | direct API/RLS denial matrix |
+| GAP-004 | P0 | لا توجد دورة Store Application إنتاجية | `submitMerchantApplication` وload/draft غير مهيأة | لا يمكن فتح/مراجعة/اعتماد متجر End-to-End | توحيد application entity أو إثبات أن stores تمثل الطلب، وانتقالات حالة وreasons | Additive only after schema decision | mobile submit → admin → decision → mobile |
+| GAP-005 | P0 | Admin CRUD غير موجود | server static only وdemo local data | الأزرار ستكون شكلية إن لم تبنَ طبقة | Local Backend Controllers/Use Cases/Repository/Supabase gateway | Code first after contracts | mutation persistence + reload |
+| GAP-006 | P1 | Audit logs موجودة بلا تغطية موحدة | table/policies موجودة، لا middleware/use cases/admin view | قرارات حساسة غير قابلة للإثبات | audit event contract + append-only enforcement + UI | policy/function adjustments if needed | every sensitive action has actor/result |
+| GAP-007 | P1 | RLS تعتمد `is_admin()` أكثر من permission | policies admin-wide، no operation/scope checks | Limited Admin bypass risk | permission-aware helper functions/policies or server-only controlled mutations | security migration after testing | role × operation × table matrix |
+| GAP-008 | P1 | دعوة/إنشاء/تعطيل المدراء غير موجود | admin_users only mapping table | لا يمكن إدارة Admin lifecycle | Auth Identity invite/create + admin_users mapping + status/audit | schema/API decision | create/activate/deactivate/privilege escalation tests |
+| GAP-009 | P1 | Product price/currency غير عقدي | `customer_products` casts `metadata.price` و`currency_code` | اختلاف validation/display and unsafe filtering | explicit amount/currency domain contract; preserve compatibility during migration | additive columns or validated metadata policy | CRUD/read parity across app/admin |
+| GAP-010 | P1 | Taxonomy Admin source منفصل عن canonical | `demoCatalog` local; DB `honey_taxonomy/categories` canonical | mismatch between filters/product creation | canonical loader/Repository; reference provenance | no duplicate taxonomy; seed/config only after review | same hierarchy in mobile/admin |
+| GAP-011 | P1 | Regions UI and DB provenance not fully unified | DB parent relation + local JSON codes | district filters may diverge | stable code mapping and version/provenance contract | additive metadata only if needed | governorate→district parity |
+| GAP-012 | P1 | Banner write path absent despite read model/policies | `customer_banners` read exists; no Admin upload/backend | carousel cannot be controlled | storage upload + banner metadata CRUD + active scheduling | use existing tables/buckets where possible | upload→storage→db→mobile |
+| GAP-013 | P1 | Verification documents not integrated | UI explicitly says upload unavailable; private bucket exists | no real verification review | evidence metadata/Storage path + permission/audit workflow | additive document metadata if absent | private file inaccessible to non-authorized |
+| GAP-014 | P1 | Interaction writes absent | request/message/review/social/analytics methods return not configured | app/admin synchronization incomplete | implement gateways/use cases with ownership/RLS | schema only if source missing | write/read/reload E2E |
+| GAP-015 | P1 | Analytics source not defined | `trackProductView` not configured; counts in metadata may be non-authoritative | Dashboard fake or stale | event model/aggregation source and privacy rules | additive analytics event/aggregate only after definition | source-to-chart trace |
+| GAP-016 | P1 | Admin server binds unspecified host | `server.listen(port)`; Vite `--host` | Local console may expose LAN unintentionally | default bind `127.0.0.1`; opt-in LAN allowlist | config/runtime hardening | port scan/bind/reachability test |
+| GAP-017 | P2 | Admin UI exposes Demo labels/source concepts | Home metric/cards and `demoCatalog` copy | production confusion and forbidden internal naming | environment-aware source badge; no Demo data in production | UI contract | production empty smoke test |
+| GAP-018 | P2 | Empty/loading/error states not connected to real queries | current admin data is synchronous local arrays | false confidence and poor resilience | repository states + partial loading + light empty states | code | browser state tests |
+| GAP-019 | P2 | Admin package has no production test scripts | only check/build/format, no domain test harness | regressions hard to detect | add tests for repositories/use cases/auth/RLS integration | dev dependency/test config | CI/local test evidence |
+| GAP-020 | P2 | Storage policy uses broad `is_admin()` | current policy permits any admin to public/private bucket paths | needs permission/scope review for sensitive assets | permission-aware storage policies or secure backend proxy | security migration only if required | non-authorized admin denied |
+
+## Security observations
+
+قاعدة البيانات الحالية تملك RLS وحراسًا مهمين: `is_admin()`، منع تصعيد دور `profiles`، منع تغيير توثيق التاجر، ومنع تغيير حالة المتجر من غير Admin. كما تملك سياسات عامة ومالك وإدارة، وفصلًا بين bucket عام وخاص. لكن وجود هذه الأساسات لا يثبت أن نموذج Permission-based RBAC المطلوب مكتمل، ولا يثبت أن لوحة الإدارة المحلية تستخدمها؛ لذلك لا يعتبر هذا التقرير أي وظيفة مكتملة قبل اختبارها من Backend وRLS معًا.
+
+## Migration policy
+
+لا تُنفذ أي Migration بسبب وجود GAP في هذا التقرير وحده. لكل Migration لاحقة يجب تقديم: العقد قبل/بعد، سبب عدم إعادة استخدام الموجود، أثر القراءة على التطبيق، أثر RLS، خطة rollback، بيانات اختبار، ونتائج Security Advisor/Policy tests. الأولوية لإعادة استخدام الجداول والـViews والعقود القائمة، ثم التوسع Additive عند الضرورة فقط.

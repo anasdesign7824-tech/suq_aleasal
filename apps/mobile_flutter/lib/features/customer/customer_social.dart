@@ -49,8 +49,8 @@ class _ReviewsSectionState extends State<ReviewsSection> {
   }
 
   Future<void> _writeReview() async {
-    final allowed = await requireAuth(context, widget.repository);
-    if (!allowed || !mounted) return;
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted || session.user == null) return;
     final body = TextEditingController();
     var rating = 5;
     final submit = await showDialog<bool>(
@@ -68,7 +68,7 @@ class _ReviewsSectionState extends State<ReviewsSection> {
       )),
     );
     if (submit == true && body.text.trim().isNotEmpty) {
-      await widget.repository.createReview('demo-customer', AssalReviewDraft(productId: widget.product.id, storeId: widget.product.storeId, rating: rating, body: body.text.trim()));
+      await widget.repository.createReview(session.user!.id, AssalReviewDraft(productId: widget.product.id, storeId: widget.product.storeId, rating: rating, body: body.text.trim()));
       if (mounted) setState(() => future = widget.repository.listReviews(widget.product.id));
     }
     body.dispose();
@@ -125,9 +125,9 @@ class _CommentsSectionState extends State<CommentsSection> {
   Future<void> _add() async {
     final body = controller.text.trim();
     if (body.isEmpty) return;
-    final allowed = await requireAuth(context, widget.repository);
-    if (!allowed || !mounted) return;
-    await widget.repository.createComment('demo-customer', 'عميل عسلكم', widget.targetId, body);
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted || session.user == null) return;
+    await widget.repository.createComment(session.user!.id, session.user!.nameAr, widget.targetId, body);
     controller.clear();
     setState(() => future = widget.repository.listComments(widget.targetId));
   }

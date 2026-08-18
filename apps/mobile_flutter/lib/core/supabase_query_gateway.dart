@@ -10,7 +10,10 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
   final SupabaseClient client;
 
   @override
-  Future<List<Map<String, Object?>>> select(String table, {Map<String, Object?> filters = const <String, Object?>{}}) async {
+  Future<List<Map<String, Object?>>> select(
+    String table, {
+    Map<String, Object?> filters = const <String, Object?>{},
+  }) async {
     final started = DateTime.now();
     developer.log('select_start table=$table filter_keys=${filters.keys.join(',')}', name: 'assalkom.network');
     try {
@@ -54,6 +57,42 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
       return Map<String, Object?>.from(row);
     } on Object catch (error, stackTrace) {
       developer.log('update_failed table=$table', name: 'assalkom.network', error: error, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> delete(
+    String table, {
+    Map<String, Object?> filters = const <String, Object?>{},
+  }) async {
+    final started = DateTime.now();
+    developer.log('delete_start table=$table filter_keys=${filters.keys.join(',')}', name: 'assalkom.network');
+    try {
+      var query = client.from(table).delete();
+      for (final entry in filters.entries) {
+        final value = entry.value;
+        if (value == null) continue;
+        query = query.eq(entry.key, value);
+      }
+      await query.timeout(requestTimeout);
+      developer.log('delete_ok table=$table elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.network');
+    } on Object catch (error, stackTrace) {
+      developer.log('delete_failed table=$table', name: 'assalkom.network', error: error, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, Object?>> upsert(String table, Map<String, Object?> values) async {
+    final started = DateTime.now();
+    developer.log('upsert_start table=$table value_keys=${values.keys.join(',')}', name: 'assalkom.network');
+    try {
+      final row = await client.from(table).upsert(values).select().single().timeout(requestTimeout);
+      developer.log('upsert_ok table=$table elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.network');
+      return Map<String, Object?>.from(row);
+    } on Object catch (error, stackTrace) {
+      developer.log('upsert_failed table=$table', name: 'assalkom.network', error: error, stackTrace: stackTrace);
       rethrow;
     }
   }

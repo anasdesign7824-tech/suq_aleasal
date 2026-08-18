@@ -22,6 +22,29 @@ class ProductionRepository implements AssalRepository {
       ? AssalEmpty<List<T>>(emptyMessage)
       : AssalData<List<T>>(values);
 
+  Future<AssalLoadState<T>> _write<T>({
+    required String resource,
+    required Future<T> Function() write,
+  }) async {
+    final started = DateTime.now();
+    try {
+      final value = await write();
+      developer.log('write_ok resource=$resource elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      return AssalData(value);
+    } on TimeoutException catch (error, stackTrace) {
+      developer.log('write_timeout resource=$resource', name: 'assalkom.production', error: error, stackTrace: stackTrace);
+      return const AssalError('تأخر الاتصال بالخدمة. حاول مرة أخرى.', code: 'timeout');
+    } on Object catch (error, stackTrace) {
+      final raw = error.toString();
+      final isSchema = raw.contains('PGRST205') || raw.contains('PGRST204') || raw.contains('column') || raw.contains('relation');
+      final isAuth = raw.contains('42501') || raw.contains('permission') || raw.contains('JWT') || raw.contains('row-level security');
+      final code = isSchema ? 'schema_mismatch' : (isAuth ? 'permission_denied' : 'data_write_failed');
+      final message = isSchema ? 'تعذر حفظ البيانات بسبب عدم توافق إعدادات الخدمة.' : (isAuth ? 'لا تملك صلاحية تنفيذ هذا الإجراء.' : 'تعذر حفظ البيانات الآن. حاول مرة أخرى.');
+      developer.log('write_failed resource=$resource code=$code', name: 'assalkom.production', error: error, stackTrace: stackTrace);
+      return AssalError(message, code: code);
+    }
+  }
+
   Future<AssalLoadState<List<T>>> _readList<T>({
     required String resource,
     required String emptyMessage,
@@ -492,7 +515,27 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<List<AssalCommentSummary>>> listComments(
     String targetId,
-  ) async => const AssalEmpty('لا توجد تعليقات بعد');
+  ) => _readList(
+    resource: 'comments',
+    emptyMessage: 'لا توجد تعليقات بعد',
+    read: () async {
+      final productRows = await _gateway.select('comments', filters: {'product_id': targetId, 'status': 'approved'});
+      final reviewRows = await _gateway.select('comments', filters: {'review_id': targetId, 'status': 'approved'});
+      final rows = [...productRows, ...reviewRows];
+      final values = <AssalCommentSummary>[];
+      for (final row in rows) {
+        final value = Map<String, Object?>.from(row);
+        final authorId = value['author_id'];
+        if (authorId is String) {
+          final users = await _gateway.select('profiles', filters: {'user_id': authorId});
+          if (users.isNotEmpty) value['author_name'] = users.first['display_name'];
+        }
+        value['target_id'] = value['product_id'] ?? value['review_id'];
+        values.add(AssalCommentSummary.fromJson(value));
+      }
+      return values;
+    },
+  );
 
   @override
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(
@@ -512,9 +555,31 @@ class ProductionRepository implements AssalRepository {
   Future<AssalLoadState<AssalRequestSummary>> createRequest(
     String requesterId,
     AssalRequestDraft draft,
-  ) async => const AssalError(
-    'إرسال الطلب الإنتاجي يحتاج إلى Data Source مصادق عليه.',
-    code: 'production_write_not_configured',
+  ) => _write(
+    resource: 'requests.create',
+    write: () async {
+      final row = await _gateway.insert('requests', {
+        'requester_id': requesterId,
+        'store_id': draft.storeId,
+        'subject': draft.subject.trim(),
+        'body': draft.body.trim().isEmpty ? null : draft.body.trim(),
+        'preferred_handoff_option': draft.handoffOption.name,
+        'phone': draft.phone,
+        'contact_channel': draft.contactChannel,
+        'delivery_note': draft.deliveryNote,
+        'price_note': draft.priceNote,
+        'handoff_details': draft.handoffDetails,
+      });
+      if (draft.productId != null) {
+        await _gateway.insert('request_items', {
+          'request_id': row['id'],
+          'product_id': draft.productId,
+          'quantity': draft.quantity ?? 1,
+          'note': draft.priceNote ?? draft.deliveryNote,
+        });
+      }
+      return AssalRequestSummary.fromJson(row);
+    },
   );
 
   @override
@@ -535,77 +600,217 @@ class ProductionRepository implements AssalRepository {
   Future<AssalLoadState<bool>> markNotificationRead(
     String userId,
     String notificationId,
-  ) async {
-    await _gateway.update('notifications', {
-      'read_at': DateTime.now().toIso8601String(),
-    }, id: notificationId);
-    return const AssalData(true);
-  }
+  ) => _write(
+    resource: 'notifications.read',
+    write: () async {
+      final rows = await _gateway.select('notifications', filters: {'id': notificationId, 'user_id': userId});
+      if (rows.isEmpty) throw StateError('notification_not_owned');
+      await _gateway.update('notifications', {'read_at': DateTime.now().toIso8601String()}, id: notificationId);
+      return true;
+    },
+  );
 
   @override
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(
     String userId,
-  ) async => const AssalEmpty('لا توجد محادثات');
+  ) => _readList(
+    resource: 'conversations',
+    emptyMessage: 'لا توجد محادثات بعد',
+    read: () async {
+      final memberships = await _gateway.select('conversation_participants', filters: {'user_id': userId});
+      final values = <AssalConversationSummary>[];
+      for (final membership in memberships) {
+        final conversationId = membership['conversation_id'];
+        if (conversationId is! String) continue;
+        final rows = await _gateway.select('conversations', filters: {'id': conversationId});
+        if (rows.isEmpty) continue;
+        final row = Map<String, Object?>.from(rows.first);
+        final storeId = row['store_id'];
+        if (storeId is String) {
+          final stores = await _gateway.select('customer_stores', filters: {'id': storeId});
+          if (stores.isNotEmpty) row['store_name'] = stores.first['name_ar'];
+        }
+        final messages = await _gateway.select('messages', filters: {'conversation_id': conversationId});
+        if (messages.isNotEmpty) {
+          final last = messages.last;
+          row['last_message'] = last['body'];
+          row['updated_at'] = last['created_at'];
+        }
+        row['participant_ids'] = [userId];
+        values.add(AssalConversationSummary.fromJson(row));
+      }
+      values.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      return values;
+    },
+  );
+
+  @override
+  Future<AssalLoadState<AssalConversationSummary>> createConversation(
+    String userId,
+    String storeId,
+  ) => _write(
+    resource: 'conversations.create',
+    write: () async {
+      final existing = await _gateway.select('conversations', filters: {'store_id': storeId, 'created_by': userId});
+      Map<String, Object?> row;
+      if (existing.isNotEmpty) {
+        row = Map<String, Object?>.from(existing.first);
+      } else {
+        row = await _gateway.insert('conversations', {'store_id': storeId, 'created_by': userId});
+      }
+      final conversationId = row['id'];
+      if (conversationId is! String) throw StateError('conversation_id_missing');
+      final participants = await _gateway.select('conversation_participants', filters: {'conversation_id': conversationId, 'user_id': userId});
+      if (participants.isEmpty) await _gateway.insert('conversation_participants', {'conversation_id': conversationId, 'user_id': userId});
+      final stores = await _gateway.select('customer_stores', filters: {'id': storeId});
+      row['store_name'] = stores.isEmpty ? 'متجر عسلكم' : stores.first['name_ar'];
+      row['last_message'] = 'ابدأ محادثة جديدة';
+      row['updated_at'] = row['last_message_at'] ?? row['created_at'];
+      row['participant_ids'] = [userId];
+      return AssalConversationSummary.fromJson(row);
+    },
+  );
+
   @override
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(
     String conversationId,
-  ) async => const AssalEmpty('لا توجد رسائل');
+  ) => _readList(
+    resource: 'messages',
+    emptyMessage: 'لا توجد رسائل بعد',
+    read: () async {
+      final identity = await _authGateway?.currentIdentity();
+      final rows = await _gateway.select('messages', filters: {'conversation_id': conversationId});
+      return rows.map((row) {
+        final value = Map<String, Object?>.from(row);
+        value['sent_at'] = value['created_at'];
+        value['is_mine'] = identity?.id == value['sender_id'];
+        return AssalMessageSummary.fromJson(value);
+      }).toList(growable: false);
+    },
+  );
+
   @override
   Future<AssalLoadState<AssalMessageSummary>> sendMessage(
     String userId,
     AssalMessageDraft draft,
-  ) async => const AssalError(
-    'المراسلة الإنتاجية تحتاج إلى Data Source مصادق عليه.',
-    code: 'production_write_not_configured',
+  ) => _write(
+    resource: 'messages.create',
+    write: () async {
+      final body = draft.body.trim();
+      if (body.isEmpty) throw StateError('message_empty');
+      final participants = await _gateway.select('conversation_participants', filters: {'conversation_id': draft.conversationId, 'user_id': userId});
+      if (participants.isEmpty) throw StateError('conversation_not_owned');
+      final row = await _gateway.insert('messages', {'conversation_id': draft.conversationId, 'sender_id': userId, 'body': body});
+      await _gateway.update('conversations', {'last_message_at': row['created_at']}, id: draft.conversationId);
+      final value = Map<String, Object?>.from(row)..['sent_at'] = row['created_at']..['is_mine'] = true;
+      return AssalMessageSummary.fromJson(value);
+    },
   );
   @override
   Future<AssalLoadState<AssalReviewSummary>> createReview(
     String authorId,
     AssalReviewDraft draft,
-  ) async => const AssalError(
-    'المراجعة الإنتاجية تحتاج إلى Data Source مصادق عليه.',
-    code: 'production_write_not_configured',
+  ) => _write(
+    resource: 'reviews.create',
+    write: () async {
+      if (draft.rating < 1 || draft.rating > 5 || draft.body.trim().isEmpty) throw StateError('invalid_review');
+      final row = await _gateway.insert('reviews', {
+        'product_id': draft.productId,
+        'store_id': draft.storeId,
+        'author_id': authorId,
+        'rating': draft.rating,
+        'body': draft.body.trim(),
+        'status': 'pending',
+      });
+      final value = Map<String, Object?>.from(row)..['author_name'] = 'عميل عسلكم';
+      return AssalReviewSummary.fromJson(value);
+    },
   );
+
   @override
   Future<AssalLoadState<AssalCommentSummary>> createComment(
     String authorId,
     String authorName,
     String targetId,
     String body,
-  ) async => const AssalError(
-    'التعليق الإنتاجي يحتاج إلى Data Source مصادق عليه.',
-    code: 'production_write_not_configured',
+  ) => _write(
+    resource: 'comments.create',
+    write: () async {
+      final trimmed = body.trim();
+      if (trimmed.isEmpty) throw StateError('comment_empty');
+      final products = await _gateway.select('products', filters: {'id': targetId});
+      final row = await _gateway.insert('comments', {
+        'author_id': authorId,
+        if (products.isNotEmpty) 'product_id': targetId else 'review_id': targetId,
+        'body': trimmed,
+        'status': 'pending',
+      });
+      final value = Map<String, Object?>.from(row)
+        ..['target_id'] = targetId
+        ..['author_name'] = authorName;
+      return AssalCommentSummary.fromJson(value);
+    },
   );
+
   @override
   Future<AssalLoadState<bool>> toggleFollow(
     String userId,
     String storeId,
-  ) async => const AssalError(
-    'المتابعة الإنتاجية تحتاج إلى Data Source مصادق عليه.',
-    code: 'production_write_not_configured',
+  ) => _write(
+    resource: 'store_followers.toggle',
+    write: () async {
+      final rows = await _gateway.select('store_followers', filters: {'user_id': userId, 'store_id': storeId});
+      if (rows.isNotEmpty) {
+        await _gateway.delete('store_followers', filters: {'user_id': userId, 'store_id': storeId});
+        return false;
+      }
+      await _gateway.insert('store_followers', {'user_id': userId, 'store_id': storeId});
+      return true;
+    },
   );
+
   @override
   Future<AssalLoadState<bool>> toggleFavorite(
     String userId,
     String targetId,
-  ) async => const AssalError(
-    'الحفظ الإنتاجي يحتاج إلى Data Source مصادق عليه.',
-    code: 'production_write_not_configured',
+  ) => _write(
+    resource: 'favorites.toggle',
+    write: () async {
+      final rows = await _gateway.select('favorites', filters: {'user_id': userId, 'product_id': targetId});
+      if (rows.isNotEmpty) {
+        await _gateway.delete('favorites', filters: {'user_id': userId, 'product_id': targetId});
+        return false;
+      }
+      await _gateway.insert('favorites', {'user_id': userId, 'product_id': targetId});
+      return true;
+    },
   );
+
   @override
   Future<AssalLoadState<bool>> toggleLike(
     String userId,
     String targetId,
-  ) async => const AssalError(
-    'الإعجاب الإنتاجي يحتاج إلى Data Source مصادق عليه.',
-    code: 'production_write_not_configured',
+  ) => _write(
+    resource: 'product_likes.toggle',
+    write: () async {
+      final rows = await _gateway.select('product_likes', filters: {'user_id': userId, 'product_id': targetId});
+      if (rows.isNotEmpty) {
+        await _gateway.delete('product_likes', filters: {'user_id': userId, 'product_id': targetId});
+        return false;
+      }
+      await _gateway.insert('product_likes', {'user_id': userId, 'product_id': targetId});
+      return true;
+    },
   );
+
   @override
-  Future<AssalLoadState<void>> trackProductView(String productId) async =>
-      const AssalError(
-        'تتبع المشاهدات الإنتاجي يحتاج إلى تهيئة Analytics Gateway.',
-        code: 'production_analytics_not_configured',
-      );
+  Future<AssalLoadState<void>> trackProductView(String productId) => _write(
+    resource: 'product_view_events.create',
+    write: () async {
+      final identity = await _authGateway?.currentIdentity();
+      await _gateway.insert('product_view_events', {'product_id': productId, 'viewer_id': identity?.id});
+    },
+  );
   @override
   Future<AssalLoadState<AssalSession>> signIn(String email, String password) =>
       _authOperation((auth) async => auth.signInWithPassword(email, password));
@@ -775,41 +980,94 @@ class ProductionRepository implements AssalRepository {
   ) => _authOperation(
     (auth) => auth.signUp(name: name, email: email, password: password),
   );
+  AssalMerchantApplicationSummary _merchantApplicationFromRow(Map<String, Object?> row) => AssalMerchantApplicationSummary(
+    id: '${row['id'] ?? ''}',
+    userId: '${row['user_id'] ?? ''}',
+    status: '${row['status'] ?? 'submitted'}',
+    displayName: '${row['display_name'] ?? ''}',
+    submittedAt: DateTime.tryParse('${row['submitted_at'] ?? ''}') ?? DateTime.now(),
+  );
+
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
   submitMerchantApplication(
     String userId,
     AssalMerchantApplicationDraft draft,
-  ) async => const AssalError(
-    'طلب التحول إلى تاجر يحتاج تهيئة مصدر الإنتاج والمراجعة الإدارية.',
-    code: 'production_merchant_application_not_configured',
+  ) => _write(
+    resource: 'merchant_applications.submit',
+    write: () async {
+      if (draft.displayName.trim().length < 2 || draft.phone.trim().length < 6 || draft.experience.trim().length < 4 || draft.location.trim().length < 2 || draft.specialties.trim().length < 2) throw StateError('invalid_merchant_application');
+      final row = await _gateway.upsert('merchant_applications', {
+        'user_id': userId,
+        'display_name': draft.displayName.trim(),
+        'phone': draft.phone.trim(),
+        'experience': draft.experience.trim(),
+        'location': draft.location.trim(),
+        'specialties': draft.specialties.trim(),
+        'certificate_note': draft.certificateNote?.trim(),
+        'status': 'submitted',
+        'submitted_at': DateTime.now().toIso8601String(),
+      });
+      await _gateway.delete('merchant_application_drafts', filters: {'user_id': userId});
+      return _merchantApplicationFromRow(row);
+    },
   );
+
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary?>>
-  loadMerchantApplication(String userId) async => const AssalError(
-    'قراءة حالة طلب التاجر تحتاج تهيئة مصدر الإنتاج.',
-    code: 'production_merchant_application_not_configured',
+  loadMerchantApplication(String userId) => _write(
+    resource: 'merchant_applications.read',
+    write: () async {
+      final rows = await _gateway.select('merchant_applications', filters: {'user_id': userId});
+      return rows.isEmpty ? null : _merchantApplicationFromRow(rows.first);
+    },
   );
+
   @override
   Future<AssalLoadState<AssalMerchantApplicationDraft?>>
-  loadMerchantApplicationDraft(String userId) async => const AssalError(
-    'حفظ مسودة طلب التاجر يحتاج تهيئة مصدر الإنتاج.',
-    code: 'production_merchant_draft_not_configured',
+  loadMerchantApplicationDraft(String userId) => _write(
+    resource: 'merchant_application_drafts.read',
+    write: () async {
+      final rows = await _gateway.select('merchant_application_drafts', filters: {'user_id': userId});
+      if (rows.isEmpty) return null;
+      final row = rows.first;
+      return AssalMerchantApplicationDraft(
+        displayName: '${row['display_name'] ?? ''}',
+        phone: '${row['phone'] ?? ''}',
+        experience: '${row['experience'] ?? ''}',
+        location: '${row['location'] ?? ''}',
+        specialties: '${row['specialties'] ?? ''}',
+        certificateNote: row['certificate_note'] as String?,
+      );
+    },
   );
+
   @override
   Future<AssalLoadState<void>> saveMerchantApplicationDraft(
     String userId,
     AssalMerchantApplicationDraft draft,
-  ) async => const AssalError(
-    'حفظ مسودة طلب التاجر يحتاج تهيئة مصدر الإنتاج.',
-    code: 'production_merchant_draft_not_configured',
+  ) => _write(
+    resource: 'merchant_application_drafts.write',
+    write: () async {
+      await _gateway.upsert('merchant_application_drafts', {
+        'user_id': userId,
+        'display_name': draft.displayName,
+        'phone': draft.phone,
+        'experience': draft.experience,
+        'location': draft.location,
+        'specialties': draft.specialties,
+        'certificate_note': draft.certificateNote,
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+    },
   );
+
   @override
   Future<AssalLoadState<void>> clearMerchantApplicationDraft(
     String userId,
-  ) async => const AssalError(
-    'حذف مسودة طلب التاجر يحتاج تهيئة مصدر الإنتاج.',
-    code: 'production_merchant_draft_not_configured',
+  ) => _write(
+    resource: 'merchant_application_drafts.delete',
+    write: () => _gateway.delete('merchant_application_drafts', filters: {'user_id': userId}),
   );
   @override
   Future<AssalLoadState<void>> signOut() async {

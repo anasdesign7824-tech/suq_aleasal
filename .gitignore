@@ -34,6 +34,10 @@ Thumbs.db
 
 # Local machine outputs
 *.local
+*.apk
+*.aab
+/artifacts/
+.tmp_*
 
 # Generated MCP payloads are temporary and not source-of-truth
 database/migrations/*.mcp.json

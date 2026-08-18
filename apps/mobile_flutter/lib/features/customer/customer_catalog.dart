@@ -184,11 +184,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 Expanded(
                     child: OutlinedButton.icon(
                         onPressed: () async {
-                          final session =
-                              await requireAuth(context, widget.repository);
-                          if (!session || !mounted) return;
+                          final session = await requireUserSession(context, widget.repository);
+                          if (session == null || !mounted || session.user == null) return;
                           final result = await widget.repository
-                              .toggleLike('demo-customer', product.id);
+                              .toggleLike(session.user!.id, product.id);
                           if (result is AssalData<bool>) {
                             setState(() => liked = result.value);
                           }
@@ -200,11 +199,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 Expanded(
                     child: OutlinedButton.icon(
                         onPressed: () async {
-                          final session =
-                              await requireAuth(context, widget.repository);
-                          if (!session || !mounted) return;
+                          final session = await requireUserSession(context, widget.repository);
+                          if (session == null || !mounted || session.user == null) return;
                           final result = await widget.repository
-                              .toggleFavorite('demo-customer', product.id);
+                              .toggleFavorite(session.user!.id, product.id);
                           if (result is AssalData<bool>) {
                             setState(() => favorite = result.value);
                           }
@@ -232,8 +230,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Future<void> _request(
       AssalProductSummary product, AssalStoreSummary? store) async {
     if (store == null) return;
-    final session = await requireAuth(context, widget.repository);
-    if (!session || !mounted) return;
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted) return;
     await showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
@@ -450,10 +448,10 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         Expanded(
             child: FilledButton.icon(
                 onPressed: () async {
-                  final allowed = await requireAuth(context, widget.repository);
-                  if (!allowed || !mounted) return;
+                  final session = await requireUserSession(context, widget.repository);
+                  if (session == null || !mounted || session.user == null) return;
                   final result = await widget.repository
-                      .toggleFollow('demo-customer', store.id);
+                      .toggleFollow(session.user!.id, store.id);
                   if (result is AssalData<bool>) {
                     setState(() => following = result.value);
                   }
@@ -464,18 +462,14 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         Expanded(
             child: OutlinedButton.icon(
                 onPressed: () async {
-                  final allowed = await requireAuth(context, widget.repository);
-                  if (!allowed || !mounted) return;
-                  final conversation = AssalConversationSummary(
-                      id: 'demo-conversation-${store.id}',
-                      storeId: store.id,
-                      storeName: store.nameAr,
-                      lastMessage: 'ابدأ محادثة جديدة',
-                      updatedAt: DateTime.now());
+                  final session = await requireUserSession(context, widget.repository);
+                  if (session == null || !mounted || session.user == null) return;
+                  final result = await widget.repository.createConversation(session.user!.id, store.id);
+                  if (!mounted || result is! AssalData<AssalConversationSummary>) return;
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => ConversationScreen(
                           repository: widget.repository,
-                          conversation: conversation)));
+                          conversation: result.value)));
                 },
                 icon: const Icon(Icons.forum_outlined),
                 label: const Text('مراسلة'))),
