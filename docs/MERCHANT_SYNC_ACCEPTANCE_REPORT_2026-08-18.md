@@ -57,6 +57,16 @@
 
 تم تشغيل نسخة Admin مبنية على التغييرات الجديدة على المنفذ 3212، وتحقق تسجيل الدخول الإداري الحقيقي، وقراءة طلبات التجار، وقراءة المستخدمين مع حقول `merchantApplication` و`store`. أعاد الخادم تسجيل الدخول HTTP 200، وقراءة المسارين HTTP 200، وكان أول طلب بحالة `approved` وأول متجر بحالة `active`.
 
-## ملاحظة التسليم
+## بناء APK Production النهائي
 
-بناء APK Production النهائي بعد إضافة `image_picker` لم يُعتبر ناجحًا بعد؛ انقطع اتصال جهاز Windows الجانبي أثناء عمليتي البناء، لذلك لم يتم اعتماد ملف APK أو بصمته قبل التحقق الفعلي. المصدر والتحليل والاختبارات ناجحة، لكن تسليم APK يتطلب إعادة تشغيل أمر البناء من مجلد `apps/mobile_flutter` عند عودة اتصال Windows.
+بعد عودة اتصال Windows، أُعيد تشغيل `flutter pub get` ثم `flutter analyze --no-pub` و`flutter test --no-pub` بنجاح. بُني APK Production arm64 باستخدام `assalkom.production.defines.json`، وبذلك لا يمكن اعتباره Demo أو build غير مهيأ.
+
+| العنصر | النتيجة |
+|---|---|
+| الملف | `assalkom-production-merchant-sync-arm64-release.apk` |
+| الحجم | `22,055,089` بايت تقريبًا، أي 21.0 MB كما عرضه Flutter |
+| SHA-256 | `49211c472a022f469bdc7a570886dc4cd08dfd08cdba9aaf88d3c81805579cbc` |
+| APK archive integrity | `unzip -t`: لا توجد أخطاء |
+| Supabase build defines | تم تمريرها عبر `--dart-define-from-file` |
+| Flutter analysis | PASS |
+| Flutter tests | 13/13 PASS |
