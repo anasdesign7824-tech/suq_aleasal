@@ -11,7 +11,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final config = AssalRuntimeConfig.fromEnvironment();
 
-  if (!config.isProduction) {
+  if (config.isDemo) {
     runApp(const AssalApp());
     return;
   }
