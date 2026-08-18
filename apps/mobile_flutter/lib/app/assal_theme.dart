@@ -61,10 +61,10 @@ ThemeData buildAssalTheme() {
       iconTheme: const IconThemeData(color: Colors.white),
       actionsIconTheme: const IconThemeData(color: Colors.white),
       systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
+        statusBarColor: AssalColors.deepBrown,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarColor: AssalColors.primaryDark,
         systemNavigationBarIconBrightness: Brightness.light,
         systemStatusBarContrastEnforced: false,
         systemNavigationBarContrastEnforced: false,

@@ -24,10 +24,10 @@ class AssalApp extends StatelessWidget {
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
             value: const SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
+              statusBarColor: AssalColors.deepBrown,
               statusBarIconBrightness: Brightness.light,
               statusBarBrightness: Brightness.dark,
-              systemNavigationBarColor: Colors.transparent,
+              systemNavigationBarColor: AssalColors.primaryDark,
               systemNavigationBarIconBrightness: Brightness.light,
               systemStatusBarContrastEnforced: false,
               systemNavigationBarContrastEnforced: false,

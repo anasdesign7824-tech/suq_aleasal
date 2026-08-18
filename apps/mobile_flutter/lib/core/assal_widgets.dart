@@ -103,7 +103,7 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     return AppBar(
       bottom: bottom,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AssalColors.deepBrown,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       shadowColor: Colors.transparent,
@@ -113,10 +113,10 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
         decoration: BoxDecoration(gradient: assalDarkGradient),
       ),
       systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
+        statusBarColor: AssalColors.deepBrown,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarColor: AssalColors.primaryDark,
         systemNavigationBarIconBrightness: Brightness.light,
         systemNavigationBarContrastEnforced: false,
         systemNavigationBarDividerColor: Colors.transparent,
