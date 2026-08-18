@@ -17,8 +17,8 @@
 | المجال | الاختبار | النتيجة |
 |---|---|---|
 | Flutter | `flutter analyze --no-pub` من `apps/mobile_flutter` | **PASS — No issues found** |
-| Flutter | `flutter test --no-pub` | **PASS — 11 tests passed** |
-| Flutter | `flutter build apk --release --split-per-abi --target-platform android-arm64` | **PASS — 20.3 MB** |
+| Flutter | `flutter test --no-pub` | **PASS — 13 tests passed** |
+| Flutter | بوابة `tool/build-production.ps1` مع `--dart-define-from-file=assalkom.production.defines.json` | **PASS — APK Production متصل، 21.87 MB** |
 | Admin Web | `pnpm check` | **PASS** |
 | Admin Web | `pnpm test` | **PASS — 4/4** |
 | Admin Web | `pnpm build` | **PASS** |
@@ -65,7 +65,7 @@
 
 `artifacts/assalkom-demo-arm64-release.apk` هي نسخة Demo للمراجعة البصرية وتحتوي على السلوك المحلي التجريبي السابق.
 
-`artifacts/assalkom-production-arm64-release.apk` هي نسخة Production arm64 المبنية بعد مسارات الكتابة الحقيقية. حجمها **20,282,864 بايت**، بينما نسخة Demo المرفقة حجمها **20,673,094 بايت**.
+`artifacts/assalkom-production-connected-arm64-release.apk` هي نسخة Production arm64 المصححة، المبنية عبر بوابة البناء الإلزامية مع `ASSALKOM_MODE=production` وعنوان Supabase والمفتاح العام. حجمها **21,872,688 بايت**، وبصمتها SHA-256 هي `f94b69ef058443c0b33f143547cbf1c0620d01b1a8ff4aaa1414b0a43065001d`. أما ملف `assalkom-production-arm64-release.apk` ذي **20,282,864 بايت** فكان build غير مهيأ؛ فحص `libapp.so` أثبت عدم وجود عنوان Supabase داخله، ولذلك لا يُستخدم ولا يُسلّم كنسخة Production.
 
 لا توجد ملفات APK أو AAB ضمن Git؛ تم استبعادها عبر `.gitignore` وتبقى في مجلد `artifacts` المحلي فقط.
 
@@ -87,8 +87,8 @@ NODE_ENV=production ADMIN_BIND_HOST=127.0.0.1 PORT=3210 pnpm start
 
 ## حالة GitHub
 
-تم دفع commit `172f42c` إلى `origin/main` بنجاح، وأصبح الفرع المحلي مطابقًا للفرع البعيد. الملفات المصدرية والـmigrations والعقود والتقارير محفوظة في المستودع، بينما المخرجات الثنائية الكبيرة غير متتبعة عمدًا.
+تم دفع إصلاح البناء في commit `2452e8f` إلى `origin/main` بنجاح، وأصبح الفرع المحلي مطابقًا للفرع البعيد. الملفات المصدرية والـmigrations والعقود والتقارير محفوظة في المستودع، بينما المخرجات الثنائية الكبيرة غير متتبعة عمدًا.
 
 ## حدود القبول المتبقية
 
-تم التحقق من البناء والتحليل والاختبارات، ومن حماية المسار الجديد بدون جلسة. أما اختبار دورة كتابة حي كامل باستخدام حساب مستخدم اختباري حقيقي — إنشاء طلب ثم مراجعته من Admin ثم فحص الإشعار/التدقيق — فيتطلب بيانات اعتماد اختبارية وتشغيلًا مقصودًا على Production، لذلك لا ينبغي تنفيذه ببيانات مستخدمين حقيقيين دون حساب اختبار مخصص. الكود والمسارات والخوادم والعقود جاهزة لهذا الاختبار المنضبط.
+تم التحقق من البناء والتحليل والاختبارات، ومن حماية المسار الجديد بدون جلسة. تم التحقق من اتصال REST إلى جدول `regions` بنتيجة HTTP 200، ومن نقطة Supabase Auth `settings` بنتيجة HTTP 200، كما ثبت وجود عنوان Supabase داخل AOT للـAPK المصحح وعدم وجوده داخل APK القديم. أما اختبار إرسال OTP الفعلي فيحتاج إدخال بريد اختبار حقيقي على الجهاز، ولم أرسل رمزًا بالنيابة عنك حتى لا يُستخدم بريد حقيقي دون موافقتك. الكود ومسارات Auth جاهزة لهذا الاختبار المنضبط باستخدام APK المصحح فقط.
