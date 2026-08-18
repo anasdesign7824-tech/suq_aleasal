@@ -153,7 +153,7 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         4 => 'حسابي',
         _ => 'عسلكم',
       };
-      final framedContent = selectedIndex == 0
+      final innerFramedContent = selectedIndex == 0
           ? content
           : Scaffold(
               backgroundColor: AssalColors.cream,
@@ -178,13 +178,16 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
                       label: Text(item.label)))
                   .toList()),
           ),
-          Expanded(child: framedContent)
+          Expanded(child: innerFramedContent)
         ]));
       }
       return Scaffold(
           backgroundColor: AssalColors.cream,
           extendBody: true,
-          body: framedContent,
+          appBar: selectedIndex == 0
+              ? null
+              : AssalAppBar(title: pageTitle),
+          body: content,
           bottomNavigationBar: DecoratedBox(
             decoration: const BoxDecoration(gradient: assalDarkGradient),
             child: NavigationBar(
