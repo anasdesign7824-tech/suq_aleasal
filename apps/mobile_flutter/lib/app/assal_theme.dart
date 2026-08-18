@@ -12,15 +12,18 @@ Widget _assalGradientButtonBackground(
   Widget? child,
 ) {
   final disabled = states.contains(WidgetState.disabled);
-  return DecoratedBox(
-    decoration: BoxDecoration(
-      gradient: disabled
-          ? const LinearGradient(
-              colors: [AssalColors.border, AssalColors.surfaceVariant],
-            )
-          : AssalColors.darkGradient,
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(AssalRadius.medium),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: disabled
+            ? const LinearGradient(
+                colors: [AssalColors.border, AssalColors.surfaceVariant],
+              )
+            : AssalColors.darkGradient,
+      ),
+      child: child,
     ),
-    child: child,
   );
 }
 

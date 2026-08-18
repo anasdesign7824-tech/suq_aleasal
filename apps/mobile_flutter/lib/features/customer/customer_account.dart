@@ -493,7 +493,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (context, snapshot) {
         final session = snapshot.data ?? AssalSession.guest;
         return ListView(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+              AssalSpacing.x2l,
+            ),
             children: [
               const AssalBrandMark(),
               const SizedBox(height: AssalSpacing.xl),
@@ -591,22 +596,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
             repository: repository,
             userId: session.user?.id ?? 'demo-customer'),
         const SizedBox(height: AssalSpacing.lg),
-        Row(children: [
-          Expanded(
-              child: OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => RequestsScreen(repository: repository))),
-                  icon: const Icon(Icons.assignment_outlined),
-                  label: const Text('طلباتي'))),
-          const SizedBox(width: AssalSpacing.sm),
-          Expanded(
-              child: FilledButton.icon(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) =>
-                          BecomeMerchantScreen(repository: repository))),
-                  icon: const Icon(Icons.storefront_outlined),
-                  label: const Text('كن تاجرًا'))),
-        ]),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: AssalSpacing.sm,
+          runSpacing: AssalSpacing.sm,
+          children: [
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AssalSpacing.md,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AssalRadius.medium),
+                ),
+              ),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => RequestsScreen(repository: repository))),
+              icon: const Icon(Icons.assignment_outlined),
+              label: const Text('طلباتي'),
+            ),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AssalSpacing.md,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AssalRadius.medium),
+                ),
+              ),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) =>
+                      BecomeMerchantScreen(repository: repository))),
+              icon: const Icon(Icons.storefront_outlined),
+              label: const Text('كن تاجرًا'),
+            ),
+          ],
+        ),
         const SizedBox(height: AssalSpacing.sm),
         OutlinedButton.icon(
             onPressed: () async {

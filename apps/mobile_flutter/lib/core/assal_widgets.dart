@@ -97,17 +97,17 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
 @override
   Widget build(BuildContext context) {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
-    return AppBar(
+    return DecoratedBox(
+      decoration: const BoxDecoration(gradient: assalDarkGradient),
+      child: AppBar(
       bottom: bottom,
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
+      forceMaterialTransparency: true,
       elevation: 0,
       shadowColor: Colors.transparent,
       iconTheme: const IconThemeData(color: Colors.white),
       titleTextStyle: AssalTypography.heading3.copyWith(color: Colors.white),
-      flexibleSpace: const DecoratedBox(
-        decoration: BoxDecoration(gradient: assalDarkGradient),
-      ),
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
@@ -151,6 +151,7 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: actions,
+      ),
     );
   }
 

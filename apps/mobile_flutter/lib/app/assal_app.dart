@@ -153,7 +153,9 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         4 => 'حسابي',
         _ => 'عسلكم',
       };
-      final innerFramedContent = selectedIndex == 0
+      // Desktop keeps its own framed column; mobile uses the single outer
+      // Scaffold below so an AppBar is never mounted twice.
+      final wideContent = selectedIndex == 0
           ? content
           : Scaffold(
               backgroundColor: AssalColors.cream,
@@ -178,12 +180,14 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
                       label: Text(item.label)))
                   .toList()),
           ),
-          Expanded(child: innerFramedContent)
+          Expanded(child: wideContent)
         ]));
       }
       return Scaffold(
           backgroundColor: AssalColors.cream,
-          extendBody: true,
+          // Keep the scrollable page above the navigation bar. Extending the
+          // body here made the profile actions look clipped at the bottom.
+          extendBody: false,
           appBar: selectedIndex == 0
               ? null
               : AssalAppBar(title: pageTitle),
