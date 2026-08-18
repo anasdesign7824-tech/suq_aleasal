@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "start": "NODE_ENV=production node dist/index.js",
+    "start": "node scripts/start-admin.mjs",
     "bootstrap:admin": "tsx server/bootstrap-admin.ts",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
