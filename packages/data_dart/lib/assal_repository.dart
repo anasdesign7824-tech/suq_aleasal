@@ -198,11 +198,12 @@ abstract interface class AssalRepository {
   );
   Future<AssalLoadState<void>> deleteAccount();
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
-  submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft);
+      submitMerchantApplication(
+          String userId, AssalMerchantApplicationDraft draft);
   Future<AssalLoadState<AssalMerchantApplicationSummary?>>
-  loadMerchantApplication(String userId);
+      loadMerchantApplication(String userId);
   Future<AssalLoadState<AssalMerchantApplicationDraft?>>
-  loadMerchantApplicationDraft(String userId);
+      loadMerchantApplicationDraft(String userId);
   Future<AssalLoadState<void>> saveMerchantApplicationDraft(
     String userId,
     AssalMerchantApplicationDraft draft,
@@ -213,6 +214,11 @@ abstract interface class AssalRepository {
   );
   Future<AssalLoadState<AssalMerchantWorkspaceSummary>> openMerchantWorkspace(
     String userId,
+    AssalMerchantWorkspaceDraft draft,
+  );
+  Future<AssalLoadState<void>> updateMerchantWorkspace(
+    String userId,
+    String storeId,
     AssalMerchantWorkspaceDraft draft,
   );
   Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
@@ -281,8 +287,9 @@ abstract interface class ProductionQueryGateway {
   });
   Future<Map<String, Object?>> upsert(
     String table,
-    Map<String, Object?> values,
-  );
+    Map<String, Object?> values, {
+    String? onConflict,
+  });
   Future<Map<String, Object?>> rpc(
     String function,
     Map<String, Object?> params,

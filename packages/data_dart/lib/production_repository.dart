@@ -10,8 +10,8 @@ class ProductionRepository implements AssalRepository {
   const ProductionRepository({
     required ProductionQueryGateway gateway,
     AssalAuthGateway? authGateway,
-  }) : _gateway = gateway,
-       _authGateway = authGateway;
+  })  : _gateway = gateway,
+        _authGateway = authGateway;
   final ProductionQueryGateway _gateway;
   final AssalAuthGateway? _authGateway;
 
@@ -20,8 +20,8 @@ class ProductionRepository implements AssalRepository {
 
   AssalLoadState<List<T>> _state<T>(List<T> values, String emptyMessage) =>
       values.isEmpty
-      ? AssalEmpty<List<T>>(emptyMessage)
-      : AssalData<List<T>>(values);
+          ? AssalEmpty<List<T>>(emptyMessage)
+          : AssalData<List<T>>(values);
 
   Future<AssalLoadState<T>> _write<T>({
     required String resource,
@@ -30,18 +30,35 @@ class ProductionRepository implements AssalRepository {
     final started = DateTime.now();
     try {
       final value = await write();
-      developer.log('write_ok resource=$resource elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      developer.log(
+          'write_ok resource=$resource elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
+          name: 'assalkom.production');
       return AssalData(value);
     } on TimeoutException catch (error, stackTrace) {
-      developer.log('write_timeout resource=$resource', name: 'assalkom.production', error: error, stackTrace: stackTrace);
-      return const AssalError('تأخر الاتصال بالخدمة. حاول مرة أخرى.', code: 'timeout');
+      developer.log('write_timeout resource=$resource',
+          name: 'assalkom.production', error: error, stackTrace: stackTrace);
+      return const AssalError('تأخر الاتصال بالخدمة. حاول مرة أخرى.',
+          code: 'timeout');
     } on Object catch (error, stackTrace) {
       final raw = error.toString();
-      final isSchema = raw.contains('PGRST205') || raw.contains('PGRST204') || raw.contains('column') || raw.contains('relation');
-      final isAuth = raw.contains('42501') || raw.contains('permission') || raw.contains('JWT') || raw.contains('row-level security');
-      final code = isSchema ? 'schema_mismatch' : (isAuth ? 'permission_denied' : 'data_write_failed');
-      final message = isSchema ? 'تعذر حفظ البيانات بسبب عدم توافق إعدادات الخدمة.' : (isAuth ? 'لا تملك صلاحية تنفيذ هذا الإجراء.' : 'تعذر حفظ البيانات الآن. حاول مرة أخرى.');
-      developer.log('write_failed resource=$resource code=$code', name: 'assalkom.production', error: error, stackTrace: stackTrace);
+      final isSchema = raw.contains('PGRST205') ||
+          raw.contains('PGRST204') ||
+          raw.contains('column') ||
+          raw.contains('relation');
+      final isAuth = raw.contains('42501') ||
+          raw.contains('permission') ||
+          raw.contains('JWT') ||
+          raw.contains('row-level security');
+      final code = isSchema
+          ? 'schema_mismatch'
+          : (isAuth ? 'permission_denied' : 'data_write_failed');
+      final message = isSchema
+          ? 'تعذر حفظ البيانات بسبب عدم توافق إعدادات الخدمة.'
+          : (isAuth
+              ? 'لا تملك صلاحية تنفيذ هذا الإجراء.'
+              : 'تعذر حفظ البيانات الآن. حاول مرة أخرى.');
+      developer.log('write_failed resource=$resource code=$code',
+          name: 'assalkom.production', error: error, stackTrace: stackTrace);
       return AssalError(message, code: code);
     }
   }
@@ -72,13 +89,11 @@ class ProductionRepository implements AssalRepository {
       );
     } on Object catch (error, stackTrace) {
       final raw = error.toString();
-      final isSchema =
-          raw.contains('PGRST205') ||
+      final isSchema = raw.contains('PGRST205') ||
           raw.contains('PGRST204') ||
           raw.contains('column') ||
           raw.contains('relation');
-      final isNetwork =
-          raw.contains('SocketException') ||
+      final isNetwork = raw.contains('SocketException') ||
           raw.contains('Failed host lookup') ||
           raw.contains('Connection reset');
       final code = isSchema
@@ -87,8 +102,8 @@ class ProductionRepository implements AssalRepository {
       final message = isSchema
           ? 'تعذر قراءة إعدادات الخدمة. يحتاج هذا الجزء إلى تحديث قاعدة البيانات.'
           : (isNetwork
-                ? 'تعذر الوصول إلى الخدمة الآن. تحقق من الاتصال ثم أعد المحاولة.'
-                : 'تعذر قراءة البيانات الآن. حاول مرة أخرى.');
+              ? 'تعذر الوصول إلى الخدمة الآن. تحقق من الاتصال ثم أعد المحاولة.'
+              : 'تعذر قراءة البيانات الآن. حاول مرة أخرى.');
       developer.log(
         'read_failed resource=$resource code=$code elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
         name: 'assalkom.production',
@@ -138,10 +153,10 @@ class ProductionRepository implements AssalRepository {
   }
 
   AssalRole _roleFrom(Object? value) => switch (value) {
-    'admin' => AssalRole.admin,
-    'merchant' => AssalRole.merchant,
-    _ => AssalRole.customer,
-  };
+        'admin' => AssalRole.admin,
+        'merchant' => AssalRole.merchant,
+        _ => AssalRole.customer,
+      };
 
   Future<AssalSession> _sessionForIdentity(AssalAuthIdentity? identity) async {
     if (identity == null) return AssalSession.guest;
@@ -206,29 +221,29 @@ class ProductionRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<AssalRegion>>> listRegions() => _readList(
-    resource: 'regions',
-    emptyMessage: 'لا توجد مناطق منشورة بعد',
-    read: () async {
-      final rows = await _gateway.select(
-        'regions',
-        filters: const {'is_active': true},
+        resource: 'regions',
+        emptyMessage: 'لا توجد مناطق منشورة بعد',
+        read: () async {
+          final rows = await _gateway.select(
+            'regions',
+            filters: const {'is_active': true},
+          );
+          return rows.map(AssalRegion.fromJson).toList(growable: false);
+        },
       );
-      return rows.map(AssalRegion.fromJson).toList(growable: false);
-    },
-  );
 
   @override
   Future<AssalLoadState<List<AssalTaxonomy>>> listTaxonomy() => _readList(
-    resource: 'honey_taxonomy',
-    emptyMessage: 'لا توجد تصنيفات منشورة بعد',
-    read: () async {
-      final rows = await _gateway.select(
-        'honey_taxonomy',
-        filters: const {'is_active': true},
+        resource: 'honey_taxonomy',
+        emptyMessage: 'لا توجد تصنيفات منشورة بعد',
+        read: () async {
+          final rows = await _gateway.select(
+            'honey_taxonomy',
+            filters: const {'is_active': true},
+          );
+          return rows.map(AssalTaxonomy.fromJson).toList(growable: false);
+        },
       );
-      return rows.map(AssalTaxonomy.fromJson).toList(growable: false);
-    },
-  );
 
   @override
   Future<AssalLoadState<List<AssalCategorySummary>>> listCategories() =>
@@ -248,19 +263,20 @@ class ProductionRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() => _readList(
-    resource: 'banners',
-    emptyMessage: 'لا توجد حملات استكشاف منشورة بعد',
-    read: () async {
-      final rows = await _gateway.select(
-        'customer_banners',
-        filters: const {'is_active': true},
-      );
-      final values =
-          rows.map(AssalBannerSummary.fromJson).toList(growable: false)
+        resource: 'banners',
+        emptyMessage: 'لا توجد حملات استكشاف منشورة بعد',
+        read: () async {
+          final rows = await _gateway.select(
+            'customer_banners',
+            filters: const {'is_active': true},
+          );
+          final values = rows
+              .map(AssalBannerSummary.fromJson)
+              .toList(growable: false)
             ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-      return values;
-    },
-  );
+          return values;
+        },
+      );
 
   @override
   Future<AssalLoadState<List<String>>> listPopularSearches() async {
@@ -282,20 +298,21 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listStores({
     String? regionId,
-  }) => _readList(
-    resource: 'stores',
-    emptyMessage: 'لا توجد متاجر منشورة بعد',
-    read: () async {
-      final rows = await _gateway.select(
-        'customer_stores',
-        filters: {
-          'status': 'active',
-          if (regionId != null) 'region_id': regionId,
+  }) =>
+      _readList(
+        resource: 'stores',
+        emptyMessage: 'لا توجد متاجر منشورة بعد',
+        read: () async {
+          final rows = await _gateway.select(
+            'customer_stores',
+            filters: {
+              'status': 'active',
+              if (regionId != null) 'region_id': regionId,
+            },
+          );
+          return rows.map(AssalStoreSummary.fromJson).toList(growable: false);
         },
       );
-      return rows.map(AssalStoreSummary.fromJson).toList(growable: false);
-    },
-  );
 
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(
@@ -305,10 +322,8 @@ class ProductionRepository implements AssalRepository {
       'favorites',
       filters: {'user_id': userId},
     );
-    final ids = rows
-        .map((row) => row['product_id'])
-        .whereType<String>()
-        .toSet();
+    final ids =
+        rows.map((row) => row['product_id']).whereType<String>().toSet();
     if (ids.isEmpty) return const AssalEmpty('لا توجد منتجات محفوظة');
     final products = await _gateway.select(
       'customer_products',
@@ -396,108 +411,113 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({
     AssalProductQuery query = const AssalProductQuery(),
-  }) => _readList(
-    resource: 'products',
-    emptyMessage: 'لا توجد منتجات منشورة بعد',
-    read: () async {
-      final rows = await _gateway.select(
-        'customer_products',
-        filters: {
-          'status': 'active',
-          if (query.storeId != null) 'store_id': query.storeId,
-          if (query.categoryId != null) 'category_id': query.categoryId,
-          if (query.regionId != null) 'region_id': query.regionId,
-          if (query.provinceId != null) 'province_id': query.provinceId,
-          if (query.merchantId != null) 'merchant_id': query.merchantId,
-          if (query.availability != null) 'availability': query.availability,
-          if (query.processingMethod != null)
-            'processing_method_ar': query.processingMethod,
-          if (query.processingStatus != null)
-            'processing_status_ar': query.processingStatus,
-          if (query.packaging != null) 'packaging_label_ar': query.packaging,
+  }) =>
+      _readList(
+        resource: 'products',
+        emptyMessage: 'لا توجد منتجات منشورة بعد',
+        read: () async {
+          final rows = await _gateway.select(
+            'customer_products',
+            filters: {
+              'status': 'active',
+              if (query.storeId != null) 'store_id': query.storeId,
+              if (query.categoryId != null) 'category_id': query.categoryId,
+              if (query.regionId != null) 'region_id': query.regionId,
+              if (query.provinceId != null) 'province_id': query.provinceId,
+              if (query.merchantId != null) 'merchant_id': query.merchantId,
+              if (query.availability != null)
+                'availability': query.availability,
+              if (query.processingMethod != null)
+                'processing_method_ar': query.processingMethod,
+              if (query.processingStatus != null)
+                'processing_status_ar': query.processingStatus,
+              if (query.packaging != null)
+                'packaging_label_ar': query.packaging,
+            },
+          );
+          var values =
+              rows.map(AssalProductSummary.fromJson).toList(growable: false);
+          if (query.featuredOnly)
+            values =
+                values.where((item) => item.isFeatured).toList(growable: false);
+          if (query.subcategoryId != null)
+            values = values
+                .where((item) => item.taxonomyId == query.subcategoryId)
+                .toList(growable: false);
+          if (query.productType != null)
+            values = values
+                .where((item) => item.productType == query.productType)
+                .toList(growable: false);
+          if (query.gradeLevel != null)
+            values = values
+                .where((item) => item.gradeLevel == query.gradeLevel)
+                .toList(growable: false);
+          if (query.originCountry != null)
+            values = values
+                .where((item) => item.originCountry == query.originCountry)
+                .toList(growable: false);
+          if (query.certificateId != null)
+            values = values
+                .where(
+                    (item) => item.certifications.contains(query.certificateId))
+                .toList(growable: false);
+          if (query.minRating != null)
+            values = values
+                .where((item) => item.ratingAverage >= query.minRating!)
+                .toList(growable: false);
+          if (query.minPrice != null)
+            values = values
+                .where(
+                  (item) =>
+                      item.price != null && item.price! >= query.minPrice!,
+                )
+                .toList(growable: false);
+          if (query.maxPrice != null)
+            values = values
+                .where(
+                  (item) =>
+                      item.price != null && item.price! <= query.maxPrice!,
+                )
+                .toList(growable: false);
+          if (query.verifiedStoresOnly) {
+            final stores = await _gateway.select(
+              'customer_stores',
+              filters: const {'status': 'active', 'is_verified': true},
+            );
+            final ids =
+                stores.map((row) => row['id']).whereType<String>().toSet();
+            values = values
+                .where((item) => ids.contains(item.storeId))
+                .toList(growable: false);
+          }
+          final search = query.search?.trim().toLowerCase();
+          if (search != null && search.isNotEmpty)
+            values = values
+                .where(
+                  (item) =>
+                      '${item.nameAr} ${item.categoryNameAr} ${item.subcategoryNameAr} ${item.honeyIdentity} ${item.regionNameAr} ${item.provinceNameAr}'
+                          .toLowerCase()
+                          .contains(search),
+                )
+                .toList(growable: false);
+          switch (query.sort) {
+            case AssalSort.newest:
+              values = values.reversed.toList(growable: false);
+            case AssalSort.popular:
+              values = [...values]
+                ..sort((a, b) => b.viewsCount.compareTo(a.viewsCount));
+            case AssalSort.rating:
+              values = [...values]
+                ..sort((a, b) => b.ratingAverage.compareTo(a.ratingAverage));
+            case AssalSort.featured:
+              values = [...values]..sort(
+                  (a, b) =>
+                      (b.isFeatured ? 1 : 0).compareTo(a.isFeatured ? 1 : 0),
+                );
+          }
+          return values;
         },
       );
-      var values = rows
-          .map(AssalProductSummary.fromJson)
-          .toList(growable: false);
-      if (query.featuredOnly)
-        values = values
-            .where((item) => item.isFeatured)
-            .toList(growable: false);
-      if (query.subcategoryId != null)
-        values = values
-            .where((item) => item.taxonomyId == query.subcategoryId)
-            .toList(growable: false);
-      if (query.productType != null)
-        values = values
-            .where((item) => item.productType == query.productType)
-            .toList(growable: false);
-      if (query.gradeLevel != null)
-        values = values
-            .where((item) => item.gradeLevel == query.gradeLevel)
-            .toList(growable: false);
-      if (query.originCountry != null)
-        values = values
-            .where((item) => item.originCountry == query.originCountry)
-            .toList(growable: false);
-      if (query.certificateId != null)
-        values = values
-            .where((item) => item.certifications.contains(query.certificateId))
-            .toList(growable: false);
-      if (query.minRating != null)
-        values = values
-            .where((item) => item.ratingAverage >= query.minRating!)
-            .toList(growable: false);
-      if (query.minPrice != null)
-        values = values
-            .where(
-              (item) => item.price != null && item.price! >= query.minPrice!,
-            )
-            .toList(growable: false);
-      if (query.maxPrice != null)
-        values = values
-            .where(
-              (item) => item.price != null && item.price! <= query.maxPrice!,
-            )
-            .toList(growable: false);
-      if (query.verifiedStoresOnly) {
-        final stores = await _gateway.select(
-          'customer_stores',
-          filters: const {'status': 'active', 'is_verified': true},
-        );
-        final ids = stores.map((row) => row['id']).whereType<String>().toSet();
-        values = values
-            .where((item) => ids.contains(item.storeId))
-            .toList(growable: false);
-      }
-      final search = query.search?.trim().toLowerCase();
-      if (search != null && search.isNotEmpty)
-        values = values
-            .where(
-              (item) =>
-                  '${item.nameAr} ${item.categoryNameAr} ${item.subcategoryNameAr} ${item.honeyIdentity} ${item.regionNameAr} ${item.provinceNameAr}'
-                      .toLowerCase()
-                      .contains(search),
-            )
-            .toList(growable: false);
-      switch (query.sort) {
-        case AssalSort.newest:
-          values = values.reversed.toList(growable: false);
-        case AssalSort.popular:
-          values = [...values]
-            ..sort((a, b) => b.viewsCount.compareTo(a.viewsCount));
-        case AssalSort.rating:
-          values = [...values]
-            ..sort((a, b) => b.ratingAverage.compareTo(a.ratingAverage));
-        case AssalSort.featured:
-          values = [...values]
-            ..sort(
-              (a, b) => (b.isFeatured ? 1 : 0).compareTo(a.isFeatured ? 1 : 0),
-            );
-      }
-      return values;
-    },
-  );
 
   @override
   Future<AssalLoadState<AssalProductSummary>> getProduct(
@@ -529,27 +549,32 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<List<AssalCommentSummary>>> listComments(
     String targetId,
-  ) => _readList(
-    resource: 'comments',
-    emptyMessage: 'لا توجد تعليقات بعد',
-    read: () async {
-      final productRows = await _gateway.select('comments', filters: {'product_id': targetId, 'status': 'approved'});
-      final reviewRows = await _gateway.select('comments', filters: {'review_id': targetId, 'status': 'approved'});
-      final rows = [...productRows, ...reviewRows];
-      final values = <AssalCommentSummary>[];
-      for (final row in rows) {
-        final value = Map<String, Object?>.from(row);
-        final authorId = value['author_id'];
-        if (authorId is String) {
-          final users = await _gateway.select('profiles', filters: {'user_id': authorId});
-          if (users.isNotEmpty) value['author_name'] = users.first['display_name'];
-        }
-        value['target_id'] = value['product_id'] ?? value['review_id'];
-        values.add(AssalCommentSummary.fromJson(value));
-      }
-      return values;
-    },
-  );
+  ) =>
+      _readList(
+        resource: 'comments',
+        emptyMessage: 'لا توجد تعليقات بعد',
+        read: () async {
+          final productRows = await _gateway.select('comments',
+              filters: {'product_id': targetId, 'status': 'approved'});
+          final reviewRows = await _gateway.select('comments',
+              filters: {'review_id': targetId, 'status': 'approved'});
+          final rows = [...productRows, ...reviewRows];
+          final values = <AssalCommentSummary>[];
+          for (final row in rows) {
+            final value = Map<String, Object?>.from(row);
+            final authorId = value['author_id'];
+            if (authorId is String) {
+              final users = await _gateway
+                  .select('profiles', filters: {'user_id': authorId});
+              if (users.isNotEmpty)
+                value['author_name'] = users.first['display_name'];
+            }
+            value['target_id'] = value['product_id'] ?? value['review_id'];
+            values.add(AssalCommentSummary.fromJson(value));
+          }
+          return values;
+        },
+      );
 
   @override
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(
@@ -582,8 +607,8 @@ class ProductionRepository implements AssalRepository {
     }
     final rows = <Map<String, Object?>>[];
     for (final storeId in storeIds) {
-      rows.addAll(await _gateway.select('requests',
-          filters: {'store_id': storeId}));
+      rows.addAll(
+          await _gateway.select('requests', filters: {'store_id': storeId}));
     }
     return _state(
       rows.map(AssalRequestSummary.fromJson).toList(growable: false),
@@ -595,32 +620,33 @@ class ProductionRepository implements AssalRepository {
   Future<AssalLoadState<AssalRequestSummary>> createRequest(
     String requesterId,
     AssalRequestDraft draft,
-  ) => _write(
-    resource: 'requests.create',
-    write: () async {
-      final row = await _gateway.insert('requests', {
-        'requester_id': requesterId,
-        'store_id': draft.storeId,
-        'subject': draft.subject.trim(),
-        'body': draft.body.trim().isEmpty ? null : draft.body.trim(),
-        'preferred_handoff_option': draft.handoffOption.name,
-        'phone': draft.phone,
-        'contact_channel': draft.contactChannel,
-        'delivery_note': draft.deliveryNote,
-        'price_note': draft.priceNote,
-        'handoff_details': draft.handoffDetails,
-      });
-      if (draft.productId != null) {
-        await _gateway.insert('request_items', {
-          'request_id': row['id'],
-          'product_id': draft.productId,
-          'quantity': draft.quantity ?? 1,
-          'note': draft.priceNote ?? draft.deliveryNote,
-        });
-      }
-      return AssalRequestSummary.fromJson(row);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'requests.create',
+        write: () async {
+          final row = await _gateway.insert('requests', {
+            'requester_id': requesterId,
+            'store_id': draft.storeId,
+            'subject': draft.subject.trim(),
+            'body': draft.body.trim().isEmpty ? null : draft.body.trim(),
+            'preferred_handoff_option': draft.handoffOption.name,
+            'phone': draft.phone,
+            'contact_channel': draft.contactChannel,
+            'delivery_note': draft.deliveryNote,
+            'price_note': draft.priceNote,
+            'handoff_details': draft.handoffDetails,
+          });
+          if (draft.productId != null) {
+            await _gateway.insert('request_items', {
+              'request_id': row['id'],
+              'product_id': draft.productId,
+              'quantity': draft.quantity ?? 1,
+              'note': draft.priceNote ?? draft.deliveryNote,
+            });
+          }
+          return AssalRequestSummary.fromJson(row);
+        },
+      );
 
   @override
   Future<AssalLoadState<List<AssalNotificationSummary>>> listNotifications(
@@ -640,132 +666,170 @@ class ProductionRepository implements AssalRepository {
   Future<AssalLoadState<bool>> markNotificationRead(
     String userId,
     String notificationId,
-  ) => _write(
-    resource: 'notifications.read',
-    write: () async {
-      final rows = await _gateway.select('notifications', filters: {'id': notificationId, 'user_id': userId});
-      if (rows.isEmpty) throw StateError('notification_not_owned');
-      await _gateway.update('notifications', {'read_at': DateTime.now().toIso8601String()}, id: notificationId);
-      return true;
-    },
-  );
+  ) =>
+      _write(
+        resource: 'notifications.read',
+        write: () async {
+          final rows = await _gateway.select('notifications',
+              filters: {'id': notificationId, 'user_id': userId});
+          if (rows.isEmpty) throw StateError('notification_not_owned');
+          await _gateway.update(
+              'notifications', {'read_at': DateTime.now().toIso8601String()},
+              id: notificationId);
+          return true;
+        },
+      );
 
   @override
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(
     String userId,
-  ) => _readList(
-    resource: 'conversations',
-    emptyMessage: 'لا توجد محادثات بعد',
-    read: () async {
-      final memberships = await _gateway.select('conversation_participants', filters: {'user_id': userId});
-      final values = <AssalConversationSummary>[];
-      for (final membership in memberships) {
-        final conversationId = membership['conversation_id'];
-        if (conversationId is! String) continue;
-        final rows = await _gateway.select('conversations', filters: {'id': conversationId});
-        if (rows.isEmpty) continue;
-        final row = Map<String, Object?>.from(rows.first);
-        final storeId = row['store_id'];
-        if (storeId is String) {
-          final stores = await _gateway.select('customer_stores', filters: {'id': storeId});
-          if (stores.isNotEmpty) row['store_name'] = stores.first['name_ar'];
-        }
-        final messages = await _gateway.select('messages', filters: {'conversation_id': conversationId});
-        if (messages.isNotEmpty) {
-          final last = messages.last;
-          row['last_message'] = last['body'];
-          row['updated_at'] = last['created_at'];
-        }
-        row['participant_ids'] = [userId];
-        values.add(AssalConversationSummary.fromJson(row));
-      }
-      values.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-      return values;
-    },
-  );
+  ) =>
+      _readList(
+        resource: 'conversations',
+        emptyMessage: 'لا توجد محادثات بعد',
+        read: () async {
+          final memberships = await _gateway.select('conversation_participants',
+              filters: {'user_id': userId});
+          final values = <AssalConversationSummary>[];
+          for (final membership in memberships) {
+            final conversationId = membership['conversation_id'];
+            if (conversationId is! String) continue;
+            final rows = await _gateway
+                .select('conversations', filters: {'id': conversationId});
+            if (rows.isEmpty) continue;
+            final row = Map<String, Object?>.from(rows.first);
+            final storeId = row['store_id'];
+            if (storeId is String) {
+              final stores = await _gateway
+                  .select('customer_stores', filters: {'id': storeId});
+              if (stores.isNotEmpty)
+                row['store_name'] = stores.first['name_ar'];
+            }
+            final messages = await _gateway.select('messages',
+                filters: {'conversation_id': conversationId});
+            if (messages.isNotEmpty) {
+              final last = messages.last;
+              row['last_message'] = last['body'];
+              row['updated_at'] = last['created_at'];
+            }
+            row['participant_ids'] = [userId];
+            values.add(AssalConversationSummary.fromJson(row));
+          }
+          values.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+          return values;
+        },
+      );
 
   @override
   Future<AssalLoadState<AssalConversationSummary>> createConversation(
     String userId,
     String storeId,
-  ) => _write(
-    resource: 'conversations.create',
-    write: () async {
-      final existing = await _gateway.select('conversations', filters: {'store_id': storeId, 'created_by': userId});
-      Map<String, Object?> row;
-      if (existing.isNotEmpty) {
-        row = Map<String, Object?>.from(existing.first);
-      } else {
-        row = await _gateway.insert('conversations', {'store_id': storeId, 'created_by': userId});
-      }
-      final conversationId = row['id'];
-      if (conversationId is! String) throw StateError('conversation_id_missing');
-      final participants = await _gateway.select('conversation_participants', filters: {'conversation_id': conversationId, 'user_id': userId});
-      if (participants.isEmpty) await _gateway.insert('conversation_participants', {'conversation_id': conversationId, 'user_id': userId});
-      final stores = await _gateway.select('customer_stores', filters: {'id': storeId});
-      row['store_name'] = stores.isEmpty ? 'متجر عسلكم' : stores.first['name_ar'];
-      row['last_message'] = 'ابدأ محادثة جديدة';
-      row['updated_at'] = row['last_message_at'] ?? row['created_at'];
-      row['participant_ids'] = [userId];
-      return AssalConversationSummary.fromJson(row);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'conversations.create',
+        write: () async {
+          final existing = await _gateway.select('conversations',
+              filters: {'store_id': storeId, 'created_by': userId});
+          Map<String, Object?> row;
+          if (existing.isNotEmpty) {
+            row = Map<String, Object?>.from(existing.first);
+          } else {
+            row = await _gateway.insert(
+                'conversations', {'store_id': storeId, 'created_by': userId});
+          }
+          final conversationId = row['id'];
+          if (conversationId is! String)
+            throw StateError('conversation_id_missing');
+          final participants = await _gateway.select(
+              'conversation_participants',
+              filters: {'conversation_id': conversationId, 'user_id': userId});
+          if (participants.isEmpty)
+            await _gateway.insert('conversation_participants',
+                {'conversation_id': conversationId, 'user_id': userId});
+          final stores = await _gateway
+              .select('customer_stores', filters: {'id': storeId});
+          row['store_name'] =
+              stores.isEmpty ? 'متجر عسلكم' : stores.first['name_ar'];
+          row['last_message'] = 'ابدأ محادثة جديدة';
+          row['updated_at'] = row['last_message_at'] ?? row['created_at'];
+          row['participant_ids'] = [userId];
+          return AssalConversationSummary.fromJson(row);
+        },
+      );
 
   @override
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(
     String conversationId,
-  ) => _readList(
-    resource: 'messages',
-    emptyMessage: 'لا توجد رسائل بعد',
-    read: () async {
-      final identity = await _authGateway?.currentIdentity();
-      final rows = await _gateway.select('messages', filters: {'conversation_id': conversationId});
-      return rows.map((row) {
-        final value = Map<String, Object?>.from(row);
-        value['sent_at'] = value['created_at'];
-        value['is_mine'] = identity?.id == value['sender_id'];
-        return AssalMessageSummary.fromJson(value);
-      }).toList(growable: false);
-    },
-  );
+  ) =>
+      _readList(
+        resource: 'messages',
+        emptyMessage: 'لا توجد رسائل بعد',
+        read: () async {
+          final identity = await _authGateway?.currentIdentity();
+          final rows = await _gateway
+              .select('messages', filters: {'conversation_id': conversationId});
+          return rows.map((row) {
+            final value = Map<String, Object?>.from(row);
+            value['sent_at'] = value['created_at'];
+            value['is_mine'] = identity?.id == value['sender_id'];
+            return AssalMessageSummary.fromJson(value);
+          }).toList(growable: false);
+        },
+      );
 
   @override
   Future<AssalLoadState<AssalMessageSummary>> sendMessage(
     String userId,
     AssalMessageDraft draft,
-  ) => _write(
-    resource: 'messages.create',
-    write: () async {
-      final body = draft.body.trim();
-      if (body.isEmpty) throw StateError('message_empty');
-      final participants = await _gateway.select('conversation_participants', filters: {'conversation_id': draft.conversationId, 'user_id': userId});
-      if (participants.isEmpty) throw StateError('conversation_not_owned');
-      final row = await _gateway.insert('messages', {'conversation_id': draft.conversationId, 'sender_id': userId, 'body': body});
-      await _gateway.update('conversations', {'last_message_at': row['created_at']}, id: draft.conversationId);
-      final value = Map<String, Object?>.from(row)..['sent_at'] = row['created_at']..['is_mine'] = true;
-      return AssalMessageSummary.fromJson(value);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'messages.create',
+        write: () async {
+          final body = draft.body.trim();
+          if (body.isEmpty) throw StateError('message_empty');
+          final participants = await _gateway
+              .select('conversation_participants', filters: {
+            'conversation_id': draft.conversationId,
+            'user_id': userId
+          });
+          if (participants.isEmpty) throw StateError('conversation_not_owned');
+          final row = await _gateway.insert('messages', {
+            'conversation_id': draft.conversationId,
+            'sender_id': userId,
+            'body': body
+          });
+          await _gateway.update(
+              'conversations', {'last_message_at': row['created_at']},
+              id: draft.conversationId);
+          final value = Map<String, Object?>.from(row)
+            ..['sent_at'] = row['created_at']
+            ..['is_mine'] = true;
+          return AssalMessageSummary.fromJson(value);
+        },
+      );
   @override
   Future<AssalLoadState<AssalReviewSummary>> createReview(
     String authorId,
     AssalReviewDraft draft,
-  ) => _write(
-    resource: 'reviews.create',
-    write: () async {
-      if (draft.rating < 1 || draft.rating > 5 || draft.body.trim().isEmpty) throw StateError('invalid_review');
-      final row = await _gateway.insert('reviews', {
-        'product_id': draft.productId,
-        'store_id': draft.storeId,
-        'author_id': authorId,
-        'rating': draft.rating,
-        'body': draft.body.trim(),
-        'status': 'pending',
-      });
-      final value = Map<String, Object?>.from(row)..['author_name'] = 'عميل عسلكم';
-      return AssalReviewSummary.fromJson(value);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'reviews.create',
+        write: () async {
+          if (draft.rating < 1 || draft.rating > 5 || draft.body.trim().isEmpty)
+            throw StateError('invalid_review');
+          final row = await _gateway.insert('reviews', {
+            'product_id': draft.productId,
+            'store_id': draft.storeId,
+            'author_id': authorId,
+            'rating': draft.rating,
+            'body': draft.body.trim(),
+            'status': 'pending',
+          });
+          final value = Map<String, Object?>.from(row)
+            ..['author_name'] = 'عميل عسلكم';
+          return AssalReviewSummary.fromJson(value);
+        },
+      );
 
   @override
   Future<AssalLoadState<AssalCommentSummary>> createComment(
@@ -773,84 +837,102 @@ class ProductionRepository implements AssalRepository {
     String authorName,
     String targetId,
     String body,
-  ) => _write(
-    resource: 'comments.create',
-    write: () async {
-      final trimmed = body.trim();
-      if (trimmed.isEmpty) throw StateError('comment_empty');
-      final products = await _gateway.select('products', filters: {'id': targetId});
-      final row = await _gateway.insert('comments', {
-        'author_id': authorId,
-        if (products.isNotEmpty) 'product_id': targetId else 'review_id': targetId,
-        'body': trimmed,
-        'status': 'pending',
-      });
-      final value = Map<String, Object?>.from(row)
-        ..['target_id'] = targetId
-        ..['author_name'] = authorName;
-      return AssalCommentSummary.fromJson(value);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'comments.create',
+        write: () async {
+          final trimmed = body.trim();
+          if (trimmed.isEmpty) throw StateError('comment_empty');
+          final products =
+              await _gateway.select('products', filters: {'id': targetId});
+          final row = await _gateway.insert('comments', {
+            'author_id': authorId,
+            if (products.isNotEmpty)
+              'product_id': targetId
+            else
+              'review_id': targetId,
+            'body': trimmed,
+            'status': 'pending',
+          });
+          final value = Map<String, Object?>.from(row)
+            ..['target_id'] = targetId
+            ..['author_name'] = authorName;
+          return AssalCommentSummary.fromJson(value);
+        },
+      );
 
   @override
   Future<AssalLoadState<bool>> toggleFollow(
     String userId,
     String storeId,
-  ) => _write(
-    resource: 'store_followers.toggle',
-    write: () async {
-      final rows = await _gateway.select('store_followers', filters: {'user_id': userId, 'store_id': storeId});
-      if (rows.isNotEmpty) {
-        await _gateway.delete('store_followers', filters: {'user_id': userId, 'store_id': storeId});
-        return false;
-      }
-      await _gateway.insert('store_followers', {'user_id': userId, 'store_id': storeId});
-      return true;
-    },
-  );
+  ) =>
+      _write(
+        resource: 'store_followers.toggle',
+        write: () async {
+          final rows = await _gateway.select('store_followers',
+              filters: {'user_id': userId, 'store_id': storeId});
+          if (rows.isNotEmpty) {
+            await _gateway.delete('store_followers',
+                filters: {'user_id': userId, 'store_id': storeId});
+            return false;
+          }
+          await _gateway.insert(
+              'store_followers', {'user_id': userId, 'store_id': storeId});
+          return true;
+        },
+      );
 
   @override
   Future<AssalLoadState<bool>> toggleFavorite(
     String userId,
     String targetId,
-  ) => _write(
-    resource: 'favorites.toggle',
-    write: () async {
-      final rows = await _gateway.select('favorites', filters: {'user_id': userId, 'product_id': targetId});
-      if (rows.isNotEmpty) {
-        await _gateway.delete('favorites', filters: {'user_id': userId, 'product_id': targetId});
-        return false;
-      }
-      await _gateway.insert('favorites', {'user_id': userId, 'product_id': targetId});
-      return true;
-    },
-  );
+  ) =>
+      _write(
+        resource: 'favorites.toggle',
+        write: () async {
+          final rows = await _gateway.select('favorites',
+              filters: {'user_id': userId, 'product_id': targetId});
+          if (rows.isNotEmpty) {
+            await _gateway.delete('favorites',
+                filters: {'user_id': userId, 'product_id': targetId});
+            return false;
+          }
+          await _gateway
+              .insert('favorites', {'user_id': userId, 'product_id': targetId});
+          return true;
+        },
+      );
 
   @override
   Future<AssalLoadState<bool>> toggleLike(
     String userId,
     String targetId,
-  ) => _write(
-    resource: 'product_likes.toggle',
-    write: () async {
-      final rows = await _gateway.select('product_likes', filters: {'user_id': userId, 'product_id': targetId});
-      if (rows.isNotEmpty) {
-        await _gateway.delete('product_likes', filters: {'user_id': userId, 'product_id': targetId});
-        return false;
-      }
-      await _gateway.insert('product_likes', {'user_id': userId, 'product_id': targetId});
-      return true;
-    },
-  );
+  ) =>
+      _write(
+        resource: 'product_likes.toggle',
+        write: () async {
+          final rows = await _gateway.select('product_likes',
+              filters: {'user_id': userId, 'product_id': targetId});
+          if (rows.isNotEmpty) {
+            await _gateway.delete('product_likes',
+                filters: {'user_id': userId, 'product_id': targetId});
+            return false;
+          }
+          await _gateway.insert(
+              'product_likes', {'user_id': userId, 'product_id': targetId});
+          return true;
+        },
+      );
 
   @override
   Future<AssalLoadState<void>> trackProductView(String productId) => _write(
-    resource: 'product_view_events.create',
-    write: () async {
-      final identity = await _authGateway?.currentIdentity();
-      await _gateway.insert('product_view_events', {'product_id': productId, 'viewer_id': identity?.id});
-    },
-  );
+        resource: 'product_view_events.create',
+        write: () async {
+          final identity = await _authGateway?.currentIdentity();
+          await _gateway.insert('product_view_events',
+              {'product_id': productId, 'viewer_id': identity?.id});
+        },
+      );
   @override
   Future<AssalLoadState<AssalSession>> signIn(String email, String password) =>
       _authOperation((auth) async => auth.signInWithPassword(email, password));
@@ -1017,178 +1099,234 @@ class ProductionRepository implements AssalRepository {
     String name,
     String email,
     String password,
-  ) => _authOperation(
-    (auth) => auth.signUp(name: name, email: email, password: password),
-  );
-  AssalMerchantApplicationSummary _merchantApplicationFromRow(Map<String, Object?> row) => AssalMerchantApplicationSummary(
-    id: '${row['id'] ?? ''}',
-    userId: '${row['user_id'] ?? ''}',
-    status: '${row['status'] ?? 'submitted'}',
-    displayName: '${row['display_name'] ?? ''}',
-    submittedAt: DateTime.tryParse('${row['submitted_at'] ?? ''}') ?? DateTime.now(),
-    reviewNote: row['review_note'] as String?,
-    storeId: row['store_id'] is String ? row['store_id'] as String : null,
-    storeStatus: row['store_status'] as String?,
-    storeVerified: row['store_verified'] == true,
-    storeLogoUrl: row['store_logo_url'] as String?,
-    storeCoverUrl: row['store_cover_url'] as String?,
-  );
+  ) =>
+      _authOperation(
+        (auth) => auth.signUp(name: name, email: email, password: password),
+      );
+  AssalMerchantApplicationSummary _merchantApplicationFromRow(
+          Map<String, Object?> row) =>
+      AssalMerchantApplicationSummary(
+        id: '${row['id'] ?? ''}',
+        userId: '${row['user_id'] ?? ''}',
+        status: '${row['status'] ?? 'submitted'}',
+        displayName: '${row['display_name'] ?? ''}',
+        submittedAt:
+            DateTime.tryParse('${row['submitted_at'] ?? ''}') ?? DateTime.now(),
+        reviewNote: row['review_note'] as String?,
+        storeId: row['store_id'] is String ? row['store_id'] as String : null,
+        storeStatus: row['store_status'] as String?,
+        storeVerified: row['store_verified'] == true,
+        storeLogoUrl: row['store_logo_url'] as String?,
+        storeCoverUrl: row['store_cover_url'] as String?,
+      );
 
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
-  submitMerchantApplication(
+      submitMerchantApplication(
     String userId,
     AssalMerchantApplicationDraft draft,
-  ) => _write(
-    resource: 'merchant_applications.submit',
-    write: () async {
-      if (draft.displayName.trim().length < 2 || draft.phone.trim().length < 6 || draft.experience.trim().length < 4 || draft.location.trim().length < 2 || draft.specialties.trim().length < 2) throw StateError('invalid_merchant_application');
-      final row = await _gateway.upsert('merchant_applications', {
-        'user_id': userId,
-        'display_name': draft.displayName.trim(),
-        'phone': draft.phone.trim(),
-        'experience': draft.experience.trim(),
-        'location': draft.location.trim(),
-        'specialties': draft.specialties.trim(),
-        'certificate_note': draft.certificateNote?.trim(),
-        'store_description': draft.storeDescription?.trim(),
-        'region_id': draft.regionId,
-        'logo_url': draft.logoUrl,
-        'cover_url': draft.coverUrl,
-        'status': 'submitted',
-        'submitted_at': DateTime.now().toIso8601String(),
-      });
-      await _gateway.delete('merchant_application_drafts', filters: {'user_id': userId});
-      return _merchantApplicationFromRow(row);
-    },
-  );
+  ) =>
+          _write(
+            resource: 'merchant_applications.submit',
+            write: () async {
+              if (draft.displayName.trim().length < 2 ||
+                  draft.phone.trim().length < 6 ||
+                  draft.experience.trim().length < 4 ||
+                  draft.location.trim().length < 2 ||
+                  draft.specialties.trim().length < 2)
+                throw StateError('invalid_merchant_application');
+              final row = await _gateway.upsert('merchant_applications', {
+                'user_id': userId,
+                'display_name': draft.displayName.trim(),
+                'phone': draft.phone.trim(),
+                'experience': draft.experience.trim(),
+                'location': draft.location.trim(),
+                'specialties': draft.specialties.trim(),
+                'certificate_note': draft.certificateNote?.trim(),
+                'store_description': draft.storeDescription?.trim(),
+                'region_id': draft.regionId,
+                'logo_url': draft.logoUrl,
+                'cover_url': draft.coverUrl,
+                'status': 'submitted',
+                'submitted_at': DateTime.now().toIso8601String(),
+              });
+              await _gateway.delete('merchant_application_drafts',
+                  filters: {'user_id': userId});
+              return _merchantApplicationFromRow(row);
+            },
+          );
 
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary?>>
-  loadMerchantApplication(String userId) => _write(
-    resource: 'merchant_applications.read',
-    write: () async {
-      final rows = await _gateway.select('merchant_applications', filters: {'user_id': userId});
-      if (rows.isEmpty) return null;
-      final value = Map<String, Object?>.from(rows.first);
-      final stores = await _gateway.select('stores', filters: {'merchant_id': userId});
-      if (stores.isNotEmpty) {
-        final store = stores.first;
-        value['store_id'] = store['id'];
-        value['store_status'] = store['status'];
-        value['store_verified'] = store['is_verified'];
-        value['store_logo_url'] = store['logo_url'];
-        value['store_cover_url'] = store['cover_url'];
-      }
-      return _merchantApplicationFromRow(value);
-    },
-  );
+      loadMerchantApplication(String userId) => _write(
+            resource: 'merchant_applications.read',
+            write: () async {
+              final rows = await _gateway.select('merchant_applications',
+                  filters: {'user_id': userId});
+              if (rows.isEmpty) return null;
+              final value = Map<String, Object?>.from(rows.first);
+              final stores = await _gateway
+                  .select('stores', filters: {'merchant_id': userId});
+              if (stores.isNotEmpty) {
+                final store = stores.first;
+                value['store_id'] = store['id'];
+                value['store_status'] = store['status'];
+                value['store_verified'] = store['is_verified'];
+                value['store_logo_url'] = store['logo_url'];
+                value['store_cover_url'] = store['cover_url'];
+              }
+              return _merchantApplicationFromRow(value);
+            },
+          );
 
   @override
   Future<AssalLoadState<AssalMerchantApplicationDraft?>>
-  loadMerchantApplicationDraft(String userId) => _write(
-    resource: 'merchant_application_drafts.read',
-    write: () async {
-      final rows = await _gateway.select('merchant_application_drafts', filters: {'user_id': userId});
-      if (rows.isEmpty) return null;
-      final row = rows.first;
-      return AssalMerchantApplicationDraft(
-        displayName: '${row['display_name'] ?? ''}',
-        phone: '${row['phone'] ?? ''}',
-        experience: '${row['experience'] ?? ''}',
-        location: '${row['location'] ?? ''}',
-        specialties: '${row['specialties'] ?? ''}',
-        certificateNote: row['certificate_note'] as String?,
-        storeDescription: row['store_description'] as String?,
-        regionId: row['region_id'] as String?,
-        logoUrl: row['logo_url'] as String?,
-        coverUrl: row['cover_url'] as String?,
-      );
-    },
-  );
+      loadMerchantApplicationDraft(String userId) => _write(
+            resource: 'merchant_application_drafts.read',
+            write: () async {
+              final rows = await _gateway.select('merchant_application_drafts',
+                  filters: {'user_id': userId});
+              if (rows.isEmpty) return null;
+              final row = rows.first;
+              return AssalMerchantApplicationDraft(
+                displayName: '${row['display_name'] ?? ''}',
+                phone: '${row['phone'] ?? ''}',
+                experience: '${row['experience'] ?? ''}',
+                location: '${row['location'] ?? ''}',
+                specialties: '${row['specialties'] ?? ''}',
+                certificateNote: row['certificate_note'] as String?,
+                storeDescription: row['store_description'] as String?,
+                regionId: row['region_id'] as String?,
+                logoUrl: row['logo_url'] as String?,
+                coverUrl: row['cover_url'] as String?,
+              );
+            },
+          );
 
   @override
   Future<AssalLoadState<void>> saveMerchantApplicationDraft(
     String userId,
     AssalMerchantApplicationDraft draft,
-  ) => _write(
-    resource: 'merchant_application_drafts.write',
-    write: () async {
-      await _gateway.upsert('merchant_application_drafts', {
-        'user_id': userId,
-        'display_name': draft.displayName,
-        'phone': draft.phone,
-        'experience': draft.experience,
-        'location': draft.location,
-        'specialties': draft.specialties,
-        'certificate_note': draft.certificateNote,
-        'store_description': draft.storeDescription,
-        'region_id': draft.regionId,
-        'logo_url': draft.logoUrl,
-        'cover_url': draft.coverUrl,
-        'updated_at': DateTime.now().toIso8601String(),
-      });
-    },
-  );
+  ) =>
+      _write(
+        resource: 'merchant_application_drafts.write',
+        write: () async {
+          await _gateway.upsert('merchant_application_drafts', {
+            'user_id': userId,
+            'display_name': draft.displayName,
+            'phone': draft.phone,
+            'experience': draft.experience,
+            'location': draft.location,
+            'specialties': draft.specialties,
+            'certificate_note': draft.certificateNote,
+            'store_description': draft.storeDescription,
+            'region_id': draft.regionId,
+            'logo_url': draft.logoUrl,
+            'cover_url': draft.coverUrl,
+            'updated_at': DateTime.now().toIso8601String(),
+          });
+        },
+      );
 
   @override
   Future<AssalLoadState<void>> clearMerchantApplicationDraft(
     String userId,
-  ) => _write(
-    resource: 'merchant_application_drafts.delete',
-    write: () => _gateway.delete('merchant_application_drafts', filters: {'user_id': userId}),
-  );
+  ) =>
+      _write(
+        resource: 'merchant_application_drafts.delete',
+        write: () => _gateway.delete('merchant_application_drafts',
+            filters: {'user_id': userId}),
+      );
 
   @override
   Future<AssalLoadState<AssalMerchantWorkspaceSummary?>> loadMerchantWorkspace(
     String userId,
-  ) => _write(
-    resource: 'merchant_workspace.read',
-    write: () async {
-      final stores = await _gateway.select('stores', filters: {'merchant_id': userId});
-      if (stores.isEmpty) return null;
-      final store = AssalStoreSummary.fromJson(stores.first);
-      final verified = stores.first['is_verified'] == true;
-      final status = '${stores.first['status'] ?? 'pending'}';
-      return AssalMerchantWorkspaceSummary(
-        store: store,
-        verificationStatus: verified ? 'verified' : 'pending',
-        publicStatus: status,
-        canEdit: true,
-        canPublish: verified && status == 'active',
+  ) =>
+      _write(
+        resource: 'merchant_workspace.read',
+        write: () async {
+          final stores =
+              await _gateway.select('stores', filters: {'merchant_id': userId});
+          if (stores.isEmpty) return null;
+          final store = AssalStoreSummary.fromJson(stores.first);
+          final verified = stores.first['is_verified'] == true;
+          final status = '${stores.first['status'] ?? 'pending'}';
+          return AssalMerchantWorkspaceSummary(
+            store: store,
+            verificationStatus: verified ? 'verified' : 'pending',
+            publicStatus: status,
+            canEdit: true,
+            canPublish: verified && status == 'active',
+          );
+        },
       );
-    },
-  );
 
   @override
   Future<AssalLoadState<AssalMerchantWorkspaceSummary>> openMerchantWorkspace(
     String userId,
     AssalMerchantWorkspaceDraft draft,
-  ) => _write(
-    resource: 'merchant_workspace.open',
-    write: () async {
-      final row = await _gateway.rpc('merchant_open_workspace', {
-        'p_business_name': draft.businessName.trim(),
-        'p_description': draft.description?.trim(),
-        'p_region_id': draft.regionId,
-        'p_phone': draft.phone?.trim(),
-        'p_logo_url': draft.logoUrl,
-        'p_cover_url': draft.coverUrl,
-      });
-      return AssalMerchantWorkspaceSummary.fromJson(row);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'merchant_workspace.open',
+        write: () async {
+          final row = await _gateway.rpc('merchant_open_workspace', {
+            'p_business_name': draft.businessName.trim(),
+            'p_description': draft.description?.trim(),
+            'p_region_id': draft.regionId,
+            'p_phone': draft.phone?.trim(),
+            'p_logo_url': draft.logoUrl,
+            'p_cover_url': draft.coverUrl,
+          });
+          return AssalMerchantWorkspaceSummary.fromJson(row);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<void>> updateMerchantWorkspace(
+    String userId,
+    String storeId,
+    AssalMerchantWorkspaceDraft draft,
+  ) =>
+      _write(
+        resource: 'merchant_workspace.update',
+        write: () async {
+          final ownedStores = await _gateway.select(
+            'stores',
+            filters: {'id': storeId, 'merchant_id': userId},
+          );
+          if (ownedStores.isEmpty)
+            throw StateError('merchant_workspace_not_owned');
+          await _gateway.update(
+            'stores',
+            {
+              'name_ar': draft.businessName.trim(),
+              'description': draft.description?.trim(),
+              'phone': draft.phone?.trim(),
+              'logo_url': draft.logoUrl,
+              'cover_url': draft.coverUrl,
+              'region_id': draft.regionId,
+              'updated_at': DateTime.now().toUtc().toIso8601String(),
+            },
+            id: storeId,
+          );
+        },
+      );
 
   Future<List<String>> _merchantStoreIds(String userId) async {
-    final stores = await _gateway.select('stores', filters: {'merchant_id': userId});
-    return stores.map((row) => row['id']).whereType<String>().toList(growable: false);
+    final stores =
+        await _gateway.select('stores', filters: {'merchant_id': userId});
+    return stores
+        .map((row) => row['id'])
+        .whereType<String>()
+        .toList(growable: false);
   }
 
   Future<AssalProductSummary> _productSummaryFromRow(
     Map<String, Object?> row,
   ) async {
     final value = Map<String, Object?>.from(row);
-    final images = await _gateway.select('product_images', filters: {'product_id': row['id']});
+    final images = await _gateway
+        .select('product_images', filters: {'product_id': row['id']});
     final imageUrls = images
         .map((image) => image['image_url'])
         .whereType<String>()
@@ -1203,119 +1341,148 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
     String userId,
-  ) => _readList(
-    resource: 'merchant_products.read',
-    emptyMessage: 'لا توجد منتجات في مساحة التاجر بعد.',
-    read: () async {
-      final storeIds = await _merchantStoreIds(userId);
-      final rows = <Map<String, Object?>>[];
-      for (final storeId in storeIds) {
-        rows.addAll(await _gateway.select('products', filters: {'store_id': storeId}));
-      }
-      return Future.wait(rows.map(_productSummaryFromRow));
-    },
-  );
+  ) =>
+      _readList(
+        resource: 'merchant_products.read',
+        emptyMessage: 'لا توجد منتجات في مساحة التاجر بعد.',
+        read: () async {
+          final storeIds = await _merchantStoreIds(userId);
+          final rows = <Map<String, Object?>>[];
+          for (final storeId in storeIds) {
+            rows.addAll(await _gateway
+                .select('products', filters: {'store_id': storeId}));
+          }
+          return Future.wait(rows.map(_productSummaryFromRow));
+        },
+      );
 
   @override
   Future<AssalLoadState<AssalProductSummary>> createMerchantProduct(
     String userId,
     String storeId,
     AssalProductDraft draft,
-  ) => _write(
-    resource: 'merchant_products.create',
-    write: () async {
-      if (draft.nameAr.trim().length < 2) throw StateError('invalid_product_name');
-      final row = await _gateway.insert('products', {
-        'store_id': storeId,
-        'taxonomy_id': draft.taxonomyId,
-        'name_ar': draft.nameAr.trim(),
-        'name_en': draft.nameEn?.trim(),
-        'description': draft.description?.trim(),
-        'product_type': draft.productType.name,
-        'grade_level': draft.gradeLevel,
-        'status': 'pending',
-        'metadata': draft.metadata,
-      });
-      for (var index = 0; index < draft.imageUrls.length; index++) {
-        await _gateway.insert('product_images', {
-          'product_id': row['id'],
-          'image_url': draft.imageUrls[index],
-          'sort_order': index,
-        });
-      }
-      return _productSummaryFromRow(row);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'merchant_products.create',
+        write: () async {
+          if (draft.nameAr.trim().length < 2)
+            throw StateError('invalid_product_name');
+          final row = await _gateway.insert('products', {
+            'store_id': storeId,
+            'taxonomy_id': draft.taxonomyId,
+            'name_ar': draft.nameAr.trim(),
+            'name_en': draft.nameEn?.trim(),
+            'description': draft.description?.trim(),
+            'product_type': draft.productType.name,
+            'grade_level': draft.gradeLevel,
+            'status': 'pending',
+            'metadata': draft.metadata,
+          });
+          for (var index = 0; index < draft.imageUrls.length; index++) {
+            await _gateway.insert('product_images', {
+              'product_id': row['id'],
+              'image_url': draft.imageUrls[index],
+              'sort_order': index,
+            });
+          }
+          return _productSummaryFromRow(row);
+        },
+      );
 
   @override
   Future<AssalLoadState<AssalProductSummary>> updateMerchantProduct(
     String userId,
     String productId,
     AssalProductDraft draft,
-  ) => _write(
-    resource: 'merchant_products.update',
-    write: () async {
-      final rows = await _gateway.select('products', filters: {'id': productId});
-      if (rows.isEmpty) throw StateError('product_not_found');
-      final current = rows.first;
-      final storeId = current['store_id'];
-      if (storeId is! String) throw StateError('product_store_missing');
-      final patch = <String, Object?>{
-        'name_ar': draft.nameAr.trim(),
-        'name_en': draft.nameEn?.trim(),
-        'description': draft.description?.trim(),
-        'taxonomy_id': draft.taxonomyId,
-        'product_type': draft.productType.name,
-        'grade_level': draft.gradeLevel,
-        'metadata': draft.metadata,
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      };
-      if (current['status'] == 'active') {
-        await _gateway.insert('product_revisions', {
-          'product_id': productId,
-          'store_id': storeId,
-          'editor_user_id': userId,
-          'base_updated_at': current['updated_at'],
-          'status': 'pending_review',
-          'payload': patch,
-        });
-        return _productSummaryFromRow(current);
-      }
-      final updated = await _gateway.update('products', patch, id: productId);
-      return _productSummaryFromRow(updated);
-    },
-  );
+  ) =>
+      _write(
+        resource: 'merchant_products.update',
+        write: () async {
+          final rows =
+              await _gateway.select('products', filters: {'id': productId});
+          if (rows.isEmpty) throw StateError('product_not_found');
+          final current = rows.first;
+          final storeId = current['store_id'];
+          if (storeId is! String) throw StateError('product_store_missing');
+          final patch = <String, Object?>{
+            'name_ar': draft.nameAr.trim(),
+            'name_en': draft.nameEn?.trim(),
+            'description': draft.description?.trim(),
+            'taxonomy_id': draft.taxonomyId,
+            'product_type': draft.productType.name,
+            'grade_level': draft.gradeLevel,
+            'metadata': draft.metadata,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          };
+          if (current['status'] == 'active') {
+            await _gateway.insert('product_revisions', {
+              'product_id': productId,
+              'store_id': storeId,
+              'editor_user_id': userId,
+              'base_updated_at': current['updated_at'],
+              'status': 'pending_review',
+              'payload': patch,
+            });
+            return _productSummaryFromRow(current);
+          }
+          final updated =
+              await _gateway.update('products', patch, id: productId);
+          return _productSummaryFromRow(updated);
+        },
+      );
 
   @override
   Future<AssalLoadState<void>> deleteMerchantProduct(
     String userId,
     String productId,
-  ) => _write(
-    resource: 'merchant_products.delete',
-    write: () => _gateway.delete('products', filters: {'id': productId}),
-  );
+  ) =>
+      _write(
+        resource: 'merchant_products.delete',
+        write: () => _gateway.delete('products', filters: {'id': productId}),
+      );
 
   @override
   Future<AssalLoadState<void>> updateUserProfile(
     String userId,
     AssalUserProfilePatch patch,
-  ) => _write(
-    resource: 'profiles.update',
-    write: () async {
-      await _gateway.upsert('profiles', {
-        'user_id': userId,
-        if (patch.nameAr != null) 'display_name': patch.nameAr!.trim(),
-        if (patch.bio != null) 'bio': patch.bio?.trim(),
-        if (patch.phone != null) 'phone': patch.phone?.trim(),
-        if (patch.locationLabel != null) 'location_label': patch.locationLabel?.trim(),
-        if (patch.avatarUrl != null) 'avatar_url': patch.avatarUrl,
-        if (patch.coverUrl != null) 'cover_url': patch.coverUrl,
-        if (patch.latitude != null) 'latitude': patch.latitude,
-        if (patch.longitude != null) 'longitude': patch.longitude,
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      });
-    },
-  );
+  ) async {
+    final auth = _authGateway;
+    if (auth == null) {
+      return const AssalError(
+        'المصادقة الإنتاجية غير مهيأة بعد.',
+        code: 'production_auth_not_configured',
+      );
+    }
+    final identity = await auth.currentIdentity();
+    if (identity == null || identity.id != userId) {
+      return const AssalError(
+        'يمكنك تعديل ملفك الشخصي فقط بعد تسجيل الدخول بالحساب نفسه.',
+        code: 'profile_not_owned',
+      );
+    }
+    return _write(
+      resource: 'profiles.update',
+      write: () async {
+        await _gateway.upsert(
+          'profiles',
+          {
+            'user_id': userId,
+            if (patch.nameAr != null) 'display_name': patch.nameAr!.trim(),
+            if (patch.bio != null) 'bio': patch.bio?.trim(),
+            if (patch.phone != null) 'phone': patch.phone?.trim(),
+            if (patch.locationLabel != null)
+              'location_label': patch.locationLabel?.trim(),
+            if (patch.avatarUrl != null) 'avatar_url': patch.avatarUrl,
+            if (patch.coverUrl != null) 'cover_url': patch.coverUrl,
+            if (patch.latitude != null) 'latitude': patch.latitude,
+            if (patch.longitude != null) 'longitude': patch.longitude,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          },
+          onConflict: 'user_id',
+        );
+      },
+    );
+  }
 
   @override
   Future<AssalLoadState<String>> uploadMerchantImage(
@@ -1333,7 +1500,8 @@ class ProductionRepository implements AssalRepository {
     return _write(
       resource: 'merchant_image.upload',
       write: () async {
-        final path = '$userId/merchant/$safeKind-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+        final path =
+            '$userId/merchant/$safeKind-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
         return _gateway.uploadPublicImage(path, bytes, safeExtension);
       },
     );
@@ -1345,20 +1513,24 @@ class ProductionRepository implements AssalRepository {
     String storeId,
     Uint8List bytes,
     String extension,
-  ) => _write(
-    resource: 'store_gallery_image.upload',
-    write: () async {
-      final safeExtension = extension.toLowerCase() == 'png' ? 'png' : 'jpg';
-      final path = '$userId/store/$storeId/gallery-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
-      final url = await _gateway.uploadPublicImage(path, bytes, safeExtension);
-      await _gateway.insert('store_gallery', {
-        'store_id': storeId,
-        'media_url': url,
-        'sort_order': 0,
-      });
-      return url;
-    },
-  );
+  ) =>
+      _write(
+        resource: 'store_gallery_image.upload',
+        write: () async {
+          final safeExtension =
+              extension.toLowerCase() == 'png' ? 'png' : 'jpg';
+          final path =
+              '$userId/store/$storeId/gallery-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+          final url =
+              await _gateway.uploadPublicImage(path, bytes, safeExtension);
+          await _gateway.insert('store_gallery', {
+            'store_id': storeId,
+            'media_url': url,
+            'sort_order': 0,
+          });
+          return url;
+        },
+      );
 
   @override
   Future<AssalLoadState<String>> uploadProductImage(
@@ -1366,20 +1538,24 @@ class ProductionRepository implements AssalRepository {
     String productId,
     Uint8List bytes,
     String extension,
-  ) => _write(
-    resource: 'product_image.upload',
-    write: () async {
-      final safeExtension = extension.toLowerCase() == 'png' ? 'png' : 'jpg';
-      final path = '$userId/product/$productId/image-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
-      final url = await _gateway.uploadPublicImage(path, bytes, safeExtension);
-      await _gateway.insert('product_images', {
-        'product_id': productId,
-        'image_url': url,
-        'sort_order': 0,
-      });
-      return url;
-    },
-  );
+  ) =>
+      _write(
+        resource: 'product_image.upload',
+        write: () async {
+          final safeExtension =
+              extension.toLowerCase() == 'png' ? 'png' : 'jpg';
+          final path =
+              '$userId/product/$productId/image-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+          final url =
+              await _gateway.uploadPublicImage(path, bytes, safeExtension);
+          await _gateway.insert('product_images', {
+            'product_id': productId,
+            'image_url': url,
+            'sort_order': 0,
+          });
+          return url;
+        },
+      );
 
   @override
   Future<AssalLoadState<void>> signOut() async {

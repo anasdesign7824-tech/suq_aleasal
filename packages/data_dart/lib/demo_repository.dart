@@ -6,12 +6,12 @@ import 'package:assalkom_contracts/assal_domain.dart';
 import 'assal_repository.dart';
 
 ProductType _demoProductType(Object? value) => switch (value) {
-  'wax' => ProductType.wax,
-  'mix' => ProductType.mix,
-  'raw' => ProductType.raw,
-  'gift' => ProductType.gift,
-  _ => ProductType.honey,
-};
+      'wax' => ProductType.wax,
+      'mix' => ProductType.mix,
+      'raw' => ProductType.raw,
+      'gift' => ProductType.gift,
+      _ => ProductType.honey,
+    };
 
 class InMemoryDemoCatalogLoader implements DemoCatalogLoader {
   const InMemoryDemoCatalogLoader(this.catalogJson);
@@ -68,8 +68,8 @@ class DemoRepository implements AssalRepository {
 
   AssalLoadState<List<T>> _listState<T>(List<T> values, String emptyMessage) =>
       values.isEmpty
-      ? AssalEmpty<List<T>>(emptyMessage)
-      : AssalData<List<T>>(values);
+          ? AssalEmpty<List<T>>(emptyMessage)
+          : AssalData<List<T>>(values);
 
   @override
   Future<AssalSession> getSession() async => _session;
@@ -89,11 +89,9 @@ class DemoRepository implements AssalRepository {
     final seen = <String>{};
     final values = <AssalTaxonomy>[];
     for (final product in products) {
-      final id =
-          product['subcategory_id'] as String? ??
+      final id = product['subcategory_id'] as String? ??
           product['category_id'] as String?;
-      final name =
-          product['subcategory_name_ar'] as String? ??
+      final name = product['subcategory_name_ar'] as String? ??
           product['category_name_ar'] as String?;
       if (id == null || name == null || !seen.add(id)) continue;
       values.add(
@@ -153,12 +151,11 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<List<AssalBannerSummary>>> listBanners() async {
-    final values =
-        _list(await _readCatalog(), 'banners')
-            .map(AssalBannerSummary.fromJson)
-            .where((banner) => banner.isActive)
-            .toList(growable: false)
-          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    final values = _list(await _readCatalog(), 'banners')
+        .map(AssalBannerSummary.fromJson)
+        .where((banner) => banner.isActive)
+        .toList(growable: false)
+      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     return _listState(values, 'لا توجد حملات استكشاف متاحة حاليًا');
   }
 
@@ -380,32 +377,26 @@ class DemoRepository implements AssalRepository {
     }
     final search = query.search?.trim().toLowerCase();
     if (search != null && search.isNotEmpty) {
-      rows = rows
-          .where((item) {
-            final haystack = [
-              item['name_ar'],
-              item['category_name_ar'],
-              item['subcategory_name_ar'],
-              ...(item['tags'] is List ? (item['tags'] as List) : const []),
-              ...(item['regions'] is List
-                  ? (item['regions'] as List)
-                  : const []),
-            ].whereType<String>().join(' ').toLowerCase();
-            return haystack.contains(search);
-          })
-          .toList(growable: false);
+      rows = rows.where((item) {
+        final haystack = [
+          item['name_ar'],
+          item['category_name_ar'],
+          item['subcategory_name_ar'],
+          ...(item['tags'] is List ? (item['tags'] as List) : const []),
+          ...(item['regions'] is List ? (item['regions'] as List) : const []),
+        ].whereType<String>().join(' ').toLowerCase();
+        return haystack.contains(search);
+      }).toList(growable: false);
     }
-    var values = rows
-        .map((item) {
-          final regionId = item['region_id'] as String?;
-          final grades = item['grade_levels'] as List?;
-          return AssalProductSummary.fromJson({
-            ...item,
-            'region_name_ar': regions[regionId],
-            'grade_level': grades?.isEmpty == false ? grades!.first : null,
-          });
-        })
-        .toList(growable: false);
+    var values = rows.map((item) {
+      final regionId = item['region_id'] as String?;
+      final grades = item['grade_levels'] as List?;
+      return AssalProductSummary.fromJson({
+        ...item,
+        'region_name_ar': regions[regionId],
+        'grade_level': grades?.isEmpty == false ? grades!.first : null,
+      });
+    }).toList(growable: false);
     values = [...values];
     switch (query.sort) {
       case AssalSort.newest:
@@ -757,7 +748,7 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
-  submitMerchantApplication(
+      submitMerchantApplication(
     String userId,
     AssalMerchantApplicationDraft draft,
   ) async {
@@ -794,13 +785,15 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<AssalMerchantApplicationSummary?>>
-  loadMerchantApplication(String userId) async => AssalData(
-    _merchantApplication?.userId == userId ? _merchantApplication : null,
-  );
+      loadMerchantApplication(String userId) async => AssalData(
+            _merchantApplication?.userId == userId
+                ? _merchantApplication
+                : null,
+          );
   @override
   Future<AssalLoadState<AssalMerchantApplicationDraft?>>
-  loadMerchantApplicationDraft(String userId) async =>
-      AssalData(_merchantDrafts[userId]);
+      loadMerchantApplicationDraft(String userId) async =>
+          AssalData(_merchantDrafts[userId]);
   @override
   Future<AssalLoadState<void>> saveMerchantApplicationDraft(
     String userId,
@@ -824,10 +817,11 @@ class DemoRepository implements AssalRepository {
     String kind,
     Uint8List bytes,
     String extension,
-  ) async => const AssalError(
-    'رفع صور المتجر متاح في Production Mode فقط.',
-    code: 'demo_image_upload_unavailable',
-  );
+  ) async =>
+      const AssalError(
+        'رفع صور المتجر متاح في Production Mode فقط.',
+        code: 'demo_image_upload_unavailable',
+      );
 
   @override
   Future<AssalLoadState<AssalSession>> signIn(
@@ -893,10 +887,11 @@ class DemoRepository implements AssalRepository {
   @override
   Future<AssalLoadState<void>> requestPasswordReset(
     String email,
-  ) async => const AssalError(
-    'إعادة تعيين كلمة المرور متاحة بعد ربط حساب Production بالبريد الإلكتروني.',
-    code: 'demo_password_reset_unavailable',
-  );
+  ) async =>
+      const AssalError(
+        'إعادة تعيين كلمة المرور متاحة بعد ربط حساب Production بالبريد الإلكتروني.',
+        code: 'demo_password_reset_unavailable',
+      );
 
   @override
   Future<AssalLoadState<void>> resendEmailConfirmation(String email) async =>
@@ -909,16 +904,17 @@ class DemoRepository implements AssalRepository {
   Future<AssalLoadState<AssalSession>> verifyEmailConfirmation(
     String email,
     String token,
-  ) async => const AssalError(
-    'التحقق بالرمز متاح في Production Mode فقط لأن Demo لا يرسل بريدًا حقيقيًا.',
-    code: 'demo_email_otp_unavailable',
-  );
+  ) async =>
+      const AssalError(
+        'التحقق بالرمز متاح في Production Mode فقط لأن Demo لا يرسل بريدًا حقيقيًا.',
+        code: 'demo_email_otp_unavailable',
+      );
 
   @override
   Future<AssalLoadState<void>> deleteAccount() async => const AssalError(
-    'حذف الحساب متاح في Production فقط من إعدادات الحساب.',
-    code: 'demo_account_delete_unavailable',
-  );
+        'حذف الحساب متاح في Production فقط من إعدادات الحساب.',
+        code: 'demo_account_delete_unavailable',
+      );
 
   @override
   Future<AssalLoadState<AssalSession>> signInWithGoogle() async =>
@@ -961,7 +957,8 @@ class DemoRepository implements AssalRepository {
   @override
   Future<AssalLoadState<AssalMerchantWorkspaceSummary?>> loadMerchantWorkspace(
     String userId,
-  ) async => AssalData(_merchantWorkspace);
+  ) async =>
+      AssalData(_merchantWorkspace);
 
   @override
   Future<AssalLoadState<AssalMerchantWorkspaceSummary>> openMerchantWorkspace(
@@ -996,9 +993,64 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<void>> updateMerchantWorkspace(
+    String userId,
+    String storeId,
+    AssalMerchantWorkspaceDraft draft,
+  ) async {
+    final workspace = _merchantWorkspace;
+    if (workspace == null ||
+        workspace.store.id != storeId ||
+        workspace.store.merchantId != userId) {
+      return const AssalError(
+        'مساحة المتجر غير متاحة لهذا الحساب.',
+        code: 'merchant_workspace_not_owned',
+      );
+    }
+    final current = workspace.store;
+    final updatedStore = AssalStoreSummary(
+      id: current.id,
+      merchantId: current.merchantId,
+      nameAr: draft.businessName.trim(),
+      slug: current.slug,
+      description: draft.description,
+      regionId: current.regionId,
+      regionNameAr: current.regionNameAr,
+      logoUrl: draft.logoUrl ?? current.logoUrl,
+      coverUrl: draft.coverUrl ?? current.coverUrl,
+      avatarUrl: current.avatarUrl,
+      merchantNameAr: current.merchantNameAr,
+      galleryUrls: current.galleryUrls,
+      socialLinks: current.socialLinks,
+      deliveryOptions: current.deliveryOptions,
+      pickupLocations: current.pickupLocations,
+      contactPhone: draft.phone ?? current.contactPhone,
+      contactWhatsapp: current.contactWhatsapp,
+      contactTelegram: current.contactTelegram,
+      isVerified: current.isVerified,
+      status: current.status,
+      reviewCount: current.reviewCount,
+      followersCount: current.followersCount,
+      yearsExperience: current.yearsExperience,
+      bio: current.bio,
+      specialties: current.specialties,
+      certifications: current.certifications,
+    );
+    _merchantWorkspace = AssalMerchantWorkspaceSummary(
+      store: updatedStore,
+      verificationStatus: workspace.verificationStatus,
+      publicStatus: workspace.publicStatus,
+      canEdit: workspace.canEdit,
+      canPublish: workspace.canPublish,
+    );
+    return const AssalData(null);
+  }
+
+  @override
   Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
     String userId,
-  ) async => _listState(
+  ) async =>
+      _listState(
         List<AssalProductSummary>.unmodifiable(_merchantProducts),
         'لا توجد منتجات في مساحة التاجر بعد.',
       );
@@ -1007,7 +1059,8 @@ class DemoRepository implements AssalRepository {
     String id,
     String storeId,
     AssalProductDraft draft,
-  ) => AssalProductSummary(
+  ) =>
+      AssalProductSummary(
         id: id,
         storeId: storeId,
         nameAr: draft.nameAr,
@@ -1070,7 +1123,8 @@ class DemoRepository implements AssalRepository {
     AssalUserProfilePatch patch,
   ) async {
     final user = _session.user;
-    if (user == null) return const AssalError('سجّل الدخول أولًا.', code: 'auth_required');
+    if (user == null)
+      return const AssalError('سجّل الدخول أولًا.', code: 'auth_required');
     _session = AssalSession(
       isAuthenticated: true,
       role: _session.role,
@@ -1095,7 +1149,8 @@ class DemoRepository implements AssalRepository {
     String storeId,
     Uint8List bytes,
     String extension,
-  ) async => AssalData('demo://store/$storeId/gallery-${bytes.length}.$extension');
+  ) async =>
+      AssalData('demo://store/$storeId/gallery-${bytes.length}.$extension');
 
   @override
   Future<AssalLoadState<String>> uploadProductImage(
@@ -1103,7 +1158,8 @@ class DemoRepository implements AssalRepository {
     String productId,
     Uint8List bytes,
     String extension,
-  ) async => AssalData('demo://product/$productId/image-${bytes.length}.$extension');
+  ) async =>
+      AssalData('demo://product/$productId/image-${bytes.length}.$extension');
 
   @override
   Future<AssalLoadState<void>> signOut() async {

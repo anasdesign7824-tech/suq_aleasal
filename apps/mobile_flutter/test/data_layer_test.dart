@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/demo_repository.dart';
+import 'package:assalkom_data/production_repository.dart';
 import 'package:assalkom_data/repository_factory.dart';
 
 void main() {
@@ -145,6 +146,24 @@ void main() {
         (opened as AssalData<AssalMerchantWorkspaceSummary>).value;
     expect(workspace.canEdit, isTrue);
     expect(workspace.canPublish, isFalse);
+    final updated = await repository.updateMerchantWorkspace(
+      'demo-customer',
+      workspace.store.id,
+      const AssalMerchantWorkspaceDraft(
+        businessName: 'مناحل الاختبار بعد التعديل',
+        description: 'وصف محدث لمساحة التاجر.',
+      ),
+    );
+    expect(updated, isA<AssalData<void>>());
+    final loadedWorkspace =
+        await repository.loadMerchantWorkspace('demo-customer');
+    expect(
+      (loadedWorkspace as AssalData<AssalMerchantWorkspaceSummary?>)
+          .value
+          ?.store
+          .nameAr,
+      'مناحل الاختبار بعد التعديل',
+    );
     final created = await repository.createMerchantProduct(
       'demo-customer',
       workspace.store.id,
@@ -164,6 +183,22 @@ void main() {
     );
   });
 
+  test('ProductionRepository rejects profile updates for another identity',
+      () async {
+    final repository = ProductionRepository(
+      gateway: _NoopProductionGateway(),
+      authGateway: _StaticAuthGateway(
+        const AssalAuthIdentity(id: 'owner-user'),
+      ),
+    );
+    final result = await repository.updateUserProfile(
+      'different-user',
+      const AssalUserProfilePatch(nameAr: 'محاولة غير مملوكة'),
+    );
+    expect(result, isA<AssalError<void>>());
+    expect((result as AssalError<void>).code, 'profile_not_owned');
+  });
+
   test('Factory rejects production without an explicit gateway', () {
     expect(
         () => const AssalRepositoryFactory().create(
@@ -171,4 +206,23 @@ void main() {
             demoLoader: const InMemoryDemoCatalogLoader(catalog)),
         throwsA(isA<ProductionRepositoryNotConfigured>()));
   });
+}
+
+class _StaticAuthGateway implements AssalAuthGateway {
+  _StaticAuthGateway(this.identity);
+
+  final AssalAuthIdentity? identity;
+
+  @override
+  Future<AssalAuthIdentity?> currentIdentity() async => identity;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError(invocation.memberName.toString());
+}
+
+class _NoopProductionGateway implements ProductionQueryGateway {
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError(invocation.memberName.toString());
 }

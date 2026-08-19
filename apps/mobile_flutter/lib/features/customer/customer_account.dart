@@ -457,15 +457,6 @@ class _PasswordStrength extends StatelessWidget {
   }
 }
 
-String _merchantStatusLabel(String status) => switch (status) {
-      'submitted' => 'تم الإرسال',
-      'under_review' => 'قيد المراجعة',
-      'approved' || 'verified' => 'تم تفعيل المتجر',
-      'needs_more_info' => 'تحتاج إلى معلومات إضافية',
-      'rejected' => 'مرفوض — يحتاج إلى تعديل',
-      _ => 'غير محددة',
-    };
-
 bool _passwordIsStrong(String value) {
   if (value.length < 8 || !RegExp(r'^[\x21-\x7E]+$').hasMatch(value)) {
     return false;
@@ -781,7 +772,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => session.role == AssalRole.merchant || hasWorkspace
           ? MerchantDashboard(repository: repository)
-          : BecomeMerchantScreen(repository: repository),
+          : MerchantWorkspaceSetupScreen(repository: repository),
     ));
   }
 
@@ -975,28 +966,22 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
         body: ListView(
           padding: const EdgeInsets.all(AssalSpacing.lg),
           children: [
-            _imagePicker(
-              title: 'صورة الغلاف',
+            AssalImageUploadSlot(
+              label: 'صورة الغلاف',
               icon: Icons.landscape_outlined,
               bytes: coverBytes,
               imageUrl: widget.profile.coverUrl,
-              onPressed: () => _pickImage(cover: true),
+              onPick: saving ? null : () => _pickImage(cover: true),
               height: 150,
             ),
             const SizedBox(height: AssalSpacing.lg),
-            Row(
-              children: [
-                Expanded(
-                  child: _imagePicker(
-                    title: 'الصورة الشخصية',
-                    icon: Icons.person_outline,
-                    bytes: avatarBytes,
-                    imageUrl: widget.profile.avatarUrl,
-                    onPressed: () => _pickImage(cover: false),
-                    height: 120,
-                  ),
-                ),
-              ],
+            AssalImageUploadSlot(
+              label: 'الصورة الشخصية',
+              icon: Icons.person_outline,
+              bytes: avatarBytes,
+              imageUrl: widget.profile.avatarUrl,
+              onPick: saving ? null : () => _pickImage(cover: false),
+              height: 150,
             ),
             const SizedBox(height: AssalSpacing.lg),
             TextField(
@@ -1055,45 +1040,6 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
           ],
         ),
       );
-
-  Widget _imagePicker({
-    required String title,
-    required IconData icon,
-    required Uint8List? bytes,
-    required String? imageUrl,
-    required VoidCallback onPressed,
-    required double height,
-  }) {
-    final image = bytes != null
-        ? Image.memory(bytes, fit: BoxFit.cover)
-        : imageUrl != null && imageUrl.startsWith('http')
-            ? Image.network(imageUrl, fit: BoxFit.cover)
-            : null;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AssalTypography.subtitle),
-        const SizedBox(height: AssalSpacing.sm),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AssalRadius.large),
-          child: Container(
-            height: height,
-            width: double.infinity,
-            color: AssalColors.honeyLight,
-            child: image ?? Center(child: Icon(icon, size: 42)),
-          ),
-        ),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: TextButton.icon(
-            onPressed: onPressed,
-            icon: const Icon(Icons.photo_library_outlined),
-            label: const Text('اختيار صورة من الجهاز'),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _ProfileStats extends StatelessWidget {
@@ -1501,31 +1447,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 }
 
-class BecomeMerchantScreen extends StatefulWidget {
-  const BecomeMerchantScreen({super.key, required this.repository});
+class MerchantWorkspaceSetupScreen extends StatefulWidget {
+  const MerchantWorkspaceSetupScreen({super.key, required this.repository});
+
   final AssalRepository repository;
 
   @override
-  State<BecomeMerchantScreen> createState() => _BecomeMerchantScreenState();
+  State<MerchantWorkspaceSetupScreen> createState() =>
+      _MerchantWorkspaceSetupScreenState();
 }
 
-class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
+class _MerchantWorkspaceSetupScreenState
+    extends State<MerchantWorkspaceSetupScreen> {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
-  final experienceController = TextEditingController();
   final locationController = TextEditingController();
-  final specialtiesController = TextEditingController();
-  final certificateController = TextEditingController();
-  final storeDescriptionController = TextEditingController();
-  bool loading = false;
-  bool uploadingImage = false;
+  final descriptionController = TextEditingController();
+  Uint8List? logoBytes;
+  Uint8List? coverBytes;
   String? logoUrl;
   String? coverUrl;
-  bool draftLoading = true;
-  String? draftUserId;
-  AssalMerchantApplicationSummary? application;
-  String? applicationLoadMessage;
+  bool loading = true;
+  bool opening = false;
+  bool uploading = false;
 
   @override
   void initState() {
@@ -1537,218 +1482,19 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
   void dispose() {
     nameController.dispose();
     phoneController.dispose();
-    experienceController.dispose();
     locationController.dispose();
-    specialtiesController.dispose();
-    certificateController.dispose();
-    storeDescriptionController.dispose();
+    descriptionController.dispose();
     super.dispose();
   }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: const AssalAppBar(title: 'كن تاجرًا'),
-        body: Form(
-          key: formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AssalSpacing.xl),
-            children: [
-              const AssalImageTile(
-                  height: 180, icon: Icons.storefront_outlined),
-              const SizedBox(height: AssalSpacing.xl),
-              Text('حوّل خبرتك إلى متجر موثوق',
-                  style: AssalTypography.heading1
-                      .copyWith(color: AssalColors.deepBrown)),
-              const SizedBox(height: AssalSpacing.sm),
-              Text(
-                  'قدّم معلومات نشاطك ومصدر منتجاتك. لا يوجد Checkout؛ الطلب ينتقل إلى مراجعة التحقق والتواصل.',
-                  style: AssalTypography.bodyLarge
-                      .copyWith(color: AssalColors.textSecondary)),
-              const SizedBox(height: AssalSpacing.md),
-              _VerificationStatusCard(
-                status: application?.status,
-                unavailableMessage: applicationLoadMessage,
-              ),
-              const SizedBox(height: AssalSpacing.md),
-              Container(
-                padding: const EdgeInsets.all(AssalSpacing.md),
-                decoration: BoxDecoration(
-                  color: AssalColors.cream,
-                  borderRadius: BorderRadius.circular(AssalRadius.medium),
-                  border: Border.all(color: AssalColors.border),
-                ),
-                child: Text(
-                  'تُفتح لك مساحة المتجر فورًا لإكمال البيانات وإضافة المنتجات ومعاينتها. يبقى المتجر والمنتجات مخفية عن المستخدمين حتى تفعيل الإدارة ونشرها.',
-                  style: AssalTypography.caption
-                      .copyWith(color: AssalColors.textSecondary),
-                ),
-              ),
-              const SizedBox(height: AssalSpacing.sm),
-              Text(
-                draftLoading
-                    ? 'جارٍ استعادة المسودة…'
-                    : 'يمكنك حفظ المسودة أثناء جلسة التطبيق وإكمالها لاحقًا.',
-                style: AssalTypography.caption
-                    .copyWith(color: AssalColors.textSecondary),
-              ),
-              const SizedBox(height: AssalSpacing.xl),
-              TextFormField(
-                  controller: nameController,
-                  textInputAction: TextInputAction.next,
-                  decoration:
-                      const InputDecoration(labelText: 'اسم النشاط أو المتجر'),
-                  validator: (value) => value == null || value.trim().length < 2
-                      ? 'اكتب اسم النشاط أو المتجر (حرفان على الأقل).'
-                      : null),
-              const SizedBox(height: AssalSpacing.md),
-              TextFormField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'رقم التواصل'),
-                  validator: (value) => value == null || value.trim().length < 6
-                      ? 'اكتب رقم تواصل صحيحًا (6 أرقام على الأقل).'
-                      : null),
-              const SizedBox(height: AssalSpacing.md),
-              TextFormField(
-                  controller: experienceController,
-                  maxLines: 2,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                      labelText: 'الخبرة في العسل ومصدره'),
-                  validator: (value) => value == null || value.trim().length < 4
-                      ? 'اذكر خبرتك ومصدر منتجاتك باختصار.'
-                      : null),
-              const SizedBox(height: AssalSpacing.md),
-              TextFormField(
-                  controller: locationController,
-                  textInputAction: TextInputAction.next,
-                  decoration:
-                      const InputDecoration(labelText: 'المحافظة / الموقع'),
-                  validator: (value) => value == null || value.trim().length < 2
-                      ? 'اكتب المحافظة أو الموقع.'
-                      : null),
-              const SizedBox(height: AssalSpacing.md),
-              TextFormField(
-                  controller: specialtiesController,
-                  decoration:
-                      const InputDecoration(labelText: 'التخصصات والأنواع'),
-                  validator: (value) => value == null || value.trim().length < 2
-                      ? 'اكتب تخصصًا واحدًا على الأقل.'
-                      : null),
-              const SizedBox(height: AssalSpacing.md),
-              TextFormField(
-                  controller: certificateController,
-                  maxLines: 2,
-                  decoration: const InputDecoration(
-                      labelText: 'الشهادات أو معلومات المصدر (اختياري)')),
-              const SizedBox(height: AssalSpacing.md),
-              TextFormField(
-                  controller: storeDescriptionController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                      labelText: 'وصف المتجر (اختياري)',
-                      hintText: 'عرّف المستخدمين بمصدر العسل ونشاط المتجر.')),
-              const SizedBox(height: AssalSpacing.md),
-              Text(
-                'صور المتجر',
-                style: AssalTypography.body.copyWith(
-                  color: AssalColors.deepBrown,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: AssalSpacing.xs),
-              Text(
-                'تُرفع الصور إلى Storage Production وتظهر في معاينتك، ولا تظهر للعملاء قبل تفعيل المتجر.',
-                style: AssalTypography.caption.copyWith(
-                  color: AssalColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: AssalSpacing.sm),
-              Wrap(
-                spacing: AssalSpacing.sm,
-                runSpacing: AssalSpacing.sm,
-                children: [
-                  _imagePickerButton(
-                    kind: 'logo',
-                    label: 'رفع شعار المتجر',
-                    icon: Icons.storefront_outlined,
-                    url: logoUrl,
-                  ),
-                  _imagePickerButton(
-                    kind: 'cover',
-                    label: 'رفع غلاف المتجر',
-                    icon: Icons.photo_size_select_actual_outlined,
-                    url: coverUrl,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AssalSpacing.sm),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton.icon(
-                  onPressed: loading ? null : _saveDraft,
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('حفظ المسودة الآن'),
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: loading ? null : _openWorkspace,
-                  icon: const Icon(Icons.dashboard_customize_outlined),
-                  label: const Text('فتح مساحة المتجر الآن'),
-                ),
-              ),
-              const SizedBox(height: AssalSpacing.xl),
-              SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                      onPressed: loading ? null : _submit,
-                      icon: const Icon(Icons.send_outlined),
-                      label: Text(
-                          loading ? 'جارٍ الإرسال…' : 'إرسال طلب التحقق'))),
-            ],
-          ),
-        ),
-      );
-
-  AssalMerchantApplicationDraft _draftFromForm() =>
-      AssalMerchantApplicationDraft(
-        displayName: nameController.text.trim(),
-        phone: phoneController.text.trim(),
-        experience: experienceController.text.trim(),
-        location: locationController.text.trim(),
-        specialties: specialtiesController.text.trim(),
-        certificateNote: certificateController.text.trim().isEmpty
-            ? null
-            : certificateController.text.trim(),
-        storeDescription: storeDescriptionController.text.trim().isEmpty
-            ? null
-            : storeDescriptionController.text.trim(),
-        logoUrl: logoUrl,
-        coverUrl: coverUrl,
-      );
 
   Future<void> _restoreDraft() async {
     final session = await widget.repository.getSession();
     if (!session.isAuthenticated || session.user == null) {
-      if (mounted) setState(() => draftLoading = false);
+      if (mounted) setState(() => loading = false);
       return;
     }
-    draftUserId = session.user!.id;
-    final applicationResult = await widget.repository.loadMerchantApplication(
-      draftUserId!,
-    );
-    if (!mounted) return;
-    if (applicationResult is AssalData<AssalMerchantApplicationSummary?>) {
-      application = applicationResult.value;
-    } else if (applicationResult
-        is AssalError<AssalMerchantApplicationSummary?>) {
-      applicationLoadMessage = applicationResult.messageAr;
-    }
     final result = await widget.repository.loadMerchantApplicationDraft(
-      draftUserId!,
+      session.user!.id,
     );
     if (!mounted) return;
     if (result is AssalData<AssalMerchantApplicationDraft?> &&
@@ -1756,36 +1502,22 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
       final draft = result.value!;
       nameController.text = draft.displayName;
       phoneController.text = draft.phone;
-      experienceController.text = draft.experience;
       locationController.text = draft.location;
-      specialtiesController.text = draft.specialties;
-      certificateController.text = draft.certificateNote ?? '';
-      storeDescriptionController.text = draft.storeDescription ?? '';
+      descriptionController.text = draft.storeDescription ?? draft.experience;
       logoUrl = draft.logoUrl;
       coverUrl = draft.coverUrl;
     }
-    setState(() => draftLoading = false);
+    setState(() => loading = false);
   }
 
-  Widget _imagePickerButton({
-    required String kind,
-    required String label,
-    required IconData icon,
-    required String? url,
-  }) =>
-      OutlinedButton.icon(
-        onPressed: loading || uploadingImage ? null : () => _pickImage(kind),
-        icon: uploadingImage
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Icon(icon),
-        label: Text(url == null ? label : '$label — تم الرفع'),
-      );
+  String _extension(XFile file) {
+    final name = file.name.toLowerCase();
+    if (name.endsWith('.png')) return 'png';
+    if (name.endsWith('.webp')) return 'webp';
+    return 'jpg';
+  }
 
-  Future<void> _pickImage(String kind) async {
+  Future<void> _pickImage({required bool cover}) async {
     final session = await widget.repository.getSession();
     if (!session.isAuthenticated || session.user == null) {
       if (mounted) {
@@ -1798,232 +1530,241 @@ class _BecomeMerchantScreenState extends State<BecomeMerchantScreen> {
     final picked = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       maxWidth: 1800,
-      imageQuality: 85,
+      imageQuality: 88,
     );
     if (picked == null) return;
-    setState(() => uploadingImage = true);
-    final extension = picked.name.contains('.')
-        ? picked.name.split('.').last.toLowerCase()
-        : 'jpg';
+    if (mounted) setState(() => uploading = true);
     final result = await widget.repository.uploadMerchantImage(
       session.user!.id,
-      kind,
+      cover ? 'cover' : 'logo',
       await picked.readAsBytes(),
-      extension,
+      _extension(picked),
     );
     if (!mounted) return;
-    setState(() => uploadingImage = false);
+    setState(() => uploading = false);
     if (result is AssalData<String>) {
       setState(() {
-        if (kind == 'cover') {
+        if (cover) {
           coverUrl = result.value;
+          coverBytes = null;
         } else {
           logoUrl = result.value;
+          logoBytes = null;
         }
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم رفع الصورة وربطها بالطلب.')),
+        const SnackBar(content: Text('تم رفع الصورة وربطها بمساحة المتجر.')),
       );
     } else if (result is AssalError<String>) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.messageAr)),
-      );
-    }
-  }
-
-  Future<bool> _saveDraft({bool showFeedback = true}) async {
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('سجّل الدخول أولًا لحفظ مسودة طلب التاجر.'),
-        ));
-      }
-      return false;
-    }
-    draftUserId = session.user!.id;
-    final result = await widget.repository.saveMerchantApplicationDraft(
-      draftUserId!,
-      _draftFromForm(),
-    );
-    if (!mounted) return result is AssalData<void>;
-    if (showFeedback) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(result is AssalData<void>
-            ? 'تم حفظ المسودة ويمكنك إكمالها لاحقًا.'
-            : result is AssalError<void>
-                ? result.messageAr
-                : 'تعذر حفظ المسودة الآن.'),
-      ));
-    }
-    return result is AssalData<void>;
-  }
-
-  Future<void> _openWorkspace() async {
-    final name = nameController.text.trim();
-    if (name.length < 2) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('اكتب اسم النشاط أو المتجر أولًا لفتح مساحته.'),
-      ));
-      return;
-    }
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) {
-      if (mounted) await openAuth(context, widget.repository);
-      return;
-    }
-    setState(() => loading = true);
-    final draft = _draftFromForm();
-    final saved = await widget.repository.saveMerchantApplicationDraft(
-      session.user!.id,
-      draft,
-    );
-    if (saved is! AssalData<void>) {
-      if (mounted) {
-        setState(() => loading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(saved is AssalError<void>
-              ? saved.messageAr
-              : 'تعذر حفظ المسودة.'),
-        ));
-      }
-      return;
-    }
-    final workspace = await widget.repository.openMerchantWorkspace(
-      session.user!.id,
-      AssalMerchantWorkspaceDraft(
-        businessName: name,
-        description: draft.storeDescription ?? draft.experience,
-        regionId: draft.regionId,
-        phone: draft.phone,
-        logoUrl: draft.logoUrl,
-        coverUrl: draft.coverUrl,
-      ),
-    );
-    if (!mounted) return;
-    setState(() => loading = false);
-    if (workspace is AssalData<AssalMerchantWorkspaceSummary>) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text(
-            'تم فتح مساحة متجرك. يمكنك الإعداد والإضافة، وسيبقى النشر معلقًا حتى التفعيل.'),
-      ));
-      await Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => MerchantDashboard(repository: widget.repository),
-      ));
-      if (mounted) setState(_restoreDraft);
-    } else if (workspace is AssalError<AssalMerchantWorkspaceSummary>) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(workspace.messageAr)));
-    }
-  }
-
-  Future<void> _submit() async {
-    if (!(formKey.currentState?.validate() ?? false)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('راجع الحقول الموضحة قبل إرسال الطلب.'),
-      ));
-      return;
-    }
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) {
-      if (mounted) await openAuth(context, widget.repository);
-      return;
-    }
-    setState(() => loading = true);
-    final draft = _draftFromForm();
-    final result = await widget.repository.submitMerchantApplication(
-      session.user!.id,
-      draft,
-    );
-    if (!mounted) return;
-    setState(() => loading = false);
-    if (result is AssalData<AssalMerchantApplicationSummary>) {
-      setState(() {
-        application = result.value;
-        applicationLoadMessage = null;
-      });
-      await widget.repository.clearMerchantApplicationDraft(session.user!.id);
-      if (!mounted) return;
-      await showDialog<void>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-                  title: const Text('تم استلام طلبك'),
-                  content: Text(
-                      'رقم الطلب: ${result.value.id}\nالحالة: ${_merchantStatusLabel(result.value.status)}'),
-                  actions: [
-                    FilledButton(
-                        onPressed: () => Navigator.pop(dialogContext),
-                        child: const Text('حسنًا'))
-                  ]));
-    } else if (result is AssalError<AssalMerchantApplicationSummary>) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result.messageAr)));
     }
   }
-}
 
-class _VerificationStatusCard extends StatelessWidget {
-  const _VerificationStatusCard({this.status, this.unavailableMessage});
+  Future<void> _openWorkspace() async {
+    if (!(formKey.currentState?.validate() ?? false)) return;
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) await openAuth(context, widget.repository);
+      return;
+    }
+    setState(() => opening = true);
+    final result = await widget.repository.openMerchantWorkspace(
+      session.user!.id,
+      AssalMerchantWorkspaceDraft(
+        businessName: nameController.text.trim(),
+        description: descriptionController.text.trim().isEmpty
+            ? null
+            : descriptionController.text.trim(),
+        phone: phoneController.text.trim().isEmpty
+            ? null
+            : phoneController.text.trim(),
+        logoUrl: logoUrl,
+        coverUrl: coverUrl,
+      ),
+    );
+    if (!mounted) return;
+    setState(() => opening = false);
+    if (result is AssalData<AssalMerchantWorkspaceSummary>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('تم فتح مساحة المتجر فورًا. النشر معلّق حتى تفعيل الإدارة.'),
+        ),
+      );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MerchantDashboard(repository: widget.repository),
+        ),
+      );
+    } else if (result is AssalError<AssalMerchantWorkspaceSummary>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
 
-  final String? status;
-  final String? unavailableMessage;
+  Future<void> _saveDraft() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    final result = await widget.repository.saveMerchantApplicationDraft(
+      session.user!.id,
+      AssalMerchantApplicationDraft(
+        displayName: nameController.text.trim(),
+        phone: phoneController.text.trim(),
+        experience: descriptionController.text.trim(),
+        location: locationController.text.trim(),
+        specialties: 'منتجات نحلية يمنية',
+        storeDescription: descriptionController.text.trim().isEmpty
+            ? null
+            : descriptionController.text.trim(),
+        logoUrl: logoUrl,
+        coverUrl: coverUrl,
+      ),
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(result is AssalData<void>
+          ? 'تم حفظ البيانات مؤقتًا.'
+          : result is AssalError<void>
+              ? result.messageAr
+              : 'تعذر حفظ البيانات.'),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final label = switch (status) {
-      'submitted' => 'تم الإرسال',
-      'under_review' => 'قيد المراجعة',
-      'approved' => 'تم تفعيل المتجر',
-      'verified' => 'تم تفعيل المتجر',
-      'needs_more_info' => 'تحتاج إلى معلومات إضافية',
-      'rejected' => 'مرفوض — يحتاج إلى تعديل',
-      _ => 'لم يبدأ بعد',
-    };
-    final description = switch (status) {
-      'submitted' => 'استلمنا الطلب وينتظر انتقاله إلى المراجعة.',
-      'under_review' => 'يجري فريق التحقق مراجعة بيانات النشاط والمصدر.',
-      'approved' =>
-        'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
-      'verified' =>
-        'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
-      'needs_more_info' =>
-        'راجع ملاحظة الإدارة وأكمل البيانات ثم أرسل الطلب من جديد.',
-      'rejected' => 'راجع ملاحظات المراجعة ثم أرسل البيانات بعد تعديلها.',
-      _ => 'أكمل البيانات ثم أرسل طلب فتح المتجر للبدء.',
-    };
-    return Container(
-      padding: const EdgeInsets.all(AssalSpacing.md),
-      decoration: BoxDecoration(
-        color: AssalColors.surface,
-        borderRadius: BorderRadius.circular(AssalRadius.medium),
-        border: Border.all(color: AssalColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.verified_outlined, color: AssalColors.honey),
-          const SizedBox(width: AssalSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('حالة التوثيق', style: AssalTypography.caption),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  style: AssalTypography.heading3
-                      .copyWith(color: AssalColors.deepBrown),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  unavailableMessage ?? description,
-                  style: AssalTypography.caption
-                      .copyWith(color: AssalColors.textSecondary),
-                ),
-              ],
+    if (loading) {
+      return const Scaffold(
+        appBar: AssalAppBar(title: 'فتح مساحة المتجر'),
+        body: AssalGlassLoading(),
+      );
+    }
+    return Scaffold(
+      appBar: const AssalAppBar(title: 'فتح مساحة المتجر'),
+      body: Form(
+        key: formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          children: [
+            const AssalImageTile(
+              height: 170,
+              icon: Icons.storefront_outlined,
             ),
-          ),
-        ],
+            const SizedBox(height: AssalSpacing.lg),
+            Text(
+              'مساحة متجرك تبدأ الآن',
+              style: AssalTypography.heading1
+                  .copyWith(color: AssalColors.deepBrown),
+            ),
+            const SizedBox(height: AssalSpacing.sm),
+            Text(
+              'أكمل الحد الأدنى من البيانات، ثم افتح مساحة المتجر فورًا. ستتمكن من إضافة المنتجات ومعاينتها، بينما يبقى النشر معلّقًا حتى تفعيل الإدارة.',
+              style: AssalTypography.bodyLarge
+                  .copyWith(color: AssalColors.textSecondary),
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            Container(
+              padding: const EdgeInsets.all(AssalSpacing.md),
+              decoration: BoxDecoration(
+                color: AssalColors.cream,
+                borderRadius: BorderRadius.circular(AssalRadius.medium),
+                border: Border.all(color: AssalColors.border),
+              ),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.pending_actions_outlined,
+                      color: AssalColors.primaryDark),
+                  SizedBox(width: AssalSpacing.sm),
+                  Expanded(
+                    child: Text(
+                        'الحالة بعد الفتح: معلّق حتى تفعيل الإدارة. لا تختفي بياناتك ولا منتجاتك، لكنها لا تظهر للعملاء قبل التفعيل.'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            AssalImageUploadSlot(
+              label: 'غلاف المتجر',
+              icon: Icons.photo_size_select_actual_outlined,
+              imageUrl: coverUrl,
+              bytes: coverBytes,
+              onPick:
+                  uploading || opening ? null : () => _pickImage(cover: true),
+              height: 150,
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            AssalImageUploadSlot(
+              label: 'شعار المتجر',
+              icon: Icons.storefront_outlined,
+              imageUrl: logoUrl,
+              bytes: logoBytes,
+              onPick:
+                  uploading || opening ? null : () => _pickImage(cover: false),
+              height: 150,
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            TextFormField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'اسم النشاط أو المتجر',
+                prefixIcon: Icon(Icons.storefront_outlined),
+              ),
+              validator: (value) => value == null || value.trim().length < 2
+                  ? 'اكتب اسم المتجر.'
+                  : null,
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextFormField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'رقم التواصل (اختياري)',
+                prefixIcon: Icon(Icons.phone_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextFormField(
+              controller: locationController,
+              decoration: const InputDecoration(
+                labelText: 'الموقع (اختياري)',
+                prefixIcon: Icon(Icons.location_on_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextFormField(
+              controller: descriptionController,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'نبذة عن المتجر (اختياري)',
+                prefixIcon: Icon(Icons.notes_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            OutlinedButton.icon(
+              onPressed: opening ? null : _saveDraft,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('حفظ البيانات مؤقتًا'),
+            ),
+            const SizedBox(height: AssalSpacing.sm),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: opening || uploading ? null : _openWorkspace,
+                icon: opening
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.dashboard_customize_outlined),
+                label: Text(opening
+                    ? 'جارٍ فتح مساحة المتجر...'
+                    : 'فتح مساحة المتجر الآن'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

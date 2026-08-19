@@ -94,63 +94,63 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBrand;
 
   final PreferredSizeWidget? bottom;
-@override
+  @override
   Widget build(BuildContext context) {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     return DecoratedBox(
       decoration: const BoxDecoration(gradient: assalDarkGradient),
       child: AppBar(
-      bottom: bottom,
-      backgroundColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      forceMaterialTransparency: true,
-      elevation: 0,
-      shadowColor: Colors.transparent,
-      iconTheme: const IconThemeData(color: Colors.white),
-      titleTextStyle: AssalTypography.heading3.copyWith(color: Colors.white),
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: AssalColors.primaryDark,
-        systemNavigationBarIconBrightness: Brightness.light,
-        systemNavigationBarContrastEnforced: false,
-        systemNavigationBarDividerColor: Colors.transparent,
-      ),
-      titleSpacing: AssalSpacing.sm,
-      leading: canPop
-          ? IconButton(
-              tooltip: 'رجوع',
-              icon: const Icon(Icons.arrow_forward_rounded),
-              onPressed: () => Navigator.of(context).maybePop(),
-            )
-          : showBrand
-              ? const Padding(
-                  padding: EdgeInsets.all(AssalSpacing.sm),
-                  child: AssalBrandMark(
-                    size: 36,
-                    showName: false,
-                    framed: true,
-                    nameColor: Colors.white,
-                  ),
-                )
-              : null,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showBrand && canPop) ...[
-            const AssalBrandMark(
-              size: 28,
-              showName: true,
-              framed: true,
-              nameColor: Colors.white,
-            ),
-            const SizedBox(width: AssalSpacing.sm),
+        bottom: bottom,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        forceMaterialTransparency: true,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: AssalTypography.heading3.copyWith(color: Colors.white),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+          systemNavigationBarColor: AssalColors.primaryDark,
+          systemNavigationBarIconBrightness: Brightness.light,
+          systemNavigationBarContrastEnforced: false,
+          systemNavigationBarDividerColor: Colors.transparent,
+        ),
+        titleSpacing: AssalSpacing.sm,
+        leading: canPop
+            ? IconButton(
+                tooltip: 'رجوع',
+                icon: const Icon(Icons.arrow_forward_rounded),
+                onPressed: () => Navigator.of(context).maybePop(),
+              )
+            : showBrand
+                ? const Padding(
+                    padding: EdgeInsets.all(AssalSpacing.sm),
+                    child: AssalBrandMark(
+                      size: 36,
+                      showName: false,
+                      framed: true,
+                      nameColor: Colors.white,
+                    ),
+                  )
+                : null,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showBrand && canPop) ...[
+              const AssalBrandMark(
+                size: 28,
+                showName: true,
+                framed: true,
+                nameColor: Colors.white,
+              ),
+              const SizedBox(width: AssalSpacing.sm),
+            ],
+            Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
           ],
-          Flexible(child: Text(title, overflow: TextOverflow.ellipsis)),
-        ],
-      ),
-      actions: actions,
+        ),
+        actions: actions,
       ),
     );
   }
@@ -346,6 +346,70 @@ class SectionHeader extends StatelessWidget {
         if (actionLabel != null)
           TextButton(onPressed: onAction, child: Text(actionLabel!)),
       ]);
+}
+
+class AssalImageUploadSlot extends StatelessWidget {
+  const AssalImageUploadSlot({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.imageUrl,
+    required this.bytes,
+    required this.onPick,
+    this.height = 150,
+  });
+
+  final String label;
+  final IconData icon;
+  final String? imageUrl;
+  final Uint8List? bytes;
+  final VoidCallback? onPick;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final image = bytes != null
+        ? Image.memory(bytes!, fit: BoxFit.cover, width: double.infinity)
+        : imageUrl != null && imageUrl!.startsWith('http')
+            ? Image.network(imageUrl!,
+                fit: BoxFit.cover, width: double.infinity)
+            : null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AssalTypography.subtitle),
+        const SizedBox(height: AssalSpacing.sm),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AssalRadius.large),
+          child: SizedBox(
+            height: height,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ColoredBox(
+                  color: AssalColors.honeyLight,
+                  child: image ?? Center(child: Icon(icon, size: 42)),
+                ),
+                Positioned(
+                  bottom: AssalSpacing.sm,
+                  left: AssalSpacing.sm,
+                  right: AssalSpacing.sm,
+                  child: FilledButton.icon(
+                    onPressed: onPick,
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: Text(bytes != null || imageUrl != null
+                        ? 'تغيير الصورة'
+                        : 'إضافة الصورة'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class AssalImageTile extends StatelessWidget {

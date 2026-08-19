@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:image_picker/image_picker.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
@@ -224,6 +225,25 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           icon: Icons.visibility_outlined,
           message:
               'ستستخدم المعاينة نفس مكونات عرض العميل. الإعداد هنا لا ينشر البيانات قبل التفعيل.',
+        ),
+        const SizedBox(height: AssalSpacing.md),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => MerchantStoreEditorScreen(
+                    repository: widget.repository,
+                    workspace: workspace,
+                  ),
+                ),
+              );
+              if (mounted) setState(_refresh);
+            },
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('تعديل بيانات المتجر والصور'),
+          ),
         ),
       ],
     );
@@ -563,4 +583,264 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         ProductStatus.paused => 'موقوف مؤقتًا',
         ProductStatus.rejected => 'مرفوض ويحتاج تعديلًا',
       };
+}
+
+class MerchantStoreEditorScreen extends StatefulWidget {
+  const MerchantStoreEditorScreen({
+    super.key,
+    required this.repository,
+    required this.workspace,
+  });
+
+  final AssalRepository repository;
+  final AssalMerchantWorkspaceSummary workspace;
+
+  @override
+  State<MerchantStoreEditorScreen> createState() =>
+      _MerchantStoreEditorScreenState();
+}
+
+class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
+  late final TextEditingController nameController;
+  late final TextEditingController descriptionController;
+  late final TextEditingController phoneController;
+  late final TextEditingController locationController;
+  String? logoUrl;
+  String? coverUrl;
+  final galleryUrls = <String>[];
+  bool saving = false;
+  bool uploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final store = widget.workspace.store;
+    nameController = TextEditingController(text: store.nameAr);
+    descriptionController =
+        TextEditingController(text: store.description ?? '');
+    phoneController = TextEditingController(text: store.contactPhone ?? '');
+    locationController = TextEditingController(text: store.regionNameAr ?? '');
+    logoUrl = store.logoUrl;
+    coverUrl = store.coverUrl;
+    galleryUrls.addAll(store.galleryUrls);
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descriptionController.dispose();
+    phoneController.dispose();
+    locationController.dispose();
+    super.dispose();
+  }
+
+  String _extension(XFile file) {
+    final name = file.name.toLowerCase();
+    if (name.endsWith('.png')) return 'png';
+    if (name.endsWith('.webp')) return 'webp';
+    return 'jpg';
+  }
+
+  Future<void> _pickBrandImage({required bool cover}) async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      imageQuality: 88,
+    );
+    if (picked == null) return;
+    if (mounted) setState(() => uploading = true);
+    final result = await widget.repository.uploadMerchantImage(
+      session.user!.id,
+      cover ? 'cover' : 'logo',
+      await picked.readAsBytes(),
+      _extension(picked),
+    );
+    if (!mounted) return;
+    setState(() => uploading = false);
+    if (result is AssalData<String>) {
+      setState(() {
+        if (cover) {
+          coverUrl = result.value;
+        } else {
+          logoUrl = result.value;
+        }
+      });
+    } else if (result is AssalError<String>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
+  Future<void> _pickGalleryImage() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      imageQuality: 88,
+    );
+    if (picked == null) return;
+    if (mounted) setState(() => uploading = true);
+    final result = await widget.repository.uploadStoreGalleryImage(
+      session.user!.id,
+      widget.workspace.store.id,
+      await picked.readAsBytes(),
+      _extension(picked),
+    );
+    if (!mounted) return;
+    setState(() => uploading = false);
+    if (result is AssalData<String>) {
+      setState(() => galleryUrls.insert(0, result.value));
+    } else if (result is AssalError<String>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
+  Future<void> _save() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    setState(() => saving = true);
+    final result = await widget.repository.updateMerchantWorkspace(
+      session.user!.id,
+      widget.workspace.store.id,
+      AssalMerchantWorkspaceDraft(
+        businessName: nameController.text.trim(),
+        description: descriptionController.text.trim().isEmpty
+            ? null
+            : descriptionController.text.trim(),
+        phone: phoneController.text.trim().isEmpty
+            ? null
+            : phoneController.text.trim(),
+        logoUrl: logoUrl,
+        coverUrl: coverUrl,
+      ),
+    );
+    if (!mounted) return;
+    setState(() => saving = false);
+    if (result is AssalData<void>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم حفظ بيانات المتجر.')),
+      );
+      Navigator.of(context).pop();
+    } else if (result is AssalError<void>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: const AssalAppBar(title: 'تعديل مساحة المتجر'),
+        body: ListView(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          children: [
+            AssalImageUploadSlot(
+              label: 'غلاف المتجر',
+              icon: Icons.photo_size_select_actual_outlined,
+              imageUrl: coverUrl,
+              bytes: null,
+              onPick: saving || uploading
+                  ? null
+                  : () => _pickBrandImage(cover: true),
+              height: 160,
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            AssalImageUploadSlot(
+              label: 'شعار المتجر',
+              icon: Icons.storefront_outlined,
+              imageUrl: logoUrl,
+              bytes: null,
+              onPick: saving || uploading
+                  ? null
+                  : () => _pickBrandImage(cover: false),
+              height: 150,
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'اسم المتجر',
+                prefixIcon: Icon(Icons.storefront_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextField(
+              controller: descriptionController,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'وصف المتجر',
+                prefixIcon: Icon(Icons.notes_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'رقم التواصل',
+                prefixIcon: Icon(Icons.phone_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextField(
+              controller: locationController,
+              decoration: const InputDecoration(
+                labelText: 'الموقع أو المحافظة',
+                prefixIcon: Icon(Icons.location_on_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            const Text('صور المعرض', style: AssalTypography.subtitle),
+            const SizedBox(height: AssalSpacing.sm),
+            if (galleryUrls.isEmpty)
+              const AssalMessageCard(
+                icon: Icons.photo_library_outlined,
+                message: 'لا توجد صور في معرض المتجر بعد.',
+              )
+            else
+              SizedBox(
+                height: 104,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: galleryUrls.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(width: AssalSpacing.sm),
+                  itemBuilder: (_, index) => ClipRRect(
+                    borderRadius: BorderRadius.circular(AssalRadius.medium),
+                    child: Image.network(
+                      galleryUrls[index],
+                      width: 132,
+                      height: 104,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: AssalSpacing.sm),
+            OutlinedButton.icon(
+              onPressed: saving || uploading ? null : _pickGalleryImage,
+              icon: const Icon(Icons.add_photo_alternate_outlined),
+              label: const Text('إضافة صورة للمعرض'),
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: saving || uploading ? null : _save,
+                icon: saving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.save_outlined),
+                label: Text(saving ? 'جارٍ الحفظ...' : 'حفظ تغييرات المتجر'),
+              ),
+            ),
+          ],
+        ),
+      );
 }
