@@ -2195,6 +2195,14 @@ export type Database = {
       }
     }
     Functions: {
+      admin_moderate_store: {
+        Args: {
+          p_action: string
+          p_reviewer_id?: string
+          p_store_id: string
+        }
+        Returns: Json
+      }
       admin_review_merchant_application: {
         Args: {
           p_application_id: string

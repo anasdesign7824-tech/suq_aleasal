@@ -278,23 +278,31 @@ export async function moderateStore(
 ) {
   const permission = action === "approve" ? "store.approve" : action === "reject" ? "store.reject" : "store.suspend";
   if (!hasPermission(session, permission)) throw new Error("لا تملك صلاحية تعديل المتجر.");
-  const patch = action === "approve"
-    ? { status: "active", is_verified: true }
-    : action === "reject"
-      ? { status: "rejected", is_verified: false }
-      : action === "suspend"
-        ? { status: "suspended", is_verified: false }
-        : { status: "active" };
   const service = createServiceSupabaseClient();
-  const result = await service.from("stores").update(patch).eq("id", storeId).select("id, status, is_verified").single();
+  const result = await service.rpc("admin_moderate_store", {
+    p_store_id: storeId,
+    p_action: action,
+    p_reviewer_id: session.user.id,
+  });
   if (result.error) throw result.error;
+  const payload = (result.data ?? {}) as {
+    store?: Record<string, unknown> | null;
+    merchant_profile?: Record<string, unknown> | null;
+    application?: Record<string, unknown> | null;
+    notification?: Record<string, unknown> | null;
+  };
   await recordAudit(session, {
     action: `store.${action}`,
     entityType: "stores",
     entityId: storeId,
-    metadata: { patch },
+    metadata: {
+      synchronized: action === "approve" || action === "reactivate",
+      merchantId: payload.store?.merchant_id ?? null,
+      applicationId: payload.application?.id ?? null,
+      notificationId: payload.notification?.id ?? null,
+    },
   });
-  return result.data;
+  return payload.store ?? result.data;
 }
 
 export type ProductWriteInput = {
