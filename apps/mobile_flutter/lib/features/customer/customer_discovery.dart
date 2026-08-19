@@ -39,36 +39,39 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<bool> initialContentFuture;
   final searchController = TextEditingController();
   late final ScrollController scrollController;
-  bool deferredDataStarted = false;
+  bool deferredDataStarted = true;
 
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController()..addListener(_maybeLoadDeferredData);
+    scrollController = ScrollController();
     _load();
   }
 
   @override
   void dispose() {
-    scrollController
-      ..removeListener(_maybeLoadDeferredData)
-      ..dispose();
+    scrollController.dispose();
     searchController.dispose();
     super.dispose();
   }
 
   void _load() {
-    deferredDataStarted = false;
-    storesFuture = null;
-    popularFuture = null;
-    newProductsFuture = null;
-    verifiedProductsFuture = null;
-    personalizedFuture = null;
+    // All home rails start together. Empty Production data is rendered as an
+    // explicit state; it must never be confused with a missing widget.
     featuredFuture = widget.repository
         .listProducts(query: const AssalProductQuery(featuredOnly: true));
     taxonomyFuture = widget.repository.listTaxonomy();
     bannersFuture = widget.repository.listBanners();
     notificationsFuture = _loadNotifications();
+    storesFuture = widget.repository.listStores();
+    popularFuture = widget.repository
+        .listProducts(query: const AssalProductQuery(sort: AssalSort.popular));
+    newProductsFuture = widget.repository
+        .listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
+    verifiedProductsFuture = widget.repository.listProducts(
+        query: const AssalProductQuery(
+            verifiedStoresOnly: true, sort: AssalSort.rating));
+    personalizedFuture = _buildPersonalizedFeed();
     initialContentFuture = Future.wait<Object?>(<Future<Object?>>[
       featuredFuture,
       taxonomyFuture,
@@ -84,28 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => StoresScreen(repository: widget.repository),
       ),
     );
-  }
-
-  void _maybeLoadDeferredData() {
-    if (deferredDataStarted || !scrollController.hasClients) return;
-    if (scrollController.position.pixels < 180) return;
-    _startDeferredData();
-  }
-
-  void _startDeferredData() {
-    if (deferredDataStarted) return;
-    setState(() {
-      deferredDataStarted = true;
-      storesFuture = widget.repository.listStores();
-      popularFuture = widget.repository.listProducts(
-          query: const AssalProductQuery(sort: AssalSort.popular));
-      newProductsFuture = widget.repository
-          .listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
-      verifiedProductsFuture = widget.repository.listProducts(
-          query: const AssalProductQuery(
-              verifiedStoresOnly: true, sort: AssalSort.rating));
-      personalizedFuture = _buildPersonalizedFeed();
-    });
   }
 
   Future<AssalLoadState<List<AssalProductSummary>>>
@@ -234,7 +215,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: AssalSpacing.sm)),
+              const SliverToBoxAdapter(
+                  child: SizedBox(height: AssalSpacing.sm)),
               SliverPadding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
@@ -676,20 +658,18 @@ class _Header extends StatelessWidget {
                       future: notificationsFuture,
                       builder: (context, snapshot) {
                         final state = snapshot.data;
-                        final unread = state
-                                is AssalData<
-                                    List<AssalNotificationSummary>>
-                            ? state.value
-                                .where((item) => item.readAt == null)
-                                .length
-                            : 0;
+                        final unread =
+                            state is AssalData<List<AssalNotificationSummary>>
+                                ? state.value
+                                    .where((item) => item.readAt == null)
+                                    .length
+                                : 0;
                         return Stack(
                           clipBehavior: Clip.none,
                           children: [
                             IconButton(
                               onPressed: onOpenNotifications,
-                              icon: const Icon(
-                                  Icons.notifications_none_rounded,
+                              icon: const Icon(Icons.notifications_none_rounded,
                                   color: Colors.white),
                               tooltip: 'الإشعارات',
                               visualDensity: VisualDensity.compact,
@@ -701,16 +681,16 @@ class _Header extends StatelessWidget {
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
                                     color: AssalColors.error,
-                                    borderRadius: BorderRadius.circular(
-                                        AssalRadius.pill),
+                                    borderRadius:
+                                        BorderRadius.circular(AssalRadius.pill),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 4, vertical: 1),
                                     child: Text(
                                       '$unread',
-                                      style: AssalTypography.caption.copyWith(
-                                          color: AssalColors.cream),
+                                      style: AssalTypography.caption
+                                          .copyWith(color: AssalColors.cream),
                                     ),
                                   ),
                                 ),
@@ -739,7 +719,8 @@ class _Header extends StatelessWidget {
                   : const <AssalBannerSummary>[
                       AssalBannerSummary(
                         id: 'demo-ticker-loading',
-                        titleAr: 'الثقة تبدأ من المصدر   •   سدر يمني من وديانه',
+                        titleAr:
+                            'الثقة تبدأ من المصدر   •   سدر يمني من وديانه',
                         descriptionAr: '',
                         ctaLabelAr: 'استكشف',
                         imageUrl: '',
@@ -764,8 +745,8 @@ class _Header extends StatelessWidget {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AssalColors.cream,
-                prefixIcon: const Icon(Icons.search,
-                    color: AssalColors.deepBrown),
+                prefixIcon:
+                    const Icon(Icons.search, color: AssalColors.deepBrown),
                 suffixIcon: const Icon(Icons.tune_rounded,
                     color: AssalColors.deepBrown),
                 hintText: 'ابحث عن سدر، سمر، شمع أو هدية',
@@ -815,9 +796,8 @@ class _HomeIntroTickerState extends State<_HomeIntroTicker>
         .map((item) => item.titleAr.trim())
         .where((item) => item.isNotEmpty)
         .join('   •   ');
-    final text = bannerText.isEmpty
-        ? _introText
-        : '$_introText   •   $bannerText';
+    final text =
+        bannerText.isEmpty ? _introText : '$_introText   •   $bannerText';
     final style = AssalTypography.bodySmall.copyWith(
       color: AssalColors.cream,
       fontWeight: FontWeight.w600,
@@ -921,7 +901,8 @@ class _BannersCarouselState extends State<_BannersCarousel> {
   int currentIndex = 0;
 
   List<AssalBannerSummary> get visibleBanners => widget.banners
-      .where((item) => item.imageUrl.trim().startsWith('http') ||
+      .where((item) =>
+          item.imageUrl.trim().startsWith('http') ||
           item.imageUrl.trim().startsWith('assets/'))
       .take(4)
       .toList(growable: false);
@@ -955,7 +936,8 @@ class _BannersCarouselState extends State<_BannersCarousel> {
       if (widget.useFallbackDemo) {
         return _HeroBanner(onExplore: widget.onExplore);
       }
-      return const SizedBox.shrink();
+      return _BannerEmptyState(
+          onExplore: widget.onExplore, onRetry: widget.onRetry);
     }
     return Column(children: [
       SizedBox(
@@ -964,8 +946,8 @@ class _BannersCarouselState extends State<_BannersCarousel> {
           controller: controller,
           itemCount: banners.length,
           onPageChanged: (index) => setState(() => currentIndex = index),
-          itemBuilder: (_, index) => _BannerCard(
-              item: banners[index], onExplore: widget.onExplore),
+          itemBuilder: (_, index) =>
+              _BannerCard(item: banners[index], onExplore: widget.onExplore),
         ),
       ),
       const SizedBox(height: AssalSpacing.sm),
@@ -1006,7 +988,8 @@ class _BannerCard extends StatelessWidget {
             fit: BoxFit.cover,
             loadingBuilder: (context, child, progress) => progress == null
                 ? child
-                : const AssalGlassLoading(height: 72, label: 'جارٍ تحميل الصورة...'),
+                : const AssalGlassLoading(
+                    height: 72, label: 'جارٍ تحميل الصورة...'),
             errorBuilder: (_, __, ___) => const _BannerImageFallback(),
           );
     return Material(
@@ -1030,8 +1013,7 @@ class _BannerCard extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: AssalColors.deepBrown.withValues(alpha: .72),
-                      borderRadius:
-                          BorderRadius.circular(AssalRadius.medium),
+                      borderRadius: BorderRadius.circular(AssalRadius.medium),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -1056,6 +1038,104 @@ class _BannerCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _BannerEmptyState extends StatelessWidget {
+  const _BannerEmptyState({required this.onExplore, required this.onRetry});
+  final VoidCallback onExplore;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: [
+          SizedBox(
+            height: 210,
+            width: double.infinity,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onExplore,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AssalColors.deepBrown, AssalColors.secondary],
+                    ),
+                    borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+                    border: Border.all(
+                      color: AssalColors.primaryLight.withValues(alpha: .35),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AssalSpacing.xl),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.image_outlined,
+                          size: 58,
+                          color: AssalColors.primaryLight,
+                        ),
+                        const SizedBox(width: AssalSpacing.lg),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'لا توجد بنرات منشورة بعد',
+                                style: AssalTypography.heading3.copyWith(
+                                  color: AssalColors.cream,
+                                ),
+                              ),
+                              const SizedBox(height: AssalSpacing.sm),
+                              Text(
+                                'سيظهر المحتوى هنا تلقائيًا عند نشره من لوحة الإدارة.',
+                                style: AssalTypography.bodySmall.copyWith(
+                                  color:
+                                      AssalColors.cream.withValues(alpha: .84),
+                                ),
+                              ),
+                              const SizedBox(height: AssalSpacing.md),
+                              Wrap(
+                                spacing: AssalSpacing.sm,
+                                children: [
+                                  OutlinedButton(
+                                    onPressed: onExplore,
+                                    child: const Text('استكشف المنتجات'),
+                                  ),
+                                  TextButton(
+                                    onPressed: onRetry,
+                                    child: const Text('تحديث'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 22,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AssalColors.primaryDark,
+                  borderRadius: BorderRadius.circular(AssalRadius.pill),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
 }
 
 class _BannerImageFallback extends StatelessWidget {
@@ -1274,7 +1354,6 @@ class CategoriesScreen extends StatelessWidget {
       ),
     );
   }
-
 }
 
 IconData _taxonomyIcon(String nameAr, [ProductType? type]) {
@@ -1401,12 +1480,13 @@ class _SearchScreenState extends State<SearchScreen> {
       .map((item) => item.nameAr)
       .firstWhere((name) => name.isNotEmpty, orElse: () => 'التصنيف المحدد');
 
-  String _regionLabel(String id) => locationReference?.governorateByCode(id)?.nameAr ??
+  String _regionLabel(String id) =>
+      locationReference?.governorateByCode(id)?.nameAr ??
       locationReference?.governorateByCode(id)?.nameAr ??
       'المحافظة المحددة';
 
-  String _provinceLabel(String id) => locationReference?.districtByCode(id)?.nameAr ??
-      'المديرية المحددة';
+  String _provinceLabel(String id) =>
+      locationReference?.districtByCode(id)?.nameAr ?? 'المديرية المحددة';
 
   void _search() {
     final query = AssalProductQuery(
@@ -1775,7 +1855,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _showFilters() async {
-    final reference = locationReference ?? await _loadLocationReference();
+    // The sheet must open immediately. Reference reads are local/refreshable and
+    // must not block the user's tap while production queries are in flight.
+    unawaited(_primeFilterLabels());
+    unawaited(_primeLocationReference());
+    final reference = locationReference;
     if (!mounted) return;
     var draftRegion = regionId ?? '';
     var draftProvince = provinceId ?? '';
@@ -1789,8 +1873,9 @@ class _SearchScreenState extends State<SearchScreen> {
     var draftPackaging = packaging ?? '';
     var draftAvailability = availability ?? '';
     final priceMin = dataMinPrice ?? 0;
+    final observedMaxPrice = dataMaxPrice ?? priceMin;
     final priceMax =
-        (dataMaxPrice ?? 1) > priceMin ? dataMaxPrice! : priceMin + 1;
+        observedMaxPrice > priceMin ? observedMaxPrice : priceMin + 1;
     final currentMinPrice =
         (minPrice ?? priceMin).clamp(priceMin, priceMax).toDouble();
     final currentMaxPrice =
@@ -1801,26 +1886,17 @@ class _SearchScreenState extends State<SearchScreen> {
     );
     var draftMinRatingValue =
         (minRating ?? 0).clamp(0, dataMaxRating).toDouble();
-    final categoryState = await widget.repository.listCategories();
-    final taxonomyState = await widget.repository.listTaxonomy();
-    if (!mounted) return;
-    if (categoryState is AssalData<List<AssalCategorySummary>>) {
-      filterCategories = categoryState.value;
-    }
-    if (taxonomyState is AssalData<List<AssalTaxonomy>>) {
-      filterTaxonomy = taxonomyState.value;
-    }
     final categoryItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل الأقسام')),
-      if (categoryState is AssalData<List<AssalCategorySummary>>)
-        ...categoryState.value.map(
-          (category) => DropdownMenuItem<String>(
-            value: category.id,
-            child: Text(category.nameAr),
-          ),
+      ...filterCategories.map(
+        (category) => DropdownMenuItem<String>(
+          value: category.id,
+          child: Text(category.nameAr),
         ),
+      ),
     ];
-    List<DropdownMenuItem<String>> subcategoryItemsFor(String selectedCategory) {
+    List<DropdownMenuItem<String>> subcategoryItemsFor(
+        String selectedCategory) {
       final taxonomies = filterTaxonomy.where((taxonomy) {
         final parentId = taxonomy.metadata['category_id'] ??
             taxonomy.metadata['parent_category_id'] ??
@@ -1842,6 +1918,7 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ];
     }
+
     if (!categoryItems.any((item) => item.value == draftCategory)) {
       draftCategory = '';
     }
@@ -1867,7 +1944,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final availabilityItems = _stringOptions(availabilityOptions);
     final regionItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل المحافظات')),
-          ...(reference?.governorates ?? const <AssalRegion>[]).map(
+      ...(reference?.governorates ?? const <AssalRegion>[]).map(
         (region) => DropdownMenuItem<String>(
           value: region.code ?? region.id,
           child: Text(region.nameAr),
@@ -1877,10 +1954,10 @@ class _SearchScreenState extends State<SearchScreen> {
     if (!regionItems.any((item) => item.value == draftRegion)) {
       draftRegion = '';
     }
-    final validDistricts = reference?.districtsFor(draftRegion) ??
-        const <AssalRegion>[];
-    if (!validDistricts.any((item) =>
-        (item.code ?? item.id) == draftProvince)) {
+    final validDistricts =
+        reference?.districtsFor(draftRegion) ?? const <AssalRegion>[];
+    if (!validDistricts
+        .any((item) => (item.code ?? item.id) == draftProvince)) {
       draftProvince = '';
     }
     final apply = await showModalBottomSheet<bool>(
@@ -1922,8 +1999,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 value: '', child: Text('كل المديريات')),
                             ...(reference?.districtsFor(draftRegion) ??
                                     const <AssalRegion>[])
-                                .map(
-                                (district) => DropdownMenuItem<String>(
+                                .map((district) => DropdownMenuItem<String>(
                                     value: district.code ?? district.id,
                                     child: Text(district.nameAr)))
                           ],
@@ -2071,19 +2147,6 @@ class _SearchScreenState extends State<SearchScreen> {
               )),
     );
     if (apply == true) _applySearch();
-  }
-
-  Future<YemenLocationReference?> _loadLocationReference() async {
-    try {
-      return await YemenLocationReference.load();
-    } on AssalReferenceDataFailure catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.messageAr)),
-        );
-      }
-      return null;
-    }
   }
 }
 

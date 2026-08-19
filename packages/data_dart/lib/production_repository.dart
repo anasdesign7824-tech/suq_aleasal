@@ -104,7 +104,9 @@ class ProductionRepository implements AssalRepository {
     final auth = _authGateway;
     if (auth == null) return AssalSession.guest;
     try {
-      return _sessionFromIdentity(await auth.currentIdentity());
+      // Hydrate the capability role from Production on every session read.
+      // Auth identity alone cannot tell whether the user was promoted by Admin.
+      return await _sessionForIdentity(await auth.currentIdentity());
     } on Object {
       return AssalSession.guest;
     }

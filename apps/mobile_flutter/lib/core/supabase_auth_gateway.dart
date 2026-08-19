@@ -33,6 +33,13 @@ class SupabaseAuthGateway implements AssalAuthGateway {
         shouldCreateUser: false,
       );
     } on AuthException catch (error) {
+      if (error.code == 'otp_disabled' ||
+          error.message.toLowerCase().contains('signups not allowed for otp')) {
+        throw const AssalAuthFailure(
+          'لا يوجد حساب بهذا البريد الإلكتروني. اختر «إنشاء حساب» أولًا.',
+          code: 'user_not_found',
+        );
+      }
       throw AssalAuthFailure(_messageFor(error),
           code: error.code ?? error.statusCode);
     }
@@ -194,6 +201,9 @@ class SupabaseAuthGateway implements AssalAuthGateway {
     }
     if (code == 'invalid_email' || code == 'email_address_invalid') {
       return 'أدخل بريدًا إلكترونيًا صالحًا.';
+    }
+    if (code == 'signup_disabled' || code == 'signup_disabled_for_otp') {
+      return 'إنشاء الحسابات الجديدة غير مفعّل حاليًا. استخدم حسابًا موجودًا أو فعّل التسجيل من إعدادات الخدمة.';
     }
     if (code == 'over_request_rate_limit' ||
         code == 'over_email_send_rate_limit' ||

@@ -69,6 +69,82 @@ export async function listStores(options: QueryOptions = {}) {
   return { items: result.data ?? [], page, pageSize, total: result.count ?? 0 };
 }
 
+export async function deleteStore(session: AdminSession, storeId: string) {
+  if (!hasPermission(session, "store.delete")) throw new Error("لا تملك صلاحية حذف المتجر.");
+  const service = createServiceSupabaseClient();
+  const existing = await service.from("stores").select("id, merchant_id, name_ar").eq("id", storeId).maybeSingle();
+  if (existing.error) throw existing.error;
+  if (!existing.data) throw new Error("المتجر غير موجود.");
+  await recordAudit(session, {
+    action: "store.delete.requested",
+    entityType: "stores",
+    entityId: storeId,
+    metadata: { merchantId: existing.data.merchant_id, nameAr: existing.data.name_ar },
+  });
+  const deleted = await service.from("stores").delete().eq("id", storeId);
+  if (deleted.error) throw deleted.error;
+  return { id: storeId, deleted: true };
+}
+
+export async function deleteProduct(session: AdminSession, productId: string) {
+  if (!hasPermission(session, "product.delete")) throw new Error("لا تملك صلاحية حذف المنتج.");
+  const service = createServiceSupabaseClient();
+  const existing = await service.from("products").select("id, store_id, name_ar").eq("id", productId).maybeSingle();
+  if (existing.error) throw existing.error;
+  if (!existing.data) throw new Error("المنتج غير موجود.");
+  await recordAudit(session, { action: "product.delete.requested", entityType: "products", entityId: productId, metadata: { storeId: existing.data.store_id, nameAr: existing.data.name_ar } });
+  const deleted = await service.from("products").delete().eq("id", productId);
+  if (deleted.error) throw deleted.error;
+  return { id: productId, deleted: true };
+}
+
+export async function deleteBanner(session: AdminSession, bannerId: string) {
+  if (!hasPermission(session, "banner.delete")) throw new Error("لا تملك صلاحية حذف البانر.");
+  const service = createServiceSupabaseClient();
+  const existing = await service.from("banners").select("id, title_ar, image_url").eq("id", bannerId).maybeSingle();
+  if (existing.error) throw existing.error;
+  if (!existing.data) throw new Error("البانر غير موجود.");
+  await recordAudit(session, { action: "banner.delete.requested", entityType: "banners", entityId: bannerId, metadata: { titleAr: existing.data.title_ar, imageUrl: existing.data.image_url } });
+  const deleted = await service.from("banners").delete().eq("id", bannerId);
+  if (deleted.error) throw deleted.error;
+  return { id: bannerId, deleted: true };
+}
+
+export async function deleteUser(session: AdminSession, userId: string) {
+  if (!hasPermission(session, "user.delete")) throw new Error("لا تملك صلاحية حذف المستخدم.");
+  if (userId === session.user.id) throw new Error("لا يمكن حذف الهوية الإدارية الحالية من داخل الجلسة.");
+  const service = createServiceSupabaseClient();
+  const membership = await service.from("admin_users").select("user_id").eq("user_id", userId).maybeSingle();
+  if (membership.error) throw membership.error;
+  if (membership.data) throw new Error("لا يُحذف مدير إداري من مسار حذف المستخدمين. عطّل العضوية من قسم المديرين أولًا.");
+  const existing = await service.from("users").select("id").eq("id", userId).maybeSingle();
+  if (existing.error) throw existing.error;
+  if (!existing.data) throw new Error("المستخدم غير موجود.");
+  await recordAudit(session, { action: "user.delete.requested", entityType: "users", entityId: userId, metadata: { cascade: true } });
+  const deleted = await service.auth.admin.deleteUser(userId);
+  if (deleted.error) throw deleted.error;
+  return { id: userId, deleted: true };
+}
+
+export async function uploadPublicImage(session: AdminSession, input: { contentType: string; base64: string; purpose?: string }) {
+  if (!hasPermission(session, "storage.public.write")) throw new Error("لا تملك صلاحية رفع الصور العامة.");
+  const contentType = input.contentType.trim().toLowerCase();
+  const supported = new Map([["image/jpeg", "jpg"], ["image/png", "png"], ["image/webp", "webp"], ["image/gif", "gif"]]);
+  const extension = supported.get(contentType);
+  if (!extension) throw new Error("نوع الصورة غير مدعوم. استخدم JPG أو PNG أو WEBP أو GIF.");
+  const encoded = input.base64.replace(/^data:[^;]+;base64,/, "");
+  const bytes = Buffer.from(encoded, "base64");
+  if (!bytes.length || bytes.length > 10 * 1024 * 1024) throw new Error("حجم الصورة يجب أن يكون بين 1 بايت و10 ميجابايت.");
+  const purpose = (input.purpose?.trim().replace(/[^a-z0-9_-]/gi, "-") || "admin").slice(0, 32);
+  const path = `${purpose}/${Date.now()}-${randomBytes(12).toString("hex")}.${extension}`;
+  const service = createServiceSupabaseClient();
+  const uploaded = await service.storage.from("assalkom_public").upload(path, bytes, { contentType, upsert: false });
+  if (uploaded.error) throw uploaded.error;
+  const publicUrl = service.storage.from("assalkom_public").getPublicUrl(path).data.publicUrl;
+  await recordAudit(session, { action: "storage.public_image.upload", entityType: "storage.objects", metadata: { bucket: "assalkom_public", path, contentType, bytes: bytes.length } });
+  return { bucket: "assalkom_public", path, publicUrl, contentType, bytes: bytes.length };
+}
+
 export async function listRequests(options: QueryOptions = {}) {
   const { page, pageSize, from, to } = pageOf(options);
   const service = createServiceSupabaseClient();
@@ -499,19 +575,38 @@ export async function listNotifications() {
   return result.data ?? [];
 }
 
-export async function sendNotification(session: AdminSession, input: { userId: string; titleAr: string; bodyAr?: string | null; notificationType?: string; payload?: Record<string, unknown> }) {
+export async function sendNotification(session: AdminSession, input: { userId?: string | null; broadcast?: boolean; titleAr: string; bodyAr?: string | null; notificationType?: string; imageUrl?: string | null; payload?: Record<string, unknown> }) {
   if (!hasPermission(session, "notification.write")) throw new Error("لا تملك صلاحية إرسال إشعار.");
+  const titleAr = requireText(input.titleAr, "عنوان الإشعار");
   const service = createServiceSupabaseClient();
-  const result = await service.from("notifications").insert({
-    user_id: requireText(input.userId, "المستخدم"),
-    title_ar: requireText(input.titleAr, "عنوان الإشعار"),
-    body_ar: input.bodyAr ?? null,
-    notification_type: input.notificationType ?? "admin_message",
-    payload: (input.payload ?? {}) as Json,
-  }).select("id, user_id, notification_type, title_ar, body_ar, payload, read_at, created_at").single();
-  if (result.error) throw result.error;
-  await recordAudit(session, { action: "notification.create", entityType: "notifications", entityId: result.data.id, metadata: { userId: input.userId } });
-  return result.data;
+  const usersResult = input.broadcast
+    ? await service.from("users").select("id").limit(10000)
+    : null;
+  if (usersResult?.error) throw usersResult.error;
+  const resolvedRecipients: Array<{ id: string }> = input.broadcast
+    ? ((usersResult?.data ?? []) as Array<{ id: string }>)
+    : [{ id: requireText(input.userId, "المستخدم") }];
+  if (!resolvedRecipients.length) throw new Error("لا يوجد مستخدمون مستهدفون في Production.");
+  const payload = {
+    ...(input.payload ?? {}),
+    ...(input.imageUrl?.trim() ? { image_url: input.imageUrl.trim() } : {}),
+  } as Json;
+  const rows = resolvedRecipients.map((recipient) => ({
+    user_id: recipient.id,
+    title_ar: titleAr,
+    body_ar: input.bodyAr?.trim() || null,
+    notification_type: input.notificationType ?? (input.broadcast ? "admin_broadcast" : "admin_message"),
+    payload,
+  }));
+  const inserted = await service.from("notifications").insert(rows).select("id, user_id, notification_type, title_ar, body_ar, payload, read_at, created_at");
+  if (inserted.error) throw inserted.error;
+  await recordAudit(session, {
+    action: input.broadcast ? "notification.broadcast" : "notification.create",
+    entityType: "notifications",
+    entityId: null,
+    metadata: { recipientCount: rows.length, userId: input.userId ?? null, imageUrl: input.imageUrl ?? null },
+  });
+  return { broadcast: input.broadcast === true, recipientCount: rows.length, items: inserted.data ?? [] };
 }
 
 export async function getOperationalAnalytics() {

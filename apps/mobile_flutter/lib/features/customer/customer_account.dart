@@ -82,10 +82,6 @@ class _AuthScreenState extends State<AuthScreen> {
           TextField(
               controller: passwordController,
               obscureText: true,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(
-                    RegExp(r'[A-Za-z0-9!@#\$%^&*()_+\-=[]{};:"\\|,.<>/?]')),
-              ],
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
                 labelText: 'كلمة المرور',
@@ -838,15 +834,29 @@ class NotificationsScreen extends StatelessWidget {
                   separatorBuilder: (_, __) => const Divider(),
                   itemBuilder: (_, index) {
                     final item = items[index];
+                    final imageUrl = item.payload['image_url'];
+                    final imageUrlString = imageUrl is String ? imageUrl.trim() : null;
+                    final hasImage = imageUrlString != null && imageUrlString.isNotEmpty;
                     return ListTile(
                       tileColor: item.readAt == null ? AssalColors.cream : null,
-                      leading: CircleAvatar(
-                          backgroundColor: AssalColors.honeyLight,
-                          child: Icon(
-                              item.readAt == null
-                                  ? Icons.notifications_active_outlined
-                                  : Icons.notifications_none,
-                              color: AssalColors.primaryDark)),
+                      leading: hasImage
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(AssalRadius.medium),
+                              child: Image.network(
+                                imageUrlString,
+                                width: 52,
+                                height: 52,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined),
+                              ),
+                            )
+                          : CircleAvatar(
+                              backgroundColor: AssalColors.honeyLight,
+                              child: Icon(
+                                  item.readAt == null
+                                      ? Icons.notifications_active_outlined
+                                      : Icons.notifications_none,
+                                  color: AssalColors.primaryDark)),
                       title: Text(item.titleAr,
                           style: item.readAt == null
                               ? const TextStyle(fontWeight: FontWeight.w700)

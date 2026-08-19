@@ -16,6 +16,11 @@ import {
   createAdminIdentity,
   createBanner,
   createProduct,
+  deleteBanner,
+  deleteProduct,
+  deleteStore,
+  deleteUser,
+  uploadPublicImage,
   getDashboardSnapshot,
   getOperationalAnalytics,
   listAdminUsers,
@@ -62,7 +67,8 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
   app.disable("x-powered-by");
-  app.use(express.json({ limit: "1mb" }));
+  // Base64 image upload is bounded by the public Storage bucket's 10 MB limit.
+  app.use(express.json({ limit: "15mb" }));
 
   app.get("/api/health", (_request, response) => {
     response.json({ ok: true, service: "assalkom-admin-local", source: "supabase-production" });
@@ -137,8 +143,19 @@ async function startServer() {
   app.get("/api/admin/users", requireAdmin("user.read"), async (_request, response) => {
     try { response.json({ items: await listUsers() }); } catch (error) { sendError(response, error); }
   });
+  app.delete("/api/admin/users/:id", requireAdmin("user.delete"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json({ item: await deleteUser(getRequestAdminSession(response), id) });
+    } catch (error) { sendError(response, error); }
+  });
   app.get("/api/admin/messages", requireAdmin("message.read"), async (_request, response) => {
     try { response.json({ items: await listMessages() }); } catch (error) { sendError(response, error); }
+  });
+  app.post("/api/admin/storage/public-image", requireAdmin("storage.public.write"), async (request, response) => {
+    try {
+      response.status(201).json({ item: await uploadPublicImage(getRequestAdminSession(response), request.body ?? {}) });
+    } catch (error) { sendError(response, error); }
   });
   app.get("/api/admin/notifications", requireAdmin("notification.write"), async (_request, response) => {
     try { response.json({ items: await listNotifications() }); } catch (error) { sendError(response, error); }
@@ -227,6 +244,12 @@ async function startServer() {
       sendError(response, error);
     }
   });
+  app.delete("/api/admin/products/:id", requireAdmin("product.delete"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json({ item: await deleteProduct(getRequestAdminSession(response), id) });
+    } catch (error) { sendError(response, error); }
+  });
   app.patch("/api/admin/products/:id", requireAdmin("product.write"), async (request, response) => {
     try {
       const session = getRequestAdminSession(response);
@@ -243,6 +266,12 @@ async function startServer() {
     } catch (error) {
       sendError(response, error);
     }
+  });
+  app.delete("/api/admin/banners/:id", requireAdmin("banner.delete"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json({ item: await deleteBanner(getRequestAdminSession(response), id) });
+    } catch (error) { sendError(response, error); }
   });
   app.patch("/api/admin/banners/:id", requireAdmin("banner.write"), async (request, response) => {
     try {
@@ -276,6 +305,12 @@ async function startServer() {
     }
   });
 
+  app.delete("/api/admin/stores/:id", requireAdmin("store.delete"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json({ item: await deleteStore(getRequestAdminSession(response), id) });
+    } catch (error) { sendError(response, error); }
+  });
   app.post("/api/admin/stores/:id/:action", requireAdmin(), async (request, response) => {
     try {
       const action = Array.isArray(request.params.action) ? request.params.action[0] : request.params.action;
