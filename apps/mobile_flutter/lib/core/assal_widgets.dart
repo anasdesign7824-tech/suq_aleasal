@@ -501,7 +501,7 @@ class ProductCard extends StatelessWidget {
                             Icon(Icons.verified,
                                 size: 14, color: AssalColors.cream),
                             SizedBox(width: AssalSpacing.xs),
-                            Text('موثق',
+                            Text('موثق Pro',
                                 style: TextStyle(color: AssalColors.cream)),
                           ],
                         ),
@@ -595,8 +595,11 @@ class StoreCard extends StatelessWidget {
                                   style: AssalTypography.title
                                       .copyWith(color: AssalColors.deepBrown))),
                           if (store.isVerified)
-                            const Icon(Icons.verified,
-                                color: AssalColors.primaryDark, size: 18)
+                            const Tooltip(
+                              message: 'متجر موثق Pro',
+                              child: Icon(Icons.verified,
+                                  color: AssalColors.primaryDark, size: 18),
+                            )
                         ]),
                         const SizedBox(height: AssalSpacing.xs),
                         Text(store.regionNameAr ?? 'منصة عسلكم',

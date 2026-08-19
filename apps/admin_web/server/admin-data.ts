@@ -305,6 +305,97 @@ export async function moderateStore(
   return payload.store ?? result.data;
 }
 
+export type StoreVerificationReviewAction =
+  | 'approve'
+  | 'reject'
+  | 'needs_more_info'
+  | 'revoke';
+
+export async function listStoreVerificationRequests(options: QueryOptions = {}) {
+  if (!options) throw new Error('خيارات القراءة غير صالحة.');
+  const { page, pageSize, from, to } = pageOf(options);
+  const service = createServiceSupabaseClient();
+  let query = service
+    .from('store_verification_requests')
+    .select('id, store_id, merchant_id, plan_code, origin, status, payment_status, payment_reference, submitted_at, reviewed_at, reviewed_by, review_note, expires_at, created_at, updated_at', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, to);
+  if (options.search?.trim()) query = query.ilike('store_id', `%${options.search.trim()}%`);
+  const result = await query;
+  if (result.error) throw result.error;
+  const requests = result.data ?? [];
+  const storeIds = Array.from(new Set(requests.map((item) => item.store_id)));
+  const merchantIds = Array.from(new Set(requests.map((item) => item.merchant_id)));
+  const [stores, profiles, documents] = await Promise.all([
+    storeIds.length ? service.from('stores').select('id, merchant_id, name_ar, status, logo_url, cover_url').in('id', storeIds) : Promise.resolve({ data: [], error: null }),
+    merchantIds.length ? service.from('profiles').select('user_id, display_name, phone, avatar_url').in('user_id', merchantIds) : Promise.resolve({ data: [], error: null }),
+    requests.length ? service.from('store_verification_documents').select('id, request_id, document_type, file_name, mime_type, byte_size, review_status, review_note, file_path, created_at').in('request_id', requests.map((item) => item.id)).order('created_at', { ascending: true }) : Promise.resolve({ data: [], error: null }),
+  ]);
+  for (const result of [stores, profiles, documents]) if (result.error) throw result.error;
+  const storesById = new Map((stores.data ?? []).map((item) => [item.id, item]));
+  const profilesById = new Map((profiles.data ?? []).map((item) => [item.user_id, item]));
+  const docsByRequest = new Map<string, Array<Record<string, unknown>>>();
+  for (const document of documents.data ?? []) {
+    const list = docsByRequest.get(document.request_id) ?? [];
+    list.push(document);
+    docsByRequest.set(document.request_id, list);
+  }
+  return {
+    items: requests.map((request) => ({
+      ...request,
+      store: storesById.get(request.store_id) ?? null,
+      merchant: profilesById.get(request.merchant_id) ?? null,
+      documents: docsByRequest.get(request.id) ?? [],
+    })),
+    page,
+    pageSize,
+    total: result.count ?? 0,
+  };
+}
+
+export async function getStoreVerificationRequest(session: AdminSession, requestId: string) {
+  if (!hasPermission(session, 'verification.read_sensitive')) throw new Error('لا تملك صلاحية قراءة مستندات التوثيق.');
+  const service = createServiceSupabaseClient();
+  const request = await service.from('store_verification_requests').select('*').eq('id', requestId).maybeSingle();
+  if (request.error) throw request.error;
+  if (!request.data) throw new Error('طلب التوثيق غير موجود.');
+  const documents = await service.from('store_verification_documents').select('id, request_id, store_id, merchant_id, document_type, file_path, file_name, mime_type, byte_size, review_status, review_note, created_at, updated_at').eq('request_id', requestId).order('created_at', { ascending: true });
+  if (documents.error) throw documents.error;
+  const signedDocuments = await Promise.all((documents.data ?? []).map(async (document) => {
+    const signed = await service.storage.from('assalkom_private').createSignedUrl(document.file_path, 600);
+    if (signed.error) throw signed.error;
+    return { ...document, signed_url: signed.data.signedUrl };
+  }));
+  return { request: request.data, documents: signedDocuments };
+}
+
+export async function reviewStoreVerification(
+  session: AdminSession,
+  requestId: string,
+  action: StoreVerificationReviewAction,
+  reviewNote?: string,
+  expiresAt?: string | null,
+) {
+  const permission = action === 'approve' ? 'verification.approve' : action === 'reject' ? 'verification.reject' : 'verification.review';
+  if (!hasPermission(session, permission)) throw new Error('لا تملك صلاحية مراجعة توثيق المتجر.');
+  const service = createServiceSupabaseClient();
+  const result = await service.rpc('admin_review_store_verification', {
+    p_request_id: requestId,
+    p_action: action,
+    ...(reviewNote?.trim() ? { p_review_note: reviewNote.trim() } : {}),
+    p_reviewer_id: session.user.id,
+    ...(expiresAt ? { p_expires_at: expiresAt } : {}),
+  });
+  if (result.error) throw result.error;
+  await recordAudit(session, {
+    action: `store_verification.${action}`,
+    entityType: 'store_verification_requests',
+    entityId: requestId,
+    metadata: { reviewNote: reviewNote?.trim() || null, expiresAt: expiresAt ?? null },
+  });
+  return result.data;
+}
+
 export type ProductWriteInput = {
   storeId: string;
   taxonomyId?: string | null;

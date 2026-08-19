@@ -10,11 +10,79 @@ enum StoreStatus { pending, active, paused, rejected, suspended }
 
 enum VerificationStatus { pending, verified, rejected, suspended }
 
+enum StoreVerificationStatus {
+  notRequested,
+  draft,
+  paymentPending,
+  submitted,
+  underReview,
+  needsMoreInfo,
+  approved,
+  rejected,
+  expired,
+  revoked,
+}
+
+enum VerificationPaymentStatus {
+  notStarted,
+  pending,
+  paid,
+  failed,
+  refunded,
+  waived,
+}
+
+enum VerificationDocumentType {
+  identity,
+  businessRegistration,
+  taxOrLicense,
+  originCertificate,
+  qualityCertificate,
+  addressProof,
+  other,
+}
+
 enum ReviewStatus { pending, approved, rejected, hidden }
 
 enum RequestStatus { open, inProgress, answered, closed, cancelled }
 
 enum HandoffOption { pickup, delivery, office, courier, contact }
+
+extension StoreStatusLabel on StoreStatus {
+  String get labelAr => switch (this) {
+        StoreStatus.pending => 'قيد التفعيل',
+        StoreStatus.active => 'مفعّل',
+        StoreStatus.paused => 'متوقف مؤقتًا',
+        StoreStatus.rejected => 'مرفوض',
+        StoreStatus.suspended => 'معلّق',
+      };
+}
+
+extension StoreVerificationStatusLabel on StoreVerificationStatus {
+  String get labelAr => switch (this) {
+        StoreVerificationStatus.notRequested => 'لم يُطلب التوثيق',
+        StoreVerificationStatus.draft => 'مسودة توثيق',
+        StoreVerificationStatus.paymentPending => 'بانتظار الرسوم',
+        StoreVerificationStatus.submitted => 'أُرسل للمراجعة',
+        StoreVerificationStatus.underReview => 'قيد المراجعة',
+        StoreVerificationStatus.needsMoreInfo => 'تحتاج معلومات إضافية',
+        StoreVerificationStatus.approved => 'موثق Pro',
+        StoreVerificationStatus.rejected => 'لم يُعتمد التوثيق',
+        StoreVerificationStatus.expired => 'انتهى التوثيق',
+        StoreVerificationStatus.revoked => 'سُحب التوثيق',
+      };
+}
+
+extension VerificationPaymentStatusLabel on VerificationPaymentStatus {
+  String get labelAr => switch (this) {
+        VerificationPaymentStatus.notStarted => 'لم تبدأ الرسوم',
+        VerificationPaymentStatus.pending => 'بانتظار تأكيد الدفع',
+        VerificationPaymentStatus.paid => 'تم الدفع',
+        VerificationPaymentStatus.failed => 'فشل الدفع',
+        VerificationPaymentStatus.refunded => 'تم رد الرسوم',
+        VerificationPaymentStatus.waived => 'معفى من الرسوم',
+      };
+}
 
 extension RequestStatusWire on RequestStatus {
   String get wireValue => switch (this) {
@@ -153,6 +221,84 @@ class AssalCategorySummary {
             _productType(_string(json['category_kind'], fallback: 'honey')),
         productCount: _int(json['product_count']),
       );
+}
+
+class AssalStoreVerificationSummary {
+  const AssalStoreVerificationSummary({
+    required this.id,
+    required this.storeId,
+    required this.merchantId,
+    required this.status,
+    required this.paymentStatus,
+    this.planCode = 'pro',
+    this.reviewNote,
+    this.submittedAt,
+    this.reviewedAt,
+    this.expiresAt,
+    this.documentCount = 0,
+    this.documentTypes = const <String>[],
+  });
+
+  final String id;
+  final String storeId;
+  final String merchantId;
+  final StoreVerificationStatus status;
+  final VerificationPaymentStatus paymentStatus;
+  final String planCode;
+  final String? reviewNote;
+  final DateTime? submittedAt;
+  final DateTime? reviewedAt;
+  final DateTime? expiresAt;
+  final int documentCount;
+  final List<String> documentTypes;
+
+  factory AssalStoreVerificationSummary.fromJson(Map<String, Object?> json) =>
+      AssalStoreVerificationSummary(
+        id: _string(json['id']),
+        storeId: _string(json['store_id']),
+        merchantId: _string(json['merchant_id']),
+        status: _storeVerificationStatus(
+          _string(json['status'], fallback: 'not_requested'),
+        ),
+        paymentStatus: _verificationPaymentStatus(
+          _string(json['payment_status'], fallback: 'not_started'),
+        ),
+        planCode: _string(json['plan_code'], fallback: 'pro'),
+        reviewNote: _stringOrNull(json['review_note']),
+        submittedAt: _dateOrNull(json['submitted_at']),
+        reviewedAt: _dateOrNull(json['reviewed_at']),
+        expiresAt: _dateOrNull(json['expires_at']),
+        documentCount: _int(json['document_count']),
+        documentTypes: _strings(json['document_types']),
+      );
+}
+
+class AssalVerificationDocumentDraft {
+  const AssalVerificationDocumentDraft({
+    required this.documentType,
+    required this.filePath,
+    required this.fileName,
+    required this.mimeType,
+    required this.byteSize,
+  });
+
+  final VerificationDocumentType documentType;
+  final String filePath;
+  final String fileName;
+  final String mimeType;
+  final int byteSize;
+}
+
+class AssalStoreVerificationDraft {
+  const AssalStoreVerificationDraft({
+    required this.storeId,
+    this.planCode = 'pro',
+    this.paymentStatus = VerificationPaymentStatus.notStarted,
+  });
+
+  final String storeId;
+  final String planCode;
+  final VerificationPaymentStatus paymentStatus;
 }
 
 class AssalStoreSummary {
@@ -975,6 +1121,26 @@ ProductStatus _productStatus(String value) =>
 StoreStatus _storeStatus(String value) =>
     StoreStatus.values.firstWhere((item) => item.name == value,
         orElse: () => StoreStatus.pending);
+StoreVerificationStatus _storeVerificationStatus(String value) => switch (value) {
+      'draft' => StoreVerificationStatus.draft,
+      'payment_pending' => StoreVerificationStatus.paymentPending,
+      'submitted' => StoreVerificationStatus.submitted,
+      'under_review' => StoreVerificationStatus.underReview,
+      'needs_more_info' => StoreVerificationStatus.needsMoreInfo,
+      'approved' => StoreVerificationStatus.approved,
+      'rejected' => StoreVerificationStatus.rejected,
+      'expired' => StoreVerificationStatus.expired,
+      'revoked' => StoreVerificationStatus.revoked,
+      _ => StoreVerificationStatus.notRequested,
+    };
+VerificationPaymentStatus _verificationPaymentStatus(String value) => switch (value) {
+      'pending' => VerificationPaymentStatus.pending,
+      'paid' => VerificationPaymentStatus.paid,
+      'failed' => VerificationPaymentStatus.failed,
+      'refunded' => VerificationPaymentStatus.refunded,
+      'waived' => VerificationPaymentStatus.waived,
+      _ => VerificationPaymentStatus.notStarted,
+    };
 ReviewStatus _reviewStatus(String value) =>
     ReviewStatus.values.firstWhere((item) => item.name == value,
         orElse: () => ReviewStatus.approved);

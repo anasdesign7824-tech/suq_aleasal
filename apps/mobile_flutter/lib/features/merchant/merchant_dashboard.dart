@@ -6,6 +6,7 @@ import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'merchant_product_editor.dart';
+import 'store_verification_screen.dart';
 
 class MerchantDashboard extends StatefulWidget {
   const MerchantDashboard({super.key, required this.repository});
@@ -244,24 +245,40 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               'ستستخدم المعاينة نفس مكونات عرض العميل. الإعداد هنا لا ينشر البيانات قبل التفعيل.',
         ),
         const SizedBox(height: AssalSpacing.md),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () async {
-              await Navigator.of(context).push(
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => MerchantStoreEditorScreen(
+                      repository: widget.repository,
+                      workspace: workspace,
+                    ),
+                  ),
+                );
+                if (mounted) setState(_refresh);
+              },
+              icon: const Icon(Icons.edit_outlined),
+              label: const Text('تعديل بيانات المتجر والصور'),
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => MerchantStoreEditorScreen(
+                  builder: (_) => StoreVerificationScreen(
                     repository: widget.repository,
-                    workspace: workspace,
+                    storeId: store.id,
                   ),
                 ),
-              );
-              if (mounted) setState(_refresh);
-            },
-            icon: const Icon(Icons.edit_outlined),
-            label: const Text('تعديل بيانات المتجر والصور'),
+              ),
+              icon: const Icon(Icons.verified_user_outlined),
+              label: const Text('طلب أو متابعة توثيق Pro'),
+            ),
           ),
-        ),
       ],
     );
   }

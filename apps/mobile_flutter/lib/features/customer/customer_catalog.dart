@@ -620,14 +620,30 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (store.isVerified)
-                const Icon(Icons.verified,
-                    size: 18, color: AssalColors.primaryDark),
+              Icon(
+                store.isVerified
+                    ? Icons.verified
+                    : store.status == StoreStatus.active
+                        ? Icons.storefront_outlined
+                        : Icons.hourglass_empty_outlined,
+                size: 18,
+                color: store.isVerified
+                    ? AssalColors.primaryDark
+                    : AssalColors.textSecondary,
+              ),
               const SizedBox(width: 4),
               Text(
-                store.isVerified ? 'متجر موثق' : 'متجر في طور التعريف',
-                style: AssalTypography.body
-                    .copyWith(color: AssalColors.textSecondary),
+                store.isVerified
+                    ? 'موثق Pro'
+                    : store.status == StoreStatus.active
+                        ? 'متجر مفعّل'
+                        : 'المتجر قيد التفعيل',
+                style: AssalTypography.body.copyWith(
+                  color: store.isVerified
+                      ? AssalColors.primaryDark
+                      : AssalColors.textSecondary,
+                  fontWeight: store.isVerified ? FontWeight.w700 : null,
+                ),
               ),
             ],
           ),
@@ -1029,8 +1045,18 @@ class _RequestSheetState extends State<RequestSheet> {
       return;
     }
     setState(() => saving = true);
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) {
+        setState(() => saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('سجّل الدخول أولًا لإرسال الطلب.')),
+        );
+      }
+      return;
+    }
     final result = await widget.repository.createRequest(
-        'demo-customer',
+        session.user!.id,
         AssalRequestDraft(
             storeId: widget.store.id,
             productId: widget.product.id,

@@ -35,8 +35,11 @@ import {
   listRegions,
   listRequests,
   listStores,
+  listStoreVerificationRequests,
+  getStoreVerificationRequest,
   listTaxonomy,
   moderateStore,
+  reviewStoreVerification,
   reviewMerchantApplication,
   sendNotification,
   updateAdminMembership,
@@ -204,6 +207,37 @@ async function startServer() {
   listRoute("/api/admin/stores", "store.read", listStores);
   listRoute("/api/admin/requests", "request.read", listRequests);
   listRoute("/api/admin/merchant-applications", "merchant.review", listMerchantApplications);
+  listRoute("/api/admin/store-verification-requests", "verification.read", listStoreVerificationRequests);
+
+  app.get("/api/admin/store-verification-requests/:id", requireAdmin("verification.read_sensitive"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json(await getStoreVerificationRequest(getRequestAdminSession(response), id));
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+
+  app.patch("/api/admin/store-verification-requests/:id", requireAdmin(), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      const action = request.body?.action;
+      if (!["approve", "reject", "needs_more_info", "revoke"].includes(action)) {
+        response.status(400).json({ error: "invalid_verification_action", messageAr: "إجراء التوثيق غير صالح." });
+        return;
+      }
+      const result = await reviewStoreVerification(
+        getRequestAdminSession(response),
+        id,
+        action as "approve" | "reject" | "needs_more_info" | "revoke",
+        typeof request.body?.reviewNote === "string" ? request.body.reviewNote : undefined,
+        typeof request.body?.expiresAt === "string" ? request.body.expiresAt : null,
+      );
+      response.json({ item: result });
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
 
   app.patch("/api/admin/merchant-applications/:id", requireAdmin("merchant.review"), async (request, response) => {
     try {

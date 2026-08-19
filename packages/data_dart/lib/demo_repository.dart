@@ -42,6 +42,7 @@ class DemoRepository implements AssalRepository {
   final List<AssalProductSummary> _merchantProducts = <AssalProductSummary>[];
   AssalMerchantWorkspaceSummary? _merchantWorkspace;
   AssalMerchantApplicationSummary? _merchantApplication;
+  AssalStoreVerificationSummary? _demoVerification;
   final Map<String, AssalMerchantApplicationDraft> _merchantDrafts =
       <String, AssalMerchantApplicationDraft>{};
   String? _demoOtpEmail;
@@ -1210,6 +1211,97 @@ class DemoRepository implements AssalRepository {
     String extension,
   ) async =>
       AssalData('demo://product/$productId/image-${bytes.length}.$extension');
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary?>> loadStoreVerification(
+    String userId,
+    String storeId,
+  ) async =>
+      AssalData(_demoVerification);
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      createStoreVerificationRequest(
+    String userId,
+    AssalStoreVerificationDraft draft,
+  ) async {
+    _demoVerification ??= AssalStoreVerificationSummary(
+      id: 'demo-verification-${draft.storeId}',
+      storeId: draft.storeId,
+      merchantId: userId,
+      status: StoreVerificationStatus.draft,
+      paymentStatus: draft.paymentStatus,
+    );
+    return AssalData(_demoVerification!);
+  }
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitStoreVerification(String userId, String requestId) async {
+    final current = _demoVerification;
+    if (current == null || current.id != requestId) {
+      return const AssalError(
+        'لم يُنشأ طلب توثيق بعد.',
+        code: 'verification_request_not_found',
+      );
+    }
+    if (current.paymentStatus != VerificationPaymentStatus.paid &&
+        current.paymentStatus != VerificationPaymentStatus.waived) {
+      return const AssalError(
+        'يلزم إكمال رسوم التوثيق قبل الإرسال.',
+        code: 'verification_payment_required',
+      );
+    }
+    _demoVerification = AssalStoreVerificationSummary(
+      id: current.id,
+      storeId: current.storeId,
+      merchantId: current.merchantId,
+      status: StoreVerificationStatus.submitted,
+      paymentStatus: current.paymentStatus,
+      planCode: current.planCode,
+      documentCount: current.documentCount,
+    );
+    return AssalData(_demoVerification!);
+  }
+
+  @override
+  Future<AssalLoadState<String>> uploadVerificationDocument(
+    String userId,
+    String requestId,
+    Uint8List bytes,
+    String extension,
+  ) async =>
+      AssalData('demo://private/verification/$requestId/${bytes.length}.$extension');
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      addVerificationDocument(
+    String userId,
+    String requestId,
+    AssalVerificationDocumentDraft draft,
+  ) async {
+    final current = _demoVerification;
+    if (current == null || current.id != requestId) {
+      return const AssalError(
+        'لم يُنشأ طلب توثيق بعد.',
+        code: 'verification_request_not_found',
+      );
+    }
+    _demoVerification = AssalStoreVerificationSummary(
+      id: current.id,
+      storeId: current.storeId,
+      merchantId: current.merchantId,
+      status: current.status,
+      paymentStatus: current.paymentStatus,
+      planCode: current.planCode,
+      reviewNote: current.reviewNote,
+      submittedAt: current.submittedAt,
+      reviewedAt: current.reviewedAt,
+      expiresAt: current.expiresAt,
+      documentCount: current.documentCount + 1,
+    );
+    return AssalData(_demoVerification!);
+  }
 
   @override
   Future<AssalLoadState<void>> signOut() async {

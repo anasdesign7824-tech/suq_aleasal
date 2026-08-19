@@ -1249,14 +1249,21 @@ class ProductionRepository implements AssalRepository {
               await _gateway.select('stores', filters: {'merchant_id': userId});
           if (stores.isEmpty) return null;
           final store = AssalStoreSummary.fromJson(stores.first);
-          final verified = stores.first['is_verified'] == true;
           final status = '${stores.first['status'] ?? 'pending'}';
+          final badges = await _gateway.select(
+            'store_badges',
+            filters: {'store_id': store.id},
+          );
+          final proVerified = badges.any((row) =>
+              row['status'] == 'active' &&
+              (row['expires_at'] == null ||
+                  DateTime.tryParse('${row['expires_at']}')?.isAfter(DateTime.now().toUtc()) == true));
           return AssalMerchantWorkspaceSummary(
             store: store,
-            verificationStatus: verified ? 'verified' : 'pending',
+            verificationStatus: proVerified ? 'verified' : 'pending',
             publicStatus: status,
             canEdit: true,
-            canPublish: verified && status == 'active',
+            canPublish: status == 'active',
           );
         },
       );
@@ -1603,6 +1610,193 @@ class ProductionRepository implements AssalRepository {
           return url;
         },
       );
+
+  String _verificationPaymentWire(VerificationPaymentStatus value) => switch (value) {
+        VerificationPaymentStatus.notStarted => 'not_started',
+        VerificationPaymentStatus.pending => 'pending',
+        VerificationPaymentStatus.paid => 'paid',
+        VerificationPaymentStatus.failed => 'failed',
+        VerificationPaymentStatus.refunded => 'refunded',
+        VerificationPaymentStatus.waived => 'waived',
+      };
+
+  String _verificationDocumentWire(VerificationDocumentType value) => switch (value) {
+        VerificationDocumentType.identity => 'identity',
+        VerificationDocumentType.businessRegistration => 'business_registration',
+        VerificationDocumentType.taxOrLicense => 'tax_or_license',
+        VerificationDocumentType.originCertificate => 'origin_certificate',
+        VerificationDocumentType.qualityCertificate => 'quality_certificate',
+        VerificationDocumentType.addressProof => 'address_proof',
+        VerificationDocumentType.other => 'other',
+      };
+
+  Future<AssalStoreVerificationSummary> _verificationSummary(
+    Map<String, Object?> row,
+  ) async {
+    final value = Map<String, Object?>.from(row);
+    final documents = await _gateway.select(
+      'store_verification_documents',
+      filters: {'request_id': row['id']},
+    );
+    value['document_count'] = documents.length;
+    value['document_types'] = documents
+        .map((row) => row['document_type'])
+        .whereType<String>()
+        .toList(growable: false);
+    return AssalStoreVerificationSummary.fromJson(value);
+  }
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary?>> loadStoreVerification(
+    String userId,
+    String storeId,
+  ) =>
+      _write(
+        resource: 'store_verification.read',
+        write: () async {
+          final rows = await _gateway.select(
+            'store_verification_requests',
+            filters: {'merchant_id': userId, 'store_id': storeId},
+          );
+          if (rows.isEmpty) return null;
+          final sorted = [...rows]
+            ..sort((a, b) => '${b['created_at']}'.compareTo('${a['created_at']}'));
+          return _verificationSummary(sorted.first);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      createStoreVerificationRequest(
+    String userId,
+    AssalStoreVerificationDraft draft,
+  ) =>
+          _write(
+            resource: 'store_verification.create',
+            write: () async {
+              final stores = await _gateway.select(
+                'stores',
+                filters: {'id': draft.storeId, 'merchant_id': userId},
+              );
+              if (stores.isEmpty) throw StateError('merchant_store_not_owned');
+              final existing = await _gateway.select(
+                'store_verification_requests',
+                filters: {'store_id': draft.storeId, 'merchant_id': userId},
+              );
+              final open = existing.where((row) {
+                const openStatuses = {
+                  'draft',
+                  'payment_pending',
+                  'submitted',
+                  'under_review',
+                  'needs_more_info',
+                  'approved',
+                };
+                return openStatuses.contains(row['status']);
+              }).toList(growable: false);
+              if (open.isNotEmpty) return _verificationSummary(open.first);
+              final row = await _gateway.insert('store_verification_requests', {
+                'store_id': draft.storeId,
+                'merchant_id': userId,
+                'plan_code': draft.planCode,
+                'status': 'draft',
+                'payment_status': _verificationPaymentWire(draft.paymentStatus),
+              });
+              return _verificationSummary(row);
+            },
+          );
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitStoreVerification(String userId, String requestId) =>
+          _write(
+            resource: 'store_verification.submit',
+            write: () async {
+              final rows = await _gateway.select(
+                'store_verification_requests',
+                filters: {'id': requestId, 'merchant_id': userId},
+              );
+              if (rows.isEmpty) throw StateError('verification_request_not_found');
+              final current = rows.first;
+              final paymentStatus = '${current['payment_status'] ?? 'not_started'}';
+              if (paymentStatus != 'paid' && paymentStatus != 'waived') {
+                throw StateError('verification_payment_required');
+              }
+              final updated = await _gateway.update(
+                'store_verification_requests',
+                {
+                  'status': 'submitted',
+                  'submitted_at': DateTime.now().toUtc().toIso8601String(),
+                  'updated_at': DateTime.now().toUtc().toIso8601String(),
+                },
+                id: requestId,
+              );
+              await _gateway.insert('store_verification_events', {
+                'request_id': requestId,
+                'actor_user_id': userId,
+                'from_status': current['status'],
+                'to_status': 'submitted',
+                'note': 'تم إرسال طلب توثيق Pro للمراجعة.',
+              });
+              return _verificationSummary(updated);
+            },
+          );
+
+  @override
+  Future<AssalLoadState<String>> uploadVerificationDocument(
+    String userId,
+    String requestId,
+    Uint8List bytes,
+    String extension,
+  ) =>
+      _write(
+        resource: 'store_verification_document.upload',
+        write: () async {
+          final requests = await _gateway.select(
+            'store_verification_requests',
+            filters: {'id': requestId, 'merchant_id': userId},
+          );
+          if (requests.isEmpty) throw StateError('verification_request_not_found');
+          final safeExtension = switch (extension.toLowerCase()) {
+            'png' => 'png',
+            'webp' => 'webp',
+            'pdf' => 'pdf',
+            _ => 'jpg',
+          };
+          final path =
+              '$userId/verification/$requestId/document-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+          return _gateway.uploadPrivateImage(path, bytes, safeExtension);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      addVerificationDocument(
+    String userId,
+    String requestId,
+    AssalVerificationDocumentDraft draft,
+  ) =>
+          _write(
+            resource: 'store_verification_document.create',
+            write: () async {
+              final requests = await _gateway.select(
+                'store_verification_requests',
+                filters: {'id': requestId, 'merchant_id': userId},
+              );
+              if (requests.isEmpty) throw StateError('verification_request_not_found');
+              await _gateway.insert('store_verification_documents', {
+                'request_id': requestId,
+                'store_id': requests.first['store_id'],
+                'merchant_id': userId,
+                'document_type': _verificationDocumentWire(draft.documentType),
+                'file_path': draft.filePath,
+                'file_name': draft.fileName,
+                'mime_type': draft.mimeType,
+                'byte_size': draft.byteSize,
+              });
+              return _verificationSummary(requests.first);
+            },
+          );
 
   @override
   Future<AssalLoadState<void>> signOut() async {

@@ -172,6 +172,29 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
   }
 
   @override
+  Future<String> uploadPrivateImage(
+    String path,
+    Uint8List bytes,
+    String extension,
+  ) async {
+    final contentType = switch (extension.toLowerCase()) {
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      'pdf' => 'application/pdf',
+      _ => 'image/jpeg',
+    };
+    await client.storage
+        .from('assalkom_private')
+        .uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(contentType: contentType, upsert: true),
+        )
+        .timeout(requestTimeout);
+    return path;
+  }
+
+  @override
   Future<Map<String, Object?>> upsert(
     String table,
     Map<String, Object?> values, {

@@ -260,6 +260,27 @@ abstract interface class AssalRepository {
     Uint8List bytes,
     String extension,
   );
+  Future<AssalLoadState<AssalStoreVerificationSummary?>>
+      loadStoreVerification(String userId, String storeId);
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      createStoreVerificationRequest(
+    String userId,
+    AssalStoreVerificationDraft draft,
+  );
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitStoreVerification(String userId, String requestId);
+  Future<AssalLoadState<String>> uploadVerificationDocument(
+    String userId,
+    String requestId,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      addVerificationDocument(
+    String userId,
+    String requestId,
+    AssalVerificationDocumentDraft draft,
+  );
   Future<AssalLoadState<void>> signOut();
 }
 
@@ -295,6 +316,11 @@ abstract interface class ProductionQueryGateway {
     Map<String, Object?> params,
   );
   Future<String> uploadPublicImage(
+    String path,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<String> uploadPrivateImage(
     String path,
     Uint8List bytes,
     String extension,

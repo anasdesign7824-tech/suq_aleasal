@@ -1803,6 +1803,186 @@ export type Database = {
           },
         ]
       }
+      store_badges: {
+        Row: {
+          badge_code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          label_ar: string
+          request_id: string
+          revoked_at: string | null
+          revoked_reason: string | null
+          issued_at: string
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          badge_code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label_ar?: string
+          request_id: string
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          issued_at?: string
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          badge_code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label_ar?: string
+          request_id?: string
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          issued_at?: string
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      store_verification_documents: {
+        Row: {
+          byte_size: number
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          id: string
+          merchant_id: string
+          mime_type: string
+          request_id: string
+          review_note: string | null
+          review_status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          byte_size: number
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          id?: string
+          merchant_id: string
+          mime_type: string
+          request_id: string
+          review_note?: string | null
+          review_status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          byte_size?: number
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          merchant_id?: string
+          mime_type?: string
+          request_id?: string
+          review_note?: string | null
+          review_status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      store_verification_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          metadata: Json
+          note: string | null
+          request_id: string
+          to_status: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          metadata?: Json
+          note?: string | null
+          request_id: string
+          to_status: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          metadata?: Json
+          note?: string | null
+          request_id?: string
+          to_status?: string
+        }
+        Relationships: []
+      }
+      store_verification_requests: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          merchant_id: string
+          origin: string
+          payment_reference: string | null
+          payment_status: string
+          plan_code: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          store_id: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          merchant_id: string
+          origin?: string
+          payment_reference?: string | null
+          payment_status?: string
+          plan_code?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_id: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          merchant_id?: string
+          origin?: string
+          payment_reference?: string | null
+          payment_status?: string
+          plan_code?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_id?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       store_followers: {
         Row: {
           created_at: string
@@ -2209,6 +2389,16 @@ export type Database = {
           p_review_note?: string
           p_reviewer_id?: string
           p_status: string
+        }
+        Returns: Json
+      }
+      admin_review_store_verification: {
+        Args: {
+          p_expires_at?: string
+          p_request_id: string
+          p_action: string
+          p_review_note?: string
+          p_reviewer_id?: string
         }
         Returns: Json
       }
