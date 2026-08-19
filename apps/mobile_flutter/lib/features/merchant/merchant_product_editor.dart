@@ -69,6 +69,8 @@ class _MerchantProductEditorScreenState
   ProductType productType = ProductType.honey;
   String? taxonomyId;
   String? regionId;
+  String? governorateId;
+  String? districtId;
   int? gradeLevel;
   final existingImageUrls = <String>[];
   final pendingImages = <_PendingProductImage>[];
@@ -609,40 +611,97 @@ class _MerchantProductEditorScreenState
               final values = state is AssalData<List<AssalRegion>>
                   ? state.value
                   : const <AssalRegion>[];
-              return DropdownButtonFormField<String>(
-                initialValue:
-                    values.any((item) => item.id == regionId) ? regionId : null,
-                decoration: const InputDecoration(
-                  labelText: 'منطقة الإنتاج',
-                  prefixIcon: Icon(Icons.location_on_outlined),
-                ),
-                items: values
-                    .map(
-                      (item) => DropdownMenuItem<String>(
-                        value: item.id,
-                        child: Text(item.nameAr),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: saving
-                    ? null
-                    : (value) => setState(() {
-                          regionId = value;
-                          final selected = values.firstWhere(
-                            (item) => item.id == value,
-                            orElse: () => const AssalRegion(
-                              id: '',
-                              nameAr: '',
-                            ),
-                          );
-                          provinceController.text = selected.nameAr;
-                        }),
-                hint: const Text('اختر المنطقة من البيانات المعتمدة'),
+              AssalRegion? selectedRegion;
+              for (final item in values) {
+                if (item.id == regionId) {
+                  selectedRegion = item;
+                  break;
+                }
+              }
+              final selectedGovernorateId = governorateId ??
+                  selectedRegion?.parentRegionId ?? selectedRegion?.id;
+              final selectedDistrictId = districtId ??
+                  (selectedRegion?.parentRegionId == null
+                      ? null
+                      : selectedRegion?.id);
+              final governorates = values
+                  .where((item) => item.parentRegionId == null)
+                  .toList(growable: false);
+              final districts = values
+                  .where((item) => item.parentRegionId == selectedGovernorateId)
+                  .toList(growable: false);
+              return Column(
+                children: [
+                  DropdownButtonFormField<String>(
+                    initialValue: governorates.any(
+                            (item) => item.id == selectedGovernorateId)
+                        ? selectedGovernorateId
+                        : null,
+                    decoration: const InputDecoration(
+                      labelText: 'محافظة الإنتاج',
+                      prefixIcon: Icon(Icons.location_on_outlined),
+                    ),
+                    items: governorates
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item.id,
+                            child: Text(item.nameAr),
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: saving
+                        ? null
+                        : (value) => setState(() {
+                              governorateId = value;
+                              districtId = null;
+                              regionId = value;
+                              for (final item in governorates) {
+                                if (item.id == value) {
+                                  provinceController.text = item.nameAr;
+                                  break;
+                                }
+                              }
+                            }),
+                    hint: const Text('اختر المحافظة من البيانات المعتمدة'),
+                  ),
+                  const SizedBox(height: AssalSpacing.md),
+                  DropdownButtonFormField<String>(
+                    initialValue: districts.any(
+                            (item) => item.id == selectedDistrictId)
+                        ? selectedDistrictId
+                        : null,
+                    decoration: const InputDecoration(
+                      labelText: 'مديرية الإنتاج',
+                      prefixIcon: Icon(Icons.map_outlined),
+                    ),
+                    items: districts
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item.id,
+                            child: Text(item.nameAr),
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: saving || selectedGovernorateId == null
+                        ? null
+                        : (value) => setState(() {
+                              districtId = value;
+                              regionId = value ?? selectedGovernorateId;
+                              for (final item in districts) {
+                                if (item.id == value) {
+                                  provinceController.text = item.nameAr;
+                                  break;
+                                }
+                              }
+                            }),
+                    hint: const Text('اختر المديرية أو اتركها على مستوى المحافظة'),
+                  ),
+                ],
               );
             },
           ),
           const SizedBox(height: AssalSpacing.md),
-          _field(provinceController, 'المحافظة أو الوصف المحلي للمصدر'),
+          _field(provinceController, 'وصف المصدر المحلي (اختياري)'),
           const SizedBox(height: AssalSpacing.md),
           _field(identityController, 'هوية العسل أو السلالة'),
           const SizedBox(height: AssalSpacing.md),

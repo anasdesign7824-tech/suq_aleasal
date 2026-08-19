@@ -32,6 +32,7 @@ export type AdminPermission =
   | "taxonomy.read"
   | "taxonomy.manage"
   | "region.manage"
+  | "logistics.manage"
   | "banner.read"
   | "banner.write"
   | "banner.delete"

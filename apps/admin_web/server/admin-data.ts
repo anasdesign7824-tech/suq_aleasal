@@ -219,6 +219,143 @@ export async function listRegions() {
   return result.data ?? [];
 }
 
+export async function listDeliveryMethods() {
+  const service = createServiceSupabaseClient();
+  const result = await service
+    .from("delivery_methods")
+    .select("id, code, name_ar, description, is_active, created_at")
+    .eq("is_active", true)
+    .order("name_ar", { ascending: true })
+    .limit(100);
+  if (result.error) throw result.error;
+  return result.data ?? [];
+}
+
+export async function listStoreLogistics(storeId: string) {
+  const normalizedStoreId = requireText(storeId, "المتجر");
+  const service = createServiceSupabaseClient();
+  const [delivery, pickup] = await Promise.all([
+    service
+      .from("merchant_delivery_options")
+      .select("id, store_id, delivery_method_id, region_id, fee_amount, currency, estimated_days, is_active, created_at")
+      .eq("store_id", normalizedStoreId)
+      .order("created_at", { ascending: false }),
+    service
+      .from("merchant_pickup_locations")
+      .select("id, store_id, region_id, name_ar, address, phone, geo_lat, geo_lng, is_active, created_at, updated_at")
+      .eq("store_id", normalizedStoreId)
+      .order("created_at", { ascending: false }),
+  ]);
+  if (delivery.error) throw delivery.error;
+  if (pickup.error) throw pickup.error;
+  const methodIds = Array.from(new Set((delivery.data ?? []).map((item) => item.delivery_method_id)));
+  const regionIds = Array.from(new Set([
+    ...(delivery.data ?? []).map((item) => item.region_id).filter((value): value is string => Boolean(value)),
+    ...(pickup.data ?? []).map((item) => item.region_id).filter((value): value is string => Boolean(value)),
+  ]));
+  const [methods, regions] = await Promise.all([
+    methodIds.length ? service.from("delivery_methods").select("id, code, name_ar, description, is_active").in("id", methodIds) : Promise.resolve({ data: [], error: null }),
+    regionIds.length ? service.from("regions").select("id, parent_region_id, name_ar, name_en, code, region_level, is_active").in("id", regionIds) : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (methods.error) throw methods.error;
+  if (regions.error) throw regions.error;
+  return {
+    deliveryMethods: methods.data ?? [],
+    deliveryOptions: delivery.data ?? [],
+    pickupLocations: pickup.data ?? [],
+    regions: regions.data ?? [],
+  };
+}
+
+function finiteNumber(value: unknown, label: string, options: { integer?: boolean; min?: number } = {}) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || (options.integer && !Number.isInteger(parsed)) || (options.min !== undefined && parsed < options.min)) {
+    throw new Error(`${label} غير صالح.`);
+  }
+  return parsed;
+}
+
+export async function upsertDeliveryOption(
+  session: AdminSession,
+  input: { id?: string; storeId: string; deliveryMethodId: string; regionId?: string | null; feeAmount?: number | string | null; currency?: string; estimatedDays?: number | string | null; isActive?: boolean },
+) {
+  if (!hasPermission(session, "logistics.manage")) throw new Error("لا تملك صلاحية إدارة طرق التوصيل.");
+  const storeId = requireText(input.storeId, "المتجر");
+  const deliveryMethodId = requireText(input.deliveryMethodId, "طريقة التوصيل");
+  const currency = (input.currency?.trim().toUpperCase() || "YER").slice(0, 8);
+  const feeAmount = finiteNumber(input.feeAmount, "رسوم التوصيل", { min: 0 });
+  const estimatedDays = finiteNumber(input.estimatedDays, "مدة التوصيل", { integer: true, min: 0 });
+  const service = createServiceSupabaseClient();
+  const payload = {
+    ...(input.id ? { id: input.id } : {}),
+    store_id: storeId,
+    delivery_method_id: deliveryMethodId,
+    region_id: input.regionId || null,
+    fee_amount: feeAmount,
+    currency,
+    estimated_days: estimatedDays,
+    is_active: input.isActive ?? true,
+  };
+  const result = await service.from("merchant_delivery_options").upsert(payload, { onConflict: "store_id,delivery_method_id,region_id" }).select("id, store_id, delivery_method_id, region_id, fee_amount, currency, estimated_days, is_active, created_at").single();
+  if (result.error) throw result.error;
+  await recordAudit(session, { action: "delivery_option.upsert", entityType: "merchant_delivery_options", entityId: result.data.id, metadata: { storeId, deliveryMethodId, regionId: input.regionId ?? null } });
+  return result.data;
+}
+
+export async function deleteDeliveryOption(session: AdminSession, id: string) {
+  if (!hasPermission(session, "logistics.manage")) throw new Error("لا تملك صلاحية إدارة طرق التوصيل.");
+  const optionId = requireText(id, "خيار التوصيل");
+  const service = createServiceSupabaseClient();
+  const existing = await service.from("merchant_delivery_options").select("id, store_id, delivery_method_id").eq("id", optionId).maybeSingle();
+  if (existing.error) throw existing.error;
+  if (!existing.data) throw new Error("خيار التوصيل غير موجود.");
+  const deleted = await service.from("merchant_delivery_options").delete().eq("id", optionId);
+  if (deleted.error) throw deleted.error;
+  await recordAudit(session, { action: "delivery_option.delete", entityType: "merchant_delivery_options", entityId: optionId, metadata: { storeId: existing.data.store_id } });
+  return { id: optionId, deleted: true };
+}
+
+export async function upsertPickupLocation(
+  session: AdminSession,
+  input: { id?: string; storeId: string; regionId?: string | null; nameAr: string; address?: string | null; phone?: string | null; geoLat?: number | string | null; geoLng?: number | string | null; isActive?: boolean },
+) {
+  if (!hasPermission(session, "logistics.manage")) throw new Error("لا تملك صلاحية إدارة نقاط الاستلام.");
+  const storeId = requireText(input.storeId, "المتجر");
+  const nameAr = requireText(input.nameAr, "اسم نقطة الاستلام");
+  const geoLat = finiteNumber(input.geoLat, "خط العرض");
+  const geoLng = finiteNumber(input.geoLng, "خط الطول");
+  const service = createServiceSupabaseClient();
+  const payload = {
+    ...(input.id ? { id: input.id } : {}),
+    store_id: storeId,
+    region_id: input.regionId || null,
+    name_ar: nameAr,
+    address: input.address?.trim() || null,
+    phone: input.phone?.trim() || null,
+    geo_lat: geoLat,
+    geo_lng: geoLng,
+    is_active: input.isActive ?? true,
+  };
+  const result = await service.from("merchant_pickup_locations").upsert(payload).select("id, store_id, region_id, name_ar, address, phone, geo_lat, geo_lng, is_active, created_at, updated_at").single();
+  if (result.error) throw result.error;
+  await recordAudit(session, { action: "pickup_location.upsert", entityType: "merchant_pickup_locations", entityId: result.data.id, metadata: { storeId, regionId: input.regionId ?? null } });
+  return result.data;
+}
+
+export async function deletePickupLocation(session: AdminSession, id: string) {
+  if (!hasPermission(session, "logistics.manage")) throw new Error("لا تملك صلاحية إدارة نقاط الاستلام.");
+  const locationId = requireText(id, "نقطة الاستلام");
+  const service = createServiceSupabaseClient();
+  const existing = await service.from("merchant_pickup_locations").select("id, store_id, name_ar").eq("id", locationId).maybeSingle();
+  if (existing.error) throw existing.error;
+  if (!existing.data) throw new Error("نقطة الاستلام غير موجودة.");
+  const deleted = await service.from("merchant_pickup_locations").delete().eq("id", locationId);
+  if (deleted.error) throw deleted.error;
+  await recordAudit(session, { action: "pickup_location.delete", entityType: "merchant_pickup_locations", entityId: locationId, metadata: { storeId: existing.data.store_id, nameAr: existing.data.name_ar } });
+  return { id: locationId, deleted: true };
+}
+
 export async function listTaxonomy() {
   const service = createServiceSupabaseClient();
   const result = await service

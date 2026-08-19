@@ -598,6 +598,8 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   late final TextEditingController descriptionController;
   late final TextEditingController phoneController;
   String? regionId;
+  String? governorateId;
+  String? districtId;
   String? logoUrl;
   String? coverUrl;
   final galleryUrls = <String>[];
@@ -785,26 +787,80 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                 final regions = state is AssalData<List<AssalRegion>>
                     ? state.value
                     : const <AssalRegion>[];
-                return DropdownButtonFormField<String>(
-                  initialValue: regions.any((region) => region.id == regionId)
-                      ? regionId
-                      : null,
-                  decoration: const InputDecoration(
-                    labelText: 'المحافظة أو المنطقة',
-                    prefixIcon: Icon(Icons.location_on_outlined),
-                  ),
-                  items: regions
-                      .map(
-                        (region) => DropdownMenuItem<String>(
-                          value: region.id,
-                          child: Text(region.nameAr),
-                        ),
-                      )
-                      .toList(growable: false),
-                  onChanged: saving
-                      ? null
-                      : (value) => setState(() => regionId = value),
-                  hint: const Text('اختر المنطقة'),
+                AssalRegion? selectedRegion;
+                for (final item in regions) {
+                  if (item.id == regionId) {
+                    selectedRegion = item;
+                    break;
+                  }
+                }
+                final selectedGovernorateId = governorateId ??
+                    selectedRegion?.parentRegionId ?? selectedRegion?.id;
+                final selectedDistrictId = districtId ??
+                    (selectedRegion?.parentRegionId == null
+                        ? null
+                        : selectedRegion?.id);
+                final governorates = regions
+                    .where((item) => item.parentRegionId == null)
+                    .toList(growable: false);
+                final districts = regions
+                    .where((item) => item.parentRegionId == selectedGovernorateId)
+                    .toList(growable: false);
+                return Column(
+                  children: [
+                    DropdownButtonFormField<String>(
+                      initialValue: governorates.any(
+                              (item) => item.id == selectedGovernorateId)
+                          ? selectedGovernorateId
+                          : null,
+                      decoration: const InputDecoration(
+                        labelText: 'محافظة المتجر',
+                        prefixIcon: Icon(Icons.location_on_outlined),
+                      ),
+                      items: governorates
+                          .map(
+                            (region) => DropdownMenuItem<String>(
+                              value: region.id,
+                              child: Text(region.nameAr),
+                            ),
+                          )
+                          .toList(growable: false),
+                      onChanged: saving
+                          ? null
+                          : (value) => setState(() {
+                                governorateId = value;
+                                districtId = null;
+                                regionId = value;
+                              }),
+                      hint: const Text('اختر المحافظة'),
+                    ),
+                    const SizedBox(height: AssalSpacing.md),
+                    DropdownButtonFormField<String>(
+                      initialValue: districts.any(
+                              (item) => item.id == selectedDistrictId)
+                          ? selectedDistrictId
+                          : null,
+                      decoration: const InputDecoration(
+                        labelText: 'مديرية المتجر',
+                        prefixIcon: Icon(Icons.map_outlined),
+                      ),
+                      items: districts
+                          .map(
+                            (region) => DropdownMenuItem<String>(
+                              value: region.id,
+                              child: Text(region.nameAr),
+                            ),
+                          )
+                          .toList(growable: false),
+                      onChanged: saving || selectedGovernorateId == null
+                          ? null
+                          : (value) => setState(() {
+                                districtId = value;
+                                regionId = value ?? selectedGovernorateId;
+                              }),
+                      hint: const Text('اختر المديرية أو اتركها على مستوى المحافظة'),
+                    ),
+                  ],
                 );
               },
             ),

@@ -33,6 +33,12 @@ import {
   listUsers,
   listProducts,
   listRegions,
+  listDeliveryMethods,
+  listStoreLogistics,
+  upsertDeliveryOption,
+  deleteDeliveryOption,
+  upsertPickupLocation,
+  deletePickupLocation,
   listRequests,
   listStores,
   listStoreVerificationRequests,
@@ -265,6 +271,52 @@ async function startServer() {
     try {
       const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
       response.json({ item: await reviewMerchantApplication(getRequestAdminSession(response), id, request.body ?? {}) });
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+
+  app.get("/api/admin/delivery-methods", requireAdmin("logistics.manage"), async (_request, response) => {
+    try {
+      response.json({ items: await listDeliveryMethods() });
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+  app.get("/api/admin/stores/:id/logistics", requireAdmin("logistics.manage"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json(await listStoreLogistics(id));
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+  app.put("/api/admin/logistics/delivery-options", requireAdmin("logistics.manage"), async (request, response) => {
+    try {
+      response.json({ item: await upsertDeliveryOption(getRequestAdminSession(response), request.body ?? {}) });
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+  app.delete("/api/admin/logistics/delivery-options/:id", requireAdmin("logistics.manage"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json({ item: await deleteDeliveryOption(getRequestAdminSession(response), id) });
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+  app.put("/api/admin/logistics/pickup-locations", requireAdmin("logistics.manage"), async (request, response) => {
+    try {
+      response.json({ item: await upsertPickupLocation(getRequestAdminSession(response), request.body ?? {}) });
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+  app.delete("/api/admin/logistics/pickup-locations/:id", requireAdmin("logistics.manage"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      response.json({ item: await deletePickupLocation(getRequestAdminSession(response), id) });
     } catch (error) {
       sendError(response, error);
     }

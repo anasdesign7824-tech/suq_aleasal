@@ -7,7 +7,7 @@ import { adminApi } from "@/lib/admin-api";
 
 type StoreOption = { id: string; name_ar: string; status: string };
 type TaxonomyOption = { id: string; name_ar: string; code?: string | null };
-type RegionOption = { id: string; name_ar: string; region_level?: string };
+type RegionOption = { id: string; name_ar: string; parent_region_id?: string | null; region_level?: string };
 
 type ProductForm = {
   storeId: string;
@@ -41,6 +41,8 @@ type ProductForm = {
   forms: string;
   certifications: string;
   regionId: string;
+  governorateId: string;
+  districtId: string;
   isFeatured: boolean;
 };
 
@@ -76,6 +78,8 @@ const initialForm: ProductForm = {
   forms: "",
   certifications: "",
   regionId: "",
+  governorateId: "",
+  districtId: "",
   isFeatured: false,
 };
 
@@ -163,6 +167,21 @@ export function ProductCreationPanel({ onCreated, stores }: { onCreated: () => v
   };
 
   const availableStores = useMemo(() => stores.filter((store) => store.id && store.name_ar), [stores]);
+  const governorates = useMemo(() => regions.filter((region) => region.region_level === "governorate" || !region.parent_region_id), [regions]);
+  const districts = useMemo(() => regions.filter((region) => region.parent_region_id === form.governorateId), [form.governorateId, regions]);
+  const chooseGovernorate = (id: string) => {
+    const selected = governorates.find((region) => region.id === id);
+    update("governorateId", id);
+    update("districtId", "");
+    update("regionId", id);
+    update("provinceNameAr", selected?.name_ar ?? "");
+  };
+  const chooseDistrict = (id: string) => {
+    const selected = districts.find((region) => region.id === id);
+    update("districtId", id);
+    update("regionId", id || form.governorateId);
+    update("provinceNameAr", selected?.name_ar ?? governorates.find((region) => region.id === form.governorateId)?.name_ar ?? "");
+  };
 
   const uploadImages = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -251,8 +270,8 @@ export function ProductCreationPanel({ onCreated, stores }: { onCreated: () => v
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Input value={form.weightLabel} onChange={(event) => update("weightLabel", event.target.value)} placeholder="الوزن أو الحجم" className={inputClass} />
           <Input value={form.originCountry} onChange={(event) => update("originCountry", event.target.value)} placeholder="بلد المصدر" className={inputClass} />
-          <label className="text-sm font-semibold text-[#4f2e1f]">منطقة الإنتاج<select value={form.regionId} onChange={(event) => { const id = event.target.value; update("regionId", id); update("provinceNameAr", regions.find((region) => region.id === id)?.name_ar ?? ""); }} disabled={loadingReferences} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">اختر المنطقة</option>{regions.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></label>
-          <Input value={form.provinceNameAr} onChange={(event) => update("provinceNameAr", event.target.value)} placeholder="المحافظة" className={inputClass} />
+          <label className="text-sm font-semibold text-[#4f2e1f]">محافظة الإنتاج<select value={form.governorateId} onChange={(event) => chooseGovernorate(event.target.value)} disabled={loadingReferences} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">اختر المحافظة</option>{governorates.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></label>
+          <label className="text-sm font-semibold text-[#4f2e1f]">مديرية الإنتاج<select value={form.districtId} onChange={(event) => chooseDistrict(event.target.value)} disabled={loadingReferences || !form.governorateId} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">كل مديريات المحافظة</option>{districts.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></label>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <Input value={form.honeyIdentity} onChange={(event) => update("honeyIdentity", event.target.value)} placeholder="هوية العسل أو السلالة" className={inputClass} />
