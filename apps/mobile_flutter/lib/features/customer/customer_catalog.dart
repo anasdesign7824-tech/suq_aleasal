@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
@@ -414,8 +415,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             repository: widget.repository, product: product, store: store));
   }
 
-  void _share() => ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تم تجهيز رابط المشاركة في Demo Mode')));
+  Future<void> _share() async {
+    final text = 'منتج من سوق عسلكم\\nمعرّف المنتج: ${widget.productId}';
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('تم نسخ بطاقة المنتج للمشاركة.')),
+    );
+  }
 }
 
 class _MetadataCard extends StatelessWidget {
@@ -656,6 +663,15 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             style: AssalTypography.bodyLarge
                 .copyWith(color: AssalColors.textSecondary),
           ),
+          const SizedBox(height: AssalSpacing.lg),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _stat('${store.followersCount}', 'متابع'),
+              _stat('${store.reviewCount}', 'مراجعة'),
+              _stat(store.ratingAverage.toStringAsFixed(1), 'التقييم'),
+            ],
+          ),
         ],
       ),
     );
@@ -744,15 +760,6 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   store.description ??
                   'لم يضف المتجر نبذة تعريفية بعد.',
               style: AssalTypography.bodyLarge,
-            ),
-            const SizedBox(height: AssalSpacing.lg),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _stat('${store.followersCount}', 'متابع'),
-                _stat('${store.reviewCount}', 'مراجعة'),
-                _stat('${store.yearsExperience}', 'سنوات خبرة'),
-              ],
             ),
             const SizedBox(height: AssalSpacing.xl),
             const SectionHeader(title: 'الموقع والتخصصات'),

@@ -570,18 +570,25 @@ class StoreCard extends StatelessWidget {
   final AssalStoreSummary store;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Card(
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-            onTap: onTap,
-            child: Padding(
-                padding: const EdgeInsets.all(AssalSpacing.lg),
-                child: Row(children: [
-                  const CircleAvatar(
-                      radius: 30,
-                      backgroundColor: AssalColors.honeyLight,
-                      child: Icon(Icons.storefront_outlined,
-                          color: AssalColors.primaryDark, size: 28)),
+  Widget build(BuildContext context) {
+    final logoUrl = store.logoUrl ?? store.avatarUrl;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+          onTap: onTap,
+          child: Padding(
+              padding: const EdgeInsets.all(AssalSpacing.lg),
+              child: Row(children: [
+                CircleAvatar(
+                    radius: 30,
+                    backgroundColor: AssalColors.honeyLight,
+                    backgroundImage: logoUrl != null && logoUrl.startsWith('http')
+                        ? NetworkImage(logoUrl)
+                        : null,
+                    child: logoUrl == null || !logoUrl.startsWith('http')
+                        ? const Icon(Icons.storefront_outlined,
+                            color: AssalColors.primaryDark, size: 28)
+                        : null),
                   const SizedBox(width: AssalSpacing.md),
                   Expanded(
                       child: Column(
@@ -615,8 +622,11 @@ class StoreCard extends StatelessWidget {
                         ]),
                       ])),
                   const Icon(Icons.chevron_left, color: AssalColors.textMuted),
-                ]))),
+                ]),
+            ),
+          ),
       );
+  }
 }
 
 class RatingStars extends StatelessWidget {
