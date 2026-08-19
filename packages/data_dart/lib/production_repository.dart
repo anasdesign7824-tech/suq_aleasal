@@ -125,8 +125,10 @@ class ProductionRepository implements AssalRepository {
           profile['display_name'] ?? identity.displayName ?? 'عميل عسلكم',
       'email': identity.email,
       'avatar_url': profile['avatar_url'] ?? identity.avatarUrl,
+      'cover_url': profile['cover_url'],
       'bio': profile['bio'],
       'phone': profile['phone'],
+      'location_label': profile['location_label'],
       'role': role.name,
       'is_active': profile['is_active'] ?? true,
       'created_at': profile['created_at'],
@@ -560,6 +562,32 @@ class ProductionRepository implements AssalRepository {
     return _state(
       rows.map(AssalRequestSummary.fromJson).toList(growable: false),
       'لا توجد طلبات تواصل',
+    );
+  }
+
+  @override
+  Future<AssalLoadState<List<AssalRequestSummary>>> listMerchantRequests(
+    String merchantId,
+  ) async {
+    final stores = await _gateway.select(
+      'stores',
+      filters: {'merchant_id': merchantId},
+    );
+    final storeIds = stores
+        .map((row) => row['id'])
+        .whereType<String>()
+        .toList(growable: false);
+    if (storeIds.isEmpty) {
+      return const AssalData(<AssalRequestSummary>[]);
+    }
+    final rows = <Map<String, Object?>>[];
+    for (final storeId in storeIds) {
+      rows.addAll(await _gateway.select('requests',
+          filters: {'store_id': storeId}));
+    }
+    return _state(
+      rows.map(AssalRequestSummary.fromJson).toList(growable: false),
+      'لا توجد طلبات لهذا المتجر',
     );
   }
 
@@ -1043,7 +1071,7 @@ class ProductionRepository implements AssalRepository {
       final rows = await _gateway.select('merchant_applications', filters: {'user_id': userId});
       if (rows.isEmpty) return null;
       final value = Map<String, Object?>.from(rows.first);
-      final stores = await _gateway.select('customer_stores', filters: {'merchant_id': userId});
+      final stores = await _gateway.select('stores', filters: {'merchant_id': userId});
       if (stores.isNotEmpty) {
         final store = stores.first;
         value['store_id'] = store['id'];
@@ -1112,6 +1140,184 @@ class ProductionRepository implements AssalRepository {
   );
 
   @override
+  Future<AssalLoadState<AssalMerchantWorkspaceSummary?>> loadMerchantWorkspace(
+    String userId,
+  ) => _write(
+    resource: 'merchant_workspace.read',
+    write: () async {
+      final stores = await _gateway.select('stores', filters: {'merchant_id': userId});
+      if (stores.isEmpty) return null;
+      final store = AssalStoreSummary.fromJson(stores.first);
+      final verified = stores.first['is_verified'] == true;
+      final status = '${stores.first['status'] ?? 'pending'}';
+      return AssalMerchantWorkspaceSummary(
+        store: store,
+        verificationStatus: verified ? 'verified' : 'pending',
+        publicStatus: status,
+        canEdit: true,
+        canPublish: verified && status == 'active',
+      );
+    },
+  );
+
+  @override
+  Future<AssalLoadState<AssalMerchantWorkspaceSummary>> openMerchantWorkspace(
+    String userId,
+    AssalMerchantWorkspaceDraft draft,
+  ) => _write(
+    resource: 'merchant_workspace.open',
+    write: () async {
+      final row = await _gateway.rpc('merchant_open_workspace', {
+        'p_business_name': draft.businessName.trim(),
+        'p_description': draft.description?.trim(),
+        'p_region_id': draft.regionId,
+        'p_phone': draft.phone?.trim(),
+        'p_logo_url': draft.logoUrl,
+        'p_cover_url': draft.coverUrl,
+      });
+      return AssalMerchantWorkspaceSummary.fromJson(row);
+    },
+  );
+
+  Future<List<String>> _merchantStoreIds(String userId) async {
+    final stores = await _gateway.select('stores', filters: {'merchant_id': userId});
+    return stores.map((row) => row['id']).whereType<String>().toList(growable: false);
+  }
+
+  Future<AssalProductSummary> _productSummaryFromRow(
+    Map<String, Object?> row,
+  ) async {
+    final value = Map<String, Object?>.from(row);
+    final images = await _gateway.select('product_images', filters: {'product_id': row['id']});
+    final imageUrls = images
+        .map((image) => image['image_url'])
+        .whereType<String>()
+        .toList(growable: false);
+    value['image_urls'] = imageUrls;
+    value['primary_image_url'] = imageUrls.isEmpty ? null : imageUrls.first;
+    value['status'] = row['status'] ?? 'draft';
+    value['product_type'] = row['product_type'] ?? 'honey';
+    return AssalProductSummary.fromJson(value);
+  }
+
+  @override
+  Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
+    String userId,
+  ) => _readList(
+    resource: 'merchant_products.read',
+    emptyMessage: 'لا توجد منتجات في مساحة التاجر بعد.',
+    read: () async {
+      final storeIds = await _merchantStoreIds(userId);
+      final rows = <Map<String, Object?>>[];
+      for (final storeId in storeIds) {
+        rows.addAll(await _gateway.select('products', filters: {'store_id': storeId}));
+      }
+      return Future.wait(rows.map(_productSummaryFromRow));
+    },
+  );
+
+  @override
+  Future<AssalLoadState<AssalProductSummary>> createMerchantProduct(
+    String userId,
+    String storeId,
+    AssalProductDraft draft,
+  ) => _write(
+    resource: 'merchant_products.create',
+    write: () async {
+      if (draft.nameAr.trim().length < 2) throw StateError('invalid_product_name');
+      final row = await _gateway.insert('products', {
+        'store_id': storeId,
+        'taxonomy_id': draft.taxonomyId,
+        'name_ar': draft.nameAr.trim(),
+        'name_en': draft.nameEn?.trim(),
+        'description': draft.description?.trim(),
+        'product_type': draft.productType.name,
+        'grade_level': draft.gradeLevel,
+        'status': 'pending',
+        'metadata': draft.metadata,
+      });
+      for (var index = 0; index < draft.imageUrls.length; index++) {
+        await _gateway.insert('product_images', {
+          'product_id': row['id'],
+          'image_url': draft.imageUrls[index],
+          'sort_order': index,
+        });
+      }
+      return _productSummaryFromRow(row);
+    },
+  );
+
+  @override
+  Future<AssalLoadState<AssalProductSummary>> updateMerchantProduct(
+    String userId,
+    String productId,
+    AssalProductDraft draft,
+  ) => _write(
+    resource: 'merchant_products.update',
+    write: () async {
+      final rows = await _gateway.select('products', filters: {'id': productId});
+      if (rows.isEmpty) throw StateError('product_not_found');
+      final current = rows.first;
+      final storeId = current['store_id'];
+      if (storeId is! String) throw StateError('product_store_missing');
+      final patch = <String, Object?>{
+        'name_ar': draft.nameAr.trim(),
+        'name_en': draft.nameEn?.trim(),
+        'description': draft.description?.trim(),
+        'taxonomy_id': draft.taxonomyId,
+        'product_type': draft.productType.name,
+        'grade_level': draft.gradeLevel,
+        'metadata': draft.metadata,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+      if (current['status'] == 'active') {
+        await _gateway.insert('product_revisions', {
+          'product_id': productId,
+          'store_id': storeId,
+          'editor_user_id': userId,
+          'base_updated_at': current['updated_at'],
+          'status': 'pending_review',
+          'payload': patch,
+        });
+        return _productSummaryFromRow(current);
+      }
+      final updated = await _gateway.update('products', patch, id: productId);
+      return _productSummaryFromRow(updated);
+    },
+  );
+
+  @override
+  Future<AssalLoadState<void>> deleteMerchantProduct(
+    String userId,
+    String productId,
+  ) => _write(
+    resource: 'merchant_products.delete',
+    write: () => _gateway.delete('products', filters: {'id': productId}),
+  );
+
+  @override
+  Future<AssalLoadState<void>> updateUserProfile(
+    String userId,
+    AssalUserProfilePatch patch,
+  ) => _write(
+    resource: 'profiles.update',
+    write: () async {
+      await _gateway.upsert('profiles', {
+        'user_id': userId,
+        if (patch.nameAr != null) 'display_name': patch.nameAr!.trim(),
+        if (patch.bio != null) 'bio': patch.bio?.trim(),
+        if (patch.phone != null) 'phone': patch.phone?.trim(),
+        if (patch.locationLabel != null) 'location_label': patch.locationLabel?.trim(),
+        if (patch.avatarUrl != null) 'avatar_url': patch.avatarUrl,
+        if (patch.coverUrl != null) 'cover_url': patch.coverUrl,
+        if (patch.latitude != null) 'latitude': patch.latitude,
+        if (patch.longitude != null) 'longitude': patch.longitude,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      });
+    },
+  );
+
+  @override
   Future<AssalLoadState<String>> uploadMerchantImage(
     String userId,
     String kind,
@@ -1132,6 +1338,48 @@ class ProductionRepository implements AssalRepository {
       },
     );
   }
+
+  @override
+  Future<AssalLoadState<String>> uploadStoreGalleryImage(
+    String userId,
+    String storeId,
+    Uint8List bytes,
+    String extension,
+  ) => _write(
+    resource: 'store_gallery_image.upload',
+    write: () async {
+      final safeExtension = extension.toLowerCase() == 'png' ? 'png' : 'jpg';
+      final path = '$userId/store/$storeId/gallery-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+      final url = await _gateway.uploadPublicImage(path, bytes, safeExtension);
+      await _gateway.insert('store_gallery', {
+        'store_id': storeId,
+        'media_url': url,
+        'sort_order': 0,
+      });
+      return url;
+    },
+  );
+
+  @override
+  Future<AssalLoadState<String>> uploadProductImage(
+    String userId,
+    String productId,
+    Uint8List bytes,
+    String extension,
+  ) => _write(
+    resource: 'product_image.upload',
+    write: () async {
+      final safeExtension = extension.toLowerCase() == 'png' ? 'png' : 'jpg';
+      final path = '$userId/product/$productId/image-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+      final url = await _gateway.uploadPublicImage(path, bytes, safeExtension);
+      await _gateway.insert('product_images', {
+        'product_id': productId,
+        'image_url': url,
+        'sort_order': 0,
+      });
+      return url;
+    },
+  );
 
   @override
   Future<AssalLoadState<void>> signOut() async {

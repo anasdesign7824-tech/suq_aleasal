@@ -545,6 +545,84 @@ class AssalMerchantApplicationSummary {
   final String? storeCoverUrl;
 }
 
+class AssalMerchantWorkspaceDraft {
+  const AssalMerchantWorkspaceDraft({
+    required this.businessName,
+    this.description,
+    this.regionId,
+    this.phone,
+    this.logoUrl,
+    this.coverUrl,
+  });
+
+  final String businessName;
+  final String? description;
+  final String? regionId;
+  final String? phone;
+  final String? logoUrl;
+  final String? coverUrl;
+}
+
+class AssalMerchantWorkspaceSummary {
+  const AssalMerchantWorkspaceSummary({
+    required this.store,
+    required this.verificationStatus,
+    required this.publicStatus,
+    this.canEdit = true,
+    this.canPublish = false,
+  });
+
+  final AssalStoreSummary store;
+  final String verificationStatus;
+  final String publicStatus;
+  final bool canEdit;
+  final bool canPublish;
+
+  factory AssalMerchantWorkspaceSummary.fromJson(Map<String, Object?> json) {
+    final rawStore = json['store'];
+    final store = rawStore is Map
+        ? AssalStoreSummary.fromJson(rawStore.cast<String, Object?>())
+        : AssalStoreSummary(
+            id: '',
+            merchantId: '',
+            nameAr: '',
+            slug: '',
+          );
+    return AssalMerchantWorkspaceSummary(
+      store: store,
+      verificationStatus: _string(
+        json['verification_status'],
+        fallback: 'pending',
+      ),
+      publicStatus: _string(json['public_status'], fallback: 'pending'),
+      canEdit: json['can_edit'] as bool? ?? true,
+      canPublish: json['can_publish'] as bool? ?? false,
+    );
+  }
+}
+
+class AssalProductDraft {
+  const AssalProductDraft({
+    required this.nameAr,
+    this.nameEn,
+    this.description,
+    this.taxonomyId,
+    this.productType = ProductType.honey,
+    this.gradeLevel,
+    this.metadata = const <String, Object?>{},
+    this.imageUrls = const <String>[],
+  });
+
+  final String nameAr;
+  final String? nameEn;
+  final String? description;
+  final String? taxonomyId;
+  final ProductType productType;
+  final int? gradeLevel;
+  final Map<String, Object?> metadata;
+  final List<String> imageUrls;
+}
+
 class AssalNotificationSummary {
   const AssalNotificationSummary({required this.id, required this.userId, required this.notificationType, required this.titleAr, this.bodyAr, this.payload = const <String, Object?>{}, this.readAt});
   final String id;
@@ -567,11 +645,12 @@ class AssalNotificationSummary {
 }
 
 class AssalUserProfile {
-  const AssalUserProfile({required this.id, required this.nameAr, this.email, this.avatarUrl, this.bio, this.phone, this.location, this.preferences = const <String, Object?>{}, this.createdAt, this.updatedAt, this.followersCount = 0, this.followingCount = 0, this.role = AssalRole.customer});
+  const AssalUserProfile({required this.id, required this.nameAr, this.email, this.avatarUrl, this.coverUrl, this.bio, this.phone, this.location, this.preferences = const <String, Object?>{}, this.createdAt, this.updatedAt, this.followersCount = 0, this.followingCount = 0, this.role = AssalRole.customer});
   final String id;
   final String nameAr;
   final String? email;
   final String? avatarUrl;
+  final String? coverUrl;
   final String? bio;
   final String? phone;
   final String? location;
@@ -587,9 +666,10 @@ class AssalUserProfile {
         nameAr: _string(json['name_ar'], fallback: 'عميل عسلكم'),
         email: _stringOrNull(json['email']),
         avatarUrl: _stringOrNull(json['avatar_url']),
+        coverUrl: _stringOrNull(json['cover_url']),
         bio: _stringOrNull(json['bio']),
         phone: _stringOrNull(json['phone']),
-        location: _stringOrNull(json['location']),
+        location: _stringOrNull(json['location'] ?? json['location_label']),
         preferences: _map(json['preferences']),
         createdAt: _dateOrNull(json['created_at']),
         updatedAt: _dateOrNull(json['updated_at']),
@@ -597,6 +677,18 @@ class AssalUserProfile {
         followingCount: _int(json['following_count']),
         role: _role(_string(json['role'], fallback: 'customer')),
       );
+}
+
+class AssalUserProfilePatch {
+  const AssalUserProfilePatch({this.nameAr, this.bio, this.phone, this.locationLabel, this.avatarUrl, this.coverUrl, this.latitude, this.longitude});
+  final String? nameAr;
+  final String? bio;
+  final String? phone;
+  final String? locationLabel;
+  final String? avatarUrl;
+  final String? coverUrl;
+  final double? latitude;
+  final double? longitude;
 }
 
 class AssalSession {

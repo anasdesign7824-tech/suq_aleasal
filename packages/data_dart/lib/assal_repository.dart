@@ -135,6 +135,9 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(
     String requesterId,
   );
+  Future<AssalLoadState<List<AssalRequestSummary>>> listMerchantRequests(
+    String merchantId,
+  );
   Future<AssalLoadState<AssalRequestSummary>> createRequest(
     String requesterId,
     AssalRequestDraft draft,
@@ -205,9 +208,49 @@ abstract interface class AssalRepository {
     AssalMerchantApplicationDraft draft,
   );
   Future<AssalLoadState<void>> clearMerchantApplicationDraft(String userId);
+  Future<AssalLoadState<AssalMerchantWorkspaceSummary?>> loadMerchantWorkspace(
+    String userId,
+  );
+  Future<AssalLoadState<AssalMerchantWorkspaceSummary>> openMerchantWorkspace(
+    String userId,
+    AssalMerchantWorkspaceDraft draft,
+  );
+  Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
+    String userId,
+  );
+  Future<AssalLoadState<AssalProductSummary>> createMerchantProduct(
+    String userId,
+    String storeId,
+    AssalProductDraft draft,
+  );
+  Future<AssalLoadState<AssalProductSummary>> updateMerchantProduct(
+    String userId,
+    String productId,
+    AssalProductDraft draft,
+  );
+  Future<AssalLoadState<void>> deleteMerchantProduct(
+    String userId,
+    String productId,
+  );
+  Future<AssalLoadState<void>> updateUserProfile(
+    String userId,
+    AssalUserProfilePatch patch,
+  );
   Future<AssalLoadState<String>> uploadMerchantImage(
     String userId,
     String kind,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<String>> uploadStoreGalleryImage(
+    String userId,
+    String storeId,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<String>> uploadProductImage(
+    String userId,
+    String productId,
     Uint8List bytes,
     String extension,
   );
@@ -239,6 +282,10 @@ abstract interface class ProductionQueryGateway {
   Future<Map<String, Object?>> upsert(
     String table,
     Map<String, Object?> values,
+  );
+  Future<Map<String, Object?>> rpc(
+    String function,
+    Map<String, Object?> params,
   );
   Future<String> uploadPublicImage(
     String path,

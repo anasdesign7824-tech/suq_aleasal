@@ -1197,6 +1197,94 @@ export type Database = {
           },
         ]
       }
+      product_revisions: {
+        Row: {
+          base_updated_at: string | null
+          created_at: string
+          editor_user_id: string
+          id: string
+          payload: Json
+          product_id: string
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          base_updated_at?: string | null
+          created_at?: string
+          editor_user_id: string
+          id?: string
+          payload?: Json
+          product_id: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          base_updated_at?: string | null
+          created_at?: string
+          editor_user_id?: string
+          id?: string
+          payload?: Json
+          product_id?: string
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_revisions_editor_user_id_fkey"
+            columns: ["editor_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_revisions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "customer_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_revisions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_revisions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_revisions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "customer_stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_revisions_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_view_events: {
         Row: {
           id: string
@@ -1314,10 +1402,14 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          cover_url: string | null
           created_at: string
           display_name: string
           is_active: boolean
+          latitude: number | null
           locale: string
+          location_label: string | null
+          longitude: number | null
           phone: string | null
           role: string
           updated_at: string
@@ -1326,10 +1418,14 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string
           display_name?: string
           is_active?: boolean
+          latitude?: number | null
           locale?: string
+          location_label?: string | null
+          longitude?: number | null
           phone?: string | null
           role?: string
           updated_at?: string
@@ -1338,10 +1434,14 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string
           display_name?: string
           is_active?: boolean
+          latitude?: number | null
           locale?: string
+          location_label?: string | null
+          longitude?: number | null
           phone?: string | null
           role?: string
           updated_at?: string
@@ -2111,6 +2211,17 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
+      merchant_open_workspace: {
+        Args: {
+          p_business_name: string
+          p_cover_url?: string
+          p_description?: string
+          p_logo_url?: string
+          p_phone?: string
+          p_region_id?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

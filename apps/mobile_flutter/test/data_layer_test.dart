@@ -128,6 +128,42 @@ void main() {
     expect((await repository.getSession()).isAuthenticated, isTrue);
   });
 
+  test('Merchant workspace opens pending and owns its product/request scope',
+      () async {
+    final repository =
+        DemoRepository(loader: const InMemoryDemoCatalogLoader(catalog));
+    await repository.signIn('demo@assalkom.app', 'demo123');
+    final opened = await repository.openMerchantWorkspace(
+      'demo-customer',
+      const AssalMerchantWorkspaceDraft(
+        businessName: 'مناحل الاختبار',
+        description: 'متجر اختبار لمسار التاجر.',
+      ),
+    );
+    expect(opened, isA<AssalData<AssalMerchantWorkspaceSummary>>());
+    final workspace =
+        (opened as AssalData<AssalMerchantWorkspaceSummary>).value;
+    expect(workspace.canEdit, isTrue);
+    expect(workspace.canPublish, isFalse);
+    final created = await repository.createMerchantProduct(
+      'demo-customer',
+      workspace.store.id,
+      const AssalProductDraft(nameAr: 'عسل اختبار'),
+    );
+    expect(created, isA<AssalData<AssalProductSummary>>());
+    final products = await repository.listMerchantProducts('demo-customer');
+    expect(
+        (products as AssalData<List<AssalProductSummary>>).value, hasLength(1));
+    final requests = await repository.listMerchantRequests('demo-customer');
+    expect(
+      requests,
+      anyOf(
+        isA<AssalData<List<AssalRequestSummary>>>(),
+        isA<AssalEmpty<List<AssalRequestSummary>>>(),
+      ),
+    );
+  });
+
   test('Factory rejects production without an explicit gateway', () {
     expect(
         () => const AssalRepositoryFactory().create(

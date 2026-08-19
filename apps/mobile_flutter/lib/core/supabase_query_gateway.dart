@@ -86,6 +86,27 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
   }
 
   @override
+  Future<Map<String, Object?>> rpc(
+    String function,
+    Map<String, Object?> params,
+  ) async {
+    final started = DateTime.now();
+    developer.log('rpc_start function=$function', name: 'assalkom.network');
+    try {
+      final value = await client.rpc(function, params: params).timeout(requestTimeout);
+      if (value is! Map) {
+        throw StateError('RPC $function returned an invalid payload');
+      }
+      final result = Map<String, Object?>.from(value);
+      developer.log('rpc_ok function=$function elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.network');
+      return result;
+    } on Object catch (error, stackTrace) {
+      developer.log('rpc_failed function=$function', name: 'assalkom.network', error: error, stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
+  @override
   Future<String> uploadPublicImage(
     String path,
     Uint8List bytes,

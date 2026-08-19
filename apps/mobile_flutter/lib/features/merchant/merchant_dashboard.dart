@@ -15,101 +15,552 @@ class MerchantDashboard extends StatefulWidget {
 }
 
 class _MerchantDashboardState extends State<MerchantDashboard> {
-  late Future<AssalLoadState<AssalMerchantApplicationSummary?>>
-      applicationFuture;
+  late Future<AssalLoadState<AssalMerchantWorkspaceSummary?>> workspaceFuture;
+  late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
+  late Future<AssalLoadState<List<AssalRequestSummary>>> requestsFuture;
+  late Future<AssalLoadState<List<AssalCommentSummary>>> commentsFuture;
 
   @override
   void initState() {
     super.initState();
-    applicationFuture = _loadApplication();
+    _refresh();
   }
 
-  Future<AssalLoadState<AssalMerchantApplicationSummary?>>
-      _loadApplication() async {
+  void _refresh() {
+    workspaceFuture = _loadWorkspace();
+    productsFuture = _loadProducts();
+    requestsFuture = _loadRequests();
+    commentsFuture = _loadComments();
+  }
+
+  Future<AssalLoadState<AssalMerchantWorkspaceSummary?>>
+      _loadWorkspace() async {
     final session = await widget.repository.getSession();
     if (!session.isAuthenticated || session.user == null) {
       return const AssalError(
-        'سجّل الدخول لعرض حالة طلب التاجر.',
+        'سجّل الدخول لعرض مساحة التاجر.',
         code: 'merchant_auth_required',
       );
     }
-    return widget.repository.loadMerchantApplication(session.user!.id);
+    return widget.repository.loadMerchantWorkspace(session.user!.id);
+  }
+
+  Future<AssalLoadState<List<AssalProductSummary>>> _loadProducts() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      return const AssalError(
+        'سجّل الدخول لعرض منتجات المتجر.',
+        code: 'merchant_auth_required',
+      );
+    }
+    return widget.repository.listMerchantProducts(session.user!.id);
+  }
+
+  Future<AssalLoadState<List<AssalRequestSummary>>> _loadRequests() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      return const AssalError(
+        'سجّل الدخول لعرض طلبات المتجر.',
+        code: 'merchant_auth_required',
+      );
+    }
+    return widget.repository.listMerchantRequests(session.user!.id);
+  }
+
+  Future<AssalLoadState<List<AssalCommentSummary>>> _loadComments() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      return const AssalError(
+        'سجّل الدخول لعرض تعليقات المتجر.',
+        code: 'merchant_auth_required',
+      );
+    }
+    final productsState =
+        await widget.repository.listMerchantProducts(session.user!.id);
+    if (productsState is AssalError<List<AssalProductSummary>>) {
+      return AssalError(productsState.messageAr, code: productsState.code);
+    }
+    final products = productsState is AssalData<List<AssalProductSummary>>
+        ? productsState.value
+        : const <AssalProductSummary>[];
+    if (products.isEmpty) return const AssalData(<AssalCommentSummary>[]);
+    final states = await Future.wait(
+        products.map((product) => widget.repository.listComments(product.id)));
+    final comments = <AssalCommentSummary>[];
+    for (final state in states) {
+      if (state is AssalData<List<AssalCommentSummary>>) {
+        comments.addAll(state.value);
+      }
+    }
+    return AssalData(comments);
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: const AssalAppBar(title: 'لوحة التاجر'),
-        body: FutureBuilder<AssalLoadState<AssalMerchantApplicationSummary?>>(
-          future: applicationFuture,
+        body: FutureBuilder<AssalLoadState<AssalMerchantWorkspaceSummary?>>(
+          future: workspaceFuture,
           builder: (context, snapshot) {
             if (!snapshot.hasData) return const AssalGlassLoading();
             final state = snapshot.data!;
-            if (state is AssalError<AssalMerchantApplicationSummary?>) {
+            if (state is AssalError<AssalMerchantWorkspaceSummary?>) {
               return AssalMessageCard(
-                icon: Icons.pending_actions_outlined,
+                icon: Icons.storefront_outlined,
                 message: state.messageAr,
               );
             }
-            final application =
-                state is AssalData<AssalMerchantApplicationSummary?>
-                    ? state.value
-                    : null;
-            return _content(application);
+            final workspace = state is AssalData<AssalMerchantWorkspaceSummary?>
+                ? state.value
+                : null;
+            if (workspace == null) {
+              return const AssalMessageCard(
+                icon: Icons.storefront_outlined,
+                message:
+                    'لم تُفتح مساحة متجر لهذا الحساب بعد. ابدأ من شاشة «كن تاجرًا».',
+              );
+            }
+            return _content(workspace);
           },
         ),
       );
 
-  Widget _content(AssalMerchantApplicationSummary? application) {
-    final status = application?.status;
-    final statusLabel = switch (status) {
-      'submitted' => 'تم الإرسال',
-      'under_review' => 'قيد المراجعة',
-      'approved' => 'تم تفعيل المتجر',
-      'verified' => 'تم تفعيل المتجر',
-      'needs_more_info' => 'تحتاج إلى معلومات إضافية',
-      'rejected' => 'مرفوض — يحتاج إلى تعديل',
-      _ => 'لم يبدأ طلب التاجر بعد',
-    };
-    final statusDescription = switch (status) {
-      'submitted' => 'تم استلام طلبك وينتظر المراجعة.',
-      'under_review' => 'يراجع الفريق بيانات النشاط والمصدر.',
-      'approved' => 'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
-      'verified' => 'تم تفعيل متجرك بنجاح. أصبح حسابك صالحًا لإدارة المتجر وإضافة المنتجات.',
-      'needs_more_info' => 'راجع ملاحظة الإدارة وأكمل البيانات ثم أرسل الطلب من جديد.',
-      'rejected' => 'راجع بياناتك وملاحظات المراجعة قبل إعادة الإرسال.',
-      _ => 'ابدأ من شاشة «كن تاجرًا» لإرسال بيانات نشاطك.',
-    };
+  Widget _content(AssalMerchantWorkspaceSummary workspace) {
+    final store = workspace.store;
+    final publicState = workspace.canPublish
+        ? 'مفعّل ويظهر للعملاء عند نشر المنتجات'
+        : 'معلّق حتى تفعيل الإدارة؛ يمكنك الإعداد والمعاينة الآن';
+    return DefaultTabController(
+      length: 6,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+              AssalSpacing.sm,
+            ),
+            child: Card(
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AssalColors.honeyLight,
+                  child: Icon(
+                    workspace.canPublish
+                        ? Icons.verified_outlined
+                        : Icons.pending_actions_outlined,
+                    color: AssalColors.primaryDark,
+                  ),
+                ),
+                title:
+                    Text(store.nameAr.isEmpty ? 'مساحة المتجر' : store.nameAr),
+                subtitle: Text(publicState),
+                trailing: IconButton(
+                  tooltip: 'تحديث',
+                  onPressed: () => setState(_refresh),
+                  icon: const Icon(Icons.refresh_outlined),
+                ),
+              ),
+            ),
+          ),
+          const TabBar(
+            isScrollable: true,
+            tabs: [
+              Tab(text: 'نظرة عامة'),
+              Tab(text: 'المنتجات'),
+              Tab(text: 'المسودات والمراجعة'),
+              Tab(text: 'الإحصاءات'),
+              Tab(text: 'التعليقات'),
+              Tab(text: 'الطلبات'),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                _overview(workspace),
+                _products(workspace),
+                _drafts(workspace),
+                _statistics(workspace),
+                _comments(),
+                _requests(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _overview(AssalMerchantWorkspaceSummary workspace) {
+    final store = workspace.store;
     return ListView(
       padding: const EdgeInsets.all(AssalSpacing.lg),
       children: [
         Text(
-          'لوحة التاجر',
+          'مساحة متجرك جاهزة للتحرير',
           style:
-              AssalTypography.heading1.copyWith(color: AssalColors.deepBrown),
+              AssalTypography.heading2.copyWith(color: AssalColors.deepBrown),
         ),
         const SizedBox(height: AssalSpacing.sm),
-        const Text(
-          'هذه الحالة متزامنة مع طلبك والمتجر المسجل في Supabase Production.',
+        Text(
+          workspace.canPublish
+              ? 'متجرك مفعّل. يمكنك إدارة بياناته ومنتجاته وتفاعل العملاء.'
+              : 'أكمل البيانات وأضف المنتجات. ستظل مخفية عن العملاء حتى تفعيل الإدارة.',
+          style:
+              AssalTypography.body.copyWith(color: AssalColors.textSecondary),
         ),
-        const SizedBox(height: AssalSpacing.xl),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.verified_outlined),
-            title: Text(statusLabel),
-            subtitle: Text(statusDescription),
-          ),
-        ),
-        const SizedBox(height: AssalSpacing.md),
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.inventory_2_outlined),
-            title: const Text('المنتجات'),
-            subtitle: Text(application?.storeStatus == 'active' && application?.storeVerified == true
-                ? 'متجرك مفعّل. يمكنك تجهيز المنتجات وإرسالها للنشر حسب دورة المراجعة.'
-                : 'لا تتاح إدارة المنتجات قبل تفعيل المتجر من لوحة الإدارة.'),
-          ),
+        const SizedBox(height: AssalSpacing.lg),
+        _infoCard(Icons.storefront_outlined, 'حالة المتجر',
+            workspace.canPublish ? 'active' : workspace.publicStatus),
+        _infoCard(Icons.location_on_outlined, 'الموقع',
+            store.regionNameAr ?? 'لم يُحدد بعد'),
+        _infoCard(
+            Icons.description_outlined,
+            'الوصف',
+            store.description?.isNotEmpty == true
+                ? store.description!
+                : 'لم يُضف وصف بعد'),
+        const SizedBox(height: AssalSpacing.lg),
+        const AssalMessageCard(
+          icon: Icons.visibility_outlined,
+          message:
+              'ستستخدم المعاينة نفس مكونات عرض العميل. الإعداد هنا لا ينشر البيانات قبل التفعيل.',
         ),
       ],
     );
   }
+
+  Widget _products(AssalMerchantWorkspaceSummary workspace) =>
+      FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+        future: productsFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const AssalGlassLoading();
+          final state = snapshot.data!;
+          if (state is AssalError<List<AssalProductSummary>>) {
+            return AssalMessageCard(
+              icon: Icons.inventory_2_outlined,
+              message: state.messageAr,
+            );
+          }
+          final products = state is AssalData<List<AssalProductSummary>>
+              ? state.value
+              : const <AssalProductSummary>[];
+          return ListView(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => _showProductEditor(workspace.store.id),
+                  icon: const Icon(Icons.add_box_outlined),
+                  label: const Text('إضافة منتج ومعاينته'),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              if (products.isEmpty)
+                const AssalMessageCard(
+                  icon: Icons.inventory_2_outlined,
+                  message:
+                      'لا توجد منتجات بعد. أضف أول منتج؛ سيبقى معلقًا حتى تفعيل المتجر.',
+                )
+              else
+                ...products.map(_productTile),
+            ],
+          );
+        },
+      );
+
+  Widget _drafts(AssalMerchantWorkspaceSummary workspace) =>
+      FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+        future: productsFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const AssalGlassLoading();
+          final state = snapshot.data!;
+          if (state is AssalError<List<AssalProductSummary>>) {
+            return AssalMessageCard(
+                icon: Icons.pending_actions_outlined, message: state.messageAr);
+          }
+          final products = state is AssalData<List<AssalProductSummary>>
+              ? state.value
+                  .where((item) => item.status != ProductStatus.active)
+                  .toList()
+              : const <AssalProductSummary>[];
+          if (products.isEmpty) {
+            return const AssalMessageCard(
+              icon: Icons.fact_check_outlined,
+              message: 'لا توجد مسودات أو منتجات معلقة للمراجعة.',
+            );
+          }
+          return ListView(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            children: products.map(_productTile).toList(),
+          );
+        },
+      );
+
+  Widget _comments() =>
+      FutureBuilder<AssalLoadState<List<AssalCommentSummary>>>(
+        future: commentsFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const AssalGlassLoading();
+          final state = snapshot.data!;
+          if (state is AssalError<List<AssalCommentSummary>>) {
+            return AssalMessageCard(
+                icon: Icons.forum_outlined, message: state.messageAr);
+          }
+          final comments = state is AssalData<List<AssalCommentSummary>>
+              ? state.value
+              : const <AssalCommentSummary>[];
+          if (comments.isEmpty) {
+            return const AssalMessageCard(
+              icon: Icons.forum_outlined,
+              message: 'لا توجد تعليقات على منتجاتك بعد.',
+            );
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            itemCount: comments.length,
+            separatorBuilder: (_, __) =>
+                const SizedBox(height: AssalSpacing.sm),
+            itemBuilder: (_, index) {
+              final comment = comments[index];
+              return Card(
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: AssalColors.honeyLight,
+                    child: Icon(Icons.person_outline,
+                        color: AssalColors.primaryDark),
+                  ),
+                  title: Text(comment.authorName),
+                  subtitle: Text(comment.body),
+                  isThreeLine: true,
+                ),
+              );
+            },
+          );
+        },
+      );
+
+  Widget _requests() =>
+      FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
+        future: requestsFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const AssalGlassLoading();
+          final state = snapshot.data!;
+          if (state is AssalError<List<AssalRequestSummary>>) {
+            return AssalMessageCard(
+                icon: Icons.assignment_outlined, message: state.messageAr);
+          }
+          final requests = state is AssalData<List<AssalRequestSummary>>
+              ? state.value
+              : const <AssalRequestSummary>[];
+          if (requests.isEmpty) {
+            return const AssalMessageCard(
+              icon: Icons.assignment_outlined,
+              message: 'لا توجد طلبات تواصل لهذا المتجر بعد.',
+            );
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            itemCount: requests.length,
+            separatorBuilder: (_, __) =>
+                const SizedBox(height: AssalSpacing.sm),
+            itemBuilder: (_, index) {
+              final request = requests[index];
+              return Card(
+                child: ListTile(
+                  leading: const Icon(Icons.assignment_outlined,
+                      color: AssalColors.primaryDark),
+                  title: Text(request.subject),
+                  subtitle: Text(
+                    '${request.status.name} · ${request.body ?? 'بدون تفاصيل'}',
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  isThreeLine: true,
+                ),
+              );
+            },
+          );
+        },
+      );
+
+  Widget _statistics(AssalMerchantWorkspaceSummary workspace) {
+    final store = workspace.store;
+    return ListView(
+      padding: const EdgeInsets.all(AssalSpacing.lg),
+      children: [
+        _metricCard('المشاهدات', 'تُحسب من أحداث فتح المنتج بعد أول نشر.'),
+        _metricCard('الإعجابات', '${store.followersCount} متابع للمتجر'),
+        _metricCard('المراجعات', '${store.reviewCount} مراجعة'),
+        _metricCard('سنوات الخبرة', '${store.yearsExperience} سنوات'),
+        const SizedBox(height: AssalSpacing.md),
+        const AssalMessageCard(
+          icon: Icons.analytics_outlined,
+          message:
+              'تظهر الأرقام المتاحة من Production فقط، ولا يتم اختراع أرقام عند فراغ الجداول.',
+        ),
+      ],
+    );
+  }
+
+  Widget _infoCard(IconData icon, String title, String value) => Card(
+        child: ListTile(
+          leading: Icon(icon, color: AssalColors.primaryDark),
+          title: Text(title),
+          subtitle: Text(value),
+        ),
+      );
+
+  Widget _metricCard(String title, String value) => Card(
+        child: ListTile(
+          leading: const Icon(Icons.insights_outlined,
+              color: AssalColors.primaryDark),
+          title: Text(title),
+          subtitle: Text(value),
+        ),
+      );
+
+  Widget _productTile(AssalProductSummary product) => Card(
+        child: ListTile(
+          leading: const Icon(Icons.inventory_2_outlined,
+              color: AssalColors.primaryDark),
+          title: Text(product.nameAr),
+          subtitle: Text(_productStatusLabel(product.status)),
+          trailing: Wrap(
+            spacing: 0,
+            children: [
+              IconButton(
+                tooltip: 'تعديل',
+                onPressed: () =>
+                    _showProductEditor(product.storeId, product: product),
+                icon: const Icon(Icons.edit_outlined),
+              ),
+              IconButton(
+                tooltip: 'حذف',
+                onPressed: () => _deleteProduct(product),
+                icon:
+                    const Icon(Icons.delete_outline, color: AssalColors.error),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Future<void> _showProductEditor(String storeId,
+      {AssalProductSummary? product}) async {
+    final nameController = TextEditingController(text: product?.nameAr ?? '');
+    final descriptionController =
+        TextEditingController(text: product?.description ?? '');
+    final formKey = GlobalKey<FormState>();
+    final result = await showDialog<AssalProductDraft>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(product == null ? 'إضافة منتج' : 'تعديل المنتج'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'اسم المنتج'),
+                validator: (value) => value == null || value.trim().length < 2
+                    ? 'اكتب اسم المنتج.'
+                    : null,
+              ),
+              TextFormField(
+                controller: descriptionController,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'الوصف'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('إلغاء')),
+          FilledButton(
+            onPressed: () {
+              if (!(formKey.currentState?.validate() ?? false)) return;
+              Navigator.pop(
+                dialogContext,
+                AssalProductDraft(
+                  nameAr: nameController.text.trim(),
+                  description: descriptionController.text.trim(),
+                  taxonomyId: product?.taxonomyId,
+                  productType: product?.productType ?? ProductType.honey,
+                  gradeLevel: product?.gradeLevel,
+                  metadata: const <String, Object?>{},
+                  imageUrls: product?.imageUrls ?? const <String>[],
+                ),
+              );
+            },
+            child: const Text('حفظ'),
+          ),
+        ],
+      ),
+    );
+    nameController.dispose();
+    descriptionController.dispose();
+    if (result == null || !mounted) return;
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    final state = product == null
+        ? await widget.repository
+            .createMerchantProduct(session.user!.id, storeId, result)
+        : await widget.repository
+            .updateMerchantProduct(session.user!.id, product.id, result);
+    if (!mounted) return;
+    setState(() => productsFuture = _loadProducts());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(state is AssalData<AssalProductSummary>
+            ? product == null
+                ? 'تم حفظ المنتج كمعلّق ويمكنك معاينته الآن.'
+                : 'تم حفظ تعديل المنتج وفق حالة النشر.'
+            : state is AssalError<AssalProductSummary>
+                ? state.messageAr
+                : 'تعذر حفظ المنتج.'),
+      ),
+    );
+  }
+
+  Future<void> _deleteProduct(AssalProductSummary product) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('حذف المنتج؟'),
+        content: const Text(
+            'سيُحذف المنتج من مساحة التاجر. لا يمكن التراجع عن العملية.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('إلغاء')),
+          FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('حذف')),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    final state = await widget.repository
+        .deleteMerchantProduct(session.user!.id, product.id);
+    if (!mounted) return;
+    setState(() => productsFuture = _loadProducts());
+    if (state is AssalError<void>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.messageAr)));
+    }
+  }
+
+  String _productStatusLabel(ProductStatus status) => switch (status) {
+        ProductStatus.draft => 'مسودة محفوظة',
+        ProductStatus.pending => 'معلّق حتى التفعيل أو المراجعة',
+        ProductStatus.active => 'منشور للعملاء',
+        ProductStatus.paused => 'موقوف مؤقتًا',
+        ProductStatus.rejected => 'مرفوض ويحتاج تعديلًا',
+      };
 }
