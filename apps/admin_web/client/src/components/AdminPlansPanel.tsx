@@ -134,7 +134,7 @@ export function AdminPlansPanel() {
   };
   const manualActivate = async () => {
     if (!selectedMerchantId || !selectedPlanId) { toast.error("اختر المستخدم والباقة أولًا."); return; }
-    try { await adminApi.manualActivateSubscription({ merchantId: selectedMerchantId, planId: selectedPlanId, note: manualNote }); toast.success("تم تفعيل الباقة للمستخدم وإرسال الإشعار."); setManualNote(""); await refresh(); } catch (error) { toast.error(error instanceof Error ? error.message : "تعذر تفعيل الباقة يدويًا."); }
+    try { await adminApi.activateSubscriptionForUser({ merchantId: selectedMerchantId, planId: selectedPlanId, note: manualNote }); toast.success("تم تفعيل الباقة للمستخدم وإرسال الإشعار."); setManualNote(""); await refresh(); } catch (error) { toast.error(error instanceof Error ? error.message : "تعذر تفعيل الباقة يدويًا."); }
   };
   const openProof = async (payment: Payment) => {
     const tab = window.open("about:blank", "_blank");
