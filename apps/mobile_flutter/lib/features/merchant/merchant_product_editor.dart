@@ -370,6 +370,32 @@ class _MerchantProductEditorScreenState
         decoration: InputDecoration(labelText: label),
       );
 
+  Widget _dateField(TextEditingController controller, String label) =>
+      TextFormField(
+        controller: controller,
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: const Icon(Icons.calendar_month_outlined),
+        ),
+        onTap: saving ? null : () => _selectDate(controller),
+      );
+
+  Future<void> _selectDate(TextEditingController controller) async {
+    final initial = DateTime.tryParse(controller.text.trim()) ?? DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDate: initial,
+      helpText: 'اختر التاريخ',
+      cancelText: 'إلغاء',
+      confirmText: 'اختيار',
+    );
+    if (picked == null || !mounted) return;
+    controller.text = picked.toIso8601String().split('T').first;
+  }
+
   Widget _imageSection() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -426,6 +452,8 @@ class _MerchantProductEditorScreenState
   Widget _basicTab() => ListView(
         padding: const EdgeInsets.only(top: AssalSpacing.lg),
         children: [
+          _imageSection(),
+          const SizedBox(height: AssalSpacing.lg),
           _field(
             nameArController,
             'اسم المنتج بالعربية',
@@ -504,8 +532,6 @@ class _MerchantProductEditorScreenState
                 ? null
                 : (value) => setState(() => productType = value ?? productType),
           ),
-          const SizedBox(height: AssalSpacing.lg),
-          _imageSection(),
         ],
       );
 
@@ -530,7 +556,24 @@ class _MerchantProductEditorScreenState
                 ),
               ),
               const SizedBox(width: AssalSpacing.sm),
-              SizedBox(width: 88, child: _field(currencyController, 'العملة')),
+              SizedBox(
+                width: 104,
+                child: DropdownButtonFormField<String>(
+                  initialValue: const ['YER', 'SAR', 'USD']
+                          .contains(currencyController.text)
+                      ? currencyController.text
+                      : 'YER',
+                  decoration: const InputDecoration(labelText: 'العملة'),
+                  items: const [
+                    DropdownMenuItem(value: 'YER', child: Text('ريال يمني')),
+                    DropdownMenuItem(value: 'SAR', child: Text('ريال سعودي')),
+                    DropdownMenuItem(value: 'USD', child: Text('دولار')),
+                  ],
+                  onChanged: saving
+                      ? null
+                      : (value) => currencyController.text = value ?? 'YER',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: AssalSpacing.md),
@@ -613,9 +656,9 @@ class _MerchantProductEditorScreenState
           const SizedBox(height: AssalSpacing.md),
           _field(packagingController, 'نوع التغليف'),
           const SizedBox(height: AssalSpacing.md),
-          _field(productionDateController, 'تاريخ الإنتاج — YYYY-MM-DD'),
+          _dateField(productionDateController, 'تاريخ الإنتاج'),
           const SizedBox(height: AssalSpacing.md),
-          _field(packagedDateController, 'تاريخ التعبئة — YYYY-MM-DD'),
+          _dateField(packagedDateController, 'تاريخ التعبئة'),
           const SizedBox(height: AssalSpacing.md),
           _field(shelfLifeController, 'مدة الصلاحية'),
           const SizedBox(height: AssalSpacing.md),
@@ -628,7 +671,29 @@ class _MerchantProductEditorScreenState
   Widget _salesTab() => ListView(
         padding: const EdgeInsets.only(top: AssalSpacing.lg),
         children: [
-          _field(availabilityController, 'حالة التوفر'),
+          DropdownButtonFormField<String>(
+            initialValue: const [
+              'متاح للاستفسار',
+              'متاح للطلب',
+              'غير متاح مؤقتًا',
+              'نفد المخزون',
+            ].contains(availabilityController.text)
+                ? availabilityController.text
+                : 'متاح للاستفسار',
+            decoration: const InputDecoration(
+              labelText: 'حالة التوفر',
+              prefixIcon: Icon(Icons.inventory_outlined),
+            ),
+            items: const [
+              DropdownMenuItem(value: 'متاح للاستفسار', child: Text('متاح للاستفسار')),
+              DropdownMenuItem(value: 'متاح للطلب', child: Text('متاح للطلب')),
+              DropdownMenuItem(value: 'غير متاح مؤقتًا', child: Text('غير متاح مؤقتًا')),
+              DropdownMenuItem(value: 'نفد المخزون', child: Text('نفد المخزون')),
+            ],
+            onChanged: saving
+                ? null
+                : (value) => availabilityController.text = value ?? 'متاح للاستفسار',
+          ),
           const SizedBox(height: AssalSpacing.md),
           _field(purposeController, 'الاستخدام أو الغرض'),
           const SizedBox(height: AssalSpacing.md),
@@ -642,7 +707,10 @@ class _MerchantProductEditorScreenState
           const SizedBox(height: AssalSpacing.md),
           _field(tagsController, 'الوسوم — افصل بينها بفاصلة'),
           const SizedBox(height: AssalSpacing.md),
-          _field(badgesController, 'الشارات — افصل بينها بفاصلة'),
+          const AssalMessageCard(
+            icon: Icons.verified_outlined,
+            message: 'الشارات والتوثيق Pro تُدار من الإدارة بعد المراجعة، ولا يضيفها التاجر يدويًا.',
+          ),
           const SizedBox(height: AssalSpacing.lg),
           const AssalMessageCard(
             icon: Icons.preview_outlined,
