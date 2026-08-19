@@ -1344,22 +1344,30 @@ class DemoRepository implements AssalRepository {
   Future<AssalLoadState<List<AssalSubscriptionPlan>>> listSubscriptionPlans() async =>
       const AssalData(<AssalSubscriptionPlan>[
         AssalSubscriptionPlan(id: 'demo-basic-month', code: 'basic', nameAr: 'أساسية', billingInterval: 'month', priceAmount: 0, currency: 'SAR', storeLimit: 1, productLimit: 25, verificationIncluded: 0),
-        AssalSubscriptionPlan(id: 'demo-standard-month', code: 'standard', nameAr: 'عادية', billingInterval: 'month', priceAmount: 49, currency: 'SAR', storeLimit: 2, productLimit: 100, verificationIncluded: 0),
-        AssalSubscriptionPlan(id: 'demo-bronze-month', code: 'bronze_professional', nameAr: 'Bronze Professional البرونزية الاحترافية', billingInterval: 'month', priceAmount: 99, currency: 'SAR', storeLimit: 5, productLimit: 300, verificationIncluded: 1, entitlements: {'design_requests_per_cycle': 1}),
-        AssalSubscriptionPlan(id: 'demo-gold-month', code: 'gold', nameAr: 'Gold الذهبية', billingInterval: 'month', priceAmount: 199, currency: 'SAR', storeLimit: 10, productLimit: 1000, verificationIncluded: 3, entitlements: {'design_requests_per_cycle': 3}),
+        AssalSubscriptionPlan(id: 'demo-standard-month', code: 'standard', nameAr: 'عادية', billingInterval: 'month', priceAmount: 35, currency: 'SAR', storeLimit: 2, productLimit: 100, verificationIncluded: 0),
+        AssalSubscriptionPlan(id: 'demo-bronze-month', code: 'bronze_professional', nameAr: 'Bronze Professional البرونزية الاحترافية', billingInterval: 'month', priceAmount: 70.71, currency: 'SAR', storeLimit: 5, productLimit: 300, verificationIncluded: 1, entitlements: {'design_requests_per_cycle': 1}),
+        AssalSubscriptionPlan(id: 'demo-gold-month', code: 'gold', nameAr: 'Gold الذهبية', billingInterval: 'month', priceAmount: 142.14, currency: 'SAR', storeLimit: 10, productLimit: 1000, verificationIncluded: 3, entitlements: {'design_requests_per_cycle': 3}),
+        AssalSubscriptionPlan(id: 'demo-basic-year', code: 'basic', nameAr: 'أساسية', billingInterval: 'year', priceAmount: 0, currency: 'SAR', storeLimit: 1, productLimit: 25, verificationIncluded: 0),
+        AssalSubscriptionPlan(id: 'demo-standard-year', code: 'standard', nameAr: 'عادية', billingInterval: 'year', priceAmount: 350, currency: 'SAR', storeLimit: 2, productLimit: 100, verificationIncluded: 0),
+        AssalSubscriptionPlan(id: 'demo-bronze-year', code: 'bronze_professional', nameAr: 'Bronze Professional البرونزية الاحترافية', billingInterval: 'year', priceAmount: 707.10, currency: 'SAR', storeLimit: 5, productLimit: 300, verificationIncluded: 1, entitlements: {'design_requests_per_cycle': 1}),
+        AssalSubscriptionPlan(id: 'demo-gold-year', code: 'gold', nameAr: 'Gold الذهبية', billingInterval: 'year', priceAmount: 1421.40, currency: 'SAR', storeLimit: 10, productLimit: 1000, verificationIncluded: 3, entitlements: {'design_requests_per_cycle': 3}),
       ]);
 
   @override
   Future<AssalLoadState<AssalSubscriptionCampaign?>> loadSubscriptionCampaign() async =>
-      const AssalData(AssalSubscriptionCampaign(id: 'demo-launch', nameAr: 'افتتاح تطبيق عسلكم', discountPercent: 15, isActive: true, appliesTo: ['subscription', 'verification']));
+      const AssalData(AssalSubscriptionCampaign(id: 'demo-launch', nameAr: 'افتتاح تطبيق عسلكم', discountPercent: 10, discountByPlanCode: {'standard': 10, 'bronze_professional': 15, 'gold': 15, 'verification': 10}, isActive: true, appliesTo: ['subscription', 'verification']));
 
   @override
   Future<AssalLoadState<AssalLocalTransferSettings?>> loadLocalTransferSettings() async =>
       const AssalEmpty('بيانات الحوالة غير مهيأة في العرض التجريبي.');
 
   @override
-  Future<AssalLoadState<AssalPaymentRequest>> createSubscriptionPaymentRequest(String userId, String planId) async =>
-      AssalData(AssalPaymentRequest(id: 'demo-payment-$planId', paymentType: 'subscription', status: 'not_started', baseAmount: 99, discountPercent: 15, finalAmount: 84.15, currency: 'SAR', planId: planId, createdAt: DateTime.now().toUtc()));
+  Future<AssalLoadState<AssalPaymentRequest>> createSubscriptionPaymentRequest(String userId, String planId) async {
+    final baseAmount = planId.contains('gold') ? 142.14 : planId.contains('bronze') ? 70.71 : planId.contains('standard') ? 35.0 : 0.0;
+    final discountPercent = planId.contains('gold') || planId.contains('bronze') ? 15.0 : 10.0;
+    final finalAmount = double.parse((baseAmount * (1 - discountPercent / 100)).toStringAsFixed(2));
+    return AssalData(AssalPaymentRequest(id: 'demo-payment-$planId', paymentType: 'subscription', status: 'not_started', baseAmount: baseAmount, discountPercent: discountPercent, finalAmount: finalAmount, currency: 'SAR', planId: planId, createdAt: DateTime.now().toUtc()));
+  }
 
   @override
   Future<AssalLoadState<String>> uploadPaymentProof(String userId, String paymentRequestId, Uint8List bytes, String extension) async =>
@@ -1367,7 +1375,7 @@ class DemoRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<AssalPaymentRequest>> submitPaymentProof(String userId, String paymentRequestId, String paymentReference, String proofPath, String proofFileName, String proofMimeType, int proofByteSize, DateTime transferDate, double submittedAmount, String senderName, String senderPhone) async =>
-      AssalData(AssalPaymentRequest(id: paymentRequestId, paymentType: 'subscription', status: 'proof_uploaded', baseAmount: submittedAmount, discountPercent: 15, finalAmount: submittedAmount, currency: 'SAR', paymentReference: paymentReference, proofPath: proofPath, createdAt: DateTime.now().toUtc()));
+      AssalData(AssalPaymentRequest(id: paymentRequestId, paymentType: 'subscription', status: 'proof_uploaded', baseAmount: submittedAmount, discountPercent: 0, finalAmount: submittedAmount, currency: 'SAR', paymentReference: paymentReference, proofPath: proofPath, createdAt: DateTime.now().toUtc()));
 
   @override
   Future<AssalLoadState<AssalDesignRequest>> createDesignRequest(String userId, String storeId, AssalDesignRequestDraft draft) async =>

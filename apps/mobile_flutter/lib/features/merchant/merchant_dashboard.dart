@@ -229,6 +229,12 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               AssalTypography.body.copyWith(color: AssalColors.textSecondary),
         ),
         const SizedBox(height: AssalSpacing.lg),
+        if (workspace.planCode != null && workspace.planStatus != 'active')
+          const AssalMessageCard(
+            icon: Icons.hourglass_top_outlined,
+            message: 'الباقة في انتظار التفعيل — قد يستغرق التفعيل حتى 24 ساعة. يمكنك متابعة إعداد المتجر وإضافة المنتجات، وستظهر للعملاء بعد اعتماد الإدارة.',
+          ),
+        if (workspace.planCode != null && workspace.planStatus != 'active') const SizedBox(height: AssalSpacing.md),
         _infoCard(Icons.storefront_outlined, 'حالة المتجر', store.status.labelAr),
         _infoCard(
           Icons.verified_user_outlined,

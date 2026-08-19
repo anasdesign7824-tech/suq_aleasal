@@ -17,8 +17,10 @@ class SubscriptionPlansScreen extends StatefulWidget {
 
 class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
   late Future<void> _loadFuture;
+  List<AssalSubscriptionPlan> allPlans = const <AssalSubscriptionPlan>[];
   List<AssalSubscriptionPlan> plans = const <AssalSubscriptionPlan>[];
   AssalSubscriptionCampaign? campaign;
+  bool _isYearly = false;
   AssalLocalTransferSettings? transfer;
   AssalPaymentRequest? payment;
   String? proofPath;
@@ -51,11 +53,26 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
     final planState = await widget.repository.listSubscriptionPlans();
     final campaignState = await widget.repository.loadSubscriptionCampaign();
     final transferState = await widget.repository.loadLocalTransferSettings();
-    if (planState is AssalData<List<AssalSubscriptionPlan>>) plans = planState.value.where((plan) => plan.billingInterval == 'month').toList(growable: false);
+    if (planState is AssalData<List<AssalSubscriptionPlan>>) {
+      allPlans = planState.value;
+      plans = allPlans.where((plan) => plan.billingInterval == (_isYearly ? 'year' : 'month')).toList(growable: false);
+    }
     if (campaignState is AssalData<AssalSubscriptionCampaign?>) campaign = campaignState.value;
     if (transferState is AssalData<AssalLocalTransferSettings?>) transfer = transferState.value;
     if (planState is AssalError<List<AssalSubscriptionPlan>>) message = planState.messageAr;
     if (transferState is AssalError<AssalLocalTransferSettings?>) message = transferState.messageAr;
+  }
+
+  void _setInterval(bool yearly) {
+    if (_isYearly == yearly) return;
+    setState(() {
+      _isYearly = yearly;
+      plans = allPlans.where((plan) => plan.billingInterval == (_isYearly ? 'year' : 'month')).toList(growable: false);
+      payment = null;
+      proofPath = null;
+      proofName = null;
+      message = null;
+    });
   }
 
   Future<void> _choosePlan(AssalSubscriptionPlan plan) async {
@@ -164,19 +181,25 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
   Widget _intro() => Card(child: Padding(padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [const Icon(Icons.auto_awesome_outlined, color: AssalColors.primaryDark), const SizedBox(width: AssalSpacing.sm), Text('خطط واضحة، مزايا حقيقية', style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown))]),
         const SizedBox(height: AssalSpacing.sm),
-        Text(campaign?.isActive == true ? 'خصم افتتاحي ${campaign!.discountPercent.toStringAsFixed(0)}% فعال حاليًا. يظهر السعر قبل الخصم وبعده، ويعاد حساب المبلغ من الخادم.' : 'اختر الخطة التي تناسب عدد متاجرك ومنتجاتك. الدفع المتاح حاليًا بالحوالة المحلية فقط.'),
+        Text(campaign?.isActive == true ? 'خصم الافتتاح فعال حاليًا حسب كل خطة. يظهر السعر قبل الخصم وبعده، ويعاد حساب المبلغ من الخادم.' : 'اختر الخطة التي تناسب عدد متاجرك ومنتجاتك. الدفع المتاح حاليًا بالحوالة المحلية فقط.'),
+        const SizedBox(height: AssalSpacing.md),
+        Row(children: [Expanded(child: ChoiceChip(label: const Text('شهري'), selected: !_isYearly, onSelected: (_) => _setInterval(false))), const SizedBox(width: AssalSpacing.sm), Expanded(child: ChoiceChip(label: const Text('سنوي — عشرة أشهر'), selected: _isYearly, onSelected: (_) => _setInterval(true)))]),
+        const SizedBox(height: AssalSpacing.sm),
+        Text(_isYearly ? 'السعر السنوي يعادل عشرة أشهر مدفوعة، ولا يضاف عليه خصم سنوي تراكمي.' : 'يمكنك التبديل إلى السنوي للحصول على شهرين مجانيين ضمن السعر الأساسي.'),
       ])));
 
   Widget _planCard(AssalSubscriptionPlan plan) {
-    final discount = campaign?.isActive == true && (campaign!.appliesTo.isEmpty || campaign!.appliesTo.contains('subscription')) ? campaign!.discountPercent : 0;
+    final discount = campaign?.isActive == true && (campaign!.appliesTo.isEmpty || campaign!.appliesTo.contains('subscription')) ? (campaign!.discountByPlanCode[plan.code] ?? campaign!.discountPercent) : 0;
     final finalAmount = double.parse((plan.priceAmount * (1 - discount / 100)).toStringAsFixed(2));
+    final intervalLabel = plan.billingInterval == 'year' ? 'سنة' : 'شهر';
     final isGold = plan.code == 'gold';
     return Card(child: Container(decoration: BoxDecoration(gradient: LinearGradient(colors: isGold ? [const Color(0xfffff0b8), const Color(0xffd79a2b)] : [const Color(0xfffff8e8), const Color(0xffe6b667)]), borderRadius: BorderRadius.circular(AssalRadius.medium)), padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Text(plan.nameAr, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown))), if (discount > 0) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .75), borderRadius: BorderRadius.circular(20)), child: Text('خصم ${discount.toStringAsFixed(0)}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AssalColors.primaryDark)))]),
       const SizedBox(height: AssalSpacing.sm),
-      if (plan.priceAmount > 0) Text.rich(TextSpan(children: [TextSpan(text: '${plan.priceAmount.toStringAsFixed(2)} ر.س  ', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.black54)), TextSpan(text: '${finalAmount.toStringAsFixed(2)} ر.س / شهر', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.deepBrown))])),
+      if (plan.priceAmount > 0) Text.rich(TextSpan(children: [TextSpan(text: '${plan.priceAmount.toStringAsFixed(2)} ر.س  ', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.black54)), TextSpan(text: '${finalAmount.toStringAsFixed(2)} ر.س / $intervalLabel', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.deepBrown))])),
       if (plan.priceAmount == 0) const Text('مجانية', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.deepBrown)),
       const SizedBox(height: AssalSpacing.sm),
+      if (plan.billingInterval == 'year') const Text('السعر السنوي محسوب على عشرة أشهر — شهران مجانيان ضمن السعر الأساسي', style: TextStyle(fontWeight: FontWeight.w700, color: AssalColors.primaryDark)),
       Text('${plan.storeLimit} متاجر · ${plan.productLimit} منتجًا نشطًا لكل متجر'),
       Text(plan.verificationIncluded > 0 ? 'يشمل مراجعة توثيق لعدد ${plan.verificationIncluded} من المتاجر' : 'التوثيق يطلب منفصلًا'),
       if ((plan.entitlements['design_requests_per_cycle'] as num?)?.toInt() case final designCount? when designCount > 0) Text('يشمل طلب تصميم مخصص بعد التفعيل: $designCount'),

@@ -590,18 +590,25 @@ export async function listSubscriptionCampaigns(session: AdminSession) {
 
 export async function updateLaunchCampaign(
   session: AdminSession,
-  input: { discountPercent: number | string; isActive: boolean; startsAt?: string | null; endsAt?: string | null; appliesTo?: string[] },
+  input: { discountPercent: number | string; isActive: boolean; startsAt?: string | null; endsAt?: string | null; appliesTo?: string[]; discountByPlanCode?: Record<string, number | string> },
 ) {
   if (!hasPermission(session, 'campaigns.manage')) throw new Error('لا تملك صلاحية إدارة حملة الافتتاح.');
   const parsedDiscount = finiteNumber(input.discountPercent, 'نسبة الخصم', { min: 0 });
   if (parsedDiscount === null || parsedDiscount > 100) throw new Error('نسبة الخصم يجب أن تكون بين 0 و100.');
   const discountPercent = parsedDiscount;
+  const discountByPlanCode: Record<string, number> = {};
+  for (const [code, value] of Object.entries(input.discountByPlanCode ?? {})) {
+    const parsed = finiteNumber(value, `نسبة خصم ${code}`, { min: 0 });
+    if (parsed === null || parsed > 100) throw new Error(`نسبة خصم ${code} يجب أن تكون بين 0 و100.`);
+    discountByPlanCode[code] = parsed;
+  }
   const service = createServiceSupabaseClient();
   const existing = await service.from('subscription_campaigns').select('id, code').eq('code', 'app_launch_2026').maybeSingle();
   if (existing.error) throw existing.error;
   if (!existing.data) throw new Error('حملة الافتتاح غير مهيأة في Production.');
   const updated = await service.from('subscription_campaigns').update({
     discount_percent: discountPercent,
+    discount_by_plan_code: discountByPlanCode,
     is_active: Boolean(input.isActive),
     starts_at: input.startsAt ?? null,
     ends_at: input.endsAt ?? null,
@@ -609,7 +616,7 @@ export async function updateLaunchCampaign(
     updated_by: session.user.id,
   }).eq('id', existing.data.id).select('*').single();
   if (updated.error) throw updated.error;
-  await recordAudit(session, { action: `campaign.app_launch.${input.isActive ? 'activate' : 'deactivate'}`, entityType: 'subscription_campaigns', entityId: updated.data.id, metadata: { discountPercent, startsAt: input.startsAt ?? null, endsAt: input.endsAt ?? null } });
+  await recordAudit(session, { action: `campaign.app_launch.${input.isActive ? 'activate' : 'deactivate'}`, entityType: 'subscription_campaigns', entityId: updated.data.id, metadata: { discountPercent, discountByPlanCode, startsAt: input.startsAt ?? null, endsAt: input.endsAt ?? null } });
   return updated.data;
 }
 
@@ -682,6 +689,26 @@ export async function setMerchantSubscriptionStatus(session: AdminSession, subsc
   const result = await service.rpc('admin_set_subscription_status', { p_subscription_id: subscriptionId, p_status: status, ...(note?.trim() ? { p_note: note.trim() } : {}), p_reviewer_id: session.user.id });
   if (result.error) throw result.error;
   await recordAudit(session, { action: `subscription.${status}`, entityType: 'merchant_subscriptions', entityId: subscriptionId, metadata: { note: note?.trim() || null } });
+  return result.data;
+}
+
+export async function activateSubscriptionForUser(session: AdminSession, merchantId: string, planId: string, note?: string) {
+  if (!hasPermission(session, 'plans.manage')) throw new Error('لا تملك صلاحية تفعيل الخطط.');
+  const service = createServiceSupabaseClient();
+  const result = await service.rpc('admin_activate_subscription_for_user', {
+    p_merchant_id: requireText(merchantId, 'المستخدم'),
+    p_plan_id: requireText(planId, 'الخطة'),
+    ...(note?.trim() ? { p_note: note.trim() } : {}),
+    p_reviewer_id: session.user.id,
+  });
+  if (result.error) throw result.error;
+  const activationPayload = result.data && typeof result.data === 'object' && !Array.isArray(result.data) ? result.data as { id?: unknown } : null;
+  await recordAudit(session, {
+    action: 'subscription.manual_activate',
+    entityType: 'merchant_subscriptions',
+    entityId: String(activationPayload?.id ?? merchantId),
+    metadata: { merchantId, planId, note: note?.trim() || null },
+  });
   return result.data;
 }
 

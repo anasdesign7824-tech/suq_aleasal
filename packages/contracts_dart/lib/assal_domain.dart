@@ -349,6 +349,7 @@ class AssalSubscriptionCampaign {
     required this.id,
     required this.nameAr,
     required this.discountPercent,
+    this.discountByPlanCode = const <String, double>{},
     required this.isActive,
     this.startsAt,
     this.endsAt,
@@ -358,6 +359,7 @@ class AssalSubscriptionCampaign {
   final String id;
   final String nameAr;
   final double discountPercent;
+  final Map<String, double> discountByPlanCode;
   final bool isActive;
   final DateTime? startsAt;
   final DateTime? endsAt;
@@ -368,6 +370,7 @@ class AssalSubscriptionCampaign {
         id: _string(json['id']),
         nameAr: _string(json['name_ar']),
         discountPercent: _number(json['discount_percent']),
+        discountByPlanCode: _numberMap(json['discount_by_plan_code']),
         isActive: json['is_active'] == true,
         startsAt: _dateOrNull(json['starts_at']),
         endsAt: _dateOrNull(json['ends_at']),
@@ -1343,6 +1346,9 @@ Map<String, Object?> _map(Object? value) =>
 Map<String, String> _stringMap(Object? value) => value is Map
     ? value.map((key, item) => MapEntry('$key', '$item'))
     : const <String, String>{};
+Map<String, double> _numberMap(Object? value) => value is Map
+    ? value.map((key, item) => MapEntry('$key', _number(item)))
+    : const <String, double>{};
 DateTime? _dateOrNull(Object? value) =>
     value is DateTime ? value : DateTime.tryParse(_string(value));
 

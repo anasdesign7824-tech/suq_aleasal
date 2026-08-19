@@ -53,6 +53,7 @@ import {
   reconcilePaymentRequest,
   listMerchantSubscriptions,
   setMerchantSubscriptionStatus,
+  activateSubscriptionForUser,
   listDesignRequests,
   updateDesignRequest,
   listTaxonomy,
@@ -268,6 +269,13 @@ async function startServer() {
       const status = request.body?.status;
       if (!["active", "expired", "cancelled", "suspended"].includes(status)) { response.status(400).json({ error: "invalid_subscription_status", messageAr: "حالة الخطة غير صالحة." }); return; }
       response.json({ item: await setMerchantSubscriptionStatus(getRequestAdminSession(response), id, status, request.body?.note) });
+    } catch (error) { sendError(response, error); }
+  });
+  app.post("/api/admin/subscriptions/activate", requireAdmin("plans.manage"), async (request, response) => {
+    try {
+      const merchantId = typeof request.body?.merchantId === "string" ? request.body.merchantId : "";
+      const planId = typeof request.body?.planId === "string" ? request.body.planId : "";
+      response.status(201).json({ item: await activateSubscriptionForUser(getRequestAdminSession(response), merchantId, planId, request.body?.note) });
     } catch (error) { sendError(response, error); }
   });
   app.get("/api/admin/design-requests", requireAdmin("design.read"), async (request, response) => {
