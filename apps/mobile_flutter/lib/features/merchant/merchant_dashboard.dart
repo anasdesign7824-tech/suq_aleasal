@@ -5,6 +5,7 @@ import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
+import 'merchant_product_editor.dart';
 
 class MerchantDashboard extends StatefulWidget {
   const MerchantDashboard({super.key, required this.repository});
@@ -163,16 +164,32 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               ),
             ),
           ),
-          const TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(text: 'نظرة عامة'),
-              Tab(text: 'المنتجات'),
-              Tab(text: 'المسودات والمراجعة'),
-              Tab(text: 'الإحصاءات'),
-              Tab(text: 'التعليقات'),
-              Tab(text: 'الطلبات'),
-            ],
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+            decoration: BoxDecoration(
+              gradient: AssalColors.darkGradient,
+              borderRadius: BorderRadius.circular(AssalRadius.medium),
+            ),
+            child: TabBar(
+              isScrollable: true,
+              padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.xs),
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white.withValues(alpha: .72),
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                color: AssalColors.primaryDark,
+                borderRadius: BorderRadius.circular(AssalRadius.small),
+              ),
+              dividerColor: Colors.transparent,
+              tabs: const [
+                Tab(text: 'نظرة عامة'),
+                Tab(text: 'المنتجات'),
+                Tab(text: 'المسودات والمراجعة'),
+                Tab(text: 'الإحصاءات'),
+                Tab(text: 'التعليقات'),
+                Tab(text: 'الطلبات'),
+              ],
+            ),
           ),
           Expanded(
             child: TabBarView(
@@ -270,7 +287,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: () => _showProductEditor(workspace.store.id),
+                  onPressed: () => _openProductEditor(workspace.store.id),
                   icon: const Icon(Icons.add_box_outlined),
                   label: const Text('إضافة منتج ومعاينته'),
                 ),
@@ -451,8 +468,10 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             children: [
               IconButton(
                 tooltip: 'تعديل',
-                onPressed: () =>
-                    _showProductEditor(product.storeId, product: product),
+                onPressed: () => _openProductEditor(
+                  product.storeId,
+                  product: product,
+                ),
                 icon: const Icon(Icons.edit_outlined),
               ),
               IconButton(
@@ -466,84 +485,24 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         ),
       );
 
-  Future<void> _showProductEditor(String storeId,
-      {AssalProductSummary? product}) async {
-    final nameController = TextEditingController(text: product?.nameAr ?? '');
-    final descriptionController =
-        TextEditingController(text: product?.description ?? '');
-    final formKey = GlobalKey<FormState>();
-    final result = await showDialog<AssalProductDraft>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(product == null ? 'إضافة منتج' : 'تعديل المنتج'),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'اسم المنتج'),
-                validator: (value) => value == null || value.trim().length < 2
-                    ? 'اكتب اسم المنتج.'
-                    : null,
-              ),
-              TextFormField(
-                controller: descriptionController,
-                maxLines: 3,
-                decoration: const InputDecoration(labelText: 'الوصف'),
-              ),
-            ],
-          ),
+  Future<void> _openProductEditor(
+    String storeId, {
+    AssalProductSummary? product,
+  }) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => MerchantProductEditorScreen(
+          repository: widget.repository,
+          storeId: storeId,
+          product: product,
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('إلغاء')),
-          FilledButton(
-            onPressed: () {
-              if (!(formKey.currentState?.validate() ?? false)) return;
-              Navigator.pop(
-                dialogContext,
-                AssalProductDraft(
-                  nameAr: nameController.text.trim(),
-                  description: descriptionController.text.trim(),
-                  taxonomyId: product?.taxonomyId,
-                  productType: product?.productType ?? ProductType.honey,
-                  gradeLevel: product?.gradeLevel,
-                  metadata: const <String, Object?>{},
-                  imageUrls: product?.imageUrls ?? const <String>[],
-                ),
-              );
-            },
-            child: const Text('حفظ'),
-          ),
-        ],
       ),
     );
-    nameController.dispose();
-    descriptionController.dispose();
-    if (result == null || !mounted) return;
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) return;
-    final state = product == null
-        ? await widget.repository
-            .createMerchantProduct(session.user!.id, storeId, result)
-        : await widget.repository
-            .updateMerchantProduct(session.user!.id, product.id, result);
-    if (!mounted) return;
-    setState(() => productsFuture = _loadProducts());
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(state is AssalData<AssalProductSummary>
-            ? product == null
-                ? 'تم حفظ المنتج كمعلّق ويمكنك معاينته الآن.'
-                : 'تم حفظ تعديل المنتج وفق حالة النشر.'
-            : state is AssalError<AssalProductSummary>
-                ? state.messageAr
-                : 'تعذر حفظ المنتج.'),
-      ),
-    );
+    if (!mounted || changed != true) return;
+    setState(() {
+      productsFuture = _loadProducts();
+      commentsFuture = _loadComments();
+    });
   }
 
   Future<void> _deleteProduct(AssalProductSummary product) async {
@@ -604,7 +563,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   late final TextEditingController nameController;
   late final TextEditingController descriptionController;
   late final TextEditingController phoneController;
-  late final TextEditingController locationController;
+  String? regionId;
   String? logoUrl;
   String? coverUrl;
   final galleryUrls = <String>[];
@@ -619,7 +578,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     descriptionController =
         TextEditingController(text: store.description ?? '');
     phoneController = TextEditingController(text: store.contactPhone ?? '');
-    locationController = TextEditingController(text: store.regionNameAr ?? '');
+    regionId = store.regionId;
     logoUrl = store.logoUrl;
     coverUrl = store.coverUrl;
     galleryUrls.addAll(store.galleryUrls);
@@ -630,7 +589,6 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     nameController.dispose();
     descriptionController.dispose();
     phoneController.dispose();
-    locationController.dispose();
     super.dispose();
   }
 
@@ -716,6 +674,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
             : phoneController.text.trim(),
         logoUrl: logoUrl,
         coverUrl: coverUrl,
+        regionId: regionId,
       ),
     );
     if (!mounted) return;
@@ -785,12 +744,35 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               ),
             ),
             const SizedBox(height: AssalSpacing.md),
-            TextField(
-              controller: locationController,
-              decoration: const InputDecoration(
-                labelText: 'الموقع أو المحافظة',
-                prefixIcon: Icon(Icons.location_on_outlined),
-              ),
+            FutureBuilder<AssalLoadState<List<AssalRegion>>>(
+              future: widget.repository.listRegions(),
+              builder: (context, snapshot) {
+                final state = snapshot.data;
+                final regions = state is AssalData<List<AssalRegion>>
+                    ? state.value
+                    : const <AssalRegion>[];
+                return DropdownButtonFormField<String>(
+                  initialValue: regions.any((region) => region.id == regionId)
+                      ? regionId
+                      : null,
+                  decoration: const InputDecoration(
+                    labelText: 'المحافظة أو المنطقة',
+                    prefixIcon: Icon(Icons.location_on_outlined),
+                  ),
+                  items: regions
+                      .map(
+                        (region) => DropdownMenuItem<String>(
+                          value: region.id,
+                          child: Text(region.nameAr),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: saving
+                      ? null
+                      : (value) => setState(() => regionId = value),
+                  hint: const Text('اختر المنطقة'),
+                );
+              },
             ),
             const SizedBox(height: AssalSpacing.lg),
             const Text('صور المعرض', style: AssalTypography.subtitle),

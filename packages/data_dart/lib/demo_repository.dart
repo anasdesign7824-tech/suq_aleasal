@@ -1059,20 +1059,70 @@ class DemoRepository implements AssalRepository {
     String id,
     String storeId,
     AssalProductDraft draft,
-  ) =>
-      AssalProductSummary(
-        id: id,
-        storeId: storeId,
-        nameAr: draft.nameAr,
-        nameEn: draft.nameEn,
-        description: draft.description,
-        productType: draft.productType,
-        status: ProductStatus.pending,
-        taxonomyId: draft.taxonomyId,
-        imageUrls: draft.imageUrls,
-        primaryImageUrl: draft.imageUrls.isEmpty ? null : draft.imageUrls.first,
-        gradeLevel: draft.gradeLevel,
-      );
+  ) {
+    final metadata = draft.metadata;
+    String? text(String key) => metadata[key] is String
+        ? (metadata[key] as String).trim().isEmpty
+            ? null
+            : (metadata[key] as String).trim()
+        : null;
+    double? number(String key) => metadata[key] is num
+        ? (metadata[key] as num).toDouble()
+        : double.tryParse('${metadata[key] ?? ''}');
+    List<String> list(String key) {
+      final value = metadata[key];
+      if (value is List)
+        return value.whereType<String>().toList(growable: false);
+      if (value is String) {
+        return value
+            .split(RegExp(r'[,،\\n]'))
+            .map((item) => item.trim())
+            .where((item) => item.isNotEmpty)
+            .toList(growable: false);
+      }
+      return const <String>[];
+    }
+
+    DateTime? date(String key) => DateTime.tryParse(text(key) ?? '');
+    return AssalProductSummary(
+      id: id,
+      storeId: storeId,
+      nameAr: draft.nameAr,
+      nameEn: draft.nameEn,
+      description: draft.description,
+      productType: draft.productType,
+      status: ProductStatus.pending,
+      taxonomyId: draft.taxonomyId,
+      imageUrls: draft.imageUrls,
+      primaryImageUrl: draft.imageUrls.isEmpty ? null : draft.imageUrls.first,
+      gradeLevel: draft.gradeLevel,
+      regionNameAr: text('province_name_ar'),
+      originCountry: text('origin_country'),
+      provinceNameAr: text('province_name_ar'),
+      honeyIdentity: text('honey_identity'),
+      qualityLabelAr: text('quality_label_ar'),
+      processingMethodAr: text('processing_method_ar'),
+      processingStatusAr: text('processing_status_ar'),
+      packagingLabelAr: text('packaging_label_ar'),
+      productionDate: date('production_date'),
+      packagedDate: date('packaged_date'),
+      shelfLifeLabelAr: text('shelf_life_label_ar'),
+      deliveryOptions: list('delivery_options'),
+      pickupLocations: list('pickup_locations'),
+      price: number('price'),
+      currencyCode: text('currency_code') ?? 'YER',
+      tags: list('tags'),
+      badges: list('badges'),
+      regions: list('regions'),
+      forms: list('forms'),
+      purpose: text('purpose'),
+      availability: text('availability') ?? 'متاح للاستفسار',
+      weightLabel: text('weight_label'),
+      harvestLabel: text('harvest_label'),
+      components: list('components'),
+      certifications: list('certifications'),
+    );
+  }
 
   @override
   Future<AssalLoadState<AssalProductSummary>> createMerchantProduct(

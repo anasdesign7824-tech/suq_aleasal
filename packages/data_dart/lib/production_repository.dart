@@ -1325,6 +1325,10 @@ class ProductionRepository implements AssalRepository {
     Map<String, Object?> row,
   ) async {
     final value = Map<String, Object?>.from(row);
+    final rawMetadata = row['metadata'];
+    if (rawMetadata is Map) {
+      value.addAll(Map<String, Object?>.from(rawMetadata));
+    }
     final images = await _gateway
         .select('product_images', filters: {'product_id': row['id']});
     final imageUrls = images
@@ -1367,6 +1371,11 @@ class ProductionRepository implements AssalRepository {
         write: () async {
           if (draft.nameAr.trim().length < 2)
             throw StateError('invalid_product_name');
+          final ownedStores = await _gateway.select(
+            'stores',
+            filters: {'id': storeId, 'merchant_id': userId},
+          );
+          if (ownedStores.isEmpty) throw StateError('merchant_store_not_owned');
           final row = await _gateway.insert('products', {
             'store_id': storeId,
             'taxonomy_id': draft.taxonomyId,
@@ -1404,6 +1413,11 @@ class ProductionRepository implements AssalRepository {
           final current = rows.first;
           final storeId = current['store_id'];
           if (storeId is! String) throw StateError('product_store_missing');
+          final ownedStores = await _gateway.select(
+            'stores',
+            filters: {'id': storeId, 'merchant_id': userId},
+          );
+          if (ownedStores.isEmpty) throw StateError('merchant_store_not_owned');
           final patch = <String, Object?>{
             'name_ar': draft.nameAr.trim(),
             'name_en': draft.nameEn?.trim(),
@@ -1438,7 +1452,21 @@ class ProductionRepository implements AssalRepository {
   ) =>
       _write(
         resource: 'merchant_products.delete',
-        write: () => _gateway.delete('products', filters: {'id': productId}),
+        write: () async {
+          final rows = await _gateway.select(
+            'products',
+            filters: {'id': productId},
+          );
+          if (rows.isEmpty) throw StateError('product_not_found');
+          final storeId = rows.first['store_id'];
+          if (storeId is! String) throw StateError('product_store_missing');
+          final stores = await _gateway.select(
+            'stores',
+            filters: {'id': storeId, 'merchant_id': userId},
+          );
+          if (stores.isEmpty) throw StateError('merchant_store_not_owned');
+          await _gateway.delete('products', filters: {'id': productId});
+        },
       );
 
   @override
@@ -1517,8 +1545,14 @@ class ProductionRepository implements AssalRepository {
       _write(
         resource: 'store_gallery_image.upload',
         write: () async {
+          final stores = await _gateway.select(
+            'stores',
+            filters: {'id': storeId, 'merchant_id': userId},
+          );
+          if (stores.isEmpty) throw StateError('merchant_store_not_owned');
           final safeExtension =
               extension.toLowerCase() == 'png' ? 'png' : 'jpg';
+
           final path =
               '$userId/store/$storeId/gallery-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
           final url =
@@ -1542,10 +1576,23 @@ class ProductionRepository implements AssalRepository {
       _write(
         resource: 'product_image.upload',
         write: () async {
+          final products = await _gateway.select(
+            'products',
+            filters: {'id': productId},
+          );
+          if (products.isEmpty) throw StateError('product_not_found');
+          final storeId = products.first['store_id'];
+          if (storeId is! String) throw StateError('product_store_missing');
+          final stores = await _gateway.select(
+            'stores',
+            filters: {'id': storeId, 'merchant_id': userId},
+          );
+          if (stores.isEmpty) throw StateError('merchant_store_not_owned');
           final safeExtension =
               extension.toLowerCase() == 'png' ? 'png' : 'jpg';
           final path =
               '$userId/product/$productId/image-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+
           final url =
               await _gateway.uploadPublicImage(path, bytes, safeExtension);
           await _gateway.insert('product_images', {

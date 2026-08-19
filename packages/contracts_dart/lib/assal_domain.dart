@@ -1,11 +1,17 @@
 import 'dart:convert';
 
 enum AssalRole { guest, customer, merchant, admin }
+
 enum ProductType { honey, wax, mix, raw, gift }
+
 enum ProductStatus { draft, pending, active, paused, rejected }
+
 enum StoreStatus { pending, active, paused, rejected, suspended }
+
 enum VerificationStatus { pending, verified, rejected, suspended }
+
 enum ReviewStatus { pending, approved, rejected, hidden }
+
 enum RequestStatus { open, inProgress, answered, closed, cancelled }
 
 enum HandoffOption { pickup, delivery, office, courier, contact }
@@ -39,7 +45,13 @@ extension HandoffOptionLabel on HandoffOption {
 }
 
 class AssalRegion {
-  const AssalRegion({required this.id, required this.nameAr, this.nameEn, this.code, this.parentRegionId, this.isActive = true});
+  const AssalRegion(
+      {required this.id,
+      required this.nameAr,
+      this.nameEn,
+      this.code,
+      this.parentRegionId,
+      this.isActive = true});
   final String id;
   final String nameAr;
   final String? nameEn;
@@ -58,7 +70,13 @@ class AssalRegion {
 }
 
 class AssalTaxonomy {
-  const AssalTaxonomy({required this.id, required this.code, required this.nameAr, this.nameEn, this.description, this.metadata = const <String, Object?>{}});
+  const AssalTaxonomy(
+      {required this.id,
+      required this.code,
+      required this.nameAr,
+      this.nameEn,
+      this.description,
+      this.metadata = const <String, Object?>{}});
   final String id;
   final String code;
   final String nameAr;
@@ -77,7 +95,15 @@ class AssalTaxonomy {
 }
 
 class AssalBannerSummary {
-  const AssalBannerSummary({required this.id, required this.titleAr, required this.descriptionAr, required this.ctaLabelAr, required this.imageUrl, this.targetQuery, this.sortOrder = 0, this.isActive = true});
+  const AssalBannerSummary(
+      {required this.id,
+      required this.titleAr,
+      required this.descriptionAr,
+      required this.ctaLabelAr,
+      required this.imageUrl,
+      this.targetQuery,
+      this.sortOrder = 0,
+      this.isActive = true});
   final String id;
   final String titleAr;
   final String descriptionAr;
@@ -87,7 +113,8 @@ class AssalBannerSummary {
   final int sortOrder;
   final bool isActive;
 
-  factory AssalBannerSummary.fromJson(Map<String, Object?> json) => AssalBannerSummary(
+  factory AssalBannerSummary.fromJson(Map<String, Object?> json) =>
+      AssalBannerSummary(
         id: _string(json['id']),
         titleAr: _string(json['title_ar']),
         descriptionAr: _string(json['description_ar']),
@@ -122,7 +149,8 @@ class AssalCategorySummary {
         nameAr: _string(json['name_ar']),
         nameEn: _stringOrNull(json['name_en']),
         description: _stringOrNull(json['description']),
-        productType: _productType(_string(json['category_kind'], fallback: 'honey')),
+        productType:
+            _productType(_string(json['category_kind'], fallback: 'honey')),
         productCount: _int(json['product_count']),
       );
 }
@@ -186,7 +214,8 @@ class AssalStoreSummary {
   final List<String> specialties;
   final List<String> certifications;
 
-  factory AssalStoreSummary.fromJson(Map<String, Object?> json) => AssalStoreSummary(
+  factory AssalStoreSummary.fromJson(Map<String, Object?> json) =>
+      AssalStoreSummary(
         id: _string(json['id']),
         merchantId: _string(json['merchant_id']),
         nameAr: _string(json['name_ar']),
@@ -314,6 +343,59 @@ class AssalProductSummary {
   final String? harvestLabel;
   final List<String> certifications;
 
+  AssalProductSummary copyWith({
+    String? primaryImageUrl,
+    List<String>? imageUrls,
+  }) =>
+      AssalProductSummary(
+        id: id,
+        storeId: storeId,
+        nameAr: nameAr,
+        nameEn: nameEn,
+        description: description,
+        productType: productType,
+        status: status,
+        taxonomyId: taxonomyId,
+        categoryNameAr: categoryNameAr,
+        subcategoryNameAr: subcategoryNameAr,
+        regionNameAr: regionNameAr,
+        gradeLevel: gradeLevel,
+        gradeLevels: gradeLevels,
+        gradeLabelAr: gradeLabelAr,
+        gradeLabels: gradeLabels,
+        components: components,
+        isFeatured: isFeatured,
+        primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
+        imageUrls: imageUrls ?? this.imageUrls,
+        originCountry: originCountry,
+        provinceNameAr: provinceNameAr,
+        honeyIdentity: honeyIdentity,
+        qualityLabelAr: qualityLabelAr,
+        processingMethodAr: processingMethodAr,
+        processingStatusAr: processingStatusAr,
+        packagingLabelAr: packagingLabelAr,
+        productionDate: productionDate,
+        packagedDate: packagedDate,
+        shelfLifeLabelAr: shelfLifeLabelAr,
+        deliveryOptions: deliveryOptions,
+        pickupLocations: pickupLocations,
+        viewsCount: viewsCount,
+        likesCount: likesCount,
+        price: price,
+        currencyCode: currencyCode,
+        ratingAverage: ratingAverage,
+        reviewCount: reviewCount,
+        tags: tags,
+        badges: badges,
+        regions: regions,
+        forms: forms,
+        purpose: purpose,
+        availability: availability,
+        weightLabel: weightLabel,
+        harvestLabel: harvestLabel,
+        certifications: certifications,
+      );
+
   factory AssalProductSummary.fromJson(Map<String, Object?> json) {
     final levels = _ints(json['grade_levels']);
     return AssalProductSummary(
@@ -322,13 +404,15 @@ class AssalProductSummary {
       nameAr: _string(json['name_ar']),
       nameEn: _stringOrNull(json['name_en']),
       description: _stringOrNull(json['description']),
-      productType: _productType(_string(json['product_type'], fallback: 'honey')),
+      productType:
+          _productType(_string(json['product_type'], fallback: 'honey')),
       status: _productStatus(_string(json['status'], fallback: 'draft')),
       taxonomyId: _stringOrNull(json['subcategory_id'] ?? json['taxonomy_id']),
       categoryNameAr: _stringOrNull(json['category_name_ar']),
       subcategoryNameAr: _stringOrNull(json['subcategory_name_ar']),
       regionNameAr: _stringOrNull(json['region_name_ar']),
-      gradeLevel: _intOrNull(json['grade_level']) ?? (levels.isEmpty ? null : levels.first),
+      gradeLevel: _intOrNull(json['grade_level']) ??
+          (levels.isEmpty ? null : levels.first),
       gradeLevels: levels,
       gradeLabelAr: _stringOrNull(json['grade_label_ar']),
       gradeLabels: _valueStrings(json['grades'] ?? json['grade_labels']),
@@ -368,7 +452,20 @@ class AssalProductSummary {
 }
 
 class AssalReviewSummary {
-  const AssalReviewSummary({required this.id, required this.productId, required this.storeId, required this.authorId, required this.rating, required this.status, this.authorName, this.body, this.createdAt, this.updatedAt, this.helpfulCount = 0, this.merchantReply, this.isLocal = false});
+  const AssalReviewSummary(
+      {required this.id,
+      required this.productId,
+      required this.storeId,
+      required this.authorId,
+      required this.rating,
+      required this.status,
+      this.authorName,
+      this.body,
+      this.createdAt,
+      this.updatedAt,
+      this.helpfulCount = 0,
+      this.merchantReply,
+      this.isLocal = false});
   final String id;
   final String productId;
   final String storeId;
@@ -383,7 +480,8 @@ class AssalReviewSummary {
   final String? merchantReply;
   final bool isLocal;
 
-  factory AssalReviewSummary.fromJson(Map<String, Object?> json) => AssalReviewSummary(
+  factory AssalReviewSummary.fromJson(Map<String, Object?> json) =>
+      AssalReviewSummary(
         id: _string(json['id']),
         productId: _string(json['product_id']),
         storeId: _string(json['store_id']),
@@ -401,7 +499,19 @@ class AssalReviewSummary {
 }
 
 class AssalCommentSummary {
-  const AssalCommentSummary({required this.id, required this.targetId, required this.authorId, required this.authorName, required this.body, this.parentId, this.createdAt, this.updatedAt, this.likeCount = 0, this.replyCount = 0, this.isLiked = false, this.isLocal = false});
+  const AssalCommentSummary(
+      {required this.id,
+      required this.targetId,
+      required this.authorId,
+      required this.authorName,
+      required this.body,
+      this.parentId,
+      this.createdAt,
+      this.updatedAt,
+      this.likeCount = 0,
+      this.replyCount = 0,
+      this.isLiked = false,
+      this.isLocal = false});
   final String id;
   final String targetId;
   final String authorId;
@@ -415,7 +525,8 @@ class AssalCommentSummary {
   final bool isLiked;
   final bool isLocal;
 
-  factory AssalCommentSummary.fromJson(Map<String, Object?> json) => AssalCommentSummary(
+  factory AssalCommentSummary.fromJson(Map<String, Object?> json) =>
+      AssalCommentSummary(
         id: _string(json['id']),
         targetId: _string(json['target_id']),
         authorId: _string(json['author_id']),
@@ -471,7 +582,8 @@ class AssalRequestSummary {
   final DateTime? updatedAt;
   final DateTime? createdAt;
 
-  factory AssalRequestSummary.fromJson(Map<String, Object?> json) => AssalRequestSummary(
+  factory AssalRequestSummary.fromJson(Map<String, Object?> json) =>
+      AssalRequestSummary(
         id: _string(json['id']),
         requesterId: _string(json['requester_id']),
         storeId: _string(json['store_id']),
@@ -624,7 +736,14 @@ class AssalProductDraft {
 }
 
 class AssalNotificationSummary {
-  const AssalNotificationSummary({required this.id, required this.userId, required this.notificationType, required this.titleAr, this.bodyAr, this.payload = const <String, Object?>{}, this.readAt});
+  const AssalNotificationSummary(
+      {required this.id,
+      required this.userId,
+      required this.notificationType,
+      required this.titleAr,
+      this.bodyAr,
+      this.payload = const <String, Object?>{},
+      this.readAt});
   final String id;
   final String userId;
   final String notificationType;
@@ -633,7 +752,8 @@ class AssalNotificationSummary {
   final Map<String, Object?> payload;
   final DateTime? readAt;
 
-  factory AssalNotificationSummary.fromJson(Map<String, Object?> json) => AssalNotificationSummary(
+  factory AssalNotificationSummary.fromJson(Map<String, Object?> json) =>
+      AssalNotificationSummary(
         id: _string(json['id']),
         userId: _string(json['user_id']),
         notificationType: _string(json['notification_type']),
@@ -645,7 +765,21 @@ class AssalNotificationSummary {
 }
 
 class AssalUserProfile {
-  const AssalUserProfile({required this.id, required this.nameAr, this.email, this.avatarUrl, this.coverUrl, this.bio, this.phone, this.location, this.preferences = const <String, Object?>{}, this.createdAt, this.updatedAt, this.followersCount = 0, this.followingCount = 0, this.role = AssalRole.customer});
+  const AssalUserProfile(
+      {required this.id,
+      required this.nameAr,
+      this.email,
+      this.avatarUrl,
+      this.coverUrl,
+      this.bio,
+      this.phone,
+      this.location,
+      this.preferences = const <String, Object?>{},
+      this.createdAt,
+      this.updatedAt,
+      this.followersCount = 0,
+      this.followingCount = 0,
+      this.role = AssalRole.customer});
   final String id;
   final String nameAr;
   final String? email;
@@ -661,7 +795,8 @@ class AssalUserProfile {
   final int followingCount;
   final AssalRole role;
 
-  factory AssalUserProfile.fromJson(Map<String, Object?> json) => AssalUserProfile(
+  factory AssalUserProfile.fromJson(Map<String, Object?> json) =>
+      AssalUserProfile(
         id: _string(json['id']),
         nameAr: _string(json['name_ar'], fallback: 'عميل عسلكم'),
         email: _stringOrNull(json['email']),
@@ -680,7 +815,15 @@ class AssalUserProfile {
 }
 
 class AssalUserProfilePatch {
-  const AssalUserProfilePatch({this.nameAr, this.bio, this.phone, this.locationLabel, this.avatarUrl, this.coverUrl, this.latitude, this.longitude});
+  const AssalUserProfilePatch(
+      {this.nameAr,
+      this.bio,
+      this.phone,
+      this.locationLabel,
+      this.avatarUrl,
+      this.coverUrl,
+      this.latitude,
+      this.longitude});
   final String? nameAr;
   final String? bio;
   final String? phone;
@@ -692,15 +835,25 @@ class AssalUserProfilePatch {
 }
 
 class AssalSession {
-  const AssalSession({required this.isAuthenticated, required this.role, this.user});
+  const AssalSession(
+      {required this.isAuthenticated, required this.role, this.user});
   final bool isAuthenticated;
   final AssalRole role;
   final AssalUserProfile? user;
-  static const guest = AssalSession(isAuthenticated: false, role: AssalRole.guest);
+  static const guest =
+      AssalSession(isAuthenticated: false, role: AssalRole.guest);
 }
 
 class AssalConversationSummary {
-  const AssalConversationSummary({required this.id, required this.storeId, required this.storeName, required this.lastMessage, required this.updatedAt, this.participantIds = const <String>[], this.unreadCount = 0, this.lastReadAt});
+  const AssalConversationSummary(
+      {required this.id,
+      required this.storeId,
+      required this.storeName,
+      required this.lastMessage,
+      required this.updatedAt,
+      this.participantIds = const <String>[],
+      this.unreadCount = 0,
+      this.lastReadAt});
   final String id;
   final String storeId;
   final String storeName;
@@ -710,12 +863,14 @@ class AssalConversationSummary {
   final int unreadCount;
   final DateTime? lastReadAt;
 
-  factory AssalConversationSummary.fromJson(Map<String, Object?> json) => AssalConversationSummary(
+  factory AssalConversationSummary.fromJson(Map<String, Object?> json) =>
+      AssalConversationSummary(
         id: _string(json['id']),
         storeId: _string(json['store_id']),
         storeName: _string(json['store_name'], fallback: 'متجر عسلكم'),
         lastMessage: _string(json['last_message']),
-        updatedAt: _dateOrNull(json['updated_at']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+        updatedAt: _dateOrNull(json['updated_at']) ??
+            DateTime.fromMillisecondsSinceEpoch(0),
         participantIds: _strings(json['participant_ids']),
         unreadCount: _int(json['unread_count']),
         lastReadAt: _dateOrNull(json['last_read_at']),
@@ -723,7 +878,15 @@ class AssalConversationSummary {
 }
 
 class AssalMessageSummary {
-  const AssalMessageSummary({required this.id, required this.conversationId, required this.senderId, required this.body, required this.sentAt, this.isMine = false, this.readAt, this.attachments = const <String>[]});
+  const AssalMessageSummary(
+      {required this.id,
+      required this.conversationId,
+      required this.senderId,
+      required this.body,
+      required this.sentAt,
+      this.isMine = false,
+      this.readAt,
+      this.attachments = const <String>[]});
   final String id;
   final String conversationId;
   final String senderId;
@@ -733,44 +896,88 @@ class AssalMessageSummary {
   final DateTime? readAt;
   final List<String> attachments;
 
-  factory AssalMessageSummary.fromJson(Map<String, Object?> json) => AssalMessageSummary(
+  factory AssalMessageSummary.fromJson(Map<String, Object?> json) =>
+      AssalMessageSummary(
         id: _string(json['id']),
         conversationId: _string(json['conversation_id']),
         senderId: _string(json['sender_id']),
         body: _string(json['body']),
-        sentAt: _dateOrNull(json['sent_at']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+        sentAt: _dateOrNull(json['sent_at']) ??
+            DateTime.fromMillisecondsSinceEpoch(0),
         isMine: json['is_mine'] as bool? ?? false,
         readAt: _dateOrNull(json['read_at']),
         attachments: _strings(json['attachments']),
       );
 }
 
-sealed class AssalLoadState<T> { const AssalLoadState(); }
-final class AssalLoading<T> extends AssalLoadState<T> { const AssalLoading(); }
-final class AssalData<T> extends AssalLoadState<T> { const AssalData(this.value); final T value; }
-final class AssalEmpty<T> extends AssalLoadState<T> { const AssalEmpty(this.messageAr); final String messageAr; }
-final class AssalError<T> extends AssalLoadState<T> { const AssalError(this.messageAr, {this.code}); final String messageAr; final String? code; }
+sealed class AssalLoadState<T> {
+  const AssalLoadState();
+}
 
-String _string(Object? value, {String fallback = ''}) => value is String ? value : fallback;
-String? _stringOrNull(Object? value) => value is String && value.trim().isNotEmpty ? value : null;
-int _int(Object? value) => value is num ? value.toInt() : int.tryParse('$value') ?? 0;
+final class AssalLoading<T> extends AssalLoadState<T> {
+  const AssalLoading();
+}
+
+final class AssalData<T> extends AssalLoadState<T> {
+  const AssalData(this.value);
+  final T value;
+}
+
+final class AssalEmpty<T> extends AssalLoadState<T> {
+  const AssalEmpty(this.messageAr);
+  final String messageAr;
+}
+
+final class AssalError<T> extends AssalLoadState<T> {
+  const AssalError(this.messageAr, {this.code});
+  final String messageAr;
+  final String? code;
+}
+
+String _string(Object? value, {String fallback = ''}) =>
+    value is String ? value : fallback;
+String? _stringOrNull(Object? value) =>
+    value is String && value.trim().isNotEmpty ? value : null;
+int _int(Object? value) =>
+    value is num ? value.toInt() : int.tryParse('$value') ?? 0;
 int? _intOrNull(Object? value) => value == null ? null : _int(value);
-double _number(Object? value) => value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
-double? _numberOrNull(Object? value) => value is num ? value.toDouble() : double.tryParse('$value');
-List<String> _strings(Object? value) => value is List ? value.whereType<String>().toList(growable: false) : const <String>[];
-List<String> _valueStrings(Object? value) => value is List ? value.map((item) => '$item').toList(growable: false) : const <String>[];
-List<int> _ints(Object? value) => value is List ? value.whereType<num>().map((item) => item.toInt()).toList(growable: false) : const <int>[];
-Map<String, Object?> _map(Object? value) => value is Map ? value.cast<String, Object?>() : const <String, Object?>{};
-Map<String, String> _stringMap(Object? value) => value is Map ? value.map((key, item) => MapEntry('$key', '$item')) : const <String, String>{};
-DateTime? _dateOrNull(Object? value) => value is DateTime ? value : DateTime.tryParse(_string(value));
+double _number(Object? value) =>
+    value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+double? _numberOrNull(Object? value) =>
+    value is num ? value.toDouble() : double.tryParse('$value');
+List<String> _strings(Object? value) => value is List
+    ? value.whereType<String>().toList(growable: false)
+    : const <String>[];
+List<String> _valueStrings(Object? value) => value is List
+    ? value.map((item) => '$item').toList(growable: false)
+    : const <String>[];
+List<int> _ints(Object? value) => value is List
+    ? value.whereType<num>().map((item) => item.toInt()).toList(growable: false)
+    : const <int>[];
+Map<String, Object?> _map(Object? value) =>
+    value is Map ? value.cast<String, Object?>() : const <String, Object?>{};
+Map<String, String> _stringMap(Object? value) => value is Map
+    ? value.map((key, item) => MapEntry('$key', '$item'))
+    : const <String, String>{};
+DateTime? _dateOrNull(Object? value) =>
+    value is DateTime ? value : DateTime.tryParse(_string(value));
 
-Map<String, Object?> jsonMap(String value) => (jsonDecode(value) as Map).cast<String, Object?>();
+Map<String, Object?> jsonMap(String value) =>
+    (jsonDecode(value) as Map).cast<String, Object?>();
 
-AssalRole _role(String value) => AssalRole.values.firstWhere((item) => item.name == value, orElse: () => AssalRole.customer);
-ProductType _productType(String value) => ProductType.values.firstWhere((item) => item.name == value, orElse: () => ProductType.honey);
-ProductStatus _productStatus(String value) => ProductStatus.values.firstWhere((item) => item.name == value, orElse: () => ProductStatus.draft);
-StoreStatus _storeStatus(String value) => StoreStatus.values.firstWhere((item) => item.name == value, orElse: () => StoreStatus.pending);
-ReviewStatus _reviewStatus(String value) => ReviewStatus.values.firstWhere((item) => item.name == value, orElse: () => ReviewStatus.approved);
+AssalRole _role(String value) => AssalRole.values
+    .firstWhere((item) => item.name == value, orElse: () => AssalRole.customer);
+ProductType _productType(String value) => ProductType.values
+    .firstWhere((item) => item.name == value, orElse: () => ProductType.honey);
+ProductStatus _productStatus(String value) =>
+    ProductStatus.values.firstWhere((item) => item.name == value,
+        orElse: () => ProductStatus.draft);
+StoreStatus _storeStatus(String value) =>
+    StoreStatus.values.firstWhere((item) => item.name == value,
+        orElse: () => StoreStatus.pending);
+ReviewStatus _reviewStatus(String value) =>
+    ReviewStatus.values.firstWhere((item) => item.name == value,
+        orElse: () => ReviewStatus.approved);
 RequestStatus _requestStatus(String value) => switch (value) {
       'in_progress' => RequestStatus.inProgress,
       'answered' => RequestStatus.answered,

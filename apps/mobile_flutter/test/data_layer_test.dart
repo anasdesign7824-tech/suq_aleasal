@@ -167,9 +167,23 @@ void main() {
     final created = await repository.createMerchantProduct(
       'demo-customer',
       workspace.store.id,
-      const AssalProductDraft(nameAr: 'عسل اختبار'),
+      const AssalProductDraft(
+        nameAr: 'عسل اختبار',
+        metadata: {
+          'price': 12500,
+          'weight_label': 'نصف كيلو',
+          'origin_country': 'اليمن',
+          'quality_label_ar': 'سدر أصلي',
+          'delivery_options': ['توصيل محلي'],
+        },
+      ),
     );
     expect(created, isA<AssalData<AssalProductSummary>>());
+    final createdProduct = (created as AssalData<AssalProductSummary>).value;
+    expect(createdProduct.price, 12500);
+    expect(createdProduct.weightLabel, 'نصف كيلو');
+    expect(createdProduct.qualityLabelAr, 'سدر أصلي');
+    expect(createdProduct.deliveryOptions, ['توصيل محلي']);
     final products = await repository.listMerchantProducts('demo-customer');
     expect(
         (products as AssalData<List<AssalProductSummary>>).value, hasLength(1));

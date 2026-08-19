@@ -16,10 +16,15 @@ String _productTypeLabel(ProductType type) => switch (type) {
     };
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen(
-      {super.key, required this.repository, required this.productId});
+  const ProductDetailScreen({
+    super.key,
+    required this.repository,
+    required this.productId,
+    this.initialProduct,
+  });
   final AssalRepository repository;
   final String productId;
+  final AssalProductSummary? initialProduct;
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
@@ -35,7 +40,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    productFuture = widget.repository.getProduct(widget.productId);
+    productFuture = widget.initialProduct != null
+        ? Future.value(AssalData(widget.initialProduct!))
+        : widget.repository.getProduct(widget.productId);
     galleryController = PageController();
     _trackProductView();
   }
@@ -93,13 +100,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Column(
               children: [
                 _productHero(product, gallery),
-                const TabBar(
-                  isScrollable: true,
-                  tabs: [
-                    Tab(text: 'معلومات المنتج'),
-                    Tab(text: 'التقييمات والتفاعل'),
-                    Tab(text: 'منتجات مشابهة'),
-                  ],
+                Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+                  decoration: BoxDecoration(
+                    gradient: AssalColors.darkGradient,
+                    borderRadius: BorderRadius.circular(AssalRadius.medium),
+                  ),
+                  child: const TabBar(
+                    isScrollable: true,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white70,
+                    indicatorColor: AssalColors.honey,
+                    dividerColor: Colors.transparent,
+                    tabs: [
+                      Tab(text: 'معلومات المنتج'),
+                      Tab(text: 'التقييمات والتفاعل'),
+                      Tab(text: 'منتجات مشابهة'),
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: TabBarView(
@@ -517,13 +536,24 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         child: Column(
           children: [
             _storeHeader(store),
-            const TabBar(
-              isScrollable: true,
-              tabs: [
-                Tab(text: 'المنتجات'),
-                Tab(text: 'معلومات المتجر'),
-                Tab(text: 'التواصل والطلب'),
-              ],
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+              decoration: BoxDecoration(
+                gradient: AssalColors.darkGradient,
+                borderRadius: BorderRadius.circular(AssalRadius.medium),
+              ),
+              child: const TabBar(
+                isScrollable: true,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                indicatorColor: AssalColors.honey,
+                dividerColor: Colors.transparent,
+                tabs: [
+                  Tab(text: 'المنتجات'),
+                  Tab(text: 'معلومات المتجر'),
+                  Tab(text: 'التواصل والطلب'),
+                ],
+              ),
             ),
             Expanded(
               child: TabBarView(
