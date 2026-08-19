@@ -57,9 +57,16 @@ function numericQuery(value: unknown, fallback: number): number {
 
 function sendError(response: Response, error: unknown) {
   console.error("[Admin Backend]", error);
-  response.status(500).json({
-    error: "admin_backend_error",
-    messageAr: "تعذر تنفيذ العملية الإدارية الآن.",
+  const candidate = error as { code?: unknown; message?: unknown; status?: unknown } | null;
+  const code = typeof candidate?.code === "string" ? candidate.code : undefined;
+  const rawMessage = typeof candidate?.message === "string" ? candidate.message : error instanceof Error ? error.message : "";
+  const status = typeof candidate?.status === "number" && candidate.status >= 400 && candidate.status < 600 ? candidate.status : code === "42501" ? 503 : 500;
+  const messageAr = code === "42501"
+    ? "رفضت قاعدة بيانات Production العملية بسبب صلاحيات مسار الإدارة. تم تسجيل الخطأ، تحقق من اتصال الخادم المحلي وصلاحياته ثم أعد المحاولة."
+    : rawMessage || "تعذر تنفيذ العملية الإدارية الآن.";
+  response.status(status).json({
+    error: code ?? "admin_backend_error",
+    messageAr,
   });
 }
 

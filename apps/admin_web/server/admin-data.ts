@@ -311,6 +311,7 @@ export type ProductWriteInput = {
   metadata?: Record<string, unknown>;
   price?: number | null;
   currencyCode?: string | null;
+  imageUrls?: string[];
 };
 
 function requireText(value: unknown, label: string): string {
@@ -346,6 +347,13 @@ export async function createProduct(session: AdminSession, input: ProductWriteIn
     const relation = await service.from("product_categories").upsert({ product_id: created.data.id, category_id: input.categoryId });
     if (relation.error) throw relation.error;
   }
+  if (input.imageUrls !== undefined) {
+    const urls = input.imageUrls.filter((url) => typeof url === "string" && url.trim()).map((url) => url.trim());
+    if (urls.length) {
+      const images = await service.from("product_images").insert(urls.map((imageUrl, sortOrder) => ({ product_id: created.data.id, image_url: imageUrl, sort_order: sortOrder })));
+      if (images.error) throw images.error;
+    }
+  }
   return created.data;
 }
 
@@ -372,11 +380,22 @@ export async function updateProduct(session: AdminSession, productId: string, pa
       ...(patch.currencyCode === undefined ? {} : { currency_code: patch.currencyCode }),
     } as Json;
   }
-  if (Object.keys(update).length === 0) throw new Error("لا توجد تغييرات صالحة.");
+  if (Object.keys(update).length === 0 && patch.imageUrls === undefined) throw new Error("لا توجد تغييرات صالحة.");
   const service = createServiceSupabaseClient();
-  const result = await service.from("products").update(update).eq("id", productId).select("id, store_id, taxonomy_id, name_ar, name_en, description, product_type, grade_level, status, is_featured, metadata, created_at, updated_at").single();
+  const result = Object.keys(update).length
+    ? await service.from("products").update(update).eq("id", productId).select("id, store_id, taxonomy_id, name_ar, name_en, description, product_type, grade_level, status, is_featured, metadata, created_at, updated_at").single()
+    : await service.from("products").select("id, store_id, taxonomy_id, name_ar, name_en, description, product_type, grade_level, status, is_featured, metadata, created_at, updated_at").eq("id", productId).single();
   if (result.error) throw result.error;
-  await recordAudit(session, { action: "product.update", entityType: "products", entityId: productId, metadata: { fields: Object.keys(update) } });
+  if (patch.imageUrls !== undefined) {
+    const removed = await service.from("product_images").delete().eq("product_id", productId);
+    if (removed.error) throw removed.error;
+    const urls = patch.imageUrls.filter((url) => typeof url === "string" && url.trim()).map((url) => url.trim());
+    if (urls.length) {
+      const images = await service.from("product_images").insert(urls.map((imageUrl, sortOrder) => ({ product_id: productId, image_url: imageUrl, sort_order: sortOrder })));
+      if (images.error) throw images.error;
+    }
+  }
+  await recordAudit(session, { action: "product.update", entityType: "products", entityId: productId, metadata: { fields: [...Object.keys(update), ...(patch.imageUrls === undefined ? [] : ["imageUrls"])] } });
   return result.data;
 }
 
