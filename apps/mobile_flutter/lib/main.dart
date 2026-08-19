@@ -5,6 +5,7 @@ import 'app/assal_app.dart';
 import 'app/assal_runtime_config.dart';
 import 'core/supabase_auth_gateway.dart';
 import 'core/supabase_query_gateway.dart';
+import 'core/supabase_realtime_sync.dart';
 import 'package:assalkom_data/production_repository.dart';
 
 Future<void> main() async {
@@ -32,7 +33,10 @@ Future<void> main() async {
       authGateway: SupabaseAuthGateway(
           client: client, emailRedirectTo: config.supabaseUrl),
     );
-    runApp(AssalApp(repository: repository));
+    runApp(AssalApp(
+      repository: repository,
+      realtimeSync: SupabaseRealtimeSync(client),
+    ));
   } on Object catch (error) {
     runApp(AssalApp(
         startupError:

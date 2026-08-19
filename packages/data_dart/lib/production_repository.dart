@@ -7,13 +7,17 @@ import 'dart:typed_data';
 import 'assal_repository.dart';
 
 class ProductionRepository implements AssalRepository {
-  const ProductionRepository({
+  ProductionRepository({
     required ProductionQueryGateway gateway,
     AssalAuthGateway? authGateway,
   })  : _gateway = gateway,
         _authGateway = authGateway;
   final ProductionQueryGateway _gateway;
   final AssalAuthGateway? _authGateway;
+  AssalSession? _cachedSession;
+  String? _cachedIdentityId;
+  Future<AssalSession>? _sessionHydration;
+  DateTime? _lastActivityPingAt;
 
   @override
   AssalDataSourceMode get mode => AssalDataSourceMode.production;
@@ -118,13 +122,42 @@ class ProductionRepository implements AssalRepository {
   Future<AssalSession> getSession() async {
     final auth = _authGateway;
     if (auth == null) return AssalSession.guest;
-    try {
-      // Hydrate the capability role from Production on every session read.
-      // Auth identity alone cannot tell whether the user was promoted by Admin.
-      return await _sessionForIdentity(await auth.currentIdentity());
-    } on Object {
+    final identity = await auth.currentIdentity();
+    if (identity == null) {
+      _clearSessionCache();
       return AssalSession.guest;
     }
+    if (_cachedIdentityId == identity.id && _cachedSession != null) {
+      return _cachedSession!;
+    }
+    final inFlight = _sessionHydration;
+    if (inFlight != null && _cachedIdentityId == identity.id) {
+      return inFlight;
+    }
+    final hydration = _sessionForIdentity(identity);
+    _sessionHydration = hydration;
+    _cachedIdentityId = identity.id;
+    try {
+      final session = await hydration;
+      _cachedSession = session;
+      return session;
+    } on Object {
+      _clearSessionCache();
+      return AssalSession.guest;
+    } finally {
+      if (identical(_sessionHydration, hydration)) _sessionHydration = null;
+    }
+  }
+
+  void _clearSessionCache() {
+    _cachedSession = null;
+    _cachedIdentityId = null;
+    _sessionHydration = null;
+  }
+
+  void _cacheSession(AssalSession session) {
+    _cachedSession = session;
+    _cachedIdentityId = session.user?.id;
   }
 
   AssalSession _sessionFromIdentity(
@@ -160,36 +193,38 @@ class ProductionRepository implements AssalRepository {
 
   Future<AssalSession> _sessionForIdentity(AssalAuthIdentity? identity) async {
     if (identity == null) return AssalSession.guest;
-    Map<String, Object?> profile = const <String, Object?>{};
-    var isAdmin = false;
-    try {
-      final rows = await _gateway.select(
-        'profiles',
-        filters: {'user_id': identity.id},
-      );
-      if (rows.isNotEmpty) profile = rows.first;
-    } on Object {
-      // Auth remains valid even if profile hydration is temporarily unavailable.
+    final hydrated = await Future.wait<List<Map<String, Object?>>>([
+      _gateway
+          .select('profiles', filters: {'user_id': identity.id})
+          .then((rows) => rows, onError: (_) => <Map<String, Object?>>[]),
+      _gateway
+          .select('admin_users', filters: {'user_id': identity.id})
+          .then((rows) => rows, onError: (_) => <Map<String, Object?>>[]),
+    ]);
+    final profile = hydrated[0].isEmpty
+        ? const <String, Object?>{}
+        : hydrated[0].first;
+    final isAdmin = hydrated[1].isNotEmpty;
+    final now = DateTime.now().toUtc();
+    final shouldPing = _lastActivityPingAt == null ||
+        now.difference(_lastActivityPingAt!).inMinutes >= 5;
+    if (shouldPing) {
+      _lastActivityPingAt = now;
+      unawaited(_recordActivity(identity.id, now));
     }
-    try {
-      final rows = await _gateway.select(
-        'admin_users',
-        filters: {'user_id': identity.id},
-      );
-      isAdmin = rows.isNotEmpty;
-    } on Object {
-      isAdmin = false;
-    }
+    return _sessionFromIdentity(identity, profile: profile, isAdmin: isAdmin);
+  }
+
+  Future<void> _recordActivity(String userId, DateTime now) async {
     try {
       await _gateway.update(
         'users',
-        {'last_seen_at': DateTime.now().toUtc().toIso8601String()},
-        id: identity.id,
+        {'last_seen_at': now.toIso8601String()},
+        id: userId,
       );
     } on Object {
       // Activity telemetry must never invalidate an otherwise valid session.
     }
-    return _sessionFromIdentity(identity, profile: profile, isAdmin: isAdmin);
   }
 
   Future<AssalLoadState<AssalSession>> _authOperation(
@@ -208,7 +243,9 @@ class ProductionRepository implements AssalRepository {
           'لم تكتمل جلسة المصادقة.',
           code: 'auth_session_missing',
         );
-      return AssalData(await _sessionForIdentity(identity));
+      final session = await _sessionForIdentity(identity);
+      _cacheSession(session);
+      return AssalData(session);
     } on AssalAuthFailure catch (error) {
       return AssalError(error.messageAr, code: error.code);
     } on Object {
@@ -317,50 +354,34 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listFavoriteProducts(
     String userId,
-  ) async {
-    final rows = await _gateway.select(
-      'favorites',
-      filters: {'user_id': userId},
-    );
-    final ids =
-        rows.map((row) => row['product_id']).whereType<String>().toSet();
-    if (ids.isEmpty) return const AssalEmpty('لا توجد منتجات محفوظة');
-    final products = await _gateway.select(
-      'customer_products',
-      filters: const {'status': 'active'},
-    );
-    return _state(
-      products
-          .where((row) => ids.contains(row['id']))
-          .map(AssalProductSummary.fromJson)
-          .toList(growable: false),
-      'لا توجد منتجات محفوظة',
-    );
-  }
+  ) =>
+      _readList(
+        resource: 'customer_favorite_products',
+        emptyMessage: 'لا توجد منتجات محفوظة',
+        read: () async {
+          final rows = await _gateway.select(
+            'customer_favorite_products',
+            filters: {'user_id': userId},
+          );
+          return rows.map(AssalProductSummary.fromJson).toList(growable: false);
+        },
+      );
 
   @override
   Future<AssalLoadState<List<AssalTaxonomy>>> listFavoriteTaxonomies(
     String userId,
   ) async {
-    final favoriteRows = await _gateway.select(
-      'favorites',
+    final products = await _gateway.select(
+      'customer_favorite_products',
       filters: {'user_id': userId},
     );
-    final productIds = favoriteRows
-        .map((row) => row['product_id'])
-        .whereType<String>()
-        .toSet();
-    if (productIds.isEmpty)
-      return const AssalEmpty('لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
-    final products = await _gateway.select(
-      'customer_products',
-      filters: const {'status': 'active'},
-    );
     final taxonomyIds = products
-        .where((row) => productIds.contains(row['id']))
         .map((row) => row['subcategory_id'] ?? row['category_id'])
         .whereType<String>()
         .toSet();
+    if (taxonomyIds.isEmpty) {
+      return const AssalEmpty('لا توجد تصنيفات مرتبطة بالمحفوظات بعد.');
+    }
     final taxonomies = await _gateway.select(
       'honey_taxonomy',
       filters: const {'is_active': true},
@@ -377,25 +398,18 @@ class ProductionRepository implements AssalRepository {
   @override
   Future<AssalLoadState<List<AssalStoreSummary>>> listFollowedStores(
     String userId,
-  ) async {
-    final rows = await _gateway.select(
-      'store_followers',
-      filters: {'user_id': userId},
-    );
-    final ids = rows.map((row) => row['store_id']).whereType<String>().toSet();
-    if (ids.isEmpty) return const AssalEmpty('لا توجد متاجر متابَعة');
-    final stores = await _gateway.select(
-      'customer_stores',
-      filters: const {'status': 'active'},
-    );
-    return _state(
-      stores
-          .where((row) => ids.contains(row['id']))
-          .map(AssalStoreSummary.fromJson)
-          .toList(growable: false),
-      'لا توجد متاجر متابَعة',
-    );
-  }
+  ) =>
+      _readList(
+        resource: 'customer_followed_stores',
+        emptyMessage: 'لا توجد متاجر متابَعة',
+        read: () async {
+          final rows = await _gateway.select(
+            'customer_followed_stores',
+            filters: {'user_id': userId},
+          );
+          return rows.map(AssalStoreSummary.fromJson).toList(growable: false);
+        },
+      );
 
   @override
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId) async {
@@ -551,28 +565,16 @@ class ProductionRepository implements AssalRepository {
     String targetId,
   ) =>
       _readList(
-        resource: 'comments',
+        resource: 'customer_comments',
         emptyMessage: 'لا توجد تعليقات بعد',
         read: () async {
-          final productRows = await _gateway.select('comments',
-              filters: {'product_id': targetId, 'status': 'approved'});
-          final reviewRows = await _gateway.select('comments',
-              filters: {'review_id': targetId, 'status': 'approved'});
-          final rows = [...productRows, ...reviewRows];
-          final values = <AssalCommentSummary>[];
-          for (final row in rows) {
-            final value = Map<String, Object?>.from(row);
-            final authorId = value['author_id'];
-            if (authorId is String) {
-              final users = await _gateway
-                  .select('profiles', filters: {'user_id': authorId});
-              if (users.isNotEmpty)
-                value['author_name'] = users.first['display_name'];
-            }
-            value['target_id'] = value['product_id'] ?? value['review_id'];
-            values.add(AssalCommentSummary.fromJson(value));
-          }
-          return values;
+          final rows = await _gateway.select(
+            'customer_comments',
+            filters: {'target_id': targetId},
+          );
+          return rows
+              .map(AssalCommentSummary.fromJson)
+              .toList(growable: false);
         },
       );
 
@@ -622,28 +624,21 @@ class ProductionRepository implements AssalRepository {
     AssalRequestDraft draft,
   ) =>
       _write(
-        resource: 'requests.create',
+        resource: 'requests.create_atomic',
         write: () async {
-          final row = await _gateway.insert('requests', {
-            'requester_id': requesterId,
-            'store_id': draft.storeId,
-            'subject': draft.subject.trim(),
-            'body': draft.body.trim().isEmpty ? null : draft.body.trim(),
-            'preferred_handoff_option': draft.handoffOption.name,
-            'phone': draft.phone,
-            'contact_channel': draft.contactChannel,
-            'delivery_note': draft.deliveryNote,
-            'price_note': draft.priceNote,
-            'handoff_details': draft.handoffDetails,
+          final row = await _gateway.rpc('customer_create_request', {
+            'p_store_id': draft.storeId,
+            'p_subject': draft.subject.trim(),
+            'p_body': draft.body.trim().isEmpty ? null : draft.body.trim(),
+            'p_preferred_handoff_option': draft.handoffOption.name,
+            'p_phone': draft.phone,
+            'p_contact_channel': draft.contactChannel,
+            'p_delivery_note': draft.deliveryNote,
+            'p_price_note': draft.priceNote,
+            'p_handoff_details': draft.handoffDetails,
+            'p_product_id': draft.productId,
+            'p_quantity': draft.quantity ?? 1,
           });
-          if (draft.productId != null) {
-            await _gateway.insert('request_items', {
-              'request_id': row['id'],
-              'product_id': draft.productId,
-              'quantity': draft.quantity ?? 1,
-              'note': draft.priceNote ?? draft.deliveryNote,
-            });
-          }
           return AssalRequestSummary.fromJson(row);
         },
       );
@@ -685,36 +680,16 @@ class ProductionRepository implements AssalRepository {
     String userId,
   ) =>
       _readList(
-        resource: 'conversations',
+        resource: 'customer_conversations',
         emptyMessage: 'لا توجد محادثات بعد',
         read: () async {
-          final memberships = await _gateway.select('conversation_participants',
-              filters: {'user_id': userId});
-          final values = <AssalConversationSummary>[];
-          for (final membership in memberships) {
-            final conversationId = membership['conversation_id'];
-            if (conversationId is! String) continue;
-            final rows = await _gateway
-                .select('conversations', filters: {'id': conversationId});
-            if (rows.isEmpty) continue;
-            final row = Map<String, Object?>.from(rows.first);
-            final storeId = row['store_id'];
-            if (storeId is String) {
-              final stores = await _gateway
-                  .select('customer_stores', filters: {'id': storeId});
-              if (stores.isNotEmpty)
-                row['store_name'] = stores.first['name_ar'];
-            }
-            final messages = await _gateway.select('messages',
-                filters: {'conversation_id': conversationId});
-            if (messages.isNotEmpty) {
-              final last = messages.last;
-              row['last_message'] = last['body'];
-              row['updated_at'] = last['created_at'];
-            }
-            row['participant_ids'] = [userId];
-            values.add(AssalConversationSummary.fromJson(row));
-          }
+          final rows = await _gateway.select(
+            'customer_conversations',
+            filters: {'user_id': userId},
+          );
+          final values = rows
+              .map(AssalConversationSummary.fromJson)
+              .toList(growable: false);
           values.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
           return values;
         },
@@ -726,33 +701,11 @@ class ProductionRepository implements AssalRepository {
     String storeId,
   ) =>
       _write(
-        resource: 'conversations.create',
+        resource: 'conversations.create_atomic',
         write: () async {
-          final existing = await _gateway.select('conversations',
-              filters: {'store_id': storeId, 'created_by': userId});
-          Map<String, Object?> row;
-          if (existing.isNotEmpty) {
-            row = Map<String, Object?>.from(existing.first);
-          } else {
-            row = await _gateway.insert(
-                'conversations', {'store_id': storeId, 'created_by': userId});
-          }
-          final conversationId = row['id'];
-          if (conversationId is! String)
-            throw StateError('conversation_id_missing');
-          final participants = await _gateway.select(
-              'conversation_participants',
-              filters: {'conversation_id': conversationId, 'user_id': userId});
-          if (participants.isEmpty)
-            await _gateway.insert('conversation_participants',
-                {'conversation_id': conversationId, 'user_id': userId});
-          final stores = await _gateway
-              .select('customer_stores', filters: {'id': storeId});
-          row['store_name'] =
-              stores.isEmpty ? 'متجر عسلكم' : stores.first['name_ar'];
-          row['last_message'] = 'ابدأ محادثة جديدة';
-          row['updated_at'] = row['last_message_at'] ?? row['created_at'];
-          row['participant_ids'] = [userId];
+          final row = await _gateway.rpc('customer_create_conversation', {
+            'p_store_id': storeId,
+          });
           return AssalConversationSummary.fromJson(row);
         },
       );
@@ -783,28 +736,13 @@ class ProductionRepository implements AssalRepository {
     AssalMessageDraft draft,
   ) =>
       _write(
-        resource: 'messages.create',
+        resource: 'messages.create_atomic',
         write: () async {
-          final body = draft.body.trim();
-          if (body.isEmpty) throw StateError('message_empty');
-          final participants = await _gateway
-              .select('conversation_participants', filters: {
-            'conversation_id': draft.conversationId,
-            'user_id': userId
+          final row = await _gateway.rpc('customer_send_message', {
+            'p_conversation_id': draft.conversationId,
+            'p_body': draft.body.trim(),
           });
-          if (participants.isEmpty) throw StateError('conversation_not_owned');
-          final row = await _gateway.insert('messages', {
-            'conversation_id': draft.conversationId,
-            'sender_id': userId,
-            'body': body
-          });
-          await _gateway.update(
-              'conversations', {'last_message_at': row['created_at']},
-              id: draft.conversationId);
-          final value = Map<String, Object?>.from(row)
-            ..['sent_at'] = row['created_at']
-            ..['is_mine'] = true;
-          return AssalMessageSummary.fromJson(value);
+          return AssalMessageSummary.fromJson(row);
         },
       );
   @override
@@ -813,21 +751,15 @@ class ProductionRepository implements AssalRepository {
     AssalReviewDraft draft,
   ) =>
       _write(
-        resource: 'reviews.create',
+        resource: 'reviews.create_atomic',
         write: () async {
-          if (draft.rating < 1 || draft.rating > 5 || draft.body.trim().isEmpty)
-            throw StateError('invalid_review');
-          final row = await _gateway.insert('reviews', {
-            'product_id': draft.productId,
-            'store_id': draft.storeId,
-            'author_id': authorId,
-            'rating': draft.rating,
-            'body': draft.body.trim(),
-            'status': 'pending',
+          final row = await _gateway.rpc('customer_create_review', {
+            'p_product_id': draft.productId,
+            'p_store_id': draft.storeId,
+            'p_rating': draft.rating,
+            'p_body': draft.body.trim(),
           });
-          final value = Map<String, Object?>.from(row)
-            ..['author_name'] = 'عميل عسلكم';
-          return AssalReviewSummary.fromJson(value);
+          return AssalReviewSummary.fromJson(row);
         },
       );
 
@@ -839,25 +771,13 @@ class ProductionRepository implements AssalRepository {
     String body,
   ) =>
       _write(
-        resource: 'comments.create',
+        resource: 'comments.create_atomic',
         write: () async {
-          final trimmed = body.trim();
-          if (trimmed.isEmpty) throw StateError('comment_empty');
-          final products =
-              await _gateway.select('products', filters: {'id': targetId});
-          final row = await _gateway.insert('comments', {
-            'author_id': authorId,
-            if (products.isNotEmpty)
-              'product_id': targetId
-            else
-              'review_id': targetId,
-            'body': trimmed,
-            'status': 'pending',
+          final row = await _gateway.rpc('customer_create_comment', {
+            'p_target_id': targetId,
+            'p_body': body.trim(),
           });
-          final value = Map<String, Object?>.from(row)
-            ..['target_id'] = targetId
-            ..['author_name'] = authorName;
-          return AssalCommentSummary.fromJson(value);
+          return AssalCommentSummary.fromJson(row);
         },
       );
 
@@ -867,18 +787,12 @@ class ProductionRepository implements AssalRepository {
     String storeId,
   ) =>
       _write(
-        resource: 'store_followers.toggle',
+        resource: 'store_followers.toggle_atomic',
         write: () async {
-          final rows = await _gateway.select('store_followers',
-              filters: {'user_id': userId, 'store_id': storeId});
-          if (rows.isNotEmpty) {
-            await _gateway.delete('store_followers',
-                filters: {'user_id': userId, 'store_id': storeId});
-            return false;
-          }
-          await _gateway.insert(
-              'store_followers', {'user_id': userId, 'store_id': storeId});
-          return true;
+          final value = await _gateway.rpc('customer_toggle_store_follow', {
+            'p_store_id': storeId,
+          });
+          return value['following'] == true;
         },
       );
 
@@ -888,18 +802,12 @@ class ProductionRepository implements AssalRepository {
     String targetId,
   ) =>
       _write(
-        resource: 'favorites.toggle',
+        resource: 'favorites.toggle_atomic',
         write: () async {
-          final rows = await _gateway.select('favorites',
-              filters: {'user_id': userId, 'product_id': targetId});
-          if (rows.isNotEmpty) {
-            await _gateway.delete('favorites',
-                filters: {'user_id': userId, 'product_id': targetId});
-            return false;
-          }
-          await _gateway
-              .insert('favorites', {'user_id': userId, 'product_id': targetId});
-          return true;
+          final value = await _gateway.rpc('customer_toggle_favorite', {
+            'p_product_id': targetId,
+          });
+          return value['saved'] == true;
         },
       );
 
@@ -909,18 +817,12 @@ class ProductionRepository implements AssalRepository {
     String targetId,
   ) =>
       _write(
-        resource: 'product_likes.toggle',
+        resource: 'product_likes.toggle_atomic',
         write: () async {
-          final rows = await _gateway.select('product_likes',
-              filters: {'user_id': userId, 'product_id': targetId});
-          if (rows.isNotEmpty) {
-            await _gateway.delete('product_likes',
-                filters: {'user_id': userId, 'product_id': targetId});
-            return false;
-          }
-          await _gateway.insert(
-              'product_likes', {'user_id': userId, 'product_id': targetId});
-          return true;
+          final value = await _gateway.rpc('customer_toggle_product_like', {
+            'p_product_id': targetId,
+          });
+          return value['liked'] == true;
         },
       );
 
@@ -979,7 +881,9 @@ class ProductionRepository implements AssalRepository {
           code: 'email_otp_session_missing',
         );
       }
-      return AssalData(await _sessionForIdentity(identity));
+      final session = await _sessionForIdentity(identity);
+      _cacheSession(session);
+      return AssalData(session);
     } on AssalAuthFailure catch (error) {
       return AssalError(error.messageAr, code: error.code);
     } on Object {
@@ -1053,7 +957,9 @@ class ProductionRepository implements AssalRepository {
           code: 'email_otp_session_missing',
         );
       }
-      return AssalData(await _sessionForIdentity(identity));
+      final session = await _sessionForIdentity(identity);
+      _cacheSession(session);
+      return AssalData(session);
     } on AssalAuthFailure catch (error) {
       return AssalError(error.messageAr, code: error.code);
     } on Object {
@@ -1987,6 +1893,7 @@ class ProductionRepository implements AssalRepository {
     if (auth == null) return const AssalData(null);
     try {
       await auth.signOut();
+      _clearSessionCache();
       return const AssalData(null);
     } on Object {
       return const AssalError(

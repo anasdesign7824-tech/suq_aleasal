@@ -7,13 +7,15 @@ import 'package:assalkom_data/demo_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import '../core/demo_loader.dart';
 import '../core/assal_widgets.dart';
+import '../core/supabase_realtime_sync.dart';
 import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
 
 class AssalApp extends StatelessWidget {
-  const AssalApp({super.key, this.repository, this.startupError});
+  const AssalApp({super.key, this.repository, this.startupError, this.realtimeSync});
   final AssalRepository? repository;
   final String? startupError;
+  final SupabaseRealtimeSync? realtimeSync;
   @override
   Widget build(BuildContext context) => MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -37,7 +39,7 @@ class AssalApp extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 child: child ?? const SizedBox.shrink())),
         home: startupError == null
-            ? AssalHomeShell(repository: repository)
+            ? AssalHomeShell(repository: repository, realtimeSync: realtimeSync)
             : AssalStartupErrorScreen(messageAr: startupError!),
       );
 }
@@ -79,8 +81,9 @@ class AssalStartupErrorScreen extends StatelessWidget {
 }
 
 class AssalHomeShell extends StatefulWidget {
-  const AssalHomeShell({super.key, this.repository});
+  const AssalHomeShell({super.key, this.repository, this.realtimeSync});
   final AssalRepository? repository;
+  final SupabaseRealtimeSync? realtimeSync;
   @override
   State<AssalHomeShell> createState() => _AssalHomeShellState();
 }
@@ -94,6 +97,15 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
     super.initState();
     repository = widget.repository ??
         DemoRepository(loader: const RootBundleDemoCatalogLoader());
+    widget.realtimeSync?.start(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.realtimeSync?.dispose();
+    super.dispose();
   }
 
   @override
@@ -205,6 +217,7 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
 
   void _openSearch() => Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => SearchScreen(repository: repository)));
+
   void _openNotifications() => Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => NotificationsScreen(repository: repository)));
 }

@@ -17,21 +17,22 @@ class FavoritesScreen extends StatefulWidget {
 
 class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProviderStateMixin {
   late final TabController tabs;
-  late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
-  late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
-  late Future<AssalLoadState<List<AssalTaxonomy>>> taxonomiesFuture;
+  Future<AssalLoadState<List<AssalProductSummary>>>? productsFuture;
+  Future<AssalLoadState<List<AssalStoreSummary>>>? storesFuture;
+  Future<AssalLoadState<List<AssalTaxonomy>>>? taxonomiesFuture;
+  String? _loadedUserId;
 
   @override
   void initState() {
     super.initState();
     tabs = TabController(length: 3, vsync: this);
-    _load();
   }
 
-  void _load() {
-    productsFuture = widget.repository.listFavoriteProducts('demo-customer');
-    storesFuture = widget.repository.listFollowedStores('demo-customer');
-    taxonomiesFuture = widget.repository.listFavoriteTaxonomies('demo-customer');
+  void _load(String userId) {
+    _loadedUserId = userId;
+    productsFuture = widget.repository.listFavoriteProducts(userId);
+    storesFuture = widget.repository.listFollowedStores(userId);
+    taxonomiesFuture = widget.repository.listFavoriteTaxonomies(userId);
   }
 
   @override
@@ -44,8 +45,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   Widget build(BuildContext context) => FutureBuilder<AssalSession>(
         future: widget.repository.getSession(),
         builder: (context, sessionSnapshot) {
+          if (sessionSnapshot.connectionState != ConnectionState.done) {
+            return const Scaffold(body: AssalGlassLoading());
+          }
           final session = sessionSnapshot.data ?? AssalSession.guest;
-          if (!session.isAuthenticated) return Scaffold(appBar: const AssalAppBar(title: 'المحفوظات'), body: Center(child: FilledButton(onPressed: () => openAuth(context, widget.repository), child: const Text('تسجيل الدخول لعرض محفوظاتك'))));
+          if (!session.isAuthenticated || session.user == null) {
+            return Scaffold(appBar: const AssalAppBar(title: 'المحفوظات'), body: Center(child: FilledButton(onPressed: () => openAuth(context, widget.repository), child: const Text('تسجيل الدخول لعرض محفوظاتك'))));
+          }
+          if (_loadedUserId != session.user!.id) _load(session.user!.id);
           return Scaffold(
             appBar: AssalAppBar(title: 'المحفوظات', bottom: TabBar(controller: tabs, tabs: const [Tab(text: 'المنتجات'), Tab(text: 'المتاجر'), Tab(text: 'التصنيفات')])) ,
             body: TabBarView(controller: tabs, children: [_products(), _stores(), _taxonomies()]),
@@ -54,12 +61,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       );
 
   Widget _products() => FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
-        future: productsFuture,
+        future: productsFuture!,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalProductSummary>>(
             state: snapshot.data!,
-            onRetry: () => setState(_load),
+            onRetry: () => setState(() => _load(_loadedUserId!)),
             builder: (items) => GridView.builder(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 220, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68),
@@ -71,12 +78,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       );
 
   Widget _taxonomies() => FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
-        future: taxonomiesFuture,
+        future: taxonomiesFuture!,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalTaxonomy>>(
             state: snapshot.data!,
-            onRetry: () => setState(_load),
+            onRetry: () => setState(() => _load(_loadedUserId!)),
             builder: (items) => ListView.separated(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
@@ -88,12 +95,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       );
 
   Widget _stores() => FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
-        future: storesFuture,
+        future: storesFuture!,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<List<AssalStoreSummary>>(
             state: snapshot.data!,
-            onRetry: () => setState(_load),
+            onRetry: () => setState(() => _load(_loadedUserId!)),
             builder: (items) => ListView.separated(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,

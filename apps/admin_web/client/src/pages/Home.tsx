@@ -167,7 +167,19 @@ export default function Home({ session, onLogout }: { session: AdminSessionPaylo
   const deleteProduct = async (id: string) => { if (!window.confirm("حذف المنتج نهائيًا؟")) return; try { await adminApi.deleteProduct(id); toast.success("تم حذف المنتج."); refreshProducts(); refreshOverview(); } catch (error) { toast.error(error instanceof Error ? error.message : "تعذر حذف المنتج."); } };
   const answerSelectedRequest = async (event: React.FormEvent) => { event.preventDefault(); if (!selectedRequest || !replyBody.trim()) return; try { await adminApi.answerRequest(selectedRequest.id, replyBody); toast.success("تم إرسال الرد وتحديث حالة الطلب."); setReplyBody(""); setSelectedRequest(null); refreshRequests(); } catch (error) { toast.error(error instanceof Error ? error.message : "تعذر إرسال الرد."); } };
 
-  useEffect(() => { refreshOverview(); refreshProducts(); refreshStores(); refreshRequests(); refreshMerchantApplications(); }, []);
+  useEffect(() => {
+    const refreshAll = () => {
+      if (document.visibilityState !== 'visible') return;
+      refreshOverview();
+      refreshProducts();
+      refreshStores();
+      refreshRequests();
+      refreshMerchantApplications();
+    };
+    refreshAll();
+    const timer = window.setInterval(refreshAll, 30000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const titles: Record<ViewKey, { eyebrow: string; title: string; subtitle: string }> = {
     overview: { eyebrow: "لوحة التشغيل", title: "صباح الخير، فريق عسلكم", subtitle: "إليك لقطة مباشرة من مصدر Supabase Production." },

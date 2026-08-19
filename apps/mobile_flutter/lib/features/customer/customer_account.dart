@@ -489,6 +489,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const AssalGlassLoading();
+          }
           final session = snapshot.data ?? AssalSession.guest;
           return ListView(
               padding: const EdgeInsets.fromLTRB(
@@ -580,10 +583,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         if (user != null) _profileHeader(context, user),
         const SizedBox(height: AssalSpacing.lg),
-        _ProfileStats(
-          repository: repository,
-          userId: user?.id ?? 'demo-customer',
-        ),
+        if (user != null)
+          _ProfileStats(
+            repository: repository,
+            userId: user.id,
+          ),
         const SizedBox(height: AssalSpacing.lg),
         Wrap(
           alignment: WrapAlignment.center,
@@ -1096,6 +1100,9 @@ class RequestsScreen extends StatelessWidget {
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
+          if (sessionSnapshot.connectionState != ConnectionState.done) {
+            return const AssalGlassLoading();
+          }
           final session = sessionSnapshot.data ?? AssalSession.guest;
           if (!session.isAuthenticated) {
             return Center(
@@ -1150,6 +1157,9 @@ class NotificationsScreen extends StatelessWidget {
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
+          if (sessionSnapshot.connectionState != ConnectionState.done) {
+            return const AssalGlassLoading();
+          }
           final session = sessionSnapshot.data ?? AssalSession.guest;
           if (!session.isAuthenticated) {
             return Center(
@@ -1307,11 +1317,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Future<void> _send() async {
     final body = controller.text.trim();
     if (body.isEmpty) return;
-    await widget.repository.sendMessage('demo-customer',
-        AssalMessageDraft(conversationId: widget.conversation.id, body: body));
-    controller.clear();
-    setState(
-        () => future = widget.repository.listMessages(widget.conversation.id));
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) await openAuth(context, widget.repository);
+      return;
+    }
+    final result = await widget.repository.sendMessage(
+      session.user!.id,
+      AssalMessageDraft(conversationId: widget.conversation.id, body: body),
+    );
+    if (!mounted) return;
+    if (result is AssalData) {
+      controller.clear();
+      setState(
+          () => future = widget.repository.listMessages(widget.conversation.id));
+    } else if (result is AssalError<AssalMessageSummary>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.messageAr)),
+      );
+    }
   }
 }
 
@@ -1331,6 +1355,9 @@ class MessagesScreen extends StatelessWidget {
       body: FutureBuilder<AssalSession>(
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
+          if (sessionSnapshot.connectionState != ConnectionState.done) {
+            return const AssalGlassLoading();
+          }
           final session = sessionSnapshot.data ?? AssalSession.guest;
           if (!session.isAuthenticated) {
             return Center(
