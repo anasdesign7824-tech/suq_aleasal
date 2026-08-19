@@ -311,6 +311,12 @@ export type StoreVerificationReviewAction =
   | 'needs_more_info'
   | 'revoke';
 
+export type StoreVerificationPaymentStatus =
+  | 'paid'
+  | 'waived'
+  | 'failed'
+  | 'refunded';
+
 export async function listStoreVerificationRequests(options: QueryOptions = {}) {
   if (!options) throw new Error('خيارات القراءة غير صالحة.');
   const { page, pageSize, from, to } = pageOf(options);
@@ -392,6 +398,37 @@ export async function reviewStoreVerification(
     entityType: 'store_verification_requests',
     entityId: requestId,
     metadata: { reviewNote: reviewNote?.trim() || null, expiresAt: expiresAt ?? null },
+  });
+  return result.data;
+}
+
+export async function reconcileStoreVerificationPayment(
+  session: AdminSession,
+  requestId: string,
+  paymentStatus: StoreVerificationPaymentStatus,
+  paymentReference?: string,
+  note?: string,
+) {
+  if (!hasPermission(session, 'verification.review')) {
+    throw new Error('لا تملك صلاحية تسوية رسوم توثيق المتجر.');
+  }
+  const service = createServiceSupabaseClient();
+  const result = await service.rpc('admin_set_store_verification_payment', {
+    p_request_id: requestId,
+    p_payment_status: paymentStatus,
+    ...(paymentReference?.trim() ? { p_payment_reference: paymentReference.trim() } : {}),
+    ...(note?.trim() ? { p_note: note.trim() } : {}),
+    p_reviewer_id: session.user.id,
+  });
+  if (result.error) throw result.error;
+  await recordAudit(session, {
+    action: `store_verification.payment.${paymentStatus}`,
+    entityType: 'store_verification_requests',
+    entityId: requestId,
+    metadata: {
+      paymentReference: paymentReference?.trim() || null,
+      note: note?.trim() || null,
+    },
   });
   return result.data;
 }

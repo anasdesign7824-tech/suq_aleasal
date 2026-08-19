@@ -40,6 +40,7 @@ import {
   listTaxonomy,
   moderateStore,
   reviewStoreVerification,
+  reconcileStoreVerificationPayment,
   reviewMerchantApplication,
   sendNotification,
   updateAdminMembership,
@@ -232,6 +233,27 @@ async function startServer() {
         action as "approve" | "reject" | "needs_more_info" | "revoke",
         typeof request.body?.reviewNote === "string" ? request.body.reviewNote : undefined,
         typeof request.body?.expiresAt === "string" ? request.body.expiresAt : null,
+      );
+      response.json({ item: result });
+    } catch (error) {
+      sendError(response, error);
+    }
+  });
+
+  app.patch("/api/admin/store-verification-requests/:id/payment", requireAdmin("verification.review"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      const paymentStatus = request.body?.paymentStatus;
+      if (!["paid", "waived", "failed", "refunded"].includes(paymentStatus)) {
+        response.status(400).json({ error: "invalid_payment_status", messageAr: "حالة الدفع غير صالحة." });
+        return;
+      }
+      const result = await reconcileStoreVerificationPayment(
+        getRequestAdminSession(response),
+        id,
+        paymentStatus as "paid" | "waived" | "failed" | "refunded",
+        typeof request.body?.paymentReference === "string" ? request.body.paymentReference : undefined,
+        typeof request.body?.note === "string" ? request.body.note : undefined,
       );
       response.json({ item: result });
     } catch (error) {

@@ -27,6 +27,13 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
   String? message;
   bool loading = true;
   bool busy = false;
+  final paymentReferenceController = TextEditingController();
+
+  @override
+  void dispose() {
+    paymentReferenceController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -147,6 +154,35 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
     });
   }
 
+  Future<void> _submitPaymentReference() async {
+    final current = request;
+    final reference = paymentReferenceController.text.trim();
+    if (userId == null || current == null) return;
+    if (reference.length < 3) {
+      setState(() => message = 'أدخل رقم العملية أو مرجع التحويل أولًا.');
+      return;
+    }
+    setState(() {
+      busy = true;
+      message = null;
+    });
+    final state = await widget.repository.submitVerificationPaymentReference(
+      userId!,
+      current.id,
+      reference,
+    );
+    if (!mounted) return;
+    setState(() {
+      busy = false;
+      if (state is AssalData<AssalStoreVerificationSummary>) {
+        request = state.value;
+        message = 'تم إرسال مرجع الدفع. بانتظار تأكيد الإدارة، ولم يُعتبر الدفع معتمدًا بعد.';
+      } else if (state is AssalError<AssalStoreVerificationSummary>) {
+        message = state.messageAr;
+      }
+    });
+  }
+
   Future<void> _submit() async {
     final current = request;
     if (userId == null || current == null) return;
@@ -218,6 +254,8 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
                 else ...[
                   _statusCard(request!),
                   const SizedBox(height: AssalSpacing.md),
+                  _paymentCard(request!),
+                  const SizedBox(height: AssalSpacing.md),
                   _documentsCard(request!),
                   const SizedBox(height: AssalSpacing.md),
                   _submitCard(request!),
@@ -285,6 +323,50 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
               ? const Icon(Icons.warning_amber_outlined,
                   color: AssalColors.warning)
               : Text('${current.documentCount} مستند'),
+        ),
+      );
+
+  Widget _paymentCard(AssalStoreVerificationSummary current) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('رسوم توثيق Pro',
+                  style: AssalTypography.heading3
+                      .copyWith(color: AssalColors.deepBrown)),
+              const SizedBox(height: AssalSpacing.xs),
+              const Text(
+                'أرسل رقم العملية أو مرجع التحويل بالطريقة التي تعتمدها الإدارة. لا يتحول الطلب إلى مدفوع إلا بعد التحقق الإداري.',
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              TextField(
+                controller: paymentReferenceController,
+                enabled: !busy &&
+                    current.paymentStatus != VerificationPaymentStatus.paid &&
+                    current.paymentStatus != VerificationPaymentStatus.waived,
+                decoration: const InputDecoration(
+                  labelText: 'رقم العملية أو مرجع التحويل',
+                  prefixIcon: Icon(Icons.receipt_long_outlined),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: busy ||
+                          current.paymentStatus == VerificationPaymentStatus.paid ||
+                          current.paymentStatus == VerificationPaymentStatus.waived
+                      ? null
+                      : _submitPaymentReference,
+                  icon: const Icon(Icons.send_to_mobile_outlined),
+                  label: Text(current.paymentStatus == VerificationPaymentStatus.pending
+                      ? 'تحديث مرجع الدفع'
+                      : 'إرسال مرجع الدفع للتأكيد'),
+                ),
+              ),
+            ],
+          ),
         ),
       );
 

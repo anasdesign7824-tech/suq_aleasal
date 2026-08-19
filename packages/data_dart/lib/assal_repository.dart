@@ -269,6 +269,12 @@ abstract interface class AssalRepository {
   );
   Future<AssalLoadState<AssalStoreVerificationSummary>>
       submitStoreVerification(String userId, String requestId);
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitVerificationPaymentReference(
+    String userId,
+    String requestId,
+    String paymentReference,
+  );
   Future<AssalLoadState<String>> uploadVerificationDocument(
     String userId,
     String requestId,

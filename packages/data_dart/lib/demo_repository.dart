@@ -1265,6 +1265,43 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitVerificationPaymentReference(
+    String userId,
+    String requestId,
+    String paymentReference,
+  ) async {
+    final current = _demoVerification;
+    if (current == null || current.id != requestId) {
+      return const AssalError(
+        'لم يُنشأ طلب توثيق بعد.',
+        code: 'verification_request_not_found',
+      );
+    }
+    if (paymentReference.trim().length < 3) {
+      return const AssalError(
+        'أدخل مرجع دفع صالحًا.',
+        code: 'payment_reference_invalid',
+      );
+    }
+    _demoVerification = AssalStoreVerificationSummary(
+      id: current.id,
+      storeId: current.storeId,
+      merchantId: current.merchantId,
+      status: StoreVerificationStatus.paymentPending,
+      paymentStatus: VerificationPaymentStatus.pending,
+      planCode: current.planCode,
+      reviewNote: current.reviewNote,
+      submittedAt: current.submittedAt,
+      reviewedAt: current.reviewedAt,
+      expiresAt: current.expiresAt,
+      documentCount: current.documentCount,
+      documentTypes: current.documentTypes,
+    );
+    return AssalData(_demoVerification!);
+  }
+
+  @override
   Future<AssalLoadState<String>> uploadVerificationDocument(
     String userId,
     String requestId,

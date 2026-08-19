@@ -25,6 +25,7 @@ type VerificationRow = {
   origin: string;
   status: string;
   payment_status: string;
+  payment_reference?: string | null;
   submitted_at?: string | null;
   reviewed_at?: string | null;
   review_note?: string | null;
@@ -90,6 +91,7 @@ export function AdminStoreVerificationPanel() {
   const [selected, setSelected] = useState<VerificationRow | null>(null);
   const [selectedDetail, setSelectedDetail] = useState<{ request: VerificationRow; documents: VerificationDocument[] } | null>(null);
   const [note, setNote] = useState("");
+  const [paymentReference, setPaymentReference] = useState("");
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
@@ -108,6 +110,7 @@ export function AdminStoreVerificationPanel() {
     setSelected(row);
     setSelectedDetail(null);
     setNote(row.review_note ?? "");
+    setPaymentReference(row.payment_reference ?? "");
     try {
       const details = await adminApi.storeVerificationRequest(row.id);
       setSelectedDetail({ request: details.request as VerificationRow, documents: details.documents as VerificationDocument[] });
@@ -132,6 +135,28 @@ export function AdminStoreVerificationPanel() {
       await load();
     } catch (error) {
       setState((previous) => ({ ...previous, error: error instanceof Error ? error.message : "تعذر تنفيذ قرار التوثيق." }));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const reconcilePayment = async (paymentStatus: "paid" | "waived" | "failed" | "refunded") => {
+    if (!selected) return;
+    const labels = { paid: "تأكيد الدفع", waived: "الإعفاء الإداري", failed: "تسجيل فشل الدفع", refunded: "تسجيل رد الرسوم" } as const;
+    if (!window.confirm(`سيتم تنفيذ: ${labels[paymentStatus]}. هل تريد المتابعة؟`)) return;
+    setBusy(true);
+    try {
+      const result = await adminApi.reconcileStoreVerificationPayment(selected.id, {
+        paymentStatus,
+        paymentReference: paymentReference.trim() || null,
+        note: note.trim() || null,
+      });
+      const updated = result.item as Partial<VerificationRow>;
+      setSelected((current) => current ? { ...current, ...updated, payment_status: String(updated.payment_status ?? current.payment_status), status: String(updated.status ?? current.status) } : current);
+      setPaymentReference(String(updated.payment_reference ?? paymentReference));
+      await load();
+    } catch (error) {
+      setState((previous) => ({ ...previous, error: error instanceof Error ? error.message : "تعذر تسوية رسوم التوثيق." }));
     } finally {
       setBusy(false);
     }
@@ -170,6 +195,17 @@ export function AdminStoreVerificationPanel() {
       {selected && <div className="admin-card space-y-5 p-6">
         <div className="flex flex-col gap-3 border-b border-[#eee1d0] pb-5 sm:flex-row sm:items-start sm:justify-between"><div><div className="flex items-center gap-2">{statusBadge(selected.status)}<ShieldCheck className="size-5 text-[#9c5a00]" /></div><h3 className="mt-2 text-xl font-bold text-[#3f281d]">{selected.store?.name_ar ?? "تفاصيل طلب التوثيق"}</h3><p className="mt-1 text-sm text-[#806b5a]">المستخدم: {selected.merchant?.display_name ?? selected.merchant_id}</p></div><Button onClick={() => { setSelected(null); setSelectedDetail(null); }} variant="ghost" className="text-[#806b5a]">إغلاق</Button></div>
         <div className="grid gap-3 text-sm text-[#6f5b4c] sm:grid-cols-3"><div><span className="font-semibold">الدفع:</span> {paymentLabels[selected.payment_status] ?? selected.payment_status}</div><div><span className="font-semibold">التقديم:</span> {formatDate(selected.submitted_at)}</div><div><span className="font-semibold">المراجعة:</span> {formatDate(selected.reviewed_at)}</div></div>
+        <div className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4">
+          <div className="text-sm font-bold text-[#4f2e1f]">تسوية رسوم Pro</div>
+          <p className="mt-1 text-xs leading-6 text-[#806b5a]">لا تُعتبر الرسوم مدفوعة بمجرد إرسال المرجع. هذه الأزرار تسجل قرار الإدارة فقط، ولا تنفذ عملية مالية خارجية.</p>
+          <Input value={paymentReference} onChange={(event) => setPaymentReference(event.target.value)} placeholder="مرجع التحويل أو رقم العملية" className="mt-3 border-[#eadcc9] bg-white" />
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button disabled={busy} onClick={() => void reconcilePayment("paid")} className="bg-emerald-700 hover:bg-emerald-800">تأكيد الدفع</Button>
+            <Button disabled={busy} onClick={() => void reconcilePayment("waived")} variant="outline" className="border-[#c9a36a] text-[#7a4e1f]">إعفاء إداري</Button>
+            <Button disabled={busy} onClick={() => void reconcilePayment("failed")} variant="outline" className="border-red-200 text-red-800">تسجيل فشل</Button>
+            <Button disabled={busy} onClick={() => void reconcilePayment("refunded")} variant="outline" className="border-red-300 text-red-900">تسجيل رد الرسوم</Button>
+          </div>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2">{(selectedDetail?.documents ?? selected.documents).map((document) => <div key={document.id} className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4"><div className="flex items-center gap-3"><FileText className="size-5 text-[#9c5a00]" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#4f2e1f]">{documentLabels[document.document_type] ?? document.document_type}</p><p className="truncate text-xs text-[#806b5a]">{document.file_name} · {document.review_status}</p></div></div>{document.signed_url && <a className="mt-3 inline-block text-xs font-bold text-[#8b5a2b] underline" href={document.signed_url} target="_blank" rel="noreferrer">فتح المستند في نافذة آمنة</a>}</div>)}</div>
         <label className="block text-sm font-semibold text-[#4f2e1f]">ملاحظة القرار<textarea value={note} onChange={(event) => setNote(event.target.value)} rows={3} className="mt-2 w-full rounded-2xl border border-[#eadcc9] bg-white p-3 text-sm outline-none focus:border-[#c77d1a]" placeholder="اكتب سبب القرار أو المعلومات المطلوبة" /></label>
         <div className="flex flex-wrap gap-2"><Button disabled={busy} onClick={() => void runAction("approve")} className="bg-emerald-700 hover:bg-emerald-800"><CheckCircle2 className="ml-2 size-4" />اعتماد التوثيق</Button><Button disabled={busy} onClick={() => void runAction("needs_more_info")} variant="outline" className="border-blue-200 text-blue-800">طلب استكمال</Button><Button disabled={busy} onClick={() => void runAction("reject")} variant="outline" className="border-red-200 text-red-800"><XCircle className="ml-2 size-4" />رفض</Button>{selected.status === "approved" && <Button disabled={busy} onClick={() => void runAction("revoke")} variant="outline" className="border-red-300 text-red-900">سحب الشارة</Button>}</div>

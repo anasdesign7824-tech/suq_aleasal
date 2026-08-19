@@ -1755,6 +1755,27 @@ class ProductionRepository implements AssalRepository {
           );
 
   @override
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitVerificationPaymentReference(
+    String userId,
+    String requestId,
+    String paymentReference,
+  ) =>
+          _write(
+            resource: 'store_verification.payment_reference',
+            write: () async {
+              final row = await _gateway.rpc(
+                'merchant_submit_verification_payment_reference',
+                {
+                  'p_request_id': requestId,
+                  'p_payment_reference': paymentReference.trim(),
+                },
+              );
+              return _verificationSummary(row);
+            },
+          );
+
+  @override
   Future<AssalLoadState<String>> uploadVerificationDocument(
     String userId,
     String requestId,

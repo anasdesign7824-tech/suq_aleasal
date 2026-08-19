@@ -2402,6 +2402,16 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_set_store_verification_payment: {
+        Args: {
+          p_request_id: string
+          p_payment_status: string
+          p_payment_reference?: string
+          p_note?: string
+          p_reviewer_id?: string
+        }
+        Returns: Json
+      }
       delete_my_account: { Args: never; Returns: undefined }
       has_admin_permission: {
         Args: { permission_code: string }
