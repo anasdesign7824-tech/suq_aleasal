@@ -1258,9 +1258,21 @@ class ProductionRepository implements AssalRepository {
               row['status'] == 'active' &&
               (row['expires_at'] == null ||
                   DateTime.tryParse('${row['expires_at']}')?.isAfter(DateTime.now().toUtc()) == true));
+          final verificationRequests = await _gateway.select(
+            'store_verification_requests',
+            filters: {'store_id': store.id},
+          );
+          verificationRequests.sort((left, right) =>
+              '${right['created_at'] ?? ''}'.compareTo('${left['created_at'] ?? ''}'));
+          final latestVerification = verificationRequests.isEmpty
+              ? null
+              : verificationRequests.first;
+          final verificationStatus = proVerified
+              ? 'approved'
+              : '${latestVerification?['status'] ?? 'not_requested'}';
           return AssalMerchantWorkspaceSummary(
             store: store,
-            verificationStatus: proVerified ? 'verified' : 'pending',
+            verificationStatus: verificationStatus,
             publicStatus: status,
             canEdit: true,
             canPublish: status == 'active',

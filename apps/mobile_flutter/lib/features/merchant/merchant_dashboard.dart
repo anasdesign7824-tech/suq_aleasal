@@ -228,8 +228,12 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               AssalTypography.body.copyWith(color: AssalColors.textSecondary),
         ),
         const SizedBox(height: AssalSpacing.lg),
-        _infoCard(Icons.storefront_outlined, 'حالة المتجر',
-            workspace.canPublish ? 'active' : workspace.publicStatus),
+        _infoCard(Icons.storefront_outlined, 'حالة المتجر', store.status.labelAr),
+        _infoCard(
+          Icons.verified_user_outlined,
+          'توثيق Pro',
+          _verificationLabel(workspace.verificationStatus),
+        ),
         _infoCard(Icons.location_on_outlined, 'الموقع',
             store.regionNameAr ?? 'لم يُحدد بعد'),
         _infoCard(
@@ -551,6 +555,19 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           .showSnackBar(SnackBar(content: Text(state.messageAr)));
     }
   }
+
+  String _verificationLabel(String status) => switch (status) {
+        'approved' || 'verified' => 'موثق Pro',
+        'draft' => 'مسودة طلب التوثيق',
+        'payment_pending' => 'بانتظار إكمال الدفع',
+        'submitted' => 'أُرسل للمراجعة',
+        'under_review' => 'قيد المراجعة',
+        'needs_more_info' => 'يلزم استكمال البيانات',
+        'rejected' => 'لم تتم الموافقة',
+        'expired' => 'انتهى التوثيق',
+        'revoked' => 'سُحب التوثيق',
+        _ => 'لم يُطلب توثيق Pro',
+      };
 
   String _productStatusLabel(ProductStatus status) => switch (status) {
         ProductStatus.draft => 'مسودة محفوظة',
