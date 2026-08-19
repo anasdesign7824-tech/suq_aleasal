@@ -43,6 +43,18 @@ import {
   listStores,
   listStoreVerificationRequests,
   getStoreVerificationRequest,
+  listSubscriptionPlans,
+  listSubscriptionCampaigns,
+  updateLaunchCampaign,
+  getLocalTransferSettings,
+  updateLocalTransferSettings,
+  listPaymentRequests,
+  getPaymentRequest,
+  reconcilePaymentRequest,
+  listMerchantSubscriptions,
+  setMerchantSubscriptionStatus,
+  listDesignRequests,
+  updateDesignRequest,
   listTaxonomy,
   moderateStore,
   reviewStoreVerification,
@@ -215,6 +227,55 @@ async function startServer() {
   listRoute("/api/admin/requests", "request.read", listRequests);
   listRoute("/api/admin/merchant-applications", "merchant.review", listMerchantApplications);
   listRoute("/api/admin/store-verification-requests", "verification.read", listStoreVerificationRequests);
+
+  app.get("/api/admin/subscription-plans", requireAdmin("plans.read"), async (_request, response) => {
+    try { response.json({ items: await listSubscriptionPlans(getRequestAdminSession(response)) }); } catch (error) { sendError(response, error); }
+  });
+  app.get("/api/admin/subscription-campaigns", requireAdmin("campaigns.manage"), async (_request, response) => {
+    try { response.json({ items: await listSubscriptionCampaigns(getRequestAdminSession(response)) }); } catch (error) { sendError(response, error); }
+  });
+  app.patch("/api/admin/subscription-campaigns/app-launch", requireAdmin("campaigns.manage"), async (request, response) => {
+    try {
+      response.json({ item: await updateLaunchCampaign(getRequestAdminSession(response), request.body ?? {}) });
+    } catch (error) { sendError(response, error); }
+  });
+  app.get("/api/admin/local-transfer-settings", requireAdmin("payments.read"), async (_request, response) => {
+    try { response.json({ item: await getLocalTransferSettings(getRequestAdminSession(response)) }); } catch (error) { sendError(response, error); }
+  });
+  app.put("/api/admin/local-transfer-settings", requireAdmin("payments.manage"), async (request, response) => {
+    try { response.json({ item: await updateLocalTransferSettings(getRequestAdminSession(response), request.body ?? {}) }); } catch (error) { sendError(response, error); }
+  });
+  app.get("/api/admin/payment-requests", requireAdmin("payments.read"), async (request, response) => {
+    try { response.json(await listPaymentRequests(getRequestAdminSession(response), { page: numericQuery(request.query.page, 1), pageSize: numericQuery(request.query.pageSize, 20), search: typeof request.query.search === "string" ? request.query.search : undefined })); } catch (error) { sendError(response, error); }
+  });
+  app.get("/api/admin/payment-requests/:id", requireAdmin("payments.read"), async (request, response) => {
+    try { const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id; response.json({ item: await getPaymentRequest(getRequestAdminSession(response), id) }); } catch (error) { sendError(response, error); }
+  });
+  app.patch("/api/admin/payment-requests/:id", requireAdmin("payments.manage"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      const status = request.body?.status;
+      if (!["confirmed", "failed", "refunded", "waived", "under_review"].includes(status)) { response.status(400).json({ error: "invalid_payment_status", messageAr: "حالة الدفع غير صالحة." }); return; }
+      response.json({ item: await reconcilePaymentRequest(getRequestAdminSession(response), id, status, request.body?.note) });
+    } catch (error) { sendError(response, error); }
+  });
+  app.get("/api/admin/subscriptions", requireAdmin("plans.read"), async (request, response) => {
+    try { response.json(await listMerchantSubscriptions(getRequestAdminSession(response), { page: numericQuery(request.query.page, 1), pageSize: numericQuery(request.query.pageSize, 20), search: typeof request.query.search === "string" ? request.query.search : undefined })); } catch (error) { sendError(response, error); }
+  });
+  app.patch("/api/admin/subscriptions/:id", requireAdmin("plans.manage"), async (request, response) => {
+    try {
+      const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id;
+      const status = request.body?.status;
+      if (!["active", "expired", "cancelled", "suspended"].includes(status)) { response.status(400).json({ error: "invalid_subscription_status", messageAr: "حالة الخطة غير صالحة." }); return; }
+      response.json({ item: await setMerchantSubscriptionStatus(getRequestAdminSession(response), id, status, request.body?.note) });
+    } catch (error) { sendError(response, error); }
+  });
+  app.get("/api/admin/design-requests", requireAdmin("design.read"), async (request, response) => {
+    try { response.json(await listDesignRequests(getRequestAdminSession(response), { page: numericQuery(request.query.page, 1), pageSize: numericQuery(request.query.pageSize, 20), search: typeof request.query.search === "string" ? request.query.search : undefined })); } catch (error) { sendError(response, error); }
+  });
+  app.patch("/api/admin/design-requests/:id", requireAdmin("design.manage"), async (request, response) => {
+    try { const id = Array.isArray(request.params.id) ? request.params.id[0] : request.params.id; response.json({ item: await updateDesignRequest(getRequestAdminSession(response), id, request.body ?? {}) }); } catch (error) { sendError(response, error); }
+  });
 
   app.get("/api/admin/store-verification-requests/:id", requireAdmin("verification.read_sensitive"), async (request, response) => {
     try {

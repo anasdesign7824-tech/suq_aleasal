@@ -570,6 +570,141 @@ export async function reconcileStoreVerificationPayment(
   return result.data;
 }
 
+export type SubscriptionPaymentStatus = 'confirmed' | 'failed' | 'refunded' | 'waived' | 'under_review';
+
+export async function listSubscriptionPlans(session: AdminSession) {
+  if (!hasPermission(session, 'plans.read')) throw new Error('لا تملك صلاحية قراءة الخطط.');
+  const service = createServiceSupabaseClient();
+  const result = await service.from('subscription_plans').select('*').order('sort_order', { ascending: true }).order('billing_interval', { ascending: true });
+  if (result.error) throw result.error;
+  return result.data ?? [];
+}
+
+export async function listSubscriptionCampaigns(session: AdminSession) {
+  if (!hasPermission(session, 'campaigns.manage')) throw new Error('لا تملك صلاحية إدارة الحملات.');
+  const service = createServiceSupabaseClient();
+  const result = await service.from('subscription_campaigns').select('*').order('created_at', { ascending: false });
+  if (result.error) throw result.error;
+  return result.data ?? [];
+}
+
+export async function updateLaunchCampaign(
+  session: AdminSession,
+  input: { discountPercent: number | string; isActive: boolean; startsAt?: string | null; endsAt?: string | null; appliesTo?: string[] },
+) {
+  if (!hasPermission(session, 'campaigns.manage')) throw new Error('لا تملك صلاحية إدارة حملة الافتتاح.');
+  const parsedDiscount = finiteNumber(input.discountPercent, 'نسبة الخصم', { min: 0 });
+  if (parsedDiscount === null || parsedDiscount > 100) throw new Error('نسبة الخصم يجب أن تكون بين 0 و100.');
+  const discountPercent = parsedDiscount;
+  const service = createServiceSupabaseClient();
+  const existing = await service.from('subscription_campaigns').select('id, code').eq('code', 'app_launch_2026').maybeSingle();
+  if (existing.error) throw existing.error;
+  if (!existing.data) throw new Error('حملة الافتتاح غير مهيأة في Production.');
+  const updated = await service.from('subscription_campaigns').update({
+    discount_percent: discountPercent,
+    is_active: Boolean(input.isActive),
+    starts_at: input.startsAt ?? null,
+    ends_at: input.endsAt ?? null,
+    applies_to: input.appliesTo?.length ? input.appliesTo : ['subscription', 'verification'],
+    updated_by: session.user.id,
+  }).eq('id', existing.data.id).select('*').single();
+  if (updated.error) throw updated.error;
+  await recordAudit(session, { action: `campaign.app_launch.${input.isActive ? 'activate' : 'deactivate'}`, entityType: 'subscription_campaigns', entityId: updated.data.id, metadata: { discountPercent, startsAt: input.startsAt ?? null, endsAt: input.endsAt ?? null } });
+  return updated.data;
+}
+
+export async function getLocalTransferSettings(session: AdminSession) {
+  if (!hasPermission(session, 'payments.read')) throw new Error('لا تملك صلاحية قراءة إعدادات الحوالة.');
+  const service = createServiceSupabaseClient();
+  const result = await service.from('local_transfer_settings').select('*').eq('code', 'primary').maybeSingle();
+  if (result.error) throw result.error;
+  return result.data;
+}
+
+export async function updateLocalTransferSettings(session: AdminSession, input: { bankName?: string | null; beneficiaryName?: string | null; accountNumber?: string | null; iban?: string | null; phone?: string | null; instructionsAr?: string | null; logoUrl?: string | null; isActive: boolean }) {
+  if (!hasPermission(session, 'payments.manage')) throw new Error('لا تملك صلاحية تعديل إعدادات الحوالة.');
+  const service = createServiceSupabaseClient();
+  const updated = await service.from('local_transfer_settings').update({ bank_name: input.bankName?.trim() || null, beneficiary_name: input.beneficiaryName?.trim() || null, account_number: input.accountNumber?.trim() || null, iban: input.iban?.trim() || null, phone: input.phone?.trim() || null, instructions_ar: input.instructionsAr?.trim() || null, logo_url: input.logoUrl?.trim() || null, is_active: Boolean(input.isActive), updated_by: session.user.id }).eq('code', 'primary').select('*').single();
+  if (updated.error) throw updated.error;
+  await recordAudit(session, { action: 'payment.transfer_settings.update', entityType: 'local_transfer_settings', entityId: updated.data.id, metadata: { bankName: updated.data.bank_name, isActive: updated.data.is_active } });
+  return updated.data;
+}
+
+export async function listPaymentRequests(session: AdminSession, options: QueryOptions = {}) {
+  if (!hasPermission(session, 'payments.read')) throw new Error('لا تملك صلاحية قراءة طلبات الدفع.');
+  const { page, pageSize, from, to } = pageOf(options);
+  const service = createServiceSupabaseClient();
+  let query = service.from('payment_requests').select('*, plan:subscription_plans(id, code, name_ar, billing_interval), store:stores(id, name_ar)', { count: 'exact' }).order('created_at', { ascending: false }).range(from, to);
+  if (options.search?.trim()) query = query.or(`payment_reference.ilike.%${options.search.trim()}%,sender_name.ilike.%${options.search.trim()}%`);
+  const result = await query;
+  if (result.error) throw result.error;
+  return { items: result.data ?? [], page, pageSize, total: result.count ?? 0 };
+}
+
+export async function getPaymentRequest(session: AdminSession, paymentRequestId: string) {
+  if (!hasPermission(session, 'payments.read')) throw new Error('لا تملك صلاحية قراءة طلب الدفع.');
+  const service = createServiceSupabaseClient();
+  const result = await service.from('payment_requests').select('*, plan:subscription_plans(id, code, name_ar, billing_interval), store:stores(id, name_ar)').eq('id', requireText(paymentRequestId, 'طلب الدفع')).maybeSingle();
+  if (result.error) throw result.error;
+  if (!result.data) throw new Error('طلب الدفع غير موجود.');
+  const events = await service.from('payment_events').select('*').eq('payment_request_id', paymentRequestId).order('created_at', { ascending: false });
+  if (events.error) throw events.error;
+  let proofUrl: string | null = null;
+  if (result.data.proof_path) {
+    const signed = await service.storage.from('assalkom_private').createSignedUrl(result.data.proof_path, 600);
+    if (signed.error) throw signed.error;
+    proofUrl = signed.data.signedUrl;
+  }
+  return { ...result.data, proof_url: proofUrl, events: events.data ?? [] };
+}
+
+export async function reconcilePaymentRequest(session: AdminSession, paymentRequestId: string, status: SubscriptionPaymentStatus, note?: string) {
+  if (!hasPermission(session, 'payments.manage')) throw new Error('لا تملك صلاحية تسوية طلب الدفع.');
+  const service = createServiceSupabaseClient();
+  const result = await service.rpc('admin_reconcile_payment_request', { p_payment_request_id: paymentRequestId, p_status: status, ...(note?.trim() ? { p_note: note.trim() } : {}), p_reviewer_id: session.user.id });
+  if (result.error) throw result.error;
+  await recordAudit(session, { action: `payment_request.${status}`, entityType: 'payment_requests', entityId: paymentRequestId, metadata: { note: note?.trim() || null } });
+  return result.data;
+}
+
+export async function listMerchantSubscriptions(session: AdminSession, options: QueryOptions = {}) {
+  if (!hasPermission(session, 'plans.read')) throw new Error('لا تملك صلاحية قراءة الاشتراكات.');
+  const { page, pageSize, from, to } = pageOf(options);
+  const service = createServiceSupabaseClient();
+  const result = await service.from('merchant_subscriptions').select('*, plan:subscription_plans(id, code, name_ar, billing_interval, price_amount, store_limit, product_limit)', { count: 'exact' }).order('created_at', { ascending: false }).range(from, to);
+  if (result.error) throw result.error;
+  return { items: result.data ?? [], page, pageSize, total: result.count ?? 0 };
+}
+
+export async function setMerchantSubscriptionStatus(session: AdminSession, subscriptionId: string, status: 'active' | 'expired' | 'cancelled' | 'suspended', note?: string) {
+  if (!hasPermission(session, 'plans.manage')) throw new Error('لا تملك صلاحية تفعيل الخطط.');
+  const service = createServiceSupabaseClient();
+  const result = await service.rpc('admin_set_subscription_status', { p_subscription_id: subscriptionId, p_status: status, ...(note?.trim() ? { p_note: note.trim() } : {}), p_reviewer_id: session.user.id });
+  if (result.error) throw result.error;
+  await recordAudit(session, { action: `subscription.${status}`, entityType: 'merchant_subscriptions', entityId: subscriptionId, metadata: { note: note?.trim() || null } });
+  return result.data;
+}
+
+export async function listDesignRequests(session: AdminSession, options: QueryOptions = {}) {
+  if (!hasPermission(session, 'design.read')) throw new Error('لا تملك صلاحية قراءة طلبات التصميم.');
+  const { page, pageSize, from, to } = pageOf(options);
+  const service = createServiceSupabaseClient();
+  const result = await service.from('design_requests').select('*, store:stores(id, name_ar)', { count: 'exact' }).order('created_at', { ascending: false }).range(from, to);
+  if (result.error) throw result.error;
+  return { items: result.data ?? [], page, pageSize, total: result.count ?? 0 };
+}
+
+export async function updateDesignRequest(session: AdminSession, requestId: string, input: { status: string; adminNote?: string | null; assignedAdminId?: string | null }) {
+  if (!hasPermission(session, 'design.manage')) throw new Error('لا تملك صلاحية إدارة طلبات التصميم.');
+  const allowed = new Set(['draft', 'submitted', 'needs_more_info', 'in_progress', 'ready_for_review', 'completed', 'cancelled']);
+  if (!allowed.has(input.status)) throw new Error('حالة طلب التصميم غير صحيحة.');
+  const service = createServiceSupabaseClient();
+  const updated = await service.from('design_requests').update({ status: input.status, admin_note: input.adminNote?.trim() || null, assigned_admin_id: input.assignedAdminId ?? null, completed_at: input.status === 'completed' ? new Date().toISOString() : null }).eq('id', requestId).select('*').single();
+  if (updated.error) throw updated.error;
+  await recordAudit(session, { action: `design_request.${input.status}`, entityType: 'design_requests', entityId: requestId, metadata: { note: input.adminNote?.trim() || null } });
+  return updated.data;
+}
+
 export type ProductWriteInput = {
   storeId: string;
   taxonomyId?: string | null;

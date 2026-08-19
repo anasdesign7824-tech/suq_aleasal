@@ -287,6 +287,37 @@ abstract interface class AssalRepository {
     String requestId,
     AssalVerificationDocumentDraft draft,
   );
+  Future<AssalLoadState<List<AssalSubscriptionPlan>>> listSubscriptionPlans();
+  Future<AssalLoadState<AssalSubscriptionCampaign?>> loadSubscriptionCampaign();
+  Future<AssalLoadState<AssalLocalTransferSettings?>> loadLocalTransferSettings();
+  Future<AssalLoadState<AssalPaymentRequest>> createSubscriptionPaymentRequest(
+    String userId,
+    String planId,
+  );
+  Future<AssalLoadState<String>> uploadPaymentProof(
+    String userId,
+    String paymentRequestId,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<AssalPaymentRequest>> submitPaymentProof(
+    String userId,
+    String paymentRequestId,
+    String paymentReference,
+    String proofPath,
+    String proofFileName,
+    String proofMimeType,
+    int proofByteSize,
+    DateTime transferDate,
+    double submittedAmount,
+    String senderName,
+    String senderPhone,
+  );
+  Future<AssalLoadState<AssalDesignRequest>> createDesignRequest(
+    String userId,
+    String storeId,
+    AssalDesignRequestDraft draft,
+  );
   Future<AssalLoadState<void>> signOut();
 }
 

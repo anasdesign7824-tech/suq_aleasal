@@ -1983,6 +1983,99 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          id: string
+          code: string
+          name_ar: string
+          billing_interval: string
+          price_amount: number
+          currency: string
+          store_limit: number
+          product_limit: number
+          entitlements: Json
+          verification_included: number
+          sort_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          code: string
+          name_ar: string
+          billing_interval: string
+          price_amount: number
+          currency?: string
+          store_limit: number
+          product_limit: number
+          entitlements?: Json
+          verification_included?: number
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          name_ar?: string
+          billing_interval?: string
+          price_amount?: number
+          currency?: string
+          store_limit?: number
+          product_limit?: number
+          entitlements?: Json
+          verification_included?: number
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plan_entitlements: {
+        Row: { id: string; plan_id: string; entitlement_code: string; value_json: Json; created_at: string; updated_at: string }
+        Insert: { id?: string; plan_id: string; entitlement_code: string; value_json?: Json; created_at?: string; updated_at?: string }
+        Update: { id?: string; plan_id?: string; entitlement_code?: string; value_json?: Json; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      subscription_campaigns: {
+        Row: { id: string; code: string; name_ar: string; discount_percent: number; starts_at: string | null; ends_at: string | null; applies_to: string[]; is_active: boolean; created_by: string | null; updated_by: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; code: string; name_ar: string; discount_percent: number; starts_at?: string | null; ends_at?: string | null; applies_to?: string[]; is_active?: boolean; created_by?: string | null; updated_by?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; code?: string; name_ar?: string; discount_percent?: number; starts_at?: string | null; ends_at?: string | null; applies_to?: string[]; is_active?: boolean; created_by?: string | null; updated_by?: string | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      local_transfer_settings: {
+        Row: { id: string; code: string; bank_name: string | null; beneficiary_name: string | null; account_number: string | null; iban: string | null; phone: string | null; instructions_ar: string | null; logo_url: string | null; is_active: boolean; updated_by: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; code?: string; bank_name?: string | null; beneficiary_name?: string | null; account_number?: string | null; iban?: string | null; phone?: string | null; instructions_ar?: string | null; logo_url?: string | null; is_active?: boolean; updated_by?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; code?: string; bank_name?: string | null; beneficiary_name?: string | null; account_number?: string | null; iban?: string | null; phone?: string | null; instructions_ar?: string | null; logo_url?: string | null; is_active?: boolean; updated_by?: string | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      payment_requests: {
+        Row: { id: string; merchant_id: string; store_id: string | null; plan_id: string | null; verification_request_id: string | null; payment_type: string; payment_method: string; status: string; base_amount: number; discount_percent: number; final_amount: number; currency: string; campaign_id: string | null; payment_reference: string | null; proof_path: string | null; proof_file_name: string | null; proof_mime_type: string | null; proof_byte_size: number | null; transfer_date: string | null; submitted_amount: number | null; sender_name: string | null; sender_phone: string | null; merchant_note: string | null; reviewer_note: string | null; reviewed_by: string | null; reviewed_at: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; merchant_id: string; store_id?: string | null; plan_id?: string | null; verification_request_id?: string | null; payment_type: string; payment_method?: string; status?: string; base_amount: number; discount_percent?: number; final_amount: number; currency?: string; campaign_id?: string | null; payment_reference?: string | null; proof_path?: string | null; proof_file_name?: string | null; proof_mime_type?: string | null; proof_byte_size?: number | null; transfer_date?: string | null; submitted_amount?: number | null; sender_name?: string | null; sender_phone?: string | null; merchant_note?: string | null; reviewer_note?: string | null; reviewed_by?: string | null; reviewed_at?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; merchant_id?: string; store_id?: string | null; plan_id?: string | null; verification_request_id?: string | null; payment_type?: string; payment_method?: string; status?: string; base_amount?: number; discount_percent?: number; final_amount?: number; currency?: string; campaign_id?: string | null; payment_reference?: string | null; proof_path?: string | null; proof_file_name?: string | null; proof_mime_type?: string | null; proof_byte_size?: number | null; transfer_date?: string | null; submitted_amount?: number | null; sender_name?: string | null; sender_phone?: string | null; merchant_note?: string | null; reviewer_note?: string | null; reviewed_by?: string | null; reviewed_at?: string | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      merchant_subscriptions: {
+        Row: { id: string; merchant_id: string; plan_id: string; payment_request_id: string | null; status: string; starts_at: string | null; ends_at: string | null; activated_by: string | null; cancelled_at: string | null; cancellation_note: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; merchant_id: string; plan_id: string; payment_request_id?: string | null; status?: string; starts_at?: string | null; ends_at?: string | null; activated_by?: string | null; cancelled_at?: string | null; cancellation_note?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; merchant_id?: string; plan_id?: string; payment_request_id?: string | null; status?: string; starts_at?: string | null; ends_at?: string | null; activated_by?: string | null; cancelled_at?: string | null; cancellation_note?: string | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      payment_events: {
+        Row: { id: string; payment_request_id: string; actor_user_id: string | null; from_status: string | null; to_status: string; note: string | null; metadata: Json; created_at: string }
+        Insert: { id?: string; payment_request_id: string; actor_user_id?: string | null; from_status?: string | null; to_status: string; note?: string | null; metadata?: Json; created_at?: string }
+        Update: { id?: string; payment_request_id?: string; actor_user_id?: string | null; from_status?: string | null; to_status?: string; note?: string | null; metadata?: Json; created_at?: string }
+        Relationships: []
+      }
+      design_requests: {
+        Row: { id: string; merchant_id: string; store_id: string; subscription_id: string | null; request_type: string; status: string; title: string; description: string; brand_name: string | null; brand_colors: Json; product_scope: Json; reference_paths: Json; assigned_admin_id: string | null; admin_note: string | null; created_at: string; updated_at: string; completed_at: string | null }
+        Insert: { id?: string; merchant_id: string; store_id: string; subscription_id?: string | null; request_type?: string; status?: string; title: string; description: string; brand_name?: string | null; brand_colors?: Json; product_scope?: Json; reference_paths?: Json; assigned_admin_id?: string | null; admin_note?: string | null; created_at?: string; updated_at?: string; completed_at?: string | null }
+        Update: { id?: string; merchant_id?: string; store_id?: string; subscription_id?: string | null; request_type?: string; status?: string; title?: string; description?: string; brand_name?: string | null; brand_colors?: Json; product_scope?: Json; reference_paths?: Json; assigned_admin_id?: string | null; admin_note?: string | null; created_at?: string; updated_at?: string; completed_at?: string | null }
+        Relationships: []
+      }
       store_followers: {
         Row: {
           created_at: string
@@ -2412,6 +2505,14 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_reconcile_payment_request: {
+        Args: { p_payment_request_id: string; p_status: string; p_note?: string; p_reviewer_id?: string }
+        Returns: Json
+      }
+      admin_set_subscription_status: {
+        Args: { p_subscription_id: string; p_status: string; p_note?: string; p_reviewer_id?: string }
+        Returns: Json
+      }
       delete_my_account: { Args: never; Returns: undefined }
       has_admin_permission: {
         Args: { permission_code: string }
@@ -2419,6 +2520,19 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
+      get_current_subscription_campaign: { Args: never; Returns: Json }
+      merchant_create_design_request: {
+        Args: { p_store_id: string; p_title: string; p_description: string; p_brand_name?: string; p_brand_colors?: Json; p_product_scope?: Json }
+        Returns: Json
+      }
+      merchant_create_subscription_payment_request: {
+        Args: { p_plan_id: string; p_campaign_id?: string }
+        Returns: Json
+      }
+      merchant_submit_payment_proof: {
+        Args: { p_payment_request_id: string; p_payment_reference: string; p_proof_path: string; p_proof_file_name: string; p_proof_mime_type: string; p_proof_byte_size: number; p_transfer_date?: string; p_submitted_amount?: number; p_sender_name?: string; p_sender_phone?: string }
+        Returns: Json
+      }
       merchant_open_workspace: {
         Args: {
           p_business_name: string

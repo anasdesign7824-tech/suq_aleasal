@@ -1262,6 +1262,31 @@ class ProductionRepository implements AssalRepository {
             'store_verification_requests',
             filters: {'store_id': store.id},
           );
+          final subscriptions = await _gateway.select(
+            'merchant_subscriptions',
+            filters: {'merchant_id': userId, 'status': 'active'},
+          );
+          Map<String, Object?>? activeSubscription;
+          for (final candidate in subscriptions) {
+            final endsAt = DateTime.tryParse('${candidate['ends_at'] ?? ''}');
+            if (endsAt == null || endsAt.isAfter(DateTime.now().toUtc())) {
+              activeSubscription = candidate;
+              break;
+            }
+          }
+          Map<String, Object?>? plan;
+          if (activeSubscription != null) {
+            final plans = await _gateway.select(
+              'subscription_plans',
+              filters: {'id': activeSubscription['plan_id']},
+            );
+            if (plans.isNotEmpty) plan = plans.first;
+          }
+          final designRequests = activeSubscription == null
+              ? const <Map<String, Object?>>[]
+              : await _gateway.select('design_requests', filters: {
+                  'subscription_id': activeSubscription['id'],
+                });
           verificationRequests.sort((left, right) =>
               '${right['created_at'] ?? ''}'.compareTo('${left['created_at'] ?? ''}'));
           final latestVerification = verificationRequests.isEmpty
@@ -1276,6 +1301,15 @@ class ProductionRepository implements AssalRepository {
             publicStatus: status,
             canEdit: true,
             canPublish: status == 'active',
+            planCode: plan == null ? null : '${plan['code'] ?? ''}',
+            planStatus: activeSubscription == null ? null : 'active',
+            storeLimit: plan == null ? 1 : (plan['store_limit'] as num?)?.toInt() ?? 1,
+            productLimit: plan == null ? 25 : (plan['product_limit'] as num?)?.toInt() ?? 25,
+            designRequestsRemaining: plan == null
+                ? 0
+                : ((plan['entitlements'] is Map)
+                        ? (((plan['entitlements'] as Map)['design_requests_per_cycle'] as num?)?.toInt() ?? 0)
+                        : 0) - designRequests.where((row) => row['status'] != 'cancelled').length,
           );
         },
       );
@@ -1830,6 +1864,122 @@ class ProductionRepository implements AssalRepository {
               return _verificationSummary(requests.first);
             },
           );
+
+  @override
+  Future<AssalLoadState<List<AssalSubscriptionPlan>>> listSubscriptionPlans() =>
+      _readList(
+        resource: 'subscription_plans.read',
+        emptyMessage: 'لا توجد خطط متاحة حاليًا.',
+        read: () async {
+          final rows = await _gateway.select('subscription_plans', filters: {'is_active': true});
+          return rows.map(AssalSubscriptionPlan.fromJson).toList(growable: false);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<AssalSubscriptionCampaign?>> loadSubscriptionCampaign() =>
+      _write(
+        resource: 'subscription_campaign.read',
+        write: () async {
+          final rows = await _gateway.select('subscription_campaigns', filters: {'is_active': true});
+          if (rows.isEmpty) return null;
+          return AssalSubscriptionCampaign.fromJson(rows.first);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<AssalLocalTransferSettings?>> loadLocalTransferSettings() =>
+      _write(
+        resource: 'local_transfer_settings.read',
+        write: () async {
+          final rows = await _gateway.select('local_transfer_settings', filters: {'code': 'primary', 'is_active': true});
+          if (rows.isEmpty) return null;
+          return AssalLocalTransferSettings.fromJson(rows.first);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<AssalPaymentRequest>> createSubscriptionPaymentRequest(
+    String userId,
+    String planId,
+  ) =>
+      _write(
+        resource: 'subscription_payment.create',
+        write: () async {
+          final row = await _gateway.rpc('merchant_create_subscription_payment_request', {'p_plan_id': planId});
+          return AssalPaymentRequest.fromJson(row);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<String>> uploadPaymentProof(
+    String userId,
+    String paymentRequestId,
+    Uint8List bytes,
+    String extension,
+  ) =>
+      _write(
+        resource: 'payment_proof.upload',
+        write: () => _gateway.uploadPrivateImage(
+          '$userId/payment-proofs/$paymentRequestId-${DateTime.now().toUtc().millisecondsSinceEpoch}.$extension',
+          bytes,
+          extension,
+        ),
+      );
+
+  @override
+  Future<AssalLoadState<AssalPaymentRequest>> submitPaymentProof(
+    String userId,
+    String paymentRequestId,
+    String paymentReference,
+    String proofPath,
+    String proofFileName,
+    String proofMimeType,
+    int proofByteSize,
+    DateTime transferDate,
+    double submittedAmount,
+    String senderName,
+    String senderPhone,
+  ) =>
+      _write(
+        resource: 'payment_proof.submit',
+        write: () async {
+          final row = await _gateway.rpc('merchant_submit_payment_proof', {
+            'p_payment_request_id': paymentRequestId,
+            'p_payment_reference': paymentReference.trim(),
+            'p_proof_path': proofPath,
+            'p_proof_file_name': proofFileName,
+            'p_proof_mime_type': proofMimeType,
+            'p_proof_byte_size': proofByteSize,
+            'p_transfer_date': transferDate.toUtc().toIso8601String().substring(0, 10),
+            'p_submitted_amount': submittedAmount,
+            'p_sender_name': senderName.trim(),
+            'p_sender_phone': senderPhone.trim(),
+          });
+          return AssalPaymentRequest.fromJson(row);
+        },
+      );
+
+  @override
+  Future<AssalLoadState<AssalDesignRequest>> createDesignRequest(
+    String userId,
+    String storeId,
+    AssalDesignRequestDraft draft,
+  ) =>
+      _write(
+        resource: 'design_request.create',
+        write: () async {
+          final row = await _gateway.rpc('merchant_create_design_request', {
+            'p_store_id': storeId,
+            'p_title': draft.title.trim(),
+            'p_description': draft.description.trim(),
+            'p_brand_name': draft.brandName?.trim(),
+            'p_brand_colors': draft.brandColors,
+            'p_product_scope': draft.productScope,
+          });
+          return AssalDesignRequest.fromJson(row);
+        },
+      );
 
   @override
   Future<AssalLoadState<void>> signOut() async {

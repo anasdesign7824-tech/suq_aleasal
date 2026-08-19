@@ -7,6 +7,7 @@ import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'merchant_product_editor.dart';
 import 'store_verification_screen.dart';
+import 'subscription_plans_screen.dart';
 
 class MerchantDashboard extends StatefulWidget {
   const MerchantDashboard({super.key, required this.repository});
@@ -234,6 +235,13 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           'توثيق Pro',
           _verificationLabel(workspace.verificationStatus),
         ),
+        _infoCard(
+          Icons.workspace_premium_outlined,
+          'الخطة الفعالة',
+          workspace.planCode == null
+              ? 'لا توجد خطة مدفوعة؛ الحدود الأساسية فعالة'
+              : '${workspace.planCode} · ${workspace.planStatus == 'active' ? 'نشطة' : 'غير نشطة'} · ${workspace.storeLimit} متاجر · ${workspace.productLimit} منتج لكل متجر · ${workspace.designRequestsRemaining} طلب تصميم متبقٍ',
+        ),
         _infoCard(Icons.location_on_outlined, 'الموقع',
             store.regionNameAr ?? 'لم يُحدد بعد'),
         _infoCard(
@@ -281,6 +289,22 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               ),
               icon: const Icon(Icons.verified_user_outlined),
               label: const Text('طلب أو متابعة توثيق Pro'),
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => SubscriptionPlansScreen(repository: widget.repository),
+                  ),
+                );
+                if (mounted) setState(_refresh);
+              },
+              icon: const Icon(Icons.workspace_premium_outlined),
+              label: Text(workspace.planCode == null ? 'اختيار خطة ورفع الحوالة' : 'إدارة الخطة الحالية'),
             ),
           ),
       ],

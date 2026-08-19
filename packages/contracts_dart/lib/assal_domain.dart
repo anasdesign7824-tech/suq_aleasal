@@ -301,6 +301,229 @@ class AssalStoreVerificationDraft {
   final VerificationPaymentStatus paymentStatus;
 }
 
+class AssalSubscriptionPlan {
+  const AssalSubscriptionPlan({
+    required this.id,
+    required this.code,
+    required this.nameAr,
+    required this.billingInterval,
+    required this.priceAmount,
+    required this.currency,
+    required this.storeLimit,
+    required this.productLimit,
+    required this.verificationIncluded,
+    this.entitlements = const <String, Object?>{},
+    this.isActive = true,
+  });
+
+  final String id;
+  final String code;
+  final String nameAr;
+  final String billingInterval;
+  final double priceAmount;
+  final String currency;
+  final int storeLimit;
+  final int productLimit;
+  final int verificationIncluded;
+  final Map<String, Object?> entitlements;
+  final bool isActive;
+
+  factory AssalSubscriptionPlan.fromJson(Map<String, Object?> json) =>
+      AssalSubscriptionPlan(
+        id: _string(json['id']),
+        code: _string(json['code']),
+        nameAr: _string(json['name_ar']),
+        billingInterval: _string(json['billing_interval'], fallback: 'month'),
+        priceAmount: _number(json['price_amount']),
+        currency: _string(json['currency'], fallback: 'SAR'),
+        storeLimit: _int(json['store_limit']),
+        productLimit: _int(json['product_limit']),
+        verificationIncluded: _int(json['verification_included']),
+        entitlements: _map(json['entitlements']),
+        isActive: json['is_active'] != false,
+      );
+}
+
+class AssalSubscriptionCampaign {
+  const AssalSubscriptionCampaign({
+    required this.id,
+    required this.nameAr,
+    required this.discountPercent,
+    required this.isActive,
+    this.startsAt,
+    this.endsAt,
+    this.appliesTo = const <String>[],
+  });
+
+  final String id;
+  final String nameAr;
+  final double discountPercent;
+  final bool isActive;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+  final List<String> appliesTo;
+
+  factory AssalSubscriptionCampaign.fromJson(Map<String, Object?> json) =>
+      AssalSubscriptionCampaign(
+        id: _string(json['id']),
+        nameAr: _string(json['name_ar']),
+        discountPercent: _number(json['discount_percent']),
+        isActive: json['is_active'] == true,
+        startsAt: _dateOrNull(json['starts_at']),
+        endsAt: _dateOrNull(json['ends_at']),
+        appliesTo: _strings(json['applies_to']),
+      );
+}
+
+class AssalLocalTransferSettings {
+  const AssalLocalTransferSettings({
+    this.bankName,
+    this.beneficiaryName,
+    this.accountNumber,
+    this.iban,
+    this.phone,
+    this.instructionsAr,
+    this.logoUrl,
+    this.isActive = false,
+  });
+
+  final String? bankName;
+  final String? beneficiaryName;
+  final String? accountNumber;
+  final String? iban;
+  final String? phone;
+  final String? instructionsAr;
+  final String? logoUrl;
+  final bool isActive;
+
+  factory AssalLocalTransferSettings.fromJson(Map<String, Object?> json) =>
+      AssalLocalTransferSettings(
+        bankName: _stringOrNull(json['bank_name']),
+        beneficiaryName: _stringOrNull(json['beneficiary_name']),
+        accountNumber: _stringOrNull(json['account_number']),
+        iban: _stringOrNull(json['iban']),
+        phone: _stringOrNull(json['phone']),
+        instructionsAr: _stringOrNull(json['instructions_ar']),
+        logoUrl: _stringOrNull(json['logo_url']),
+        isActive: json['is_active'] == true,
+      );
+}
+
+class AssalPaymentRequest {
+  const AssalPaymentRequest({
+    required this.id,
+    required this.paymentType,
+    required this.status,
+    required this.baseAmount,
+    required this.discountPercent,
+    required this.finalAmount,
+    required this.currency,
+    this.planId,
+    this.paymentReference,
+    this.proofPath,
+    this.createdAt,
+  });
+
+  final String id;
+  final String paymentType;
+  final String status;
+  final double baseAmount;
+  final double discountPercent;
+  final double finalAmount;
+  final String currency;
+  final String? planId;
+  final String? paymentReference;
+  final String? proofPath;
+  final DateTime? createdAt;
+
+  factory AssalPaymentRequest.fromJson(Map<String, Object?> json) =>
+      AssalPaymentRequest(
+        id: _string(json['id']),
+        paymentType: _string(json['payment_type']),
+        status: _string(json['status'], fallback: 'not_started'),
+        baseAmount: _number(json['base_amount']),
+        discountPercent: _number(json['discount_percent']),
+        finalAmount: _number(json['final_amount']),
+        currency: _string(json['currency'], fallback: 'SAR'),
+        planId: _stringOrNull(json['plan_id']),
+        paymentReference: _stringOrNull(json['payment_reference']),
+        proofPath: _stringOrNull(json['proof_path']),
+        createdAt: _dateOrNull(json['created_at']),
+      );
+}
+
+class AssalMerchantSubscription {
+  const AssalMerchantSubscription({
+    required this.id,
+    required this.merchantId,
+    required this.planId,
+    required this.status,
+    this.startsAt,
+    this.endsAt,
+  });
+
+  final String id;
+  final String merchantId;
+  final String planId;
+  final String status;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+
+  factory AssalMerchantSubscription.fromJson(Map<String, Object?> json) =>
+      AssalMerchantSubscription(
+        id: _string(json['id']),
+        merchantId: _string(json['merchant_id']),
+        planId: _string(json['plan_id']),
+        status: _string(json['status'], fallback: 'pending'),
+        startsAt: _dateOrNull(json['starts_at']),
+        endsAt: _dateOrNull(json['ends_at']),
+      );
+}
+
+class AssalDesignRequestDraft {
+  const AssalDesignRequestDraft({
+    required this.title,
+    required this.description,
+    this.brandName,
+    this.brandColors = const <String>[],
+    this.productScope = const <String, Object?>{},
+  });
+
+  final String title;
+  final String description;
+  final String? brandName;
+  final List<String> brandColors;
+  final Map<String, Object?> productScope;
+}
+
+class AssalDesignRequest {
+  const AssalDesignRequest({
+    required this.id,
+    required this.storeId,
+    required this.title,
+    required this.description,
+    required this.status,
+    this.createdAt,
+  });
+
+  final String id;
+  final String storeId;
+  final String title;
+  final String description;
+  final String status;
+  final DateTime? createdAt;
+
+  factory AssalDesignRequest.fromJson(Map<String, Object?> json) =>
+      AssalDesignRequest(
+        id: _string(json['id']),
+        storeId: _string(json['store_id']),
+        title: _string(json['title']),
+        description: _string(json['description']),
+        status: _string(json['status'], fallback: 'submitted'),
+        createdAt: _dateOrNull(json['created_at']),
+      );
+}
+
 class AssalStoreSummary {
   const AssalStoreSummary({
     required this.id,
@@ -828,6 +1051,11 @@ class AssalMerchantWorkspaceSummary {
     required this.publicStatus,
     this.canEdit = true,
     this.canPublish = false,
+    this.planCode,
+    this.planStatus,
+    this.storeLimit = 1,
+    this.productLimit = 25,
+    this.designRequestsRemaining = 0,
   });
 
   final AssalStoreSummary store;
@@ -835,6 +1063,11 @@ class AssalMerchantWorkspaceSummary {
   final String publicStatus;
   final bool canEdit;
   final bool canPublish;
+  final String? planCode;
+  final String? planStatus;
+  final int storeLimit;
+  final int productLimit;
+  final int designRequestsRemaining;
 
   factory AssalMerchantWorkspaceSummary.fromJson(Map<String, Object?> json) {
     final rawStore = json['store'];
@@ -855,6 +1088,11 @@ class AssalMerchantWorkspaceSummary {
       publicStatus: _string(json['public_status'], fallback: 'pending'),
       canEdit: json['can_edit'] as bool? ?? true,
       canPublish: json['can_publish'] as bool? ?? false,
+      planCode: _stringOrNull(json['plan_code']),
+      planStatus: _stringOrNull(json['plan_status']),
+      storeLimit: json['store_limit'] == null ? 1 : _int(json['store_limit']),
+      productLimit: json['product_limit'] == null ? 25 : _int(json['product_limit']),
+      designRequestsRemaining: _int(json['design_requests_remaining']),
     );
   }
 }
