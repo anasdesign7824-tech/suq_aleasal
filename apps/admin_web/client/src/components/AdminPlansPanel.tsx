@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RefreshCw, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import { adminApi } from "@/lib/admin-api";
+import { AdminPremiumBadge } from "@/components/AdminVisuals";
 
 type Plan = {
   id: string;
@@ -60,7 +61,7 @@ function PlanCard({ plan, launchDiscount, onRefresh }: { plan: Plan; launchDisco
   const tone = plan.code === "gold" ? "from-[#f4c76b] via-[#fff6d7] to-[#d89828]" : plan.code === "bronze_professional" ? "from-[#c98c54] via-[#fff4df] to-[#8d542d]" : "from-[#fff0d6] via-[#fffaf2] to-[#f4cf8a]";
   return <article className={`relative overflow-hidden rounded-[28px] border border-[#ead4b2] bg-gradient-to-br ${tone} p-5 shadow-[0_18px_45px_rgba(124,76,25,.11)]`}>
     <div className="absolute -left-10 -top-10 size-28 rounded-full bg-white/30 blur-2xl" />
-    <div className="relative flex items-start justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#8b5a2b]">خطة عسلكم</p><h3 className="mt-2 text-xl font-black text-[#4f2e1f]">{plan.name_ar}</h3></div><div className="grid size-11 place-items-center rounded-2xl bg-white/65 text-[#9c5a00]"><Sparkles className="size-5" /></div></div>
+    <div className="relative flex items-start justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#8b5a2b]">خطة عسلكم</p><h3 className="mt-2 text-xl font-black text-[#4f2e1f]">{plan.name_ar}</h3></div><div className="flex items-center gap-2">{plan.price_amount > 0 ? <AdminPremiumBadge label="ميزة مدفوعة" /> : <Badge variant="outline" className="border-[#cda36d] text-[#76502e]">أساسية</Badge>}<div className="grid size-11 place-items-center rounded-2xl bg-white/65 text-[#9c5a00]"><Sparkles className="size-5" /></div></div></div>
     <div className="relative mt-5 flex items-end gap-2"><span className="text-sm text-[#8d725a] line-through">{plan.price_amount.toFixed(2)} ر.س</span><span className="text-3xl font-black text-[#4f2e1f]">{discounted.toFixed(2)}</span><span className="pb-1 text-xs font-semibold text-[#79522e]">ر.س / {plan.billing_interval === "year" ? "سنة" : "شهر"}</span></div>
     <p className="relative mt-2 text-xs font-semibold text-[#8b5a2b]">السعر بعد خصم الافتتاح {launchDiscount}% — يعاد حسابه من الخادم</p>
     <div className="relative mt-5 grid grid-cols-2 gap-2 text-xs text-[#65442d]"><div className="rounded-xl bg-white/50 p-3"><strong className="block text-base text-[#4f2e1f]">{plan.store_limit}</strong>متجر</div><div className="rounded-xl bg-white/50 p-3"><strong className="block text-base text-[#4f2e1f]">{plan.product_limit}</strong>منتج نشط لكل متجر</div></div>

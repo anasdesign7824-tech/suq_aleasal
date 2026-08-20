@@ -9,6 +9,7 @@ import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
 import 'customer_favorites.dart';
+import 'customer_support.dart';
 import '../merchant/merchant_dashboard.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -512,40 +513,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ? _authenticated(context, session)
                         : _guest(context),
                 const SizedBox(height: AssalSpacing.lg),
-                Card(
-                    child: Column(children: [
-                  ListTile(
-                      leading: const Icon(Icons.bookmarks_outlined),
-                      title: const Text('المحفوظات والمتاجر المتابَعة'),
-                      trailing: const Icon(Icons.chevron_left),
+                Column(
+                  children: [
+                    AssalActionTile(
+                      icon: Icons.bookmarks_outlined,
+                      title: 'المحفوظات والمتاجر المتابَعة',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) =>
-                              FavoritesScreen(repository: repository)))),
-                  ListTile(
-                      leading: const Icon(Icons.notifications_outlined),
-                      title: const Text('الإشعارات'),
-                      trailing: const Icon(Icons.chevron_left),
+                        builder: (_) => FavoritesScreen(repository: repository),
+                      )),
+                    ),
+                    const SizedBox(height: AssalSpacing.sm),
+                    AssalActionTile(
+                      icon: Icons.notifications_outlined,
+                      title: 'الإشعارات',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) =>
-                              NotificationsScreen(repository: repository)))),
-                  ListTile(
-                      leading: const Icon(Icons.settings_outlined),
-                      title: const Text('الإعدادات'),
-                      trailing: const Icon(Icons.chevron_left),
+                        builder: (_) => NotificationsScreen(repository: repository),
+                      )),
+                    ),
+                    const SizedBox(height: AssalSpacing.sm),
+                    AssalActionTile(
+                      icon: Icons.forum_outlined,
+                      title: 'المراسلات',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const SettingsScreen()))),
-                  ListTile(
-                      leading: const Icon(Icons.help_outline),
-                      title: const Text('الدعم والتعريف بعسلكم'),
-                      trailing: const Icon(Icons.chevron_left),
-                      onTap: () => showAboutDialog(
-                              context: context,
-                              applicationName: 'عسلكم',
-                              children: [
-                                const Text(
-                                    'منصة اكتشاف وتواصل للعسل اليمني من مصدره.')
-                              ]))
-                ])),
+                        builder: (_) => MessagesScreen(repository: repository),
+                      )),
+                    ),
+                    const SizedBox(height: AssalSpacing.sm),
+                    AssalActionTile(
+                      icon: Icons.settings_outlined,
+                      title: 'الإعدادات',
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const SettingsScreen(),
+                      )),
+                    ),
+                    const SizedBox(height: AssalSpacing.sm),
+                    AssalActionTile(
+                      icon: Icons.support_agent_outlined,
+                      title: 'المساعدة والدعم',
+                      subtitle: 'أسئلة شائعة ودعم فني وطلبات التصميم',
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => SupportCenterScreen(repository: repository),
+                      )),
+                    ),
+                  ],
+                ),
               ]);
         },
       ),
@@ -663,108 +674,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _profileHeader(BuildContext context, AssalUserProfile user) {
-    final avatarUrl = user.avatarUrl;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          SizedBox(
-            height: 150,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned.fill(
-                  child: AssalImageTile(
-                    imageUrl: user.coverUrl,
-                    height: 150,
-                    icon: Icons.landscape_outlined,
-                  ),
-                ),
-                Positioned(
-                  bottom: -34,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: CircleAvatar(
-                      radius: 42,
-                      backgroundColor: AssalColors.honeyLight,
-                      backgroundImage:
-                          avatarUrl != null && avatarUrl.startsWith('http')
-                              ? NetworkImage(avatarUrl)
-                              : null,
-                      child: avatarUrl == null || !avatarUrl.startsWith('http')
-                          ? Text(
-                              user.nameAr.isEmpty
-                                  ? 'ع'
-                                  : user.nameAr.substring(0, 1),
-                              style: AssalTypography.heading1
-                                  .copyWith(color: AssalColors.primaryDark),
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ],
+  Widget _profileHeader(BuildContext context, AssalUserProfile user) =>
+      AssalProfileHeaderCard(
+        user: user,
+        onEdit: () async {
+          await Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => ProfileEditorScreen(
+              repository: repository,
+              profile: user,
             ),
-          ),
-          const SizedBox(height: 48),
-          Text(
-            user.nameAr.isEmpty ? 'عميل عسلكم' : user.nameAr,
-            style:
-                AssalTypography.heading2.copyWith(color: AssalColors.deepBrown),
-          ),
-          if (user.email != null && user.email!.isNotEmpty)
-            Text(
-              user.email!,
-              style: AssalTypography.body
-                  .copyWith(color: AssalColors.textSecondary),
-            ),
-          if (user.phone != null && user.phone!.isNotEmpty)
-            _profileLine(Icons.phone_outlined, user.phone!),
-          if (user.location != null && user.location!.isNotEmpty)
-            _profileLine(Icons.location_on_outlined, user.location!),
-          if (user.bio != null && user.bio!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  AssalSpacing.lg, AssalSpacing.sm, AssalSpacing.lg, 0),
-              child: Text(
-                user.bio!,
-                textAlign: TextAlign.center,
-                style: AssalTypography.bodyLarge,
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => ProfileEditorScreen(
-                    repository: repository,
-                    profile: user,
-                  ),
-                ));
-                if (mounted) setState(() {});
-              },
-              icon: const Icon(Icons.edit_outlined),
-              label: const Text('تعديل الملف الشخصي'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _profileLine(IconData icon, String value) => Padding(
-        padding: const EdgeInsets.only(top: AssalSpacing.xs),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 16, color: AssalColors.primaryDark),
-            const SizedBox(width: AssalSpacing.xs),
-            Text(value, style: AssalTypography.body),
-          ],
-        ),
+          ));
+          if (mounted) setState(() {});
+        },
       );
 
   Future<void> _openMerchantArea(
@@ -980,6 +901,12 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
               bytes: coverBytes,
               imageUrl: widget.profile.coverUrl,
               onPick: saving ? null : () => _pickImage(cover: true),
+              onClear: saving || (coverBytes == null && widget.profile.coverUrl == null)
+                  ? null
+                  : () => setState(() {
+                        coverBytes = null;
+                        coverFile = null;
+                      }),
               height: 150,
             ),
             const SizedBox(height: AssalSpacing.lg),
@@ -989,6 +916,12 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
               bytes: avatarBytes,
               imageUrl: widget.profile.avatarUrl,
               onPick: saving ? null : () => _pickImage(cover: false),
+              onClear: saving || (avatarBytes == null && widget.profile.avatarUrl == null)
+                  ? null
+                  : () => setState(() {
+                        avatarBytes = null;
+                        avatarFile = null;
+                      }),
               height: 150,
             ),
             const SizedBox(height: AssalSpacing.lg),
@@ -1195,45 +1128,24 @@ class NotificationsScreen extends StatelessWidget {
                   separatorBuilder: (_, __) => const Divider(),
                   itemBuilder: (_, index) {
                     final item = items[index];
-                    final imageUrl = item.payload['image_url'];
-                    final imageUrlString =
-                        imageUrl is String ? imageUrl.trim() : null;
-                    final hasImage =
-                        imageUrlString != null && imageUrlString.isNotEmpty;
-                    return ListTile(
-                      tileColor: item.readAt == null ? AssalColors.cream : null,
-                      leading: hasImage
-                          ? ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(AssalRadius.medium),
-                              child: Image.network(
-                                imageUrlString,
-                                width: 52,
-                                height: 52,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    const Icon(Icons.broken_image_outlined),
-                              ),
-                            )
-                          : CircleAvatar(
-                              backgroundColor: AssalColors.honeyLight,
-                              child: Icon(
-                                  item.readAt == null
-                                      ? Icons.notifications_active_outlined
-                                      : Icons.notifications_none,
-                                  color: AssalColors.primaryDark)),
-                      title: Text(item.titleAr,
-                          style: item.readAt == null
-                              ? const TextStyle(fontWeight: FontWeight.w700)
-                              : null),
-                      subtitle: Text(item.bodyAr ?? ''),
+                    return AssalNotificationCard(
+                      notification: item,
                       onTap: () async {
-                        await repository.markNotificationRead(
-                            session.user!.id, item.id);
-                        if (context.mounted) {
+                        final result = await repository.markNotificationRead(
+                          session.user!.id,
+                          item.id,
+                        );
+                        if (!context.mounted) return;
+                        if (result is AssalData<bool>) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('تم تعليم الإشعار كمقروء.')));
+                            const SnackBar(
+                              content: Text('تم تعليم الإشعار كمقروء.'),
+                            ),
+                          );
+                        } else if (result is AssalError<bool>) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(result.messageAr)),
+                          );
                         }
                       },
                     );
@@ -1286,24 +1198,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
               if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalMessageSummary>>(
                 state: snapshot.data!,
-                builder: (messages) => ListView(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
-                  children: messages.map<Widget>((message) {
-                    return Align(
-                      alignment: message.isMine
-                          ? AlignmentDirectional.centerStart
-                          : AlignmentDirectional.centerEnd,
-                      child: Card(
-                        color: message.isMine
-                            ? AssalColors.honeyLight
-                            : AssalColors.surfaceVariant,
-                        child: Padding(
-                            padding: const EdgeInsets.all(AssalSpacing.md),
-                            child: Text(message.body)),
-                      ),
-                    );
-                  }).toList(),
-                ),
+                  builder: (messages) => ListView(
+                    padding: const EdgeInsets.all(AssalSpacing.lg),
+                    children: messages
+                        .map<Widget>((message) => AssalMessageBubble(
+                              message: message,
+                            ))
+                        .toList(),
+                  ),
               );
             },
           ),
@@ -1394,19 +1296,15 @@ class MessagesScreen extends StatelessWidget {
                       const SizedBox(height: AssalSpacing.sm),
                   itemBuilder: (_, index) {
                     final item = items[index];
-                    return Card(
-                      child: ListTile(
-                        leading: const CircleAvatar(
-                            backgroundColor: AssalColors.honeyLight,
-                            child: Icon(Icons.storefront_outlined,
-                                color: AssalColors.primaryDark)),
-                        title: Text(item.storeName),
-                        subtitle: Text(item.lastMessage),
-                        onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => ConversationScreen(
-                                    repository: repository,
-                                    conversation: item))),
+                    return AssalConversationCard(
+                      conversation: item,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ConversationScreen(
+                            repository: repository,
+                            conversation: item,
+                          ),
+                        ),
                       ),
                     );
                   },

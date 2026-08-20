@@ -6,6 +6,8 @@ import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'merchant_product_editor.dart';
+import '../customer/customer_catalog.dart';
+import '../customer/customer_support.dart';
 import 'store_verification_screen.dart';
 import 'subscription_plans_screen.dart';
 
@@ -154,9 +156,6 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
 
   Widget _content(AssalMerchantWorkspaceSummary workspace) {
     final store = workspace.store;
-    final publicState = workspace.canPublish
-        ? 'مفعّل ويظهر للعملاء عند نشر المنتجات'
-        : 'معلّق حتى تفعيل الإدارة؛ يمكنك الإعداد والمعاينة الآن';
     return DefaultTabController(
       length: 6,
       child: Column(
@@ -168,25 +167,12 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               AssalSpacing.lg,
               AssalSpacing.sm,
             ),
-            child: Card(
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: AssalColors.honeyLight,
-                  child: Icon(
-                    workspace.canPublish
-                        ? Icons.verified_outlined
-                        : Icons.pending_actions_outlined,
-                    color: AssalColors.primaryDark,
-                  ),
-                ),
-                title:
-                    Text(store.nameAr.isEmpty ? 'مساحة المتجر' : store.nameAr),
-                subtitle: Text(publicState),
-                trailing: IconButton(
-                  tooltip: 'تحديث',
-                  onPressed: () => setState(_refresh),
-                  icon: const Icon(Icons.refresh_outlined),
-                ),
+            child: AssalStoreHeaderCard(
+              store: store,
+              trailing: IconButton(
+                tooltip: 'تحديث بيانات المتجر',
+                onPressed: () => setState(_refresh),
+                icon: const Icon(Icons.refresh_outlined),
               ),
             ),
           ),
@@ -336,6 +322,21 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               icon: const Icon(Icons.workspace_premium_outlined),
               label: Text(workspace.planCode == null ? 'اختيار خطة ورفع الحوالة' : 'إدارة الخطة الحالية'),
             ),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          AssalActionTile(
+            icon: Icons.support_agent_outlined,
+            title: 'المساعدة والدعم وطلب التصميم',
+            subtitle: workspace.designRequestsRemaining > 0
+                ? 'المتبقي من طلبات التصميم: ${workspace.designRequestsRemaining}'
+                : 'الدعم متاح، وخدمة التصميم تتبع الخطة الفعالة',
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => SupportCenterScreen(
+                repository: widget.repository,
+                storeId: store.id,
+                designRequestsRemaining: workspace.designRequestsRemaining,
+              ),
+            )),
           ),
       ],
     );
@@ -532,32 +533,44 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         ),
       );
 
-  Widget _productTile(AssalProductSummary product) => Card(
-        child: ListTile(
-          leading: const Icon(Icons.inventory_2_outlined,
-              color: AssalColors.primaryDark),
-          title: Text(product.nameAr),
-          subtitle: Text(_productStatusLabel(product.status)),
-          trailing: Wrap(
-            spacing: 0,
-            children: [
-              IconButton(
-                tooltip: 'تعديل',
-                onPressed: () => _openProductEditor(
-                  product.storeId,
-                  product: product,
-                ),
-                icon: const Icon(Icons.edit_outlined),
+  Widget _productTile(AssalProductSummary product) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ProductCard(
+            product: product,
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => ProductDetailScreen(
+                repository: widget.repository,
+                productId: product.id,
+                initialProduct: product,
               ),
-              IconButton(
-                tooltip: 'حذف',
+            )),
+          ),
+          const SizedBox(height: AssalSpacing.xs),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _openProductEditor(
+                    product.storeId,
+                    product: product,
+                  ),
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('تعديل'),
+                ),
+              ),
+              const SizedBox(width: AssalSpacing.sm),
+              IconButton.filledTonal(
+                tooltip: 'حذف المنتج',
                 onPressed: () => _deleteProduct(product),
-                icon:
-                    const Icon(Icons.delete_outline, color: AssalColors.error),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: AssalColors.error,
+                ),
               ),
             ],
           ),
-        ),
+        ],
       );
 
   Future<void> _openProductEditor(
@@ -635,13 +648,6 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         _ => 'لم يُطلب توثيق Pro',
       };
 
-  String _productStatusLabel(ProductStatus status) => switch (status) {
-        ProductStatus.draft => 'مسودة محفوظة',
-        ProductStatus.pending => 'معلّق حتى التفعيل أو المراجعة',
-        ProductStatus.active => 'منشور للعملاء',
-        ProductStatus.paused => 'موقوف مؤقتًا',
-        ProductStatus.rejected => 'مرفوض ويحتاج تعديلًا',
-      };
 }
 
 class MerchantStoreEditorScreen extends StatefulWidget {
@@ -850,6 +856,9 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               onPick: saving || uploading
                   ? null
                   : () => _pickBrandImage(cover: true),
+              onClear: saving || uploading || coverUrl == null
+                  ? null
+                  : () => setState(() => coverUrl = null),
               height: 160,
             ),
             const SizedBox(height: AssalSpacing.lg),
@@ -861,6 +870,9 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               onPick: saving || uploading
                   ? null
                   : () => _pickBrandImage(cover: false),
+              onClear: saving || uploading || logoUrl == null
+                  ? null
+                  : () => setState(() => logoUrl = null),
               height: 150,
             ),
             const SizedBox(height: AssalSpacing.lg),
@@ -976,36 +988,33 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
             ),
             const SizedBox(height: AssalSpacing.lg),
             const Text('صور المعرض', style: AssalTypography.subtitle),
-            const SizedBox(height: AssalSpacing.sm),
-            if (galleryUrls.isEmpty)
-              const AssalMessageCard(
-                icon: Icons.photo_library_outlined,
-                message: 'لا توجد صور في معرض المتجر بعد.',
-              )
-            else
-              SizedBox(
-                height: 104,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: galleryUrls.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(width: AssalSpacing.sm),
-                  itemBuilder: (_, index) => ClipRRect(
-                    borderRadius: BorderRadius.circular(AssalRadius.medium),
-                    child: Image.network(
-                      galleryUrls[index],
-                      width: 132,
-                      height: 104,
-                      fit: BoxFit.cover,
-                    ),
+            const SizedBox(height: AssalSpacing.xs),
+            Text(
+              'اضغط على علامة الإضافة داخل البلاطة لرفع صورة جديدة للمعرض.',
+              style: AssalTypography.bodySmall.copyWith(
+                color: AssalColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            Wrap(
+              spacing: AssalSpacing.sm,
+              runSpacing: AssalSpacing.sm,
+              children: [
+                ...galleryUrls.map(
+                  (url) => AssalImagePickerTile(
+                    imageUrl: url,
+                    size: 112,
+                    label: 'صورة من معرض المتجر',
+                    onPick: null,
                   ),
                 ),
-              ),
-            const SizedBox(height: AssalSpacing.sm),
-            OutlinedButton.icon(
-              onPressed: saving || uploading ? null : _pickGalleryImage,
-              icon: const Icon(Icons.add_photo_alternate_outlined),
-              label: const Text('إضافة صورة للمعرض'),
+                AssalImagePickerTile(
+                  size: 112,
+                  label: 'إضافة صورة للمعرض',
+                  onPick: saving || uploading ? null : _pickGalleryImage,
+                  icon: Icons.add_a_photo_outlined,
+                ),
+              ],
             ),
             const SizedBox(height: AssalSpacing.lg),
             SizedBox(

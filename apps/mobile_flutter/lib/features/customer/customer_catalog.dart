@@ -583,107 +583,8 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         ),
       );
 
-  Widget _storeHeader(AssalStoreSummary store) {
-    final logoUrl = store.logoUrl ?? store.avatarUrl;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, 0),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 180,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned.fill(
-                  child: AssalImageTile(
-                    imageUrl: store.coverUrl,
-                    height: 180,
-                    icon: Icons.hive_outlined,
-                  ),
-                ),
-                Positioned(
-                  bottom: -28,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: CircleAvatar(
-                      radius: 36,
-                      backgroundColor: AssalColors.honeyLight,
-                      backgroundImage:
-                          logoUrl != null && logoUrl.startsWith('http')
-                              ? NetworkImage(logoUrl)
-                              : null,
-                      child: logoUrl == null || !logoUrl.startsWith('http')
-                          ? const Icon(Icons.storefront_outlined,
-                              size: 34, color: AssalColors.primaryDark)
-                          : null,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 38),
-          Text(
-            store.nameAr,
-            textAlign: TextAlign.center,
-            style:
-                AssalTypography.heading1.copyWith(color: AssalColors.deepBrown),
-          ),
-          const SizedBox(height: AssalSpacing.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                store.isVerified
-                    ? Icons.verified
-                    : store.status == StoreStatus.active
-                        ? Icons.storefront_outlined
-                        : Icons.hourglass_empty_outlined,
-                size: 18,
-                color: store.isVerified
-                    ? AssalColors.primaryDark
-                    : AssalColors.textSecondary,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                store.isVerified
-                    ? 'موثق Pro'
-                    : store.status == StoreStatus.active
-                        ? 'متجر مفعّل'
-                        : 'المتجر قيد التفعيل',
-                style: AssalTypography.body.copyWith(
-                  color: store.isVerified
-                      ? AssalColors.primaryDark
-                      : AssalColors.textSecondary,
-                  fontWeight: store.isVerified ? FontWeight.w700 : null,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AssalSpacing.md),
-          Text(
-            store.description ?? 'متجر متخصص في المنتجات النحلية اليمنية.',
-            textAlign: TextAlign.center,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: AssalTypography.bodyLarge
-                .copyWith(color: AssalColors.textSecondary),
-          ),
-          const SizedBox(height: AssalSpacing.lg),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _stat('${store.followersCount}', 'متابع'),
-              _stat('${store.reviewCount}', 'مراجعة'),
-              _stat(store.ratingAverage.toStringAsFixed(1), 'التقييم'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _storeHeader(AssalStoreSummary store) =>
+      AssalStoreHeaderCard(store: store);
 
   Widget _productsTab(AssalStoreSummary store) =>
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
@@ -928,14 +829,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       title: Text(label),
       subtitle: Text(value));
 
-  Widget _stat(String value, String label) => Column(children: [
-        Text(value,
-            style: AssalTypography.heading3
-                .copyWith(color: AssalColors.deepBrown)),
-        Text(label,
-            style:
-                AssalTypography.caption.copyWith(color: AssalColors.textMuted))
-      ]);
+
 }
 
 String _socialLabel(String key) => switch (key) {

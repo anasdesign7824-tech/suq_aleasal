@@ -430,51 +430,51 @@ class _MerchantProductEditorScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('صور المنتج', style: AssalTypography.subtitle),
-          const SizedBox(height: AssalSpacing.sm),
-          if (existingImageUrls.isEmpty && pendingImages.isEmpty)
-            const AssalMessageCard(
-              icon: Icons.photo_library_outlined,
-              message:
-                  'أضف صورًا واضحة للمنتج. الصورة الأولى تظهر كصورة أساسية.',
-            )
-          else
-            SizedBox(
-              height: 116,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: existingImageUrls.length + pendingImages.length,
-                separatorBuilder: (_, __) =>
-                    const SizedBox(width: AssalSpacing.sm),
-                itemBuilder: (_, index) {
-                  if (index < existingImageUrls.length) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(AssalRadius.medium),
-                      child: Image.network(
-                        existingImageUrls[index],
-                        width: 142,
-                        height: 116,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  }
-                  final image = pendingImages[index - existingImageUrls.length];
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(AssalRadius.medium),
-                    child: Image.memory(
-                      image.bytes,
-                      width: 142,
-                      height: 116,
-                      fit: BoxFit.cover,
-                    ),
-                  );
-                },
-              ),
+          const SizedBox(height: AssalSpacing.xs),
+          Text(
+            'اضغط على الصورة لتغييرها، أو على علامة الإضافة لإضافة صور أخرى. الصورة الأولى هي الصورة الأساسية.',
+            style: AssalTypography.bodySmall.copyWith(
+              color: AssalColors.textSecondary,
             ),
-          const SizedBox(height: AssalSpacing.sm),
-          OutlinedButton.icon(
-            onPressed: saving ? null : _pickImages,
-            icon: const Icon(Icons.add_photo_alternate_outlined),
-            label: const Text('إضافة صور من الجهاز'),
+          ),
+          const SizedBox(height: AssalSpacing.md),
+          Wrap(
+            spacing: AssalSpacing.sm,
+            runSpacing: AssalSpacing.sm,
+            children: [
+              ...existingImageUrls.asMap().entries.map(
+                    (entry) => AssalImagePickerTile(
+                      imageUrl: entry.value,
+                      size: 112,
+                      label: 'تغيير صورة المنتج ${entry.key + 1}',
+                      onPick: saving ? null : _pickImages,
+                      onClear: saving
+                          ? null
+                          : () => setState(
+                                () => existingImageUrls.removeAt(entry.key),
+                              ),
+                    ),
+                  ),
+              ...pendingImages.asMap().entries.map(
+                    (entry) => AssalImagePickerTile(
+                      bytes: entry.value.bytes,
+                      size: 112,
+                      label: 'تغيير الصورة الجديدة ${entry.key + 1}',
+                      onPick: saving ? null : _pickImages,
+                      onClear: saving
+                          ? null
+                          : () => setState(
+                                () => pendingImages.removeAt(entry.key),
+                              ),
+                    ),
+                  ),
+              AssalImagePickerTile(
+                size: 112,
+                label: 'إضافة صور للمنتج',
+                onPick: saving ? null : _pickImages,
+                icon: Icons.add_a_photo_outlined,
+              ),
+            ],
           ),
         ],
       );

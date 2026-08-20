@@ -72,11 +72,55 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
           }
           if (_loadedUserId != session.user!.id) _load(session.user!.id);
           return Scaffold(
-            appBar: AssalAppBar(title: 'المحفوظات', bottom: TabBar(controller: tabs, tabs: const [Tab(text: 'المنتجات'), Tab(text: 'المتاجر'), Tab(text: 'التصنيفات')])) ,
+            appBar: AssalAppBar(
+              title: 'المحفوظات والمتابعات',
+              bottom: TabBar(
+                controller: tabs,
+                tabs: const [
+                  Tab(text: 'منتجات محفوظة'),
+                  Tab(text: 'متاجر متابَعة'),
+                  Tab(text: 'تصنيفات مرتبطة'),
+                ],
+              ),
+            ),
             body: TabBarView(controller: tabs, children: [_products(), _stores(), _taxonomies()]),
           );
         },
       );
+
+  Future<void> _removeFavorite(String productId) async {
+    final userId = _loadedUserId;
+    if (userId == null) return;
+    final result = await widget.repository.toggleFavorite(userId, productId);
+    if (!mounted) return;
+    if (result is AssalData<bool>) {
+      setState(() => _load(userId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تمت إزالة المنتج من المحفوظات.')),
+      );
+    } else if (result is AssalError<bool>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.messageAr)),
+      );
+    }
+  }
+
+  Future<void> _removeFollow(String storeId) async {
+    final userId = _loadedUserId;
+    if (userId == null) return;
+    final result = await widget.repository.toggleFollow(userId, storeId);
+    if (!mounted) return;
+    if (result is AssalData<bool>) {
+      setState(() => _load(userId));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تمت إزالة المتجر من المتابعات.')),
+      );
+    } else if (result is AssalError<bool>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.messageAr)),
+      );
+    }
+  }
 
   Widget _products() => FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture!,
@@ -89,7 +133,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
               padding: const EdgeInsets.all(AssalSpacing.lg),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 220, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68),
               itemCount: items.length,
-              itemBuilder: (_, index) => ProductCard(product: items[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ProductDetailScreen(repository: widget.repository, productId: items[index].id)))),
+              itemBuilder: (_, index) => ProductCard(
+                product: items[index],
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => ProductDetailScreen(
+                    repository: widget.repository,
+                    productId: items[index].id,
+                  ),
+                )),
+                onFavorite: () => _removeFavorite(items[index].id),
+              ),
             ),
           );
         },
@@ -106,7 +159,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
               separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
-              itemBuilder: (_, index) => Card(child: ListTile(leading: Icon(_favoriteTaxonomyIcon(items[index].nameAr), color: AssalColors.primaryDark), title: Text(items[index].nameAr), subtitle: Text(items[index].description ?? 'تصنيف محفوظ مرتبط بمنتجاتك'), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SearchScreen(repository: widget.repository, initialSubcategoryId: items[index].id))))),
+              itemBuilder: (_, index) => AssalActionTile(
+                icon: _favoriteTaxonomyIcon(items[index].nameAr),
+                title: items[index].nameAr,
+                subtitle: items[index].description ?? 'تصنيف مرتبط بمنتجاتك المحفوظة',
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => SearchScreen(
+                    repository: widget.repository,
+                    initialSubcategoryId: items[index].id,
+                  ),
+                )),
+              ),
             ),
           );
         },
@@ -123,7 +186,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
               separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
-              itemBuilder: (_, index) => StoreCard(store: items[index], onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => StoreProfileScreen(repository: widget.repository, storeId: items[index].id)))),
+              itemBuilder: (_, index) => StoreCard(
+                store: items[index],
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => StoreProfileScreen(
+                    repository: widget.repository,
+                    storeId: items[index].id,
+                  ),
+                )),
+                onAction: () => _removeFollow(items[index].id),
+              ),
             ),
           );
         },

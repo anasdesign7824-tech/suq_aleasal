@@ -156,7 +156,9 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(
+        kToolbarHeight + (bottom?.preferredSize.height ?? 0),
+      );
 }
 
 class AssalGlassLoading extends StatefulWidget {
@@ -361,6 +363,506 @@ class SectionHeader extends StatelessWidget {
       ]);
 }
 
+class AssalPremiumBadge extends StatelessWidget {
+  const AssalPremiumBadge({
+    super.key,
+    this.label = 'Premium',
+    this.compact = false,
+  });
+
+  final String label;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AssalColors.primaryDark, AssalColors.secondary],
+          ),
+          borderRadius: BorderRadius.circular(AssalRadius.pill),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? AssalSpacing.sm : AssalSpacing.md,
+            vertical: AssalSpacing.xs,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.workspace_premium_outlined,
+                size: compact ? 14 : 16,
+                color: AssalColors.cream,
+              ),
+              const SizedBox(width: AssalSpacing.xs),
+              Text(
+                label,
+                style: AssalTypography.caption.copyWith(
+                  color: AssalColors.cream,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+class AssalRoleBadge extends StatelessWidget {
+  const AssalRoleBadge({super.key, required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: AssalColors.honeyLight,
+          borderRadius: BorderRadius.circular(AssalRadius.pill),
+          border: Border.all(color: AssalColors.primaryDark.withValues(alpha: .2)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AssalSpacing.sm,
+            vertical: AssalSpacing.xs,
+          ),
+          child: Text(
+            label,
+            style: AssalTypography.caption.copyWith(
+              color: AssalColors.primaryDark,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      );
+}
+
+class AssalActionTile extends StatelessWidget {
+  const AssalActionTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        margin: EdgeInsets.zero,
+        child: ListTile(
+          onTap: onTap,
+          leading: Icon(icon, color: AssalColors.primaryDark),
+          title: Text(title),
+          subtitle: subtitle == null ? null : Text(subtitle!),
+          trailing: trailing ??
+              (onTap == null
+                  ? null
+                  : const Icon(Icons.chevron_left, color: AssalColors.textMuted)),
+        ),
+      );
+}
+
+class AssalNotificationCard extends StatelessWidget {
+  const AssalNotificationCard({
+    super.key,
+    required this.notification,
+    this.onTap,
+  });
+
+  final AssalNotificationSummary notification;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final rawImage = notification.payload['image_url'];
+    final imageUrl = rawImage is String && rawImage.trim().isNotEmpty
+        ? rawImage.trim()
+        : null;
+    return Card(
+      color: notification.readAt == null ? AssalColors.cream : null,
+      child: ListTile(
+        onTap: onTap,
+        leading: imageUrl != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(AssalRadius.medium),
+                child: Image.network(
+                  imageUrl,
+                  width: 52,
+                  height: 52,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(
+                    Icons.broken_image_outlined,
+                    color: AssalColors.textMuted,
+                  ),
+                ),
+              )
+            : CircleAvatar(
+                backgroundColor: AssalColors.honeyLight,
+                child: Icon(
+                  notification.readAt == null
+                      ? Icons.notifications_active_outlined
+                      : Icons.notifications_none,
+                  color: AssalColors.primaryDark,
+                ),
+              ),
+        title: Text(
+          notification.titleAr,
+          style: notification.readAt == null
+              ? const TextStyle(fontWeight: FontWeight.w700)
+              : null,
+        ),
+        subtitle: notification.bodyAr == null
+            ? null
+            : Text(notification.bodyAr!),
+        trailing: notification.readAt == null
+            ? const AssalRoleBadge(label: 'جديد')
+            : null,
+      ),
+    );
+  }
+}
+
+class AssalConversationCard extends StatelessWidget {
+  const AssalConversationCard({
+    super.key,
+    required this.conversation,
+    this.onTap,
+  });
+
+  final AssalConversationSummary conversation;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: ListTile(
+          onTap: onTap,
+          leading: const CircleAvatar(
+            backgroundColor: AssalColors.honeyLight,
+            child: Icon(
+              Icons.storefront_outlined,
+              color: AssalColors.primaryDark,
+            ),
+          ),
+          title: Text(conversation.storeName),
+          subtitle: Text(
+            conversation.lastMessage,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: conversation.unreadCount > 0
+              ? AssalRoleBadge(label: '${conversation.unreadCount} جديد')
+              : const Icon(Icons.chevron_left),
+        ),
+      );
+}
+
+class AssalMessageBubble extends StatelessWidget {
+  const AssalMessageBubble({
+    super.key,
+    required this.message,
+  });
+
+  final AssalMessageSummary message;
+
+  @override
+  Widget build(BuildContext context) => Align(
+        alignment: message.isMine
+            ? AlignmentDirectional.centerStart
+            : AlignmentDirectional.centerEnd,
+        child: Card(
+          color: message.isMine
+              ? AssalColors.honeyLight
+              : AssalColors.surfaceVariant,
+          child: Padding(
+            padding: const EdgeInsets.all(AssalSpacing.md),
+            child: Text(message.body),
+          ),
+        ),
+      );
+}
+
+class AssalProfileHeaderCard extends StatelessWidget {
+  const AssalProfileHeaderCard({
+    super.key,
+    required this.user,
+    this.onEdit,
+  });
+
+  final AssalUserProfile user;
+  final VoidCallback? onEdit;
+
+  String _roleLabel() => switch (user.role) {
+        AssalRole.guest => 'زائر',
+        AssalRole.customer => 'عميل عسلكم',
+        AssalRole.merchant => 'تاجر عسلكم',
+        AssalRole.admin => 'إدارة عسلكم',
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final avatarUrl = user.avatarUrl;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 150,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned.fill(
+                  child: AssalImageTile(
+                    imageUrl: user.coverUrl,
+                    height: 150,
+                    icon: Icons.landscape_outlined,
+                  ),
+                ),
+                Positioned(
+                  bottom: -34,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 42,
+                      backgroundColor: AssalColors.honeyLight,
+                      backgroundImage:
+                          avatarUrl != null && avatarUrl.startsWith('http')
+                              ? NetworkImage(avatarUrl)
+                              : null,
+                      child: avatarUrl == null || !avatarUrl.startsWith('http')
+                          ? Text(
+                              user.nameAr.isEmpty ? 'ع' : user.nameAr.substring(0, 1),
+                              style: AssalTypography.heading1.copyWith(
+                                color: AssalColors.primaryDark,
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 48),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              0,
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+            ),
+            child: Column(
+              children: [
+                Text(
+                  user.nameAr.isEmpty ? 'عميل عسلكم' : user.nameAr,
+                  style: AssalTypography.heading2.copyWith(
+                    color: AssalColors.deepBrown,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AssalSpacing.xs),
+                AssalRoleBadge(label: _roleLabel()),
+                if (user.email != null && user.email!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AssalSpacing.xs),
+                    child: Text(
+                      user.email!,
+                      style: AssalTypography.body.copyWith(
+                        color: AssalColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                if (user.phone != null && user.phone!.isNotEmpty)
+                  _line(Icons.phone_outlined, user.phone!),
+                if (user.location != null && user.location!.isNotEmpty)
+                  _line(Icons.location_on_outlined, user.location!),
+                if (user.bio != null && user.bio!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AssalSpacing.sm),
+                    child: Text(
+                      user.bio!,
+                      textAlign: TextAlign.center,
+                      style: AssalTypography.bodyLarge,
+                    ),
+                  ),
+                const SizedBox(height: AssalSpacing.lg),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _stat('${user.followersCount}', 'متابع'),
+                    _stat('${user.followingCount}', 'يتابع'),
+                  ],
+                ),
+                if (onEdit != null) ...[
+                  const SizedBox(height: AssalSpacing.lg),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: onEdit,
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('تعديل الملف الشخصي'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _line(IconData icon, String value) => Padding(
+        padding: const EdgeInsets.only(top: AssalSpacing.xs),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 16, color: AssalColors.primaryDark),
+            const SizedBox(width: AssalSpacing.xs),
+            Flexible(child: Text(value, overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+      );
+
+  Widget _stat(String value, String label) => Column(
+        children: [
+          Text(
+            value,
+            style: AssalTypography.heading3.copyWith(
+              color: AssalColors.deepBrown,
+            ),
+          ),
+          Text(
+            label,
+            style: AssalTypography.caption.copyWith(
+              color: AssalColors.textMuted,
+            ),
+          ),
+        ],
+      );
+}
+
+class AssalImagePickerTile extends StatelessWidget {
+  const AssalImagePickerTile({
+    super.key,
+    this.imageUrl,
+    this.bytes,
+    required this.onPick,
+    this.onClear,
+    this.icon = Icons.add_a_photo_outlined,
+    this.size = 112,
+    this.label,
+  });
+
+  final String? imageUrl;
+  final Uint8List? bytes;
+  final VoidCallback? onPick;
+  final VoidCallback? onClear;
+  final IconData icon;
+  final double size;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = bytes != null ||
+        (imageUrl != null && imageUrl!.trim().startsWith('http'));
+    final image = bytes != null
+        ? Image.memory(bytes!, fit: BoxFit.cover, width: size, height: size)
+        : hasImage
+            ? Image.network(
+                imageUrl!,
+                fit: BoxFit.cover,
+                width: size,
+                height: size,
+                errorBuilder: (_, __, ___) => _fallback(),
+              )
+            : _fallback();
+    return Semantics(
+      button: onPick != null,
+      label: label ?? (hasImage ? 'تغيير الصورة' : 'إضافة الصورة'),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AssalRadius.medium),
+        child: Material(
+          color: AssalColors.honeyLight,
+          child: InkWell(
+            onTap: onPick,
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  image,
+                  if (hasImage)
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: .34),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  Positioned(
+                    right: AssalSpacing.xs,
+                    bottom: AssalSpacing.xs,
+                    child: IconButton.filled(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 36,
+                        minHeight: 36,
+                      ),
+                      tooltip: hasImage ? 'تغيير الصورة' : 'إضافة الصورة',
+                      onPressed: onPick,
+                      icon: Icon(
+                        hasImage ? Icons.edit_outlined : icon,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  if (hasImage && onClear != null)
+                    Positioned(
+                      left: AssalSpacing.xs,
+                      top: AssalSpacing.xs,
+                      child: IconButton.filledTonal(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 34,
+                          minHeight: 34,
+                        ),
+                        tooltip: 'إزالة الصورة',
+                        onPressed: onClear,
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _fallback() => Center(
+        child: Icon(
+          icon,
+          size: size * .3,
+          color: AssalColors.primaryDark,
+        ),
+      );
+}
+
 class AssalImageUploadSlot extends StatelessWidget {
   const AssalImageUploadSlot({
     super.key,
@@ -369,6 +871,7 @@ class AssalImageUploadSlot extends StatelessWidget {
     required this.imageUrl,
     required this.bytes,
     required this.onPick,
+    this.onClear,
     this.height = 150,
   });
 
@@ -377,52 +880,100 @@ class AssalImageUploadSlot extends StatelessWidget {
   final String? imageUrl;
   final Uint8List? bytes;
   final VoidCallback? onPick;
+  final VoidCallback? onClear;
   final double height;
 
   @override
   Widget build(BuildContext context) {
+    final hasImage = bytes != null ||
+        (imageUrl != null && imageUrl!.trim().startsWith('http'));
     final image = bytes != null
         ? Image.memory(bytes!, fit: BoxFit.cover, width: double.infinity)
-        : imageUrl != null && imageUrl!.startsWith('http')
-            ? Image.network(imageUrl!,
-                fit: BoxFit.cover, width: double.infinity)
-            : null;
+        : hasImage
+            ? Image.network(
+                imageUrl!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                errorBuilder: (_, __, ___) => _fallback(icon),
+              )
+            : _fallback(icon);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: AssalTypography.subtitle),
         const SizedBox(height: AssalSpacing.sm),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AssalRadius.large),
-          child: SizedBox(
-            height: height,
-            width: double.infinity,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ColoredBox(
-                  color: AssalColors.honeyLight,
-                  child: image ?? Center(child: Icon(icon, size: 42)),
-                ),
-                Positioned(
-                  bottom: AssalSpacing.sm,
-                  left: AssalSpacing.sm,
-                  right: AssalSpacing.sm,
-                  child: FilledButton.icon(
-                    onPressed: onPick,
-                    icon: const Icon(Icons.photo_library_outlined),
-                    label: Text(bytes != null || imageUrl != null
-                        ? 'تغيير الصورة'
-                        : 'إضافة الصورة'),
+        Semantics(
+          button: onPick != null,
+          label: hasImage ? 'تغيير $label' : 'إضافة $label',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AssalRadius.large),
+            child: Material(
+              color: AssalColors.honeyLight,
+              child: InkWell(
+                onTap: onPick,
+                child: SizedBox(
+                  height: height,
+                  width: double.infinity,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      image,
+                      if (hasImage)
+                        Positioned.fill(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withValues(alpha: .32),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      Positioned(
+                        right: AssalSpacing.sm,
+                        bottom: AssalSpacing.sm,
+                        child: IconButton.filled(
+                          tooltip: hasImage ? 'تغيير الصورة' : 'إضافة الصورة',
+                          onPressed: onPick,
+                          icon: Icon(
+                            hasImage
+                                ? Icons.edit_outlined
+                                : Icons.add_a_photo_outlined,
+                          ),
+                        ),
+                      ),
+                      if (hasImage && onClear != null)
+                        Positioned(
+                          left: AssalSpacing.sm,
+                          top: AssalSpacing.sm,
+                          child: IconButton.filledTonal(
+                            tooltip: 'إزالة الصورة',
+                            onPressed: onClear,
+                            icon: const Icon(Icons.delete_outline),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
       ],
     );
   }
+
+  Widget _fallback(IconData fallbackIcon) => Center(
+        child: Icon(
+          fallbackIcon,
+          size: 42,
+          color: AssalColors.primaryDark,
+        ),
+      );
 }
 
 class AssalImageTile extends StatelessWidget {
@@ -495,31 +1046,10 @@ class ProductCard extends StatelessWidget {
                           icon: const Icon(Icons.bookmark_border),
                           tooltip: 'حفظ المنتج')),
                 if (showVerifiedBadge)
-                  Positioned(
+                  const Positioned(
                     top: AssalSpacing.sm,
                     right: AssalSpacing.sm,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AssalColors.success,
-                        borderRadius: BorderRadius.circular(AssalRadius.pill),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AssalSpacing.sm,
-                          vertical: AssalSpacing.xs,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.verified,
-                                size: 14, color: AssalColors.cream),
-                            SizedBox(width: AssalSpacing.xs),
-                            Text('موثق Pro',
-                                style: TextStyle(color: AssalColors.cream)),
-                          ],
-                        ),
-                      ),
-                    ),
+                    child: AssalPremiumBadge(label: 'موثق Pro', compact: true),
                   ),
               ]),
               Padding(
@@ -579,9 +1109,19 @@ class ProductCard extends StatelessWidget {
 }
 
 class StoreCard extends StatelessWidget {
-  const StoreCard({super.key, required this.store, required this.onTap});
+  const StoreCard({
+    super.key,
+    required this.store,
+    required this.onTap,
+    this.onAction,
+    this.actionIcon = Icons.remove_circle_outline,
+    this.actionTooltip = 'إزالة المتابعة',
+  });
   final AssalStoreSummary store;
   final VoidCallback onTap;
+  final VoidCallback? onAction;
+  final IconData actionIcon;
+  final String actionTooltip;
   @override
   Widget build(BuildContext context) {
     final logoUrl = store.logoUrl ?? store.avatarUrl;
@@ -634,12 +1174,158 @@ class StoreCard extends StatelessWidget {
                                   .copyWith(color: AssalColors.textMuted))
                         ]),
                       ])),
+                  if (onAction != null)
+                    IconButton(
+                      onPressed: onAction,
+                      tooltip: actionTooltip,
+                      icon: Icon(actionIcon, color: AssalColors.primaryDark),
+                    ),
                   const Icon(Icons.chevron_left, color: AssalColors.textMuted),
                 ]),
             ),
           ),
       );
   }
+}
+
+class AssalStoreHeaderCard extends StatelessWidget {
+  const AssalStoreHeaderCard({
+    super.key,
+    required this.store,
+    this.trailing,
+  });
+
+  final AssalStoreSummary store;
+  final Widget? trailing;
+
+  String _statusLabel() {
+    if (store.isVerified) return 'متجر موثق Pro';
+    return switch (store.status) {
+      StoreStatus.active => 'متجر مفعّل',
+      StoreStatus.pending => 'المتجر قيد التفعيل',
+      StoreStatus.paused => 'المتجر موقوف مؤقتًا',
+      StoreStatus.rejected => 'المتجر يحتاج مراجعة',
+      StoreStatus.suspended => 'المتجر موقوف',
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final logoUrl = store.logoUrl ?? store.avatarUrl;
+    final badge = store.isVerified
+        ? const AssalPremiumBadge(label: 'موثق Pro', compact: true)
+        : AssalRoleBadge(label: _statusLabel());
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 168,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned.fill(
+                  child: AssalImageTile(
+                    imageUrl: store.coverUrl,
+                    height: 168,
+                    icon: Icons.hive_outlined,
+                  ),
+                ),
+                Positioned(
+                  left: AssalSpacing.md,
+                  top: AssalSpacing.md,
+                  child: badge,
+                ),
+                if (trailing != null)
+                  Positioned(
+                    right: AssalSpacing.sm,
+                    top: AssalSpacing.sm,
+                    child: trailing!,
+                  ),
+                Positioned(
+                  bottom: -30,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 38,
+                      backgroundColor: AssalColors.honeyLight,
+                      backgroundImage: logoUrl != null && logoUrl.startsWith('http')
+                          ? NetworkImage(logoUrl)
+                          : null,
+                      child: logoUrl == null || !logoUrl.startsWith('http')
+                          ? const Icon(
+                              Icons.storefront_outlined,
+                              size: 34,
+                              color: AssalColors.primaryDark,
+                            )
+                          : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 42),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              0,
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+            ),
+            child: Column(
+              children: [
+                Text(
+                  store.nameAr,
+                  textAlign: TextAlign.center,
+                  style: AssalTypography.heading2.copyWith(
+                    color: AssalColors.deepBrown,
+                  ),
+                ),
+                const SizedBox(height: AssalSpacing.sm),
+                Text(
+                  store.description ?? 'متجر متخصص في المنتجات النحلية اليمنية.',
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: AssalTypography.body.copyWith(
+                    color: AssalColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AssalSpacing.lg),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _stat('${store.followersCount}', 'متابع'),
+                    _stat('${store.reviewCount}', 'مراجعة'),
+                    _stat(store.ratingAverage.toStringAsFixed(1), 'التقييم'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _stat(String value, String label) => Column(
+        children: [
+          Text(
+            value,
+            style: AssalTypography.heading3.copyWith(
+              color: AssalColors.deepBrown,
+            ),
+          ),
+          Text(
+            label,
+            style: AssalTypography.caption.copyWith(
+              color: AssalColors.textMuted,
+            ),
+          ),
+        ],
+      );
 }
 
 class RatingStars extends StatelessWidget {

@@ -208,16 +208,33 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
     final finalAmount = double.parse((plan.priceAmount * (1 - discount / 100)).toStringAsFixed(2));
     final intervalLabel = plan.billingInterval == 'year' ? 'سنة' : 'شهر';
     final isGold = plan.code == 'gold';
+    final isPaid = plan.priceAmount > 0;
     return Card(child: Container(decoration: BoxDecoration(gradient: LinearGradient(colors: isGold ? [const Color(0xfffff0b8), const Color(0xffd79a2b)] : [const Color(0xfffff8e8), const Color(0xffe6b667)]), borderRadius: BorderRadius.circular(AssalRadius.medium)), padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Text(plan.nameAr, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown))), if (discount > 0) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .75), borderRadius: BorderRadius.circular(20)), child: Text('خصم ${discount.toStringAsFixed(0)}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AssalColors.primaryDark)))]),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Text(plan.nameAr, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown))), if (isPaid) const AssalPremiumBadge(label: 'ميزة مدفوعة', compact: true) else const AssalRoleBadge(label: 'أساسية'), if (discount > 0) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .75), borderRadius: BorderRadius.circular(20)), child: Text('خصم ${discount.toStringAsFixed(0)}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AssalColors.primaryDark)))]),
       const SizedBox(height: AssalSpacing.sm),
       if (plan.priceAmount > 0) Text.rich(TextSpan(children: [TextSpan(text: '${plan.priceAmount.toStringAsFixed(2)} ر.س  ', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.black54)), TextSpan(text: '${finalAmount.toStringAsFixed(2)} ر.س / $intervalLabel', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.deepBrown))])),
       if (plan.priceAmount == 0) const Text('مجانية', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.deepBrown)),
       const SizedBox(height: AssalSpacing.sm),
       if (plan.billingInterval == 'year') const Text('السعر السنوي محسوب على عشرة أشهر — شهران مجانيان ضمن السعر الأساسي', style: TextStyle(fontWeight: FontWeight.w700, color: AssalColors.primaryDark)),
-      Text('${plan.storeLimit} متاجر · ${plan.productLimit} منتجًا نشطًا لكل متجر'),
-      Text(plan.verificationIncluded > 0 ? 'يشمل مراجعة توثيق لعدد ${plan.verificationIncluded} من المتاجر' : 'التوثيق يطلب منفصلًا'),
-      if ((plan.entitlements['design_requests_per_cycle'] as num?)?.toInt() case final designCount? when designCount > 0) Text('يشمل طلب تصميم مخصص بعد التفعيل: $designCount'),
+      Wrap(
+        spacing: AssalSpacing.xs,
+        runSpacing: AssalSpacing.xs,
+        children: [
+          InfoChip(label: '${plan.storeLimit} متاجر'),
+          InfoChip(label: '${plan.productLimit} منتجًا لكل متجر'),
+          InfoChip(
+            label: plan.verificationIncluded > 0
+                ? 'توثيق ${plan.verificationIncluded} متجر'
+                : 'التوثيق منفصل',
+            icon: Icons.verified_outlined,
+          ),
+          if ((plan.entitlements['design_requests_per_cycle'] as num?)?.toInt() case final designCount? when designCount > 0)
+            InfoChip(
+              label: 'تصميم مخصص: $designCount',
+              icon: Icons.design_services_outlined,
+            ),
+        ],
+      ),
       const SizedBox(height: AssalSpacing.md),
       SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: busy ? null : () => _choosePlan(plan), icon: const Icon(Icons.arrow_forward_outlined), label: Text(plan.priceAmount == 0 ? 'استخدام الخطة الأساسية' : 'اختيار الخطة وبدء الحوالة'))),
     ])));
