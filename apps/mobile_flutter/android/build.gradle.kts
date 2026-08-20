@@ -1,7 +1,21 @@
+import com.android.build.api.dsl.LibraryExtension
+
 allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+}
+
+// Keep third-party Android plugins on the same API level as the application.
+subprojects {
+    plugins.withId("com.android.library") {
+        extensions.configure<LibraryExtension> {
+            compileSdk = 36
+        }
+    }
+    afterEvaluate {
+        extensions.findByType<LibraryExtension>()?.compileSdk = 36
     }
 }
 

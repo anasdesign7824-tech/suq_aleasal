@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
@@ -16,10 +17,15 @@ String _productTypeLabel(ProductType type) => switch (type) {
     };
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen(
-      {super.key, required this.repository, required this.productId});
+  const ProductDetailScreen({
+    super.key,
+    required this.repository,
+    required this.productId,
+    this.initialProduct,
+  });
   final AssalRepository repository;
   final String productId;
+  final AssalProductSummary? initialProduct;
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
@@ -35,7 +41,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   void initState() {
     super.initState();
-    productFuture = widget.repository.getProduct(widget.productId);
+    productFuture = widget.initialProduct != null
+        ? Future.value(AssalData(widget.initialProduct!))
+        : widget.repository.getProduct(widget.productId);
     galleryController = PageController();
     _trackProductView();
   }
@@ -78,162 +86,335 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 builder: (product) => _content(product));
           }));
 
-  Widget _content(AssalProductSummary product) => FutureBuilder<
-          AssalLoadState<AssalStoreSummary>>(
-      future: _storeFuture(product.storeId),
-      builder: (context, storeSnapshot) {
-        final store = storeSnapshot.data is AssalData<AssalStoreSummary>
-            ? (storeSnapshot.data! as AssalData<AssalStoreSummary>).value
-            : null;
-        final gallery = product.imageUrls.isEmpty
-            ? <String?>[
-                product.primaryImageUrl,
-                product.primaryImageUrl,
-                product.primaryImageUrl
-              ]
-            : product.imageUrls;
-        return ListView(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
-            children: [
-              SizedBox(
-                  height: 260,
-                  child: PageView.builder(
-                      controller: galleryController,
-                      itemCount: gallery.length,
-                      onPageChanged: (index) =>
-                          setState(() => galleryIndex = index),
-                      itemBuilder: (_, index) => AssalImageTile(
-                          imageUrl: gallery[index],
-                          height: 260,
-                          icon: index.isEven
-                              ? Icons.wb_sunny_outlined
-                              : Icons.hive_outlined))),
-              const SizedBox(height: AssalSpacing.md),
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                      gallery.length,
-                      (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          width: index == galleryIndex ? 22 : 8,
-                          height: 8,
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          decoration: BoxDecoration(
-                              color: index == galleryIndex
-                                  ? AssalColors.primaryDark
-                                  : AssalColors.border,
-                              borderRadius:
-                                  BorderRadius.circular(AssalRadius.pill))))),
-              const SizedBox(height: AssalSpacing.lg),
-              Text(product.nameAr,
-                  style: AssalTypography.heading1
-                      .copyWith(color: AssalColors.deepBrown)),
-              const SizedBox(height: AssalSpacing.sm),
-              Wrap(
-                  spacing: AssalSpacing.sm,
-                  runSpacing: AssalSpacing.sm,
-                  children: [
-                    if (product.subcategoryNameAr != null)
-                      InfoChip(label: product.subcategoryNameAr!),
-                    if (product.regionNameAr != null)
-                      InfoChip(label: product.regionNameAr!),
-                    if (product.gradeLevel != null)
-                      InfoChip(
-                          label: 'الجودة: درجة ${product.gradeLevel}',
-                          icon: Icons.verified_outlined)
-                  ]),
-              const SizedBox(height: AssalSpacing.lg),
-              if (product.description != null)
-                Text(product.description!, style: AssalTypography.bodyLarge),
-              if (product.tags.isNotEmpty) ...[
-                const SizedBox(height: AssalSpacing.lg),
-                Text('لماذا قد يناسبك؟',
-                    style: AssalTypography.heading3
-                        .copyWith(color: AssalColors.deepBrown)),
-                const SizedBox(height: AssalSpacing.sm),
-                Wrap(
-                    spacing: AssalSpacing.sm,
-                    runSpacing: AssalSpacing.sm,
-                    children: product.tags
-                        .map((tag) => InfoChip(label: tag))
-                        .toList())
-              ],
-              const SizedBox(height: AssalSpacing.lg),
-              _MetadataCard(product: product),
-              const SizedBox(height: AssalSpacing.lg),
-              if (store != null)
-                Card(
-                    child: ListTile(
-                        leading: const CircleAvatar(
-                            backgroundColor: AssalColors.honeyLight,
-                            child: Icon(Icons.storefront_outlined,
-                                color: AssalColors.primaryDark)),
-                        title: Text(store.nameAr),
-                        subtitle: Text(store.isVerified
-                            ? 'متجر موثق · ${store.regionNameAr ?? ''}'
-                            : 'متجر على منصة عسلكم'),
-                        trailing: TextButton(
-                            onPressed: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (_) => StoreProfileScreen(
-                                        repository: widget.repository,
-                                        storeId: store.id))),
-                            child: const Text('فتح المتجر')))),
-              const SizedBox(height: AssalSpacing.lg),
-              Row(children: [
+  Widget _content(AssalProductSummary product) =>
+      FutureBuilder<AssalLoadState<AssalStoreSummary>>(
+        future: _storeFuture(product.storeId),
+        builder: (context, storeSnapshot) {
+          final store = storeSnapshot.data is AssalData<AssalStoreSummary>
+              ? (storeSnapshot.data! as AssalData<AssalStoreSummary>).value
+              : null;
+          final gallery = product.imageUrls.isEmpty
+              ? <String?>[product.primaryImageUrl]
+              : product.imageUrls;
+          return DefaultTabController(
+            length: 3,
+            child: Column(
+              children: [
+                _productHero(product, gallery),
+                Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+                  decoration: BoxDecoration(
+                    gradient: AssalColors.darkGradient,
+                    borderRadius: BorderRadius.circular(AssalRadius.medium),
+                  ),
+                  child: const TabBar(
+                    isScrollable: true,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white70,
+                    indicatorColor: AssalColors.honey,
+                    dividerColor: Colors.transparent,
+                    tabs: [
+                      Tab(text: 'معلومات المنتج'),
+                      Tab(text: 'التقييمات والتفاعل'),
+                      Tab(text: 'منتجات مشابهة'),
+                    ],
+                  ),
+                ),
                 Expanded(
-                    child: OutlinedButton.icon(
-                        onPressed: () async {
-                          final session =
-                              await requireAuth(context, widget.repository);
-                          if (!session || !mounted) return;
-                          final result = await widget.repository
-                              .toggleLike('demo-customer', product.id);
-                          if (result is AssalData<bool>) {
-                            setState(() => liked = result.value);
-                          }
-                        },
-                        icon: Icon(
-                            liked ? Icons.thumb_up : Icons.thumb_up_outlined),
-                        label: Text(liked ? 'أعجبتني' : 'إعجاب'))),
+                  child: TabBarView(
+                    children: [
+                      _productInfoTab(product, store),
+                      _productInteractionTab(product),
+                      _similarProductsTab(product),
+                    ],
+                  ),
+                ),
+                if (store != null)
+                  SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(AssalSpacing.lg,
+                          AssalSpacing.sm, AssalSpacing.lg, AssalSpacing.sm),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: () => _request(product, store),
+                          icon: const Icon(Icons.chat_bubble_outline),
+                          label: const Text('إرسال طلب تواصل'),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+
+  Widget _productHero(AssalProductSummary product, List<String?> gallery) =>
+      Padding(
+        padding: const EdgeInsets.fromLTRB(
+            AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, 0),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 220,
+              child: PageView.builder(
+                controller: galleryController,
+                itemCount: gallery.length,
+                onPageChanged: (index) => setState(() => galleryIndex = index),
+                itemBuilder: (_, index) => AssalImageTile(
+                  imageUrl: gallery[index],
+                  height: 220,
+                  icon: index.isEven
+                      ? Icons.wb_sunny_outlined
+                      : Icons.hive_outlined,
+                ),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.sm),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                gallery.length,
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: index == galleryIndex ? 22 : 8,
+                  height: 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  decoration: BoxDecoration(
+                    color: index == galleryIndex
+                        ? AssalColors.primaryDark
+                        : AssalColors.border,
+                    borderRadius: BorderRadius.circular(AssalRadius.pill),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                product.nameAr,
+                style: AssalTypography.heading1
+                    .copyWith(color: AssalColors.deepBrown),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.xs),
+            Row(
+              children: [
+                const Icon(Icons.star, size: 18, color: AssalColors.honey),
+                const SizedBox(width: AssalSpacing.xs),
+                Text(product.ratingAverage.toStringAsFixed(1)),
+                const SizedBox(width: AssalSpacing.sm),
+                Text('${product.reviewCount} مراجعة',
+                    style: AssalTypography.caption
+                        .copyWith(color: AssalColors.textMuted)),
+              ],
+            ),
+          ],
+        ),
+      );
+
+  Widget _productInfoTab(
+          AssalProductSummary product, AssalStoreSummary? store) =>
+      SingleChildScrollView(
+        padding: const EdgeInsets.all(AssalSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: AssalSpacing.sm,
+              runSpacing: AssalSpacing.sm,
+              children: [
+                if (product.subcategoryNameAr != null)
+                  InfoChip(label: product.subcategoryNameAr!),
+                if (product.regionNameAr != null)
+                  InfoChip(label: product.regionNameAr!),
+                if (product.gradeLevel != null)
+                  InfoChip(
+                      label: 'الجودة: درجة ${product.gradeLevel}',
+                      icon: Icons.verified_outlined),
+              ],
+            ),
+            if (product.description != null) ...[
+              const SizedBox(height: AssalSpacing.lg),
+              const SectionHeader(title: 'الوصف'),
+              Text(product.description!, style: AssalTypography.bodyLarge),
+            ],
+            if (product.tags.isNotEmpty) ...[
+              const SizedBox(height: AssalSpacing.lg),
+              const SectionHeader(title: 'لماذا قد يناسبك؟'),
+              Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: product.tags
+                    .map<Widget>((tag) => InfoChip(label: tag))
+                    .toList(),
+              ),
+            ],
+            const SizedBox(height: AssalSpacing.lg),
+            _MetadataCard(product: product),
+            if (store != null) ...[
+              const SizedBox(height: AssalSpacing.lg),
+              Card(
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: AssalColors.honeyLight,
+                    child: Icon(Icons.storefront_outlined,
+                        color: AssalColors.primaryDark),
+                  ),
+                  title: Text(store.nameAr),
+                  subtitle: Text(store.isVerified
+                      ? 'متجر موثق · ${store.regionNameAr ?? ''}'
+                      : 'متجر على منصة عسلكم'),
+                  trailing: TextButton(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => StoreProfileScreen(
+                            repository: widget.repository, storeId: store.id),
+                      ),
+                    ),
+                    child: const Text('فتح المتجر'),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+
+  Widget _productInteractionTab(AssalProductSummary product) =>
+      SingleChildScrollView(
+        padding: const EdgeInsets.all(AssalSpacing.lg),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final session =
+                          await requireUserSession(context, widget.repository);
+                      if (session == null || !mounted || session.user == null) {
+                        return;
+                      }
+                      final result = await widget.repository
+                          .toggleLike(session.user!.id, product.id);
+                      if (result is AssalData<bool>) {
+                        setState(() => liked = result.value);
+                      } else if (result is AssalError<bool> && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result.messageAr)),
+                        );
+                      }
+                    },
+                    icon:
+                        Icon(liked ? Icons.thumb_up : Icons.thumb_up_outlined),
+                    label: Text(liked ? 'أعجبتني' : 'إعجاب'),
+                  ),
+                ),
                 const SizedBox(width: AssalSpacing.sm),
                 Expanded(
-                    child: OutlinedButton.icon(
-                        onPressed: () async {
-                          final session =
-                              await requireAuth(context, widget.repository);
-                          if (!session || !mounted) return;
-                          final result = await widget.repository
-                              .toggleFavorite('demo-customer', product.id);
-                          if (result is AssalData<bool>) {
-                            setState(() => favorite = result.value);
-                          }
-                        },
-                        icon: Icon(
-                            favorite ? Icons.bookmark : Icons.bookmark_border),
-                        label: Text(favorite ? 'محفوظ' : 'حفظ')))
-              ]),
-              const SizedBox(height: AssalSpacing.md),
-              SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                      onPressed: () => _request(product, store),
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      label: const Text('إرسال طلب تواصل'))),
-              const SizedBox(height: AssalSpacing.xl),
-              ReviewsSection(repository: widget.repository, product: product),
-              const SizedBox(height: AssalSpacing.xl),
-              CommentsSection(
-                  repository: widget.repository, targetId: product.id),
-              const SizedBox(height: AssalSpacing.xl),
-            ]);
-      });
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final session =
+                          await requireUserSession(context, widget.repository);
+                      if (session == null || !mounted || session.user == null) {
+                        return;
+                      }
+                      final result = await widget.repository
+                          .toggleFavorite(session.user!.id, product.id);
+                      if (result is AssalData<bool>) {
+                        setState(() => favorite = result.value);
+                      } else if (result is AssalError<bool> && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result.messageAr)),
+                        );
+                      }
+                    },
+                    icon:
+                        Icon(favorite ? Icons.bookmark : Icons.bookmark_border),
+                    label: Text(favorite ? 'محفوظ' : 'حفظ'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AssalSpacing.xl),
+            ReviewsSection(repository: widget.repository, product: product),
+            const SizedBox(height: AssalSpacing.xl),
+            CommentsSection(
+                repository: widget.repository, targetId: product.id),
+          ],
+        ),
+      );
+
+  Widget _similarProductsTab(AssalProductSummary product) {
+    if (product.taxonomyId == null) {
+      return const AssalMessageCard(
+          icon: Icons.category_outlined,
+          message: 'لا تتوفر منتجات مشابهة لهذا التصنيف بعد.');
+    }
+    return FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+      future: widget.repository.listProducts(
+        query: AssalProductQuery(subcategoryId: product.taxonomyId),
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const AssalMessageCard(
+              icon: Icons.wifi_off_outlined,
+              message:
+                  'تعذر تحميل المنتجات المشابهة الآن. تحقق من الاتصال ثم أعد المحاولة.');
+        }
+        if (!snapshot.hasData) return const AssalGlassLoading();
+        return Padding(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          child: AssalStateView<List<AssalProductSummary>>(
+            state: snapshot.data!,
+            builder: (items) {
+              final similar =
+                  items.where((item) => item.id != product.id).toList();
+              return similar.isEmpty
+                  ? const AssalMessageCard(
+                      icon: Icons.inventory_2_outlined,
+                      message: 'لا توجد منتجات مشابهة منشورة بعد.')
+                  : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 220,
+                        crossAxisSpacing: AssalSpacing.md,
+                        mainAxisSpacing: AssalSpacing.md,
+                        childAspectRatio: .68,
+                      ),
+                      itemCount: similar.length,
+                      itemBuilder: (_, index) {
+                        final item = similar[index];
+                        return ProductCard(
+                          product: item,
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ProductDetailScreen(
+                                repository: widget.repository,
+                                productId: item.id,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+            },
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _request(
       AssalProductSummary product, AssalStoreSummary? store) async {
     if (store == null) return;
-    final session = await requireAuth(context, widget.repository);
-    if (!session || !mounted) return;
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted) return;
     await showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
@@ -242,8 +423,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             repository: widget.repository, product: product, store: store));
   }
 
-  void _share() => ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تم تجهيز رابط المشاركة في Demo Mode')));
+  Future<void> _share() async {
+    final text = 'منتج من سوق عسلكم\\nمعرّف المنتج: ${widget.productId}';
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('تم نسخ بطاقة المنتج للمشاركة.')),
+    );
+  }
 }
 
 class _MetadataCard extends StatelessWidget {
@@ -359,143 +546,146 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     );
   }
 
-  Widget _content(AssalStoreSummary store) {
-    final specialties = store.specialties;
-    return ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
-      Container(
-          height: 150,
-          decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                  colors: [AssalColors.secondary, AssalColors.deepBrown]),
-              borderRadius: BorderRadius.circular(AssalRadius.extraLarge)),
-          child: const Center(
-              child: Icon(Icons.hive_outlined,
-                  size: 80, color: AssalColors.primaryLight))),
-      Transform.translate(
-          offset: const Offset(0, -28),
-          child: const CircleAvatar(
-              radius: 36,
-              backgroundColor: AssalColors.honeyLight,
-              child: Icon(Icons.storefront_outlined,
-                  size: 34, color: AssalColors.primaryDark))),
-      Text(store.nameAr,
-          textAlign: TextAlign.center,
-          style:
-              AssalTypography.heading1.copyWith(color: AssalColors.deepBrown)),
-      const SizedBox(height: AssalSpacing.sm),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        if (store.isVerified)
-          const Icon(Icons.verified, size: 18, color: AssalColors.primaryDark),
-        const SizedBox(width: 4),
-        Text(store.isVerified ? 'متجر موثق' : 'متجر في طور التعريف',
-            style:
-                AssalTypography.body.copyWith(color: AssalColors.textSecondary))
-      ]),
-      const SizedBox(height: AssalSpacing.md),
-      Text(store.description ?? 'متجر متخصص في المنتجات النحلية اليمنية.',
-          textAlign: TextAlign.center,
-          style: AssalTypography.bodyLarge
-              .copyWith(color: AssalColors.textSecondary)),
-      if (store.galleryUrls.isNotEmpty) ...[
-        const SizedBox(height: AssalSpacing.lg),
-        const SectionHeader(title: 'من المتجر'),
-        SizedBox(
-            height: 106,
-            child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: store.galleryUrls.length,
-                separatorBuilder: (_, __) =>
-                    const SizedBox(width: AssalSpacing.sm),
-                itemBuilder: (_, index) => SizedBox(
-                    width: 132,
-                    child: AssalImageTile(
-                        imageUrl: store.galleryUrls[index],
-                        height: 106,
-                        icon: index.isEven
-                            ? Icons.hive_outlined
-                            : Icons.storefront_outlined)))),
-      ],
-      if (store.deliveryOptions.isNotEmpty ||
-          store.pickupLocations.isNotEmpty) ...[
-        const SizedBox(height: AssalSpacing.lg),
-        const SectionHeader(title: 'التسليم والاستلام'),
-        if (store.deliveryOptions.isNotEmpty)
-          _storeInfoRow(Icons.local_shipping_outlined, 'التوصيل',
-              store.deliveryOptions.join('، ')),
-        if (store.pickupLocations.isNotEmpty)
-          _storeInfoRow(Icons.location_on_outlined, 'الاستلام',
-              store.pickupLocations.join('، ')),
-      ],
-      if (store.socialLinks.isNotEmpty) ...[
-        const SizedBox(height: AssalSpacing.lg),
-        const SectionHeader(title: 'تواصل مع المتجر'),
-        Wrap(
-            spacing: AssalSpacing.sm,
-            runSpacing: AssalSpacing.sm,
-            children: store.socialLinks.entries
-                .map((entry) => ActionChip(
-                    avatar: const Icon(Icons.link, size: 16),
-                    label: Text(_socialLabel(entry.key)),
-                    onPressed: () => _showContact(entry.key, entry.value)))
-                .toList()),
-      ],
-      const SizedBox(height: AssalSpacing.lg),
-      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-        _stat('${store.followersCount}', 'متابع'),
-        _stat('${store.reviewCount}', 'مراجعة'),
-        _stat('${store.yearsExperience}', 'سنوات خبرة')
-      ]),
-      const SizedBox(height: AssalSpacing.lg),
-      Row(children: [
-        Expanded(
-            child: FilledButton.icon(
-                onPressed: () async {
-                  final allowed = await requireAuth(context, widget.repository);
-                  if (!allowed || !mounted) return;
-                  final result = await widget.repository
-                      .toggleFollow('demo-customer', store.id);
-                  if (result is AssalData<bool>) {
-                    setState(() => following = result.value);
-                  }
-                },
-                icon: Icon(following ? Icons.check : Icons.person_add_alt_1),
-                label: Text(following ? 'تتابعه' : 'متابعة'))),
-        const SizedBox(width: AssalSpacing.sm),
-        Expanded(
-            child: OutlinedButton.icon(
-                onPressed: () async {
-                  final allowed = await requireAuth(context, widget.repository);
-                  if (!allowed || !mounted) return;
-                  final conversation = AssalConversationSummary(
-                      id: 'demo-conversation-${store.id}',
-                      storeId: store.id,
-                      storeName: store.nameAr,
-                      lastMessage: 'ابدأ محادثة جديدة',
-                      updatedAt: DateTime.now());
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ConversationScreen(
-                          repository: widget.repository,
-                          conversation: conversation)));
-                },
-                icon: const Icon(Icons.forum_outlined),
-                label: const Text('مراسلة'))),
-      ]),
-      const SizedBox(height: AssalSpacing.xl),
-      const SectionHeader(title: 'تخصصات المتجر'),
-      if (specialties.isEmpty)
-        const AssalMessageCard(
-          icon: Icons.info_outline,
-          message: 'لم يضف المتجر تخصصاته بعد.',
-        )
-      else
-        Wrap(
-          spacing: AssalSpacing.sm,
-          runSpacing: AssalSpacing.sm,
-          children:
-              specialties.map<Widget>((item) => InfoChip(label: item)).toList(),
+  Widget _content(AssalStoreSummary store) => DefaultTabController(
+        length: 3,
+        child: Column(
+          children: [
+            _storeHeader(store),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+              decoration: BoxDecoration(
+                gradient: AssalColors.darkGradient,
+                borderRadius: BorderRadius.circular(AssalRadius.medium),
+              ),
+              child: const TabBar(
+                isScrollable: true,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white70,
+                indicatorColor: AssalColors.honey,
+                dividerColor: Colors.transparent,
+                tabs: [
+                  Tab(text: 'المنتجات'),
+                  Tab(text: 'معلومات المتجر'),
+                  Tab(text: 'التواصل والطلب'),
+                ],
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _productsTab(store),
+                  _storeInfoTab(store),
+                  _contactTab(store),
+                ],
+              ),
+            ),
+          ],
         ),
-      const SizedBox(height: AssalSpacing.xl),
-      const SectionHeader(title: 'منتجات المتجر'),
+      );
+
+  Widget _storeHeader(AssalStoreSummary store) {
+    final logoUrl = store.logoUrl ?? store.avatarUrl;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, 0),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 180,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned.fill(
+                  child: AssalImageTile(
+                    imageUrl: store.coverUrl,
+                    height: 180,
+                    icon: Icons.hive_outlined,
+                  ),
+                ),
+                Positioned(
+                  bottom: -28,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 36,
+                      backgroundColor: AssalColors.honeyLight,
+                      backgroundImage:
+                          logoUrl != null && logoUrl.startsWith('http')
+                              ? NetworkImage(logoUrl)
+                              : null,
+                      child: logoUrl == null || !logoUrl.startsWith('http')
+                          ? const Icon(Icons.storefront_outlined,
+                              size: 34, color: AssalColors.primaryDark)
+                          : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 38),
+          Text(
+            store.nameAr,
+            textAlign: TextAlign.center,
+            style:
+                AssalTypography.heading1.copyWith(color: AssalColors.deepBrown),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                store.isVerified
+                    ? Icons.verified
+                    : store.status == StoreStatus.active
+                        ? Icons.storefront_outlined
+                        : Icons.hourglass_empty_outlined,
+                size: 18,
+                color: store.isVerified
+                    ? AssalColors.primaryDark
+                    : AssalColors.textSecondary,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                store.isVerified
+                    ? 'موثق Pro'
+                    : store.status == StoreStatus.active
+                        ? 'متجر مفعّل'
+                        : 'المتجر قيد التفعيل',
+                style: AssalTypography.body.copyWith(
+                  color: store.isVerified
+                      ? AssalColors.primaryDark
+                      : AssalColors.textSecondary,
+                  fontWeight: store.isVerified ? FontWeight.w700 : null,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AssalSpacing.md),
+          Text(
+            store.description ?? 'متجر متخصص في المنتجات النحلية اليمنية.',
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: AssalTypography.bodyLarge
+                .copyWith(color: AssalColors.textSecondary),
+          ),
+          const SizedBox(height: AssalSpacing.lg),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _stat('${store.followersCount}', 'متابع'),
+              _stat('${store.reviewCount}', 'مراجعة'),
+              _stat(store.ratingAverage.toStringAsFixed(1), 'التقييم'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _productsTab(AssalStoreSummary store) =>
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture,
         builder: (context, snapshot) {
@@ -506,38 +696,220 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                     'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.');
           }
           if (!snapshot.hasData) return const AssalGlassLoading();
-          return AssalStateView<List<AssalProductSummary>>(
-            state: snapshot.data!,
-            builder: (products) => GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 220,
-                  crossAxisSpacing: AssalSpacing.md,
-                  mainAxisSpacing: AssalSpacing.md,
-                  childAspectRatio: .68),
-              itemCount: products.length,
-              itemBuilder: (_, index) {
-                final product = products[index];
-                return ProductCard(
-                  product: product,
-                  showVerifiedBadge: store.isVerified,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProductDetailScreen(
-                        repository: widget.repository,
-                        productId: product.id,
+          return Padding(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            child: AssalStateView<List<AssalProductSummary>>(
+              state: snapshot.data!,
+              builder: (products) => products.isEmpty
+                  ? const AssalMessageCard(
+                      icon: Icons.inventory_2_outlined,
+                      message: 'لا توجد منتجات منشورة في هذا المتجر بعد.')
+                  : GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 220,
+                        crossAxisSpacing: AssalSpacing.md,
+                        mainAxisSpacing: AssalSpacing.md,
+                        childAspectRatio: .68,
                       ),
+                      itemCount: products.length,
+                      itemBuilder: (_, index) {
+                        final product = products[index];
+                        return ProductCard(
+                          product: product,
+                          showVerifiedBadge: store.isVerified,
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ProductDetailScreen(
+                                repository: widget.repository,
+                                productId: product.id,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
             ),
           );
         },
-      ),
-    ]);
-  }
+      );
+
+  Widget _storeInfoTab(AssalStoreSummary store) => SingleChildScrollView(
+        padding: const EdgeInsets.all(AssalSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (store.galleryUrls.isNotEmpty) ...[
+              const SectionHeader(title: 'من المتجر'),
+              SizedBox(
+                height: 106,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: store.galleryUrls.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(width: AssalSpacing.sm),
+                  itemBuilder: (_, index) => SizedBox(
+                    width: 132,
+                    child: AssalImageTile(
+                      imageUrl: store.galleryUrls[index],
+                      height: 106,
+                      icon: index.isEven
+                          ? Icons.hive_outlined
+                          : Icons.storefront_outlined,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.xl),
+            ],
+            const SectionHeader(title: 'عن المتجر'),
+            Text(
+              store.bio ??
+                  store.description ??
+                  'لم يضف المتجر نبذة تعريفية بعد.',
+              style: AssalTypography.bodyLarge,
+            ),
+            const SizedBox(height: AssalSpacing.xl),
+            const SectionHeader(title: 'الموقع والتخصصات'),
+            if (store.regionNameAr != null)
+              _storeInfoRow(
+                  Icons.location_on_outlined, 'المنطقة', store.regionNameAr!),
+            if (store.specialties.isEmpty)
+              const AssalMessageCard(
+                icon: Icons.info_outline,
+                message: 'لم يضف المتجر تخصصاته بعد.',
+              )
+            else
+              Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: store.specialties
+                    .map<Widget>((item) => InfoChip(label: item))
+                    .toList(),
+              ),
+            if (store.certifications.isNotEmpty) ...[
+              const SizedBox(height: AssalSpacing.lg),
+              const SectionHeader(title: 'التوثيقات'),
+              Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: store.certifications
+                    .map<Widget>((item) => InfoChip(
+                          label: item,
+                          icon: Icons.verified_outlined,
+                        ))
+                    .toList(),
+              ),
+            ],
+          ],
+        ),
+      );
+
+  Widget _contactTab(AssalStoreSummary store) => SingleChildScrollView(
+        padding: const EdgeInsets.all(AssalSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SectionHeader(title: 'التواصل والطلب'),
+            if (store.socialLinks.isEmpty &&
+                store.contactPhone == null &&
+                store.contactWhatsapp == null &&
+                store.contactTelegram == null)
+              const AssalMessageCard(
+                icon: Icons.forum_outlined,
+                message: 'لم يضف المتجر قنوات تواصل بعد.',
+              )
+            else ...[
+              if (store.contactPhone != null)
+                ActionChip(
+                  avatar: const Icon(Icons.phone_outlined, size: 16),
+                  label: const Text('الهاتف'),
+                  onPressed: () => _showContact('phone', store.contactPhone!),
+                ),
+              if (store.contactWhatsapp != null)
+                ActionChip(
+                  avatar: const Icon(Icons.chat_outlined, size: 16),
+                  label: const Text('واتساب'),
+                  onPressed: () =>
+                      _showContact('whatsapp', store.contactWhatsapp!),
+                ),
+              if (store.contactTelegram != null)
+                ActionChip(
+                  avatar: const Icon(Icons.send_outlined, size: 16),
+                  label: const Text('تلغرام'),
+                  onPressed: () =>
+                      _showContact('telegram', store.contactTelegram!),
+                ),
+              Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: store.socialLinks.entries
+                    .map((entry) => ActionChip(
+                          avatar: const Icon(Icons.link, size: 16),
+                          label: Text(_socialLabel(entry.key)),
+                          onPressed: () => _showContact(entry.key, entry.value),
+                        ))
+                    .toList(),
+              ),
+            ],
+            const SizedBox(height: AssalSpacing.lg),
+            if (store.deliveryOptions.isNotEmpty)
+              _storeInfoRow(Icons.local_shipping_outlined, 'التوصيل',
+                  store.deliveryOptions.join('، ')),
+            if (store.pickupLocations.isNotEmpty)
+              _storeInfoRow(Icons.location_on_outlined, 'الاستلام',
+                  store.pickupLocations.join('، ')),
+            const SizedBox(height: AssalSpacing.lg),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () async {
+                      final session =
+                          await requireUserSession(context, widget.repository);
+                      if (session == null || !mounted || session.user == null) {
+                        return;
+                      }
+                      final result = await widget.repository
+                          .toggleFollow(session.user!.id, store.id);
+                      if (result is AssalData<bool>) {
+                        setState(() => following = result.value);
+                      }
+                    },
+                    icon:
+                        Icon(following ? Icons.check : Icons.person_add_alt_1),
+                    label: Text(following ? 'تتابعه' : 'متابعة'),
+                  ),
+                ),
+                const SizedBox(width: AssalSpacing.sm),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final session =
+                          await requireUserSession(context, widget.repository);
+                      if (session == null || !mounted || session.user == null) {
+                        return;
+                      }
+                      final result = await widget.repository
+                          .createConversation(session.user!.id, store.id);
+                      if (!mounted ||
+                          result is! AssalData<AssalConversationSummary>) {
+                        return;
+                      }
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => ConversationScreen(
+                              repository: widget.repository,
+                              conversation: result.value)));
+                    },
+                    icon: const Icon(Icons.forum_outlined),
+                    label: const Text('مراسلة'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
 
   void _showContact(String channel, String value) => showDialog<void>(
       context: context,
@@ -672,7 +1044,8 @@ class _RequestSheetState extends State<RequestSheet> {
                   child: FilledButton(
                       onPressed: saving ? null : _submit,
                       child: saving
-                          ? const AssalGlassLoading(height: 44, label: 'جارٍ الإرسال...')
+                          ? const AssalGlassLoading(
+                              height: 44, label: 'جارٍ الإرسال...')
                           : const Text('حفظ وإرسال الطلب'))),
             ]),
       ),
@@ -687,8 +1060,18 @@ class _RequestSheetState extends State<RequestSheet> {
       return;
     }
     setState(() => saving = true);
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) {
+      if (mounted) {
+        setState(() => saving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('سجّل الدخول أولًا لإرسال الطلب.')),
+        );
+      }
+      return;
+    }
     final result = await widget.repository.createRequest(
-        'demo-customer',
+        session.user!.id,
         AssalRequestDraft(
             storeId: widget.store.id,
             productId: widget.product.id,

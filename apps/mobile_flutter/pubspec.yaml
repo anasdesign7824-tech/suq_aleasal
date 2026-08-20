@@ -19,6 +19,8 @@ dependencies:
   assalkom_design:
     path: ../../packages/design_system/dart
   supabase_flutter: ^2.17.2
+  image_picker: ^1.1.2
+  file_picker: ^8.1.7
   google_sign_in: ^7.2.0
 
 dev_dependencies:
@@ -29,7 +31,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/demo_catalog.json
     - assets/yemen_governorates_districts.json
     - assets/logo-internal-runtime.svg
     - assets/logo-external-runtime.svg

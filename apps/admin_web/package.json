@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "start": "NODE_ENV=production node dist/index.js",
+    "start": "node scripts/start-admin.mjs",
+    "bootstrap:admin": "tsx server/bootstrap-admin.ts",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -39,6 +41,7 @@
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@supabase/supabase-js": "^2.112.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

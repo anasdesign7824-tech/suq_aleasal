@@ -39,36 +39,39 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<bool> initialContentFuture;
   final searchController = TextEditingController();
   late final ScrollController scrollController;
-  bool deferredDataStarted = false;
+  bool deferredDataStarted = true;
 
   @override
   void initState() {
     super.initState();
-    scrollController = ScrollController()..addListener(_maybeLoadDeferredData);
+    scrollController = ScrollController();
     _load();
   }
 
   @override
   void dispose() {
-    scrollController
-      ..removeListener(_maybeLoadDeferredData)
-      ..dispose();
+    scrollController.dispose();
     searchController.dispose();
     super.dispose();
   }
 
   void _load() {
-    deferredDataStarted = false;
-    storesFuture = null;
-    popularFuture = null;
-    newProductsFuture = null;
-    verifiedProductsFuture = null;
-    personalizedFuture = null;
+    // All home rails start together. Empty Production data is rendered as an
+    // explicit state; it must never be confused with a missing widget.
     featuredFuture = widget.repository
         .listProducts(query: const AssalProductQuery(featuredOnly: true));
     taxonomyFuture = widget.repository.listTaxonomy();
     bannersFuture = widget.repository.listBanners();
     notificationsFuture = _loadNotifications();
+    storesFuture = widget.repository.listStores();
+    popularFuture = widget.repository
+        .listProducts(query: const AssalProductQuery(sort: AssalSort.popular));
+    newProductsFuture = widget.repository
+        .listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
+    verifiedProductsFuture = widget.repository.listProducts(
+        query: const AssalProductQuery(
+            verifiedStoresOnly: true, sort: AssalSort.rating));
+    personalizedFuture = _buildPersonalizedFeed();
     initialContentFuture = Future.wait<Object?>(<Future<Object?>>[
       featuredFuture,
       taxonomyFuture,
@@ -84,28 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => StoresScreen(repository: widget.repository),
       ),
     );
-  }
-
-  void _maybeLoadDeferredData() {
-    if (deferredDataStarted || !scrollController.hasClients) return;
-    if (scrollController.position.pixels < 180) return;
-    _startDeferredData();
-  }
-
-  void _startDeferredData() {
-    if (deferredDataStarted) return;
-    setState(() {
-      deferredDataStarted = true;
-      storesFuture = widget.repository.listStores();
-      popularFuture = widget.repository.listProducts(
-          query: const AssalProductQuery(sort: AssalSort.popular));
-      newProductsFuture = widget.repository
-          .listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
-      verifiedProductsFuture = widget.repository.listProducts(
-          query: const AssalProductQuery(
-              verifiedStoresOnly: true, sort: AssalSort.rating));
-      personalizedFuture = _buildPersonalizedFeed();
-    });
   }
 
   Future<AssalLoadState<List<AssalProductSummary>>>
@@ -223,16 +204,19 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _PinnedHeaderDelegate(
+                  topInset: MediaQuery.paddingOf(context).top,
                   child: _Header(
                     repository: widget.repository,
                     notificationsFuture: notificationsFuture,
+                    bannersFuture: bannersFuture,
                     onOpenNotifications: widget.onOpenNotifications,
                     searchController: searchController,
                     onOpenSearch: widget.onOpenSearch,
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: AssalSpacing.sm)),
+              const SliverToBoxAdapter(
+                  child: SizedBox(height: AssalSpacing.sm)),
               SliverPadding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
@@ -457,9 +441,11 @@ class _HomeScreenState extends State<HomeScreen> {
         SliverPersistentHeader(
           pinned: true,
           delegate: _PinnedHeaderDelegate(
+            topInset: MediaQuery.paddingOf(context).top,
             child: _Header(
               repository: widget.repository,
               notificationsFuture: notificationsFuture,
+              bannersFuture: bannersFuture,
               onOpenNotifications: widget.onOpenNotifications,
               searchController: searchController,
               onOpenSearch: widget.onOpenSearch,
@@ -585,14 +571,16 @@ class _NewsTickerState extends State<_NewsTicker> {
 }
 
 class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
-  const _PinnedHeaderDelegate({required this.child});
+  const _PinnedHeaderDelegate({required this.topInset, required this.child});
+  static const contentExtent = 160.0;
+  final double topInset;
   final Widget child;
 
   @override
-  double get minExtent => 156;
+  double get minExtent => topInset + contentExtent;
 
   @override
-  double get maxExtent => 156;
+  double get maxExtent => topInset + contentExtent;
 
   @override
   Widget build(
@@ -603,14 +591,14 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
           color: Colors.transparent,
           elevation: overlapsContent ? 4 : 0,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               AssalSpacing.lg,
-              AssalSpacing.xs,
+              topInset + AssalSpacing.xs,
               AssalSpacing.lg,
               AssalSpacing.sm,
             ),
             child: SizedBox(
-              height: maxExtent,
+              height: contentExtent - AssalSpacing.xs - AssalSpacing.sm,
               child: child,
             ),
           ),
@@ -625,6 +613,7 @@ class _Header extends StatelessWidget {
   const _Header({
     required this.repository,
     required this.notificationsFuture,
+    required this.bannersFuture,
     required this.onOpenNotifications,
     required this.searchController,
     required this.onOpenSearch,
@@ -632,6 +621,7 @@ class _Header extends StatelessWidget {
   final AssalRepository repository;
   final Future<AssalLoadState<List<AssalNotificationSummary>>>
       notificationsFuture;
+  final Future<AssalLoadState<List<AssalBannerSummary>>> bannersFuture;
   final VoidCallback onOpenNotifications;
   final TextEditingController searchController;
   final VoidCallback onOpenSearch;
@@ -668,20 +658,18 @@ class _Header extends StatelessWidget {
                       future: notificationsFuture,
                       builder: (context, snapshot) {
                         final state = snapshot.data;
-                        final unread = state
-                                is AssalData<
-                                    List<AssalNotificationSummary>>
-                            ? state.value
-                                .where((item) => item.readAt == null)
-                                .length
-                            : 0;
+                        final unread =
+                            state is AssalData<List<AssalNotificationSummary>>
+                                ? state.value
+                                    .where((item) => item.readAt == null)
+                                    .length
+                                : 0;
                         return Stack(
                           clipBehavior: Clip.none,
                           children: [
                             IconButton(
                               onPressed: onOpenNotifications,
-                              icon: const Icon(
-                                  Icons.notifications_none_rounded,
+                              icon: const Icon(Icons.notifications_none_rounded,
                                   color: Colors.white),
                               tooltip: 'الإشعارات',
                               visualDensity: VisualDensity.compact,
@@ -693,16 +681,16 @@ class _Header extends StatelessWidget {
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
                                     color: AssalColors.error,
-                                    borderRadius: BorderRadius.circular(
-                                        AssalRadius.pill),
+                                    borderRadius:
+                                        BorderRadius.circular(AssalRadius.pill),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 4, vertical: 1),
                                     child: Text(
                                       '$unread',
-                                      style: AssalTypography.caption.copyWith(
-                                          color: AssalColors.cream),
+                                      style: AssalTypography.caption
+                                          .copyWith(color: AssalColors.cream),
                                     ),
                                   ),
                                 ),
@@ -717,8 +705,34 @@ class _Header extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AssalSpacing.xs),
-          const _HomeIntroTicker(),
-          const SizedBox(height: AssalSpacing.xs),
+          FutureBuilder<AssalLoadState<List<AssalBannerSummary>>>(
+            future: bannersFuture,
+            builder: (context, snapshot) {
+              final state = snapshot.data;
+              final items = state is AssalData<List<AssalBannerSummary>>
+                  ? state.value
+                  : const <AssalBannerSummary>[];
+              final tickerItems = items.isNotEmpty ||
+                      repository.mode != AssalDataSourceMode.demo ||
+                      state != null
+                  ? items
+                  : const <AssalBannerSummary>[
+                      AssalBannerSummary(
+                        id: 'demo-ticker-loading',
+                        titleAr:
+                            'الثقة تبدأ من المصدر   •   سدر يمني من وديانه',
+                        descriptionAr: '',
+                        ctaLabelAr: 'استكشف',
+                        imageUrl: '',
+                      ),
+                    ];
+              return _HomeIntroTicker(
+                items: tickerItems,
+                onTap: onOpenSearch,
+              );
+            },
+          ),
+          const SizedBox(height: AssalSpacing.md),
           SizedBox(
             height: 48,
             child: TextField(
@@ -731,8 +745,8 @@ class _Header extends StatelessWidget {
               decoration: InputDecoration(
                 filled: true,
                 fillColor: AssalColors.cream,
-                prefixIcon: const Icon(Icons.search,
-                    color: AssalColors.deepBrown),
+                prefixIcon:
+                    const Icon(Icons.search, color: AssalColors.deepBrown),
                 suffixIcon: const Icon(Icons.tune_rounded,
                     color: AssalColors.deepBrown),
                 hintText: 'ابحث عن سدر، سمر، شمع أو هدية',
@@ -753,7 +767,9 @@ class _Header extends StatelessWidget {
 }
 
 class _HomeIntroTicker extends StatefulWidget {
-  const _HomeIntroTicker();
+  const _HomeIntroTicker({required this.items, required this.onTap});
+  final List<AssalBannerSummary> items;
+  final VoidCallback onTap;
 
   @override
   State<_HomeIntroTicker> createState() => _HomeIntroTickerState();
@@ -761,10 +777,12 @@ class _HomeIntroTicker extends StatefulWidget {
 
 class _HomeIntroTickerState extends State<_HomeIntroTicker>
     with SingleTickerProviderStateMixin {
+  static const _introText =
+      'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بسهولة';
   late final AnimationController controller = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 9),
-  )..repeat(reverse: true);
+    duration: const Duration(seconds: 16),
+  )..repeat();
 
   @override
   void dispose() {
@@ -773,55 +791,92 @@ class _HomeIntroTickerState extends State<_HomeIntroTicker>
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-        height: 30,
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .12),
-          borderRadius: BorderRadius.circular(AssalRadius.medium),
-          border: Border.all(color: Colors.white.withValues(alpha: .28)),
-        ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final style = AssalTypography.caption.copyWith(
-              color: AssalColors.cream,
-              fontWeight: FontWeight.w600,
-            );
-            final painter = TextPainter(
-              text: TextSpan(
-                text:
-                    'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بالطريقة المناسبة لك',
-                style: style,
+  Widget build(BuildContext context) {
+    final bannerText = widget.items
+        .map((item) => item.titleAr.trim())
+        .where((item) => item.isNotEmpty)
+        .join('   •   ');
+    final text =
+        bannerText.isEmpty ? _introText : '$_introText   •   $bannerText';
+    final style = AssalTypography.bodySmall.copyWith(
+      color: AssalColors.cream,
+      fontWeight: FontWeight.w600,
+      letterSpacing: .1,
+    );
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(AssalRadius.medium),
+        child: Container(
+          height: 42,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: AlignmentDirectional.centerStart,
+              end: AlignmentDirectional.centerEnd,
+              colors: [
+                Colors.white.withValues(alpha: .20),
+                Colors.white.withValues(alpha: .07),
+                Colors.white.withValues(alpha: .16),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AssalRadius.large),
+            border: Border.all(color: Colors.white.withValues(alpha: .34)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: .10),
+                blurRadius: 12,
+                offset: const Offset(0, 3),
               ),
-              textDirection: TextDirection.rtl,
-            )..layout();
-            final overflow = (painter.width - constraints.maxWidth).clamp(
-              0.0,
-              double.infinity,
-            );
-            return AnimatedBuilder(
-              animation: controller,
-              builder: (context, child) => Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Transform.translate(
-                  offset: Offset(-overflow * controller.value, 0),
-                  child: child,
+            ],
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final painter = TextPainter(
+                text: TextSpan(text: text, style: style),
+                textDirection: TextDirection.rtl,
+                maxLines: 1,
+              )..layout();
+              final textWidth = painter.width + AssalSpacing.lg;
+              final start = constraints.maxWidth + AssalSpacing.md;
+              final end = -textWidth - AssalSpacing.md;
+              return AnimatedBuilder(
+                animation: controller,
+                builder: (context, child) {
+                  final x = start + (end - start) * controller.value;
+                  return ClipRect(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Positioned(
+                          left: x,
+                          top: 0,
+                          bottom: 0,
+                          width: textWidth,
+                          child: Center(child: child),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Text(
+                    text,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    style: style,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AssalSpacing.md),
-                child: Text(
-                  'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بالطريقة المناسبة لك',
-                  maxLines: 1,
-                  softWrap: false,
-                  style: style,
-                ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _BannersCarousel extends StatefulWidget {
@@ -846,8 +901,10 @@ class _BannersCarouselState extends State<_BannersCarousel> {
   int currentIndex = 0;
 
   List<AssalBannerSummary> get visibleBanners => widget.banners
-      .where((item) => item.imageUrl.trim().startsWith('http') ||
+      .where((item) =>
+          item.imageUrl.trim().startsWith('http') ||
           item.imageUrl.trim().startsWith('assets/'))
+      .take(4)
       .toList(growable: false);
 
   @override
@@ -879,7 +936,8 @@ class _BannersCarouselState extends State<_BannersCarousel> {
       if (widget.useFallbackDemo) {
         return _HeroBanner(onExplore: widget.onExplore);
       }
-      return const SizedBox.shrink();
+      return _BannerEmptyState(
+          onExplore: widget.onExplore, onRetry: widget.onRetry);
     }
     return Column(children: [
       SizedBox(
@@ -888,8 +946,8 @@ class _BannersCarouselState extends State<_BannersCarousel> {
           controller: controller,
           itemCount: banners.length,
           onPageChanged: (index) => setState(() => currentIndex = index),
-          itemBuilder: (_, index) => _BannerCard(
-              item: banners[index], onExplore: widget.onExplore),
+          itemBuilder: (_, index) =>
+              _BannerCard(item: banners[index], onExplore: widget.onExplore),
         ),
       ),
       const SizedBox(height: AssalSpacing.sm),
@@ -930,7 +988,8 @@ class _BannerCard extends StatelessWidget {
             fit: BoxFit.cover,
             loadingBuilder: (context, child, progress) => progress == null
                 ? child
-                : const AssalGlassLoading(height: 72, label: 'جارٍ تحميل الصورة...'),
+                : const AssalGlassLoading(
+                    height: 72, label: 'جارٍ تحميل الصورة...'),
             errorBuilder: (_, __, ___) => const _BannerImageFallback(),
           );
     return Material(
@@ -954,8 +1013,7 @@ class _BannerCard extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: AssalColors.deepBrown.withValues(alpha: .72),
-                      borderRadius:
-                          BorderRadius.circular(AssalRadius.medium),
+                      borderRadius: BorderRadius.circular(AssalRadius.medium),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -980,6 +1038,104 @@ class _BannerCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _BannerEmptyState extends StatelessWidget {
+  const _BannerEmptyState({required this.onExplore, required this.onRetry});
+  final VoidCallback onExplore;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: [
+          SizedBox(
+            height: 210,
+            width: double.infinity,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: onExplore,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AssalColors.deepBrown, AssalColors.secondary],
+                    ),
+                    borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+                    border: Border.all(
+                      color: AssalColors.primaryLight.withValues(alpha: .35),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AssalSpacing.xl),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.image_outlined,
+                          size: 58,
+                          color: AssalColors.primaryLight,
+                        ),
+                        const SizedBox(width: AssalSpacing.lg),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'لا توجد بنرات منشورة بعد',
+                                style: AssalTypography.heading3.copyWith(
+                                  color: AssalColors.cream,
+                                ),
+                              ),
+                              const SizedBox(height: AssalSpacing.sm),
+                              Text(
+                                'سيظهر المحتوى هنا تلقائيًا عند نشره من لوحة الإدارة.',
+                                style: AssalTypography.bodySmall.copyWith(
+                                  color:
+                                      AssalColors.cream.withValues(alpha: .84),
+                                ),
+                              ),
+                              const SizedBox(height: AssalSpacing.md),
+                              Wrap(
+                                spacing: AssalSpacing.sm,
+                                children: [
+                                  OutlinedButton(
+                                    onPressed: onExplore,
+                                    child: const Text('استكشف المنتجات'),
+                                  ),
+                                  TextButton(
+                                    onPressed: onRetry,
+                                    child: const Text('تحديث'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 22,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AssalColors.primaryDark,
+                  borderRadius: BorderRadius.circular(AssalRadius.pill),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
 }
 
 class _BannerImageFallback extends StatelessWidget {
@@ -1040,7 +1196,10 @@ class _CategoryTile extends StatelessWidget {
               border: Border.all(color: AssalColors.border),
               borderRadius: BorderRadius.circular(AssalRadius.large)),
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Icon(Icons.category_outlined, color: AssalColors.primaryDark),
+            Icon(
+              _taxonomyIcon(item.nameAr),
+              color: AssalColors.primaryDark,
+            ),
             const SizedBox(height: AssalSpacing.xs),
             Text(item.nameAr,
                 maxLines: 2,
@@ -1126,13 +1285,18 @@ class _ProductRail extends StatelessWidget {
 }
 
 class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen({super.key, required this.repository});
+  const CategoriesScreen({
+    super.key,
+    required this.repository,
+    this.showAppBar = true,
+  });
   final AssalRepository repository;
+  final bool showAppBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AssalAppBar(title: 'التصنيفات'),
+      appBar: showAppBar ? const AssalAppBar(title: 'التصنيفات') : null,
       body: FutureBuilder<AssalLoadState<List<AssalCategorySummary>>>(
         future: repository.listCategories(),
         builder: (context, snapshot) {
@@ -1152,18 +1316,26 @@ class CategoriesScreen extends StatelessWidget {
                   const SizedBox(height: AssalSpacing.sm),
               itemBuilder: (_, index) {
                 final category = categories[index];
+                final description = category.description?.trim();
+                final subtitle = <String>[
+                  if (description != null &&
+                      description.isNotEmpty &&
+                      !description.contains('Master'))
+                    description,
+                  '${category.productCount} منتج متاح',
+                ].join('\n');
                 return Card(
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: AssalColors.honeyLight,
-                      child: Icon(_categoryIcon(category.productType),
-                          color: AssalColors.primaryDark),
+                      child: Icon(
+                        _taxonomyIcon(category.nameAr, category.productType),
+                        color: AssalColors.primaryDark,
+                      ),
                     ),
                     title: Text(category.nameAr),
-                    subtitle: Text(
-                      '${category.description ?? 'قسم مرجعي من Honey Master Database'}\n${category.productCount} منتج متاح',
-                    ),
-                    isThreeLine: true,
+                    subtitle: Text(subtitle),
+                    isThreeLine: subtitle.contains('\n'),
                     trailing: const Icon(Icons.chevron_left),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -1182,14 +1354,29 @@ class CategoriesScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  IconData _categoryIcon(ProductType type) => switch (type) {
-        ProductType.honey => Icons.water_drop_outlined,
-        ProductType.wax => Icons.hexagon_outlined,
-        ProductType.mix => Icons.local_florist_outlined,
-        ProductType.raw => Icons.hive_outlined,
-        ProductType.gift => Icons.card_giftcard_outlined,
-      };
+IconData _taxonomyIcon(String nameAr, [ProductType? type]) {
+  final name = nameAr.trim();
+  if (name.contains('شمع')) return Icons.hexagon_outlined;
+  if (name.contains('سدر')) return Icons.water_drop_outlined;
+  if (name.contains('سمر') || name.contains('طلح')) {
+    return Icons.eco_outlined;
+  }
+  if (name.contains('خلط') || name.contains('مزيج')) {
+    return Icons.local_florist_outlined;
+  }
+  if (name.contains('هد')) return Icons.card_giftcard_outlined;
+  if (name.contains('صافي') || name.contains('سائل')) {
+    return Icons.opacity_outlined;
+  }
+  return switch (type ?? ProductType.honey) {
+    ProductType.honey => Icons.water_drop_outlined,
+    ProductType.wax => Icons.hexagon_outlined,
+    ProductType.mix => Icons.local_florist_outlined,
+    ProductType.raw => Icons.hive_outlined,
+    ProductType.gift => Icons.card_giftcard_outlined,
+  };
 }
 
 class SearchScreen extends StatefulWidget {
@@ -1238,6 +1425,8 @@ class _SearchScreenState extends State<SearchScreen> {
   double? dataMaxPrice;
   double dataMaxRating = 5;
   YemenLocationReference? locationReference;
+  List<AssalCategorySummary> filterCategories = const <AssalCategorySummary>[];
+  List<AssalTaxonomy> filterTaxonomy = const <AssalTaxonomy>[];
   late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
   late Future<AssalLoadState<List<String>>> popularSearchesFuture;
 
@@ -1247,6 +1436,8 @@ class _SearchScreenState extends State<SearchScreen> {
     categoryId = widget.initialCategoryId;
     subcategoryId = widget.initialSubcategoryId;
     verifiedOnly = widget.verifiedOnly;
+    unawaited(_primeFilterLabels());
+    unawaited(_primeLocationReference());
     _search();
   }
 
@@ -1255,6 +1446,47 @@ class _SearchScreenState extends State<SearchScreen> {
     controller.dispose();
     super.dispose();
   }
+
+  Future<void> _primeFilterLabels() async {
+    final categories = await widget.repository.listCategories();
+    final taxonomy = await widget.repository.listTaxonomy();
+    if (!mounted) return;
+    setState(() {
+      if (categories is AssalData<List<AssalCategorySummary>>) {
+        filterCategories = categories.value;
+      }
+      if (taxonomy is AssalData<List<AssalTaxonomy>>) {
+        filterTaxonomy = taxonomy.value;
+      }
+    });
+  }
+
+  Future<void> _primeLocationReference() async {
+    try {
+      final reference = await YemenLocationReference.load();
+      if (mounted) locationReference = reference;
+    } on Object {
+      // The filter sheet retries explicitly and owns the user-facing message.
+    }
+  }
+
+  String _categoryLabel(String id) => filterCategories
+      .where((item) => item.id == id)
+      .map((item) => item.nameAr)
+      .firstWhere((name) => name.isNotEmpty, orElse: () => 'القسم المحدد');
+
+  String _subcategoryLabel(String id) => filterTaxonomy
+      .where((item) => item.id == id)
+      .map((item) => item.nameAr)
+      .firstWhere((name) => name.isNotEmpty, orElse: () => 'التصنيف المحدد');
+
+  String _regionLabel(String id) =>
+      locationReference?.governorateByCode(id)?.nameAr ??
+      locationReference?.governorateByCode(id)?.nameAr ??
+      'المحافظة المحددة';
+
+  String _provinceLabel(String id) =>
+      locationReference?.districtByCode(id)?.nameAr ?? 'المديرية المحددة';
 
   void _search() {
     final query = AssalProductQuery(
@@ -1335,21 +1567,21 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Widget> _activeFilterChips() => [
         if (categoryId != null)
           InputChip(
-              label: Text('القسم: $categoryId'),
+              label: Text('القسم: ${_categoryLabel(categoryId!)}'),
               onDeleted: () => setState(() {
                     categoryId = null;
                     _search();
                   })),
         if (subcategoryId != null)
           InputChip(
-              label: Text('التصنيف: $subcategoryId'),
+              label: Text('التصنيف: ${_subcategoryLabel(subcategoryId!)}'),
               onDeleted: () => setState(() {
                     subcategoryId = null;
                     _search();
                   })),
         if (regionId != null)
           InputChip(
-              label: Text('المحافظة: $regionId'),
+              label: Text('المحافظة: ${_regionLabel(regionId!)}'),
               onDeleted: () => setState(() {
                     regionId = null;
                     provinceId = null;
@@ -1357,7 +1589,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   })),
         if (provinceId != null)
           InputChip(
-              label: Text('المديرية: $provinceId'),
+              label: Text('المديرية: ${_provinceLabel(provinceId!)}'),
               onDeleted: () => setState(() {
                     provinceId = null;
                     _search();
@@ -1623,8 +1855,12 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _showFilters() async {
-    final reference = locationReference ??= await _loadLocationReference();
-    if (reference == null || !mounted) return;
+    // The sheet must open immediately. Reference reads are local/refreshable and
+    // must not block the user's tap while production queries are in flight.
+    unawaited(_primeFilterLabels());
+    unawaited(_primeLocationReference());
+    final reference = locationReference;
+    if (!mounted) return;
     var draftRegion = regionId ?? '';
     var draftProvince = provinceId ?? '';
     var draftCategory = categoryId ?? '';
@@ -1637,8 +1873,9 @@ class _SearchScreenState extends State<SearchScreen> {
     var draftPackaging = packaging ?? '';
     var draftAvailability = availability ?? '';
     final priceMin = dataMinPrice ?? 0;
+    final observedMaxPrice = dataMaxPrice ?? priceMin;
     final priceMax =
-        (dataMaxPrice ?? 1) > priceMin ? dataMaxPrice! : priceMin + 1;
+        observedMaxPrice > priceMin ? observedMaxPrice : priceMin + 1;
     final currentMinPrice =
         (minPrice ?? priceMin).clamp(priceMin, priceMax).toDouble();
     final currentMaxPrice =
@@ -1649,32 +1886,46 @@ class _SearchScreenState extends State<SearchScreen> {
     );
     var draftMinRatingValue =
         (minRating ?? 0).clamp(0, dataMaxRating).toDouble();
-    final categoryState = await widget.repository.listCategories();
-    final taxonomyState = await widget.repository.listTaxonomy();
-    if (!mounted) return;
     final categoryItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل الأقسام')),
-      if (categoryState is AssalData<List<AssalCategorySummary>>)
-        ...categoryState.value.map(
-          (category) => DropdownMenuItem<String>(
-            value: category.id,
-            child: Text(category.nameAr),
-          ),
+      ...filterCategories.map(
+        (category) => DropdownMenuItem<String>(
+          value: category.id,
+          child: Text(category.nameAr),
         ),
-    ];
-    final subcategoryItems = <DropdownMenuItem<String>>[
-      const DropdownMenuItem<String>(
-        value: '',
-        child: Text('كل التصنيفات الفرعية'),
       ),
-      if (taxonomyState is AssalData<List<AssalTaxonomy>>)
-        ...taxonomyState.value.map(
+    ];
+    List<DropdownMenuItem<String>> subcategoryItemsFor(
+        String selectedCategory) {
+      final taxonomies = filterTaxonomy.where((taxonomy) {
+        final parentId = taxonomy.metadata['category_id'] ??
+            taxonomy.metadata['parent_category_id'] ??
+            taxonomy.metadata['parent_id'];
+        return selectedCategory.isEmpty ||
+            parentId == null ||
+            parentId.toString() == selectedCategory;
+      });
+      return [
+        const DropdownMenuItem<String>(
+          value: '',
+          child: Text('كل التصنيفات الفرعية'),
+        ),
+        ...taxonomies.map(
           (taxonomy) => DropdownMenuItem<String>(
             value: taxonomy.id,
             child: Text(taxonomy.nameAr),
           ),
         ),
-    ];
+      ];
+    }
+
+    if (!categoryItems.any((item) => item.value == draftCategory)) {
+      draftCategory = '';
+    }
+    if (!subcategoryItemsFor(draftCategory)
+        .any((item) => item.value == draftSubcategory)) {
+      draftSubcategory = '';
+    }
     final typeItems = <DropdownMenuItem<ProductType?>>[
       const DropdownMenuItem<ProductType?>(
           value: null, child: Text('كل الأنواع')),
@@ -1693,14 +1944,25 @@ class _SearchScreenState extends State<SearchScreen> {
     final availabilityItems = _stringOptions(availabilityOptions);
     final regionItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل المحافظات')),
-      ...reference.governorates.map(
+      ...(reference?.governorates ?? const <AssalRegion>[]).map(
         (region) => DropdownMenuItem<String>(
           value: region.code ?? region.id,
           child: Text(region.nameAr),
         ),
       ),
     ];
-    final apply = await showModalBottomSheet<bool>(
+    if (!regionItems.any((item) => item.value == draftRegion)) {
+      draftRegion = '';
+    }
+    final validDistricts =
+        reference?.districtsFor(draftRegion) ?? const <AssalRegion>[];
+    if (!validDistricts
+        .any((item) => (item.code ?? item.id) == draftProvince)) {
+      draftProvince = '';
+    }
+    bool? apply;
+    try {
+      apply = await showModalBottomSheet<bool>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
@@ -1737,8 +1999,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           items: [
                             const DropdownMenuItem<String>(
                                 value: '', child: Text('كل المديريات')),
-                            ...reference.districtsFor(draftRegion).map(
-                                (district) => DropdownMenuItem<String>(
+                            ...(reference?.districtsFor(draftRegion) ??
+                                    const <AssalRegion>[])
+                                .map((district) => DropdownMenuItem<String>(
                                     value: district.code ?? district.id,
                                     child: Text(district.nameAr)))
                           ],
@@ -1758,7 +2021,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           initialValue: draftSubcategory,
                           decoration: const InputDecoration(
                               labelText: 'التصنيف الفرعي'),
-                          items: subcategoryItems,
+                          items: subcategoryItemsFor(draftCategory),
                           onChanged: (value) => setModalState(
                               () => draftSubcategory = value ?? '')),
                       DropdownButtonFormField<ProductType?>(
@@ -1884,20 +2147,13 @@ class _SearchScreenState extends State<SearchScreen> {
                               child: const Text('تطبيق الفلاتر'))),
                     ])),
               )),
-    );
-    if (apply == true) _applySearch();
-  }
-
-  Future<YemenLocationReference?> _loadLocationReference() async {
-    try {
-      return await YemenLocationReference.load();
-    } on AssalReferenceDataFailure catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.messageAr)),
-        );
-      }
-      return null;
+      );
+      if (apply == true && mounted) _applySearch();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر فتح الفلاتر الآن. حاول مرة أخرى.')),
+      );
     }
   }
 }
@@ -1911,8 +2167,13 @@ String _productTypeLabel(ProductType type) => switch (type) {
     };
 
 class StoresScreen extends StatefulWidget {
-  const StoresScreen({super.key, required this.repository});
+  const StoresScreen({
+    super.key,
+    required this.repository,
+    this.showAppBar = true,
+  });
   final AssalRepository repository;
+  final bool showAppBar;
 
   @override
   State<StoresScreen> createState() => _StoresScreenState();
@@ -1955,7 +2216,7 @@ class _StoresScreenState extends State<StoresScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AssalAppBar(title: 'المتاجر'),
+      appBar: widget.showAppBar ? const AssalAppBar(title: 'المتاجر') : null,
       body: Column(
         children: [
           Padding(

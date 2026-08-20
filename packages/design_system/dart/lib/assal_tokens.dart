@@ -8,6 +8,11 @@ abstract final class AssalColors {
   static const primaryLight = Color(0xFFFFA94D);
   static const secondary = Color(0xFF8B5A2B);
   static const deepBrown = Color(0xFF4F2E1F);
+  static const darkGradient = LinearGradient(
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+    colors: [deepBrown, primaryDark],
+  );
   static const honey = Color(0xFFF39C12);
   static const honeyLight = Color(0xFFFFF0D6);
   static const cream = Color(0xFFF8F4EC);

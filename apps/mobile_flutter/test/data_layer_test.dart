@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/demo_repository.dart';
+import 'package:assalkom_data/production_repository.dart';
 import 'package:assalkom_data/repository_factory.dart';
 
 void main() {
@@ -128,6 +129,136 @@ void main() {
     expect((await repository.getSession()).isAuthenticated, isTrue);
   });
 
+  test('Merchant workspace opens pending and owns its product/request scope',
+      () async {
+    final repository =
+        DemoRepository(loader: const InMemoryDemoCatalogLoader(catalog));
+    await repository.signIn('demo@assalkom.app', 'demo123');
+    final opened = await repository.openMerchantWorkspace(
+      'demo-customer',
+      const AssalMerchantWorkspaceDraft(
+        businessName: 'مناحل الاختبار',
+        description: 'متجر اختبار لمسار التاجر.',
+      ),
+    );
+    expect(opened, isA<AssalData<AssalMerchantWorkspaceSummary>>());
+    final workspace =
+        (opened as AssalData<AssalMerchantWorkspaceSummary>).value;
+    expect(workspace.canEdit, isTrue);
+    expect(workspace.canPublish, isFalse);
+    final updated = await repository.updateMerchantWorkspace(
+      'demo-customer',
+      workspace.store.id,
+      const AssalMerchantWorkspaceDraft(
+        businessName: 'مناحل الاختبار بعد التعديل',
+        description: 'وصف محدث لمساحة التاجر.',
+      ),
+    );
+    expect(updated, isA<AssalData<void>>());
+    final loadedWorkspace =
+        await repository.loadMerchantWorkspace('demo-customer');
+    expect(
+      (loadedWorkspace as AssalData<AssalMerchantWorkspaceSummary?>)
+          .value
+          ?.store
+          .nameAr,
+      'مناحل الاختبار بعد التعديل',
+    );
+    final created = await repository.createMerchantProduct(
+      'demo-customer',
+      workspace.store.id,
+      const AssalProductDraft(
+        nameAr: 'عسل اختبار',
+        metadata: {
+          'price': 12500,
+          'weight_label': 'نصف كيلو',
+          'origin_country': 'اليمن',
+          'quality_label_ar': 'سدر أصلي',
+          'delivery_options': ['توصيل محلي'],
+        },
+      ),
+    );
+    expect(created, isA<AssalData<AssalProductSummary>>());
+    final createdProduct = (created as AssalData<AssalProductSummary>).value;
+    expect(createdProduct.price, 12500);
+    expect(createdProduct.weightLabel, 'نصف كيلو');
+    expect(createdProduct.qualityLabelAr, 'سدر أصلي');
+    expect(createdProduct.deliveryOptions, ['توصيل محلي']);
+    final products = await repository.listMerchantProducts('demo-customer');
+    expect(
+        (products as AssalData<List<AssalProductSummary>>).value, hasLength(1));
+    final requests = await repository.listMerchantRequests('demo-customer');
+    expect(
+      requests,
+      anyOf(
+        isA<AssalData<List<AssalRequestSummary>>>(),
+        isA<AssalEmpty<List<AssalRequestSummary>>>(),
+      ),
+    );
+  });
+
+  test('ProductionRepository rejects profile updates for another identity',
+      () async {
+    final repository = ProductionRepository(
+      gateway: _NoopProductionGateway(),
+      authGateway: _StaticAuthGateway(
+        const AssalAuthIdentity(id: 'owner-user'),
+      ),
+    );
+    final result = await repository.updateUserProfile(
+      'different-user',
+      const AssalUserProfilePatch(nameAr: 'محاولة غير مملوكة'),
+    );
+    expect(result, isA<AssalError<void>>());
+    expect((result as AssalError<void>).code, 'profile_not_owned');
+  });
+
+  test('ProductionRepository classifies read failures without hiding them', () async {
+    final repository = ProductionRepository(
+      gateway: _NoopProductionGateway(),
+      authGateway: _StaticAuthGateway(null),
+    );
+    final result = await repository.listRegions();
+    expect(result, isA<AssalError<List<AssalRegion>>>());
+    final error = result as AssalError<List<AssalRegion>>;
+    expect(error.kind, AssalErrorKind.server);
+    expect(error.retryable, isFalse);
+  });
+
+  test('Unavailable session is distinct from an intentional guest session', () {
+    expect(AssalSession.guest.isUnavailable, isFalse);
+    expect(AssalSession.unavailable.isUnavailable, isTrue);
+    expect(AssalSession.unavailable.errorMessageAr, isNotEmpty);
+  });
+
+  test('ProductionRepository sorts newest products by production date', () async {
+    final repository = ProductionRepository(
+      gateway: _RowsProductionGateway([
+        {
+          'id': 'p-old',
+          'store_id': 's1',
+          'name_ar': 'قديم',
+          'product_type': 'honey',
+          'status': 'active',
+          'production_date': '2025-01-01T00:00:00Z',
+        },
+        {
+          'id': 'p-new',
+          'store_id': 's1',
+          'name_ar': 'جديد',
+          'product_type': 'honey',
+          'status': 'active',
+          'production_date': '2026-01-01T00:00:00Z',
+        },
+      ]),
+    );
+    final result = await repository.listProducts(
+      query: const AssalProductQuery(sort: AssalSort.newest),
+    );
+    final products = (result as AssalData<List<AssalProductSummary>>).value;
+    expect(products.map((item) => item.id), ['p-new', 'p-old']);
+  });
+
   test('Factory rejects production without an explicit gateway', () {
     expect(
         () => const AssalRepositoryFactory().create(
@@ -135,4 +266,39 @@ void main() {
             demoLoader: const InMemoryDemoCatalogLoader(catalog)),
         throwsA(isA<ProductionRepositoryNotConfigured>()));
   });
+}
+
+class _StaticAuthGateway implements AssalAuthGateway {
+  _StaticAuthGateway(this.identity);
+
+  final AssalAuthIdentity? identity;
+
+  @override
+  Future<AssalAuthIdentity?> currentIdentity() async => identity;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError(invocation.memberName.toString());
+}
+
+class _NoopProductionGateway implements ProductionQueryGateway {
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError(invocation.memberName.toString());
+}
+
+class _RowsProductionGateway implements ProductionQueryGateway {
+  _RowsProductionGateway(this.rows);
+
+  final List<Map<String, Object?>> rows;
+
+  @override
+  Future<List<Map<String, Object?>>> select(
+    String table, {
+    Map<String, Object?> filters = const <String, Object?>{},
+  }) async => rows;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError(invocation.memberName.toString());
 }

@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'dart:async';
+
 import 'package:assalkom_data/assal_repository.dart';
 
 class SupabaseAuthGateway implements AssalAuthGateway {
@@ -17,7 +19,8 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       String email, String password) async {
     try {
       final response = await client.auth
-          .signInWithPassword(email: email.trim(), password: password);
+          .signInWithPassword(email: email.trim(), password: password)
+          .timeout(const Duration(seconds: 20));
       return _identity(response.user);
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
@@ -28,11 +31,20 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   @override
   Future<void> requestEmailOtp(String email) async {
     try {
-      await client.auth.signInWithOtp(
-        email: email.trim(),
-        shouldCreateUser: false,
-      );
+      await client.auth
+          .signInWithOtp(
+            email: email.trim(),
+            shouldCreateUser: false,
+          )
+          .timeout(const Duration(seconds: 20));
     } on AuthException catch (error) {
+      if (error.code == 'otp_disabled' ||
+          error.message.toLowerCase().contains('signups not allowed for otp')) {
+        throw const AssalAuthFailure(
+          'لا يوجد حساب بهذا البريد الإلكتروني. اختر «إنشاء حساب» أولًا.',
+          code: 'user_not_found',
+        );
+      }
       throw AssalAuthFailure(_messageFor(error),
           code: error.code ?? error.statusCode);
     }
@@ -41,11 +53,13 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   @override
   Future<AssalAuthIdentity?> verifyEmailOtp(String email, String token) async {
     try {
-      final response = await client.auth.verifyOTP(
-        email: email.trim(),
-        token: token.trim(),
-        type: OtpType.email,
-      );
+      final response = await client.auth
+          .verifyOTP(
+            email: email.trim(),
+            token: token.trim(),
+            type: OtpType.email,
+          )
+          .timeout(const Duration(seconds: 20));
       return _identity(response.user);
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
@@ -59,12 +73,14 @@ class SupabaseAuthGateway implements AssalAuthGateway {
       required String email,
       required String password}) async {
     try {
-      final response = await client.auth.signUp(
-        email: email.trim(),
-        password: password,
-        emailRedirectTo: emailRedirectTo,
-        data: <String, Object?>{'display_name': name.trim()},
-      );
+      final response = await client.auth
+          .signUp(
+            email: email.trim(),
+            password: password,
+            emailRedirectTo: emailRedirectTo,
+            data: <String, Object?>{'display_name': name.trim()},
+          )
+          .timeout(const Duration(seconds: 20));
       final identity = _identity(response.user);
       // Supabase returns a user but no session when email confirmation is required.
       // Never treat that response as an authenticated login.
@@ -96,11 +112,13 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   @override
   Future<void> resendEmailConfirmation(String email) async {
     try {
-      await client.auth.resend(
-        email: email.trim(),
-        type: OtpType.signup,
-        emailRedirectTo: emailRedirectTo,
-      );
+      await client.auth
+          .resend(
+            email: email.trim(),
+            type: OtpType.signup,
+            emailRedirectTo: emailRedirectTo,
+          )
+          .timeout(const Duration(seconds: 20));
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
           code: error.code ?? error.statusCode);
@@ -111,11 +129,13 @@ class SupabaseAuthGateway implements AssalAuthGateway {
   Future<AssalAuthIdentity?> verifyEmailConfirmation(
       String email, String token) async {
     try {
-      final response = await client.auth.verifyOTP(
-        email: email.trim(),
-        token: token.trim(),
-        type: OtpType.signup,
-      );
+      final response = await client.auth
+          .verifyOTP(
+            email: email.trim(),
+            token: token.trim(),
+            type: OtpType.signup,
+          )
+          .timeout(const Duration(seconds: 20));
       return _identity(response.user);
     } on AuthException catch (error) {
       throw AssalAuthFailure(_messageFor(error),
@@ -194,6 +214,9 @@ class SupabaseAuthGateway implements AssalAuthGateway {
     }
     if (code == 'invalid_email' || code == 'email_address_invalid') {
       return 'أدخل بريدًا إلكترونيًا صالحًا.';
+    }
+    if (code == 'signup_disabled' || code == 'signup_disabled_for_otp') {
+      return 'إنشاء الحسابات الجديدة غير مفعّل حاليًا. استخدم حسابًا موجودًا أو فعّل التسجيل من إعدادات الخدمة.';
     }
     if (code == 'over_request_rate_limit' ||
         code == 'over_email_send_rate_limit' ||

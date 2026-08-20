@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.assalkom.assalkom"
-    compileSdk = flutter.compileSdkVersion
+    // file_picker requires a newer compile SDK than the legacy Flutter default.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

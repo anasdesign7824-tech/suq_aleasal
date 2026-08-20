@@ -1,0 +1,6 @@
+{
+  "ASSALKOM_MODE": "production",
+  "ASSALKOM_SUPABASE_URL": "https://gvalqfgxrkibuydoiuiz.supabase.co",
+  "ASSALKOM_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_0rwcY5w25Ztp2-f1f_oRFQ_Tx1vn2fD",
+  "ASSALKOM_ANDROID_REDIRECT": "com.assalkom.assalkom://login-callback/"
+}

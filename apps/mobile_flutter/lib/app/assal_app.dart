@@ -5,15 +5,16 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_data/demo_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
-import '../core/demo_loader.dart';
 import '../core/assal_widgets.dart';
+import '../core/supabase_realtime_sync.dart';
 import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
 
 class AssalApp extends StatelessWidget {
-  const AssalApp({super.key, this.repository, this.startupError});
+  const AssalApp({super.key, this.repository, this.startupError, this.realtimeSync});
   final AssalRepository? repository;
   final String? startupError;
+  final SupabaseRealtimeSync? realtimeSync;
   @override
   Widget build(BuildContext context) => MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -24,17 +25,20 @@ class AssalApp extends StatelessWidget {
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
             value: const SystemUiOverlayStyle(
-              statusBarColor: AssalColors.deepBrown,
+              statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.light,
               statusBarBrightness: Brightness.dark,
-              systemNavigationBarColor: AssalColors.deepBrown,
+              systemNavigationBarColor: AssalColors.primaryDark,
               systemNavigationBarIconBrightness: Brightness.light,
+              systemStatusBarContrastEnforced: false,
+              systemNavigationBarContrastEnforced: false,
+              systemNavigationBarDividerColor: Colors.transparent,
             ),
             child: Directionality(
                 textDirection: TextDirection.rtl,
                 child: child ?? const SizedBox.shrink())),
         home: startupError == null
-            ? AssalHomeShell(repository: repository)
+            ? AssalHomeShell(repository: repository, realtimeSync: realtimeSync)
             : AssalStartupErrorScreen(messageAr: startupError!),
       );
 }
@@ -76,8 +80,9 @@ class AssalStartupErrorScreen extends StatelessWidget {
 }
 
 class AssalHomeShell extends StatefulWidget {
-  const AssalHomeShell({super.key, this.repository});
+  const AssalHomeShell({super.key, this.repository, this.realtimeSync});
   final AssalRepository? repository;
+  final SupabaseRealtimeSync? realtimeSync;
   @override
   State<AssalHomeShell> createState() => _AssalHomeShellState();
 }
@@ -90,7 +95,16 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
   void initState() {
     super.initState();
     repository = widget.repository ??
-        DemoRepository(loader: const RootBundleDemoCatalogLoader());
+        DemoRepository(loader: const InMemoryDemoCatalogLoader('{}'));
+    widget.realtimeSync?.start(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.realtimeSync?.dispose();
+    super.dispose();
   }
 
   @override
@@ -101,10 +115,10 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         onOpenSearch: _openSearch,
         onOpenNotifications: _openNotifications,
       ),
-      StoresScreen(repository: repository),
-      CategoriesScreen(repository: repository),
-      MessagesScreen(repository: repository),
-      ProfileScreen(repository: repository),
+      StoresScreen(repository: repository, showAppBar: false),
+      CategoriesScreen(repository: repository, showAppBar: false),
+      MessagesScreen(repository: repository, showAppBar: false),
+      ProfileScreen(repository: repository, showAppBar: false),
     ];
     const destinations = [
       NavigationDestination(
@@ -135,12 +149,37 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
     ];
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 900;
-      final content =
-          SafeArea(child: IndexedStack(index: selectedIndex, children: pages));
+      final content = SafeArea(
+        top: false,
+        bottom: false,
+        child: ColoredBox(
+          color: AssalColors.cream,
+          child: IndexedStack(index: selectedIndex, children: pages),
+        ),
+      );
+      final pageTitle = switch (selectedIndex) {
+        1 => 'المتاجر',
+        2 => 'التصنيفات',
+        3 => 'المراسلات',
+        4 => 'حسابي',
+        _ => 'عسلكم',
+      };
+      // Desktop keeps its own framed column; mobile uses the single outer
+      // Scaffold below so an AppBar is never mounted twice.
+      final wideContent = selectedIndex == 0
+          ? content
+          : Scaffold(
+              backgroundColor: AssalColors.cream,
+              appBar: AssalAppBar(title: pageTitle),
+              body: content,
+            );
       if (wide) {
         return Scaffold(
+            backgroundColor: AssalColors.cream,
             body: Row(children: [
-          NavigationRail(
+          DecoratedBox(
+            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            child: NavigationRail(
               selectedIndex: selectedIndex,
               onDestinationSelected: (index) =>
                   setState(() => selectedIndex = index),
@@ -151,21 +190,33 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
                       selectedIcon: item.selectedIcon ?? item.icon,
                       label: Text(item.label)))
                   .toList()),
-          Expanded(child: content)
+          ),
+          Expanded(child: wideContent)
         ]));
       }
       return Scaffold(
+          backgroundColor: AssalColors.cream,
+          // Keep the scrollable page above the navigation bar. Extending the
+          // body here made the profile actions look clipped at the bottom.
+          extendBody: false,
+          appBar: selectedIndex == 0
+              ? null
+              : AssalAppBar(title: pageTitle),
           body: content,
-          bottomNavigationBar: NavigationBar(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) =>
-                  setState(() => selectedIndex = index),
-              destinations: destinations));
+          bottomNavigationBar: DecoratedBox(
+            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            child: NavigationBar(
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (index) =>
+                    setState(() => selectedIndex = index),
+                destinations: destinations),
+          ));
     });
   }
 
   void _openSearch() => Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => SearchScreen(repository: repository)));
+
   void _openNotifications() => Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => NotificationsScreen(repository: repository)));
 }

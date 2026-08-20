@@ -1,14 +1,88 @@
 import 'dart:convert';
 
 enum AssalRole { guest, customer, merchant, admin }
+
 enum ProductType { honey, wax, mix, raw, gift }
+
 enum ProductStatus { draft, pending, active, paused, rejected }
+
 enum StoreStatus { pending, active, paused, rejected, suspended }
+
 enum VerificationStatus { pending, verified, rejected, suspended }
+
+enum StoreVerificationStatus {
+  notRequested,
+  draft,
+  paymentPending,
+  submitted,
+  underReview,
+  needsMoreInfo,
+  approved,
+  rejected,
+  expired,
+  revoked,
+}
+
+enum VerificationPaymentStatus {
+  notStarted,
+  pending,
+  paid,
+  failed,
+  refunded,
+  waived,
+}
+
+enum VerificationDocumentType {
+  identity,
+  businessRegistration,
+  taxOrLicense,
+  originCertificate,
+  qualityCertificate,
+  addressProof,
+  other,
+}
+
 enum ReviewStatus { pending, approved, rejected, hidden }
+
 enum RequestStatus { open, inProgress, answered, closed, cancelled }
 
 enum HandoffOption { pickup, delivery, office, courier, contact }
+
+extension StoreStatusLabel on StoreStatus {
+  String get labelAr => switch (this) {
+        StoreStatus.pending => 'قيد التفعيل',
+        StoreStatus.active => 'مفعّل',
+        StoreStatus.paused => 'متوقف مؤقتًا',
+        StoreStatus.rejected => 'مرفوض',
+        StoreStatus.suspended => 'معلّق',
+      };
+}
+
+extension StoreVerificationStatusLabel on StoreVerificationStatus {
+  String get labelAr => switch (this) {
+        StoreVerificationStatus.notRequested => 'لم يُطلب التوثيق',
+        StoreVerificationStatus.draft => 'مسودة توثيق',
+        StoreVerificationStatus.paymentPending => 'بانتظار الرسوم',
+        StoreVerificationStatus.submitted => 'أُرسل للمراجعة',
+        StoreVerificationStatus.underReview => 'قيد المراجعة',
+        StoreVerificationStatus.needsMoreInfo => 'تحتاج معلومات إضافية',
+        StoreVerificationStatus.approved => 'موثق Pro',
+        StoreVerificationStatus.rejected => 'لم يُعتمد التوثيق',
+        StoreVerificationStatus.expired => 'انتهى التوثيق',
+        StoreVerificationStatus.revoked => 'سُحب التوثيق',
+      };
+}
+
+extension VerificationPaymentStatusLabel on VerificationPaymentStatus {
+  String get labelAr => switch (this) {
+        VerificationPaymentStatus.notStarted => 'لم تبدأ الرسوم',
+        VerificationPaymentStatus.pending => 'بانتظار تأكيد الدفع',
+        VerificationPaymentStatus.paid => 'تم الدفع',
+        VerificationPaymentStatus.failed => 'فشل الدفع',
+        VerificationPaymentStatus.refunded => 'تم رد الرسوم',
+        VerificationPaymentStatus.waived => 'معفى من الرسوم',
+      };
+}
 
 extension RequestStatusWire on RequestStatus {
   String get wireValue => switch (this) {
@@ -39,7 +113,13 @@ extension HandoffOptionLabel on HandoffOption {
 }
 
 class AssalRegion {
-  const AssalRegion({required this.id, required this.nameAr, this.nameEn, this.code, this.parentRegionId, this.isActive = true});
+  const AssalRegion(
+      {required this.id,
+      required this.nameAr,
+      this.nameEn,
+      this.code,
+      this.parentRegionId,
+      this.isActive = true});
   final String id;
   final String nameAr;
   final String? nameEn;
@@ -58,7 +138,13 @@ class AssalRegion {
 }
 
 class AssalTaxonomy {
-  const AssalTaxonomy({required this.id, required this.code, required this.nameAr, this.nameEn, this.description, this.metadata = const <String, Object?>{}});
+  const AssalTaxonomy(
+      {required this.id,
+      required this.code,
+      required this.nameAr,
+      this.nameEn,
+      this.description,
+      this.metadata = const <String, Object?>{}});
   final String id;
   final String code;
   final String nameAr;
@@ -77,7 +163,15 @@ class AssalTaxonomy {
 }
 
 class AssalBannerSummary {
-  const AssalBannerSummary({required this.id, required this.titleAr, required this.descriptionAr, required this.ctaLabelAr, required this.imageUrl, this.targetQuery, this.sortOrder = 0, this.isActive = true});
+  const AssalBannerSummary(
+      {required this.id,
+      required this.titleAr,
+      required this.descriptionAr,
+      required this.ctaLabelAr,
+      required this.imageUrl,
+      this.targetQuery,
+      this.sortOrder = 0,
+      this.isActive = true});
   final String id;
   final String titleAr;
   final String descriptionAr;
@@ -87,7 +181,8 @@ class AssalBannerSummary {
   final int sortOrder;
   final bool isActive;
 
-  factory AssalBannerSummary.fromJson(Map<String, Object?> json) => AssalBannerSummary(
+  factory AssalBannerSummary.fromJson(Map<String, Object?> json) =>
+      AssalBannerSummary(
         id: _string(json['id']),
         titleAr: _string(json['title_ar']),
         descriptionAr: _string(json['description_ar']),
@@ -122,8 +217,313 @@ class AssalCategorySummary {
         nameAr: _string(json['name_ar']),
         nameEn: _stringOrNull(json['name_en']),
         description: _stringOrNull(json['description']),
-        productType: _productType(_string(json['category_kind'], fallback: 'honey')),
+        productType:
+            _productType(_string(json['category_kind'], fallback: 'honey')),
         productCount: _int(json['product_count']),
+      );
+}
+
+class AssalStoreVerificationSummary {
+  const AssalStoreVerificationSummary({
+    required this.id,
+    required this.storeId,
+    required this.merchantId,
+    required this.status,
+    required this.paymentStatus,
+    this.planCode = 'pro',
+    this.reviewNote,
+    this.submittedAt,
+    this.reviewedAt,
+    this.expiresAt,
+    this.documentCount = 0,
+    this.documentTypes = const <String>[],
+  });
+
+  final String id;
+  final String storeId;
+  final String merchantId;
+  final StoreVerificationStatus status;
+  final VerificationPaymentStatus paymentStatus;
+  final String planCode;
+  final String? reviewNote;
+  final DateTime? submittedAt;
+  final DateTime? reviewedAt;
+  final DateTime? expiresAt;
+  final int documentCount;
+  final List<String> documentTypes;
+
+  factory AssalStoreVerificationSummary.fromJson(Map<String, Object?> json) =>
+      AssalStoreVerificationSummary(
+        id: _string(json['id']),
+        storeId: _string(json['store_id']),
+        merchantId: _string(json['merchant_id']),
+        status: _storeVerificationStatus(
+          _string(json['status'], fallback: 'not_requested'),
+        ),
+        paymentStatus: _verificationPaymentStatus(
+          _string(json['payment_status'], fallback: 'not_started'),
+        ),
+        planCode: _string(json['plan_code'], fallback: 'pro'),
+        reviewNote: _stringOrNull(json['review_note']),
+        submittedAt: _dateOrNull(json['submitted_at']),
+        reviewedAt: _dateOrNull(json['reviewed_at']),
+        expiresAt: _dateOrNull(json['expires_at']),
+        documentCount: _int(json['document_count']),
+        documentTypes: _strings(json['document_types']),
+      );
+}
+
+class AssalVerificationDocumentDraft {
+  const AssalVerificationDocumentDraft({
+    required this.documentType,
+    required this.filePath,
+    required this.fileName,
+    required this.mimeType,
+    required this.byteSize,
+  });
+
+  final VerificationDocumentType documentType;
+  final String filePath;
+  final String fileName;
+  final String mimeType;
+  final int byteSize;
+}
+
+class AssalStoreVerificationDraft {
+  const AssalStoreVerificationDraft({
+    required this.storeId,
+    this.planCode = 'pro',
+    this.paymentStatus = VerificationPaymentStatus.notStarted,
+  });
+
+  final String storeId;
+  final String planCode;
+  final VerificationPaymentStatus paymentStatus;
+}
+
+class AssalSubscriptionPlan {
+  const AssalSubscriptionPlan({
+    required this.id,
+    required this.code,
+    required this.nameAr,
+    required this.billingInterval,
+    required this.priceAmount,
+    required this.currency,
+    required this.storeLimit,
+    required this.productLimit,
+    required this.verificationIncluded,
+    this.entitlements = const <String, Object?>{},
+    this.isActive = true,
+  });
+
+  final String id;
+  final String code;
+  final String nameAr;
+  final String billingInterval;
+  final double priceAmount;
+  final String currency;
+  final int storeLimit;
+  final int productLimit;
+  final int verificationIncluded;
+  final Map<String, Object?> entitlements;
+  final bool isActive;
+
+  factory AssalSubscriptionPlan.fromJson(Map<String, Object?> json) =>
+      AssalSubscriptionPlan(
+        id: _string(json['id']),
+        code: _string(json['code']),
+        nameAr: _string(json['name_ar']),
+        billingInterval: _string(json['billing_interval'], fallback: 'month'),
+        priceAmount: _number(json['price_amount']),
+        currency: _string(json['currency'], fallback: 'SAR'),
+        storeLimit: _int(json['store_limit']),
+        productLimit: _int(json['product_limit']),
+        verificationIncluded: _int(json['verification_included']),
+        entitlements: _map(json['entitlements']),
+        isActive: json['is_active'] != false,
+      );
+}
+
+class AssalSubscriptionCampaign {
+  const AssalSubscriptionCampaign({
+    required this.id,
+    required this.nameAr,
+    required this.discountPercent,
+    this.discountByPlanCode = const <String, double>{},
+    required this.isActive,
+    this.startsAt,
+    this.endsAt,
+    this.appliesTo = const <String>[],
+  });
+
+  final String id;
+  final String nameAr;
+  final double discountPercent;
+  final Map<String, double> discountByPlanCode;
+  final bool isActive;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+  final List<String> appliesTo;
+
+  factory AssalSubscriptionCampaign.fromJson(Map<String, Object?> json) =>
+      AssalSubscriptionCampaign(
+        id: _string(json['id']),
+        nameAr: _string(json['name_ar']),
+        discountPercent: _number(json['discount_percent']),
+        discountByPlanCode: _numberMap(json['discount_by_plan_code']),
+        isActive: json['is_active'] == true,
+        startsAt: _dateOrNull(json['starts_at']),
+        endsAt: _dateOrNull(json['ends_at']),
+        appliesTo: _strings(json['applies_to']),
+      );
+}
+
+class AssalLocalTransferSettings {
+  const AssalLocalTransferSettings({
+    this.bankName,
+    this.beneficiaryName,
+    this.accountNumber,
+    this.iban,
+    this.phone,
+    this.instructionsAr,
+    this.logoUrl,
+    this.isActive = false,
+  });
+
+  final String? bankName;
+  final String? beneficiaryName;
+  final String? accountNumber;
+  final String? iban;
+  final String? phone;
+  final String? instructionsAr;
+  final String? logoUrl;
+  final bool isActive;
+
+  factory AssalLocalTransferSettings.fromJson(Map<String, Object?> json) =>
+      AssalLocalTransferSettings(
+        bankName: _stringOrNull(json['bank_name']),
+        beneficiaryName: _stringOrNull(json['beneficiary_name']),
+        accountNumber: _stringOrNull(json['account_number']),
+        iban: _stringOrNull(json['iban']),
+        phone: _stringOrNull(json['phone']),
+        instructionsAr: _stringOrNull(json['instructions_ar']),
+        logoUrl: _stringOrNull(json['logo_url']),
+        isActive: json['is_active'] == true,
+      );
+}
+
+class AssalPaymentRequest {
+  const AssalPaymentRequest({
+    required this.id,
+    required this.paymentType,
+    required this.status,
+    required this.baseAmount,
+    required this.discountPercent,
+    required this.finalAmount,
+    required this.currency,
+    this.planId,
+    this.paymentReference,
+    this.proofPath,
+    this.createdAt,
+  });
+
+  final String id;
+  final String paymentType;
+  final String status;
+  final double baseAmount;
+  final double discountPercent;
+  final double finalAmount;
+  final String currency;
+  final String? planId;
+  final String? paymentReference;
+  final String? proofPath;
+  final DateTime? createdAt;
+
+  factory AssalPaymentRequest.fromJson(Map<String, Object?> json) =>
+      AssalPaymentRequest(
+        id: _string(json['id']),
+        paymentType: _string(json['payment_type']),
+        status: _string(json['status'], fallback: 'not_started'),
+        baseAmount: _number(json['base_amount']),
+        discountPercent: _number(json['discount_percent']),
+        finalAmount: _number(json['final_amount']),
+        currency: _string(json['currency'], fallback: 'SAR'),
+        planId: _stringOrNull(json['plan_id']),
+        paymentReference: _stringOrNull(json['payment_reference']),
+        proofPath: _stringOrNull(json['proof_path']),
+        createdAt: _dateOrNull(json['created_at']),
+      );
+}
+
+class AssalMerchantSubscription {
+  const AssalMerchantSubscription({
+    required this.id,
+    required this.merchantId,
+    required this.planId,
+    required this.status,
+    this.startsAt,
+    this.endsAt,
+  });
+
+  final String id;
+  final String merchantId;
+  final String planId;
+  final String status;
+  final DateTime? startsAt;
+  final DateTime? endsAt;
+
+  factory AssalMerchantSubscription.fromJson(Map<String, Object?> json) =>
+      AssalMerchantSubscription(
+        id: _string(json['id']),
+        merchantId: _string(json['merchant_id']),
+        planId: _string(json['plan_id']),
+        status: _string(json['status'], fallback: 'pending'),
+        startsAt: _dateOrNull(json['starts_at']),
+        endsAt: _dateOrNull(json['ends_at']),
+      );
+}
+
+class AssalDesignRequestDraft {
+  const AssalDesignRequestDraft({
+    required this.title,
+    required this.description,
+    this.brandName,
+    this.brandColors = const <String>[],
+    this.productScope = const <String, Object?>{},
+  });
+
+  final String title;
+  final String description;
+  final String? brandName;
+  final List<String> brandColors;
+  final Map<String, Object?> productScope;
+}
+
+class AssalDesignRequest {
+  const AssalDesignRequest({
+    required this.id,
+    required this.storeId,
+    required this.title,
+    required this.description,
+    required this.status,
+    this.createdAt,
+  });
+
+  final String id;
+  final String storeId;
+  final String title;
+  final String description;
+  final String status;
+  final DateTime? createdAt;
+
+  factory AssalDesignRequest.fromJson(Map<String, Object?> json) =>
+      AssalDesignRequest(
+        id: _string(json['id']),
+        storeId: _string(json['store_id']),
+        title: _string(json['title']),
+        description: _string(json['description']),
+        status: _string(json['status'], fallback: 'submitted'),
+        createdAt: _dateOrNull(json['created_at']),
       );
 }
 
@@ -186,7 +586,8 @@ class AssalStoreSummary {
   final List<String> specialties;
   final List<String> certifications;
 
-  factory AssalStoreSummary.fromJson(Map<String, Object?> json) => AssalStoreSummary(
+  factory AssalStoreSummary.fromJson(Map<String, Object?> json) =>
+      AssalStoreSummary(
         id: _string(json['id']),
         merchantId: _string(json['merchant_id']),
         nameAr: _string(json['name_ar']),
@@ -314,6 +715,59 @@ class AssalProductSummary {
   final String? harvestLabel;
   final List<String> certifications;
 
+  AssalProductSummary copyWith({
+    String? primaryImageUrl,
+    List<String>? imageUrls,
+  }) =>
+      AssalProductSummary(
+        id: id,
+        storeId: storeId,
+        nameAr: nameAr,
+        nameEn: nameEn,
+        description: description,
+        productType: productType,
+        status: status,
+        taxonomyId: taxonomyId,
+        categoryNameAr: categoryNameAr,
+        subcategoryNameAr: subcategoryNameAr,
+        regionNameAr: regionNameAr,
+        gradeLevel: gradeLevel,
+        gradeLevels: gradeLevels,
+        gradeLabelAr: gradeLabelAr,
+        gradeLabels: gradeLabels,
+        components: components,
+        isFeatured: isFeatured,
+        primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
+        imageUrls: imageUrls ?? this.imageUrls,
+        originCountry: originCountry,
+        provinceNameAr: provinceNameAr,
+        honeyIdentity: honeyIdentity,
+        qualityLabelAr: qualityLabelAr,
+        processingMethodAr: processingMethodAr,
+        processingStatusAr: processingStatusAr,
+        packagingLabelAr: packagingLabelAr,
+        productionDate: productionDate,
+        packagedDate: packagedDate,
+        shelfLifeLabelAr: shelfLifeLabelAr,
+        deliveryOptions: deliveryOptions,
+        pickupLocations: pickupLocations,
+        viewsCount: viewsCount,
+        likesCount: likesCount,
+        price: price,
+        currencyCode: currencyCode,
+        ratingAverage: ratingAverage,
+        reviewCount: reviewCount,
+        tags: tags,
+        badges: badges,
+        regions: regions,
+        forms: forms,
+        purpose: purpose,
+        availability: availability,
+        weightLabel: weightLabel,
+        harvestLabel: harvestLabel,
+        certifications: certifications,
+      );
+
   factory AssalProductSummary.fromJson(Map<String, Object?> json) {
     final levels = _ints(json['grade_levels']);
     return AssalProductSummary(
@@ -322,13 +776,15 @@ class AssalProductSummary {
       nameAr: _string(json['name_ar']),
       nameEn: _stringOrNull(json['name_en']),
       description: _stringOrNull(json['description']),
-      productType: _productType(_string(json['product_type'], fallback: 'honey')),
+      productType:
+          _productType(_string(json['product_type'], fallback: 'honey')),
       status: _productStatus(_string(json['status'], fallback: 'draft')),
       taxonomyId: _stringOrNull(json['subcategory_id'] ?? json['taxonomy_id']),
       categoryNameAr: _stringOrNull(json['category_name_ar']),
       subcategoryNameAr: _stringOrNull(json['subcategory_name_ar']),
       regionNameAr: _stringOrNull(json['region_name_ar']),
-      gradeLevel: _intOrNull(json['grade_level']) ?? (levels.isEmpty ? null : levels.first),
+      gradeLevel: _intOrNull(json['grade_level']) ??
+          (levels.isEmpty ? null : levels.first),
       gradeLevels: levels,
       gradeLabelAr: _stringOrNull(json['grade_label_ar']),
       gradeLabels: _valueStrings(json['grades'] ?? json['grade_labels']),
@@ -368,7 +824,20 @@ class AssalProductSummary {
 }
 
 class AssalReviewSummary {
-  const AssalReviewSummary({required this.id, required this.productId, required this.storeId, required this.authorId, required this.rating, required this.status, this.authorName, this.body, this.createdAt, this.updatedAt, this.helpfulCount = 0, this.merchantReply, this.isLocal = false});
+  const AssalReviewSummary(
+      {required this.id,
+      required this.productId,
+      required this.storeId,
+      required this.authorId,
+      required this.rating,
+      required this.status,
+      this.authorName,
+      this.body,
+      this.createdAt,
+      this.updatedAt,
+      this.helpfulCount = 0,
+      this.merchantReply,
+      this.isLocal = false});
   final String id;
   final String productId;
   final String storeId;
@@ -383,7 +852,8 @@ class AssalReviewSummary {
   final String? merchantReply;
   final bool isLocal;
 
-  factory AssalReviewSummary.fromJson(Map<String, Object?> json) => AssalReviewSummary(
+  factory AssalReviewSummary.fromJson(Map<String, Object?> json) =>
+      AssalReviewSummary(
         id: _string(json['id']),
         productId: _string(json['product_id']),
         storeId: _string(json['store_id']),
@@ -401,7 +871,19 @@ class AssalReviewSummary {
 }
 
 class AssalCommentSummary {
-  const AssalCommentSummary({required this.id, required this.targetId, required this.authorId, required this.authorName, required this.body, this.parentId, this.createdAt, this.updatedAt, this.likeCount = 0, this.replyCount = 0, this.isLiked = false, this.isLocal = false});
+  const AssalCommentSummary(
+      {required this.id,
+      required this.targetId,
+      required this.authorId,
+      required this.authorName,
+      required this.body,
+      this.parentId,
+      this.createdAt,
+      this.updatedAt,
+      this.likeCount = 0,
+      this.replyCount = 0,
+      this.isLiked = false,
+      this.isLocal = false});
   final String id;
   final String targetId;
   final String authorId;
@@ -415,7 +897,8 @@ class AssalCommentSummary {
   final bool isLiked;
   final bool isLocal;
 
-  factory AssalCommentSummary.fromJson(Map<String, Object?> json) => AssalCommentSummary(
+  factory AssalCommentSummary.fromJson(Map<String, Object?> json) =>
+      AssalCommentSummary(
         id: _string(json['id']),
         targetId: _string(json['target_id']),
         authorId: _string(json['author_id']),
@@ -471,7 +954,8 @@ class AssalRequestSummary {
   final DateTime? updatedAt;
   final DateTime? createdAt;
 
-  factory AssalRequestSummary.fromJson(Map<String, Object?> json) => AssalRequestSummary(
+  factory AssalRequestSummary.fromJson(Map<String, Object?> json) =>
+      AssalRequestSummary(
         id: _string(json['id']),
         requesterId: _string(json['requester_id']),
         storeId: _string(json['store_id']),
@@ -494,26 +978,159 @@ class AssalRequestSummary {
 }
 
 class AssalMerchantApplicationDraft {
-  const AssalMerchantApplicationDraft({required this.displayName, required this.phone, required this.experience, required this.location, required this.specialties, this.certificateNote});
+  const AssalMerchantApplicationDraft({
+    required this.displayName,
+    required this.phone,
+    required this.experience,
+    required this.location,
+    required this.specialties,
+    this.certificateNote,
+    this.storeDescription,
+    this.regionId,
+    this.logoUrl,
+    this.coverUrl,
+  });
   final String displayName;
   final String phone;
   final String experience;
   final String location;
   final String specialties;
   final String? certificateNote;
+  final String? storeDescription;
+  final String? regionId;
+  final String? logoUrl;
+  final String? coverUrl;
 }
 
 class AssalMerchantApplicationSummary {
-  const AssalMerchantApplicationSummary({required this.id, required this.userId, required this.status, required this.displayName, required this.submittedAt});
+  const AssalMerchantApplicationSummary({
+    required this.id,
+    required this.userId,
+    required this.status,
+    required this.displayName,
+    required this.submittedAt,
+    this.reviewNote,
+    this.storeId,
+    this.storeStatus,
+    this.storeVerified = false,
+    this.storeLogoUrl,
+    this.storeCoverUrl,
+  });
   final String id;
   final String userId;
   final String status;
   final String displayName;
   final DateTime submittedAt;
+  final String? reviewNote;
+  final String? storeId;
+  final String? storeStatus;
+  final bool storeVerified;
+  final String? storeLogoUrl;
+  final String? storeCoverUrl;
+}
+
+class AssalMerchantWorkspaceDraft {
+  const AssalMerchantWorkspaceDraft({
+    required this.businessName,
+    this.description,
+    this.regionId,
+    this.phone,
+    this.logoUrl,
+    this.coverUrl,
+  });
+
+  final String businessName;
+  final String? description;
+  final String? regionId;
+  final String? phone;
+  final String? logoUrl;
+  final String? coverUrl;
+}
+
+class AssalMerchantWorkspaceSummary {
+  const AssalMerchantWorkspaceSummary({
+    required this.store,
+    required this.verificationStatus,
+    required this.publicStatus,
+    this.canEdit = true,
+    this.canPublish = false,
+    this.planCode,
+    this.planStatus,
+    this.storeLimit = 1,
+    this.productLimit = 25,
+    this.designRequestsRemaining = 0,
+  });
+
+  final AssalStoreSummary store;
+  final String verificationStatus;
+  final String publicStatus;
+  final bool canEdit;
+  final bool canPublish;
+  final String? planCode;
+  final String? planStatus;
+  final int storeLimit;
+  final int productLimit;
+  final int designRequestsRemaining;
+
+  factory AssalMerchantWorkspaceSummary.fromJson(Map<String, Object?> json) {
+    final rawStore = json['store'];
+    final store = rawStore is Map
+        ? AssalStoreSummary.fromJson(rawStore.cast<String, Object?>())
+        : AssalStoreSummary(
+            id: '',
+            merchantId: '',
+            nameAr: '',
+            slug: '',
+          );
+    return AssalMerchantWorkspaceSummary(
+      store: store,
+      verificationStatus: _string(
+        json['verification_status'],
+        fallback: 'pending',
+      ),
+      publicStatus: _string(json['public_status'], fallback: 'pending'),
+      canEdit: json['can_edit'] as bool? ?? true,
+      canPublish: json['can_publish'] as bool? ?? false,
+      planCode: _stringOrNull(json['plan_code']),
+      planStatus: _stringOrNull(json['plan_status']),
+      storeLimit: json['store_limit'] == null ? 1 : _int(json['store_limit']),
+      productLimit: json['product_limit'] == null ? 25 : _int(json['product_limit']),
+      designRequestsRemaining: _int(json['design_requests_remaining']),
+    );
+  }
+}
+
+class AssalProductDraft {
+  const AssalProductDraft({
+    required this.nameAr,
+    this.nameEn,
+    this.description,
+    this.taxonomyId,
+    this.productType = ProductType.honey,
+    this.gradeLevel,
+    this.metadata = const <String, Object?>{},
+    this.imageUrls = const <String>[],
+  });
+
+  final String nameAr;
+  final String? nameEn;
+  final String? description;
+  final String? taxonomyId;
+  final ProductType productType;
+  final int? gradeLevel;
+  final Map<String, Object?> metadata;
+  final List<String> imageUrls;
 }
 
 class AssalNotificationSummary {
-  const AssalNotificationSummary({required this.id, required this.userId, required this.notificationType, required this.titleAr, this.bodyAr, this.payload = const <String, Object?>{}, this.readAt});
+  const AssalNotificationSummary(
+      {required this.id,
+      required this.userId,
+      required this.notificationType,
+      required this.titleAr,
+      this.bodyAr,
+      this.payload = const <String, Object?>{},
+      this.readAt});
   final String id;
   final String userId;
   final String notificationType;
@@ -522,7 +1139,8 @@ class AssalNotificationSummary {
   final Map<String, Object?> payload;
   final DateTime? readAt;
 
-  factory AssalNotificationSummary.fromJson(Map<String, Object?> json) => AssalNotificationSummary(
+  factory AssalNotificationSummary.fromJson(Map<String, Object?> json) =>
+      AssalNotificationSummary(
         id: _string(json['id']),
         userId: _string(json['user_id']),
         notificationType: _string(json['notification_type']),
@@ -534,11 +1152,26 @@ class AssalNotificationSummary {
 }
 
 class AssalUserProfile {
-  const AssalUserProfile({required this.id, required this.nameAr, this.email, this.avatarUrl, this.bio, this.phone, this.location, this.preferences = const <String, Object?>{}, this.createdAt, this.updatedAt, this.followersCount = 0, this.followingCount = 0, this.role = AssalRole.customer});
+  const AssalUserProfile(
+      {required this.id,
+      required this.nameAr,
+      this.email,
+      this.avatarUrl,
+      this.coverUrl,
+      this.bio,
+      this.phone,
+      this.location,
+      this.preferences = const <String, Object?>{},
+      this.createdAt,
+      this.updatedAt,
+      this.followersCount = 0,
+      this.followingCount = 0,
+      this.role = AssalRole.customer});
   final String id;
   final String nameAr;
   final String? email;
   final String? avatarUrl;
+  final String? coverUrl;
   final String? bio;
   final String? phone;
   final String? location;
@@ -549,14 +1182,16 @@ class AssalUserProfile {
   final int followingCount;
   final AssalRole role;
 
-  factory AssalUserProfile.fromJson(Map<String, Object?> json) => AssalUserProfile(
+  factory AssalUserProfile.fromJson(Map<String, Object?> json) =>
+      AssalUserProfile(
         id: _string(json['id']),
         nameAr: _string(json['name_ar'], fallback: 'عميل عسلكم'),
         email: _stringOrNull(json['email']),
         avatarUrl: _stringOrNull(json['avatar_url']),
+        coverUrl: _stringOrNull(json['cover_url']),
         bio: _stringOrNull(json['bio']),
         phone: _stringOrNull(json['phone']),
-        location: _stringOrNull(json['location']),
+        location: _stringOrNull(json['location'] ?? json['location_label']),
         preferences: _map(json['preferences']),
         createdAt: _dateOrNull(json['created_at']),
         updatedAt: _dateOrNull(json['updated_at']),
@@ -566,16 +1201,60 @@ class AssalUserProfile {
       );
 }
 
+class AssalUserProfilePatch {
+  const AssalUserProfilePatch(
+      {this.nameAr,
+      this.bio,
+      this.phone,
+      this.locationLabel,
+      this.avatarUrl,
+      this.coverUrl,
+      this.latitude,
+      this.longitude});
+  final String? nameAr;
+  final String? bio;
+  final String? phone;
+  final String? locationLabel;
+  final String? avatarUrl;
+  final String? coverUrl;
+  final double? latitude;
+  final double? longitude;
+}
+
 class AssalSession {
-  const AssalSession({required this.isAuthenticated, required this.role, this.user});
+  const AssalSession({
+    required this.isAuthenticated,
+    required this.role,
+    this.user,
+    this.isUnavailable = false,
+    this.errorMessageAr,
+  });
   final bool isAuthenticated;
   final AssalRole role;
   final AssalUserProfile? user;
-  static const guest = AssalSession(isAuthenticated: false, role: AssalRole.guest);
+  final bool isUnavailable;
+  final String? errorMessageAr;
+  static const guest =
+      AssalSession(isAuthenticated: false, role: AssalRole.guest);
+
+  static const unavailable = AssalSession(
+    isAuthenticated: false,
+    role: AssalRole.guest,
+    isUnavailable: true,
+    errorMessageAr: 'تعذر مزامنة جلسة الحساب. حاول مرة أخرى.',
+  );
 }
 
 class AssalConversationSummary {
-  const AssalConversationSummary({required this.id, required this.storeId, required this.storeName, required this.lastMessage, required this.updatedAt, this.participantIds = const <String>[], this.unreadCount = 0, this.lastReadAt});
+  const AssalConversationSummary(
+      {required this.id,
+      required this.storeId,
+      required this.storeName,
+      required this.lastMessage,
+      required this.updatedAt,
+      this.participantIds = const <String>[],
+      this.unreadCount = 0,
+      this.lastReadAt});
   final String id;
   final String storeId;
   final String storeName;
@@ -585,12 +1264,14 @@ class AssalConversationSummary {
   final int unreadCount;
   final DateTime? lastReadAt;
 
-  factory AssalConversationSummary.fromJson(Map<String, Object?> json) => AssalConversationSummary(
+  factory AssalConversationSummary.fromJson(Map<String, Object?> json) =>
+      AssalConversationSummary(
         id: _string(json['id']),
         storeId: _string(json['store_id']),
         storeName: _string(json['store_name'], fallback: 'متجر عسلكم'),
         lastMessage: _string(json['last_message']),
-        updatedAt: _dateOrNull(json['updated_at']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+        updatedAt: _dateOrNull(json['updated_at']) ??
+            DateTime.fromMillisecondsSinceEpoch(0),
         participantIds: _strings(json['participant_ids']),
         unreadCount: _int(json['unread_count']),
         lastReadAt: _dateOrNull(json['last_read_at']),
@@ -598,7 +1279,15 @@ class AssalConversationSummary {
 }
 
 class AssalMessageSummary {
-  const AssalMessageSummary({required this.id, required this.conversationId, required this.senderId, required this.body, required this.sentAt, this.isMine = false, this.readAt, this.attachments = const <String>[]});
+  const AssalMessageSummary(
+      {required this.id,
+      required this.conversationId,
+      required this.senderId,
+      required this.body,
+      required this.sentAt,
+      this.isMine = false,
+      this.readAt,
+      this.attachments = const <String>[]});
   final String id;
   final String conversationId;
   final String senderId;
@@ -608,44 +1297,127 @@ class AssalMessageSummary {
   final DateTime? readAt;
   final List<String> attachments;
 
-  factory AssalMessageSummary.fromJson(Map<String, Object?> json) => AssalMessageSummary(
+  factory AssalMessageSummary.fromJson(Map<String, Object?> json) =>
+      AssalMessageSummary(
         id: _string(json['id']),
         conversationId: _string(json['conversation_id']),
         senderId: _string(json['sender_id']),
         body: _string(json['body']),
-        sentAt: _dateOrNull(json['sent_at']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+        sentAt: _dateOrNull(json['sent_at']) ??
+            DateTime.fromMillisecondsSinceEpoch(0),
         isMine: json['is_mine'] as bool? ?? false,
         readAt: _dateOrNull(json['read_at']),
         attachments: _strings(json['attachments']),
       );
 }
 
-sealed class AssalLoadState<T> { const AssalLoadState(); }
-final class AssalLoading<T> extends AssalLoadState<T> { const AssalLoading(); }
-final class AssalData<T> extends AssalLoadState<T> { const AssalData(this.value); final T value; }
-final class AssalEmpty<T> extends AssalLoadState<T> { const AssalEmpty(this.messageAr); final String messageAr; }
-final class AssalError<T> extends AssalLoadState<T> { const AssalError(this.messageAr, {this.code}); final String messageAr; final String? code; }
+sealed class AssalLoadState<T> {
+  const AssalLoadState();
+}
 
-String _string(Object? value, {String fallback = ''}) => value is String ? value : fallback;
-String? _stringOrNull(Object? value) => value is String && value.trim().isNotEmpty ? value : null;
-int _int(Object? value) => value is num ? value.toInt() : int.tryParse('$value') ?? 0;
+final class AssalLoading<T> extends AssalLoadState<T> {
+  const AssalLoading();
+}
+
+final class AssalData<T> extends AssalLoadState<T> {
+  const AssalData(this.value);
+  final T value;
+}
+
+final class AssalEmpty<T> extends AssalLoadState<T> {
+  const AssalEmpty(this.messageAr);
+  final String messageAr;
+}
+
+enum AssalErrorKind {
+  network,
+  unauthorized,
+  schemaMismatch,
+  validation,
+  server,
+  unknown,
+}
+
+final class AssalError<T> extends AssalLoadState<T> {
+  const AssalError(
+    this.messageAr, {
+    this.code,
+    this.kind = AssalErrorKind.unknown,
+    this.retryable = false,
+  });
+  final String messageAr;
+  final String? code;
+  final AssalErrorKind kind;
+  final bool retryable;
+}
+
+String _string(Object? value, {String fallback = ''}) =>
+    value is String ? value : fallback;
+String? _stringOrNull(Object? value) =>
+    value is String && value.trim().isNotEmpty ? value : null;
+int _int(Object? value) =>
+    value is num ? value.toInt() : int.tryParse('$value') ?? 0;
 int? _intOrNull(Object? value) => value == null ? null : _int(value);
-double _number(Object? value) => value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
-double? _numberOrNull(Object? value) => value is num ? value.toDouble() : double.tryParse('$value');
-List<String> _strings(Object? value) => value is List ? value.whereType<String>().toList(growable: false) : const <String>[];
-List<String> _valueStrings(Object? value) => value is List ? value.map((item) => '$item').toList(growable: false) : const <String>[];
-List<int> _ints(Object? value) => value is List ? value.whereType<num>().map((item) => item.toInt()).toList(growable: false) : const <int>[];
-Map<String, Object?> _map(Object? value) => value is Map ? value.cast<String, Object?>() : const <String, Object?>{};
-Map<String, String> _stringMap(Object? value) => value is Map ? value.map((key, item) => MapEntry('$key', '$item')) : const <String, String>{};
-DateTime? _dateOrNull(Object? value) => value is DateTime ? value : DateTime.tryParse(_string(value));
+double _number(Object? value) =>
+    value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+double? _numberOrNull(Object? value) =>
+    value is num ? value.toDouble() : double.tryParse('$value');
+List<String> _strings(Object? value) => value is List
+    ? value.whereType<String>().toList(growable: false)
+    : const <String>[];
+List<String> _valueStrings(Object? value) => value is List
+    ? value.map((item) => '$item').toList(growable: false)
+    : const <String>[];
+List<int> _ints(Object? value) => value is List
+    ? value.whereType<num>().map((item) => item.toInt()).toList(growable: false)
+    : const <int>[];
+Map<String, Object?> _map(Object? value) =>
+    value is Map ? value.cast<String, Object?>() : const <String, Object?>{};
+Map<String, String> _stringMap(Object? value) => value is Map
+    ? value.map((key, item) => MapEntry('$key', '$item'))
+    : const <String, String>{};
+Map<String, double> _numberMap(Object? value) => value is Map
+    ? value.map((key, item) => MapEntry('$key', _number(item)))
+    : const <String, double>{};
+DateTime? _dateOrNull(Object? value) =>
+    value is DateTime ? value : DateTime.tryParse(_string(value));
 
-Map<String, Object?> jsonMap(String value) => (jsonDecode(value) as Map).cast<String, Object?>();
+Map<String, Object?> jsonMap(String value) =>
+    (jsonDecode(value) as Map).cast<String, Object?>();
 
-AssalRole _role(String value) => AssalRole.values.firstWhere((item) => item.name == value, orElse: () => AssalRole.customer);
-ProductType _productType(String value) => ProductType.values.firstWhere((item) => item.name == value, orElse: () => ProductType.honey);
-ProductStatus _productStatus(String value) => ProductStatus.values.firstWhere((item) => item.name == value, orElse: () => ProductStatus.draft);
-StoreStatus _storeStatus(String value) => StoreStatus.values.firstWhere((item) => item.name == value, orElse: () => StoreStatus.pending);
-ReviewStatus _reviewStatus(String value) => ReviewStatus.values.firstWhere((item) => item.name == value, orElse: () => ReviewStatus.approved);
+AssalRole _role(String value) => AssalRole.values
+    .firstWhere((item) => item.name == value, orElse: () => AssalRole.customer);
+ProductType _productType(String value) => ProductType.values
+    .firstWhere((item) => item.name == value, orElse: () => ProductType.honey);
+ProductStatus _productStatus(String value) =>
+    ProductStatus.values.firstWhere((item) => item.name == value,
+        orElse: () => ProductStatus.draft);
+StoreStatus _storeStatus(String value) =>
+    StoreStatus.values.firstWhere((item) => item.name == value,
+        orElse: () => StoreStatus.pending);
+StoreVerificationStatus _storeVerificationStatus(String value) => switch (value) {
+      'draft' => StoreVerificationStatus.draft,
+      'payment_pending' => StoreVerificationStatus.paymentPending,
+      'submitted' => StoreVerificationStatus.submitted,
+      'under_review' => StoreVerificationStatus.underReview,
+      'needs_more_info' => StoreVerificationStatus.needsMoreInfo,
+      'approved' => StoreVerificationStatus.approved,
+      'rejected' => StoreVerificationStatus.rejected,
+      'expired' => StoreVerificationStatus.expired,
+      'revoked' => StoreVerificationStatus.revoked,
+      _ => StoreVerificationStatus.notRequested,
+    };
+VerificationPaymentStatus _verificationPaymentStatus(String value) => switch (value) {
+      'pending' => VerificationPaymentStatus.pending,
+      'paid' => VerificationPaymentStatus.paid,
+      'failed' => VerificationPaymentStatus.failed,
+      'refunded' => VerificationPaymentStatus.refunded,
+      'waived' => VerificationPaymentStatus.waived,
+      _ => VerificationPaymentStatus.notStarted,
+    };
+ReviewStatus _reviewStatus(String value) =>
+    ReviewStatus.values.firstWhere((item) => item.name == value,
+        orElse: () => ReviewStatus.approved);
 RequestStatus _requestStatus(String value) => switch (value) {
       'in_progress' => RequestStatus.inProgress,
       'answered' => RequestStatus.answered,

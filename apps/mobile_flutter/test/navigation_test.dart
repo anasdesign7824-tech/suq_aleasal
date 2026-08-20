@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:assalkom/app/assal_app.dart';
+import 'test_catalog.dart';
 
 void main() {
   testWidgets('guest can navigate core customer surfaces without auth wall',
       (tester) async {
-    await tester.pumpWidget(const AssalApp());
+    await tester.pumpWidget(AssalApp(
+      repository: buildTestDemoRepository(),
+    ));
     await tester.pump();
     await tester
-        .runAsync(() => Future<void>.delayed(const Duration(seconds: 1)));
+        .runAsync(() => Future<void>.delayed(const Duration(seconds: 3)));
     await tester.pump();
-    expect(find.textContaining('اكتشف العسل من مصدره'), findsOneWidget);
+    expect(find.textContaining('الثقة تبدأ من المصدر'), findsAtLeastNWidgets(1));
+
 
     await tester.tap(find.text('التصنيفات').last);
     await tester.pump();

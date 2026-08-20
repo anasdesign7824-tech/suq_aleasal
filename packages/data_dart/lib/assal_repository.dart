@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:assalkom_contracts/assal_domain.dart';
 
 enum AssalDataSourceMode { demo, production }
@@ -133,6 +135,9 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<List<AssalRequestSummary>>> listRequests(
     String requesterId,
   );
+  Future<AssalLoadState<List<AssalRequestSummary>>> listMerchantRequests(
+    String merchantId,
+  );
   Future<AssalLoadState<AssalRequestSummary>> createRequest(
     String requesterId,
     AssalRequestDraft draft,
@@ -146,6 +151,10 @@ abstract interface class AssalRepository {
   );
   Future<AssalLoadState<List<AssalConversationSummary>>> listConversations(
     String userId,
+  );
+  Future<AssalLoadState<AssalConversationSummary>> createConversation(
+    String userId,
+    String storeId,
   );
   Future<AssalLoadState<List<AssalMessageSummary>>> listMessages(
     String conversationId,
@@ -189,16 +198,126 @@ abstract interface class AssalRepository {
   );
   Future<AssalLoadState<void>> deleteAccount();
   Future<AssalLoadState<AssalMerchantApplicationSummary>>
-  submitMerchantApplication(String userId, AssalMerchantApplicationDraft draft);
+      submitMerchantApplication(
+          String userId, AssalMerchantApplicationDraft draft);
   Future<AssalLoadState<AssalMerchantApplicationSummary?>>
-  loadMerchantApplication(String userId);
+      loadMerchantApplication(String userId);
   Future<AssalLoadState<AssalMerchantApplicationDraft?>>
-  loadMerchantApplicationDraft(String userId);
+      loadMerchantApplicationDraft(String userId);
   Future<AssalLoadState<void>> saveMerchantApplicationDraft(
     String userId,
     AssalMerchantApplicationDraft draft,
   );
   Future<AssalLoadState<void>> clearMerchantApplicationDraft(String userId);
+  Future<AssalLoadState<AssalMerchantWorkspaceSummary?>> loadMerchantWorkspace(
+    String userId,
+  );
+  Future<AssalLoadState<AssalMerchantWorkspaceSummary>> openMerchantWorkspace(
+    String userId,
+    AssalMerchantWorkspaceDraft draft,
+  );
+  Future<AssalLoadState<void>> updateMerchantWorkspace(
+    String userId,
+    String storeId,
+    AssalMerchantWorkspaceDraft draft,
+  );
+  Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
+    String userId,
+  );
+  Future<AssalLoadState<AssalProductSummary>> createMerchantProduct(
+    String userId,
+    String storeId,
+    AssalProductDraft draft,
+  );
+  Future<AssalLoadState<AssalProductSummary>> updateMerchantProduct(
+    String userId,
+    String productId,
+    AssalProductDraft draft,
+  );
+  Future<AssalLoadState<void>> deleteMerchantProduct(
+    String userId,
+    String productId,
+  );
+  Future<AssalLoadState<void>> updateUserProfile(
+    String userId,
+    AssalUserProfilePatch patch,
+  );
+  Future<AssalLoadState<String>> uploadMerchantImage(
+    String userId,
+    String kind,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<String>> uploadStoreGalleryImage(
+    String userId,
+    String storeId,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<String>> uploadProductImage(
+    String userId,
+    String productId,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<AssalStoreVerificationSummary?>>
+      loadStoreVerification(String userId, String storeId);
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      createStoreVerificationRequest(
+    String userId,
+    AssalStoreVerificationDraft draft,
+  );
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitStoreVerification(String userId, String requestId);
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      submitVerificationPaymentReference(
+    String userId,
+    String requestId,
+    String paymentReference,
+  );
+  Future<AssalLoadState<String>> uploadVerificationDocument(
+    String userId,
+    String requestId,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<AssalStoreVerificationSummary>>
+      addVerificationDocument(
+    String userId,
+    String requestId,
+    AssalVerificationDocumentDraft draft,
+  );
+  Future<AssalLoadState<List<AssalSubscriptionPlan>>> listSubscriptionPlans();
+  Future<AssalLoadState<AssalSubscriptionCampaign?>> loadSubscriptionCampaign();
+  Future<AssalLoadState<AssalLocalTransferSettings?>> loadLocalTransferSettings();
+  Future<AssalLoadState<AssalPaymentRequest>> createSubscriptionPaymentRequest(
+    String userId,
+    String planId,
+  );
+  Future<AssalLoadState<String>> uploadPaymentProof(
+    String userId,
+    String paymentRequestId,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<AssalLoadState<AssalPaymentRequest>> submitPaymentProof(
+    String userId,
+    String paymentRequestId,
+    String paymentReference,
+    String proofPath,
+    String proofFileName,
+    String proofMimeType,
+    int proofByteSize,
+    DateTime transferDate,
+    double submittedAmount,
+    String senderName,
+    String senderPhone,
+  );
+  Future<AssalLoadState<AssalDesignRequest>> createDesignRequest(
+    String userId,
+    String storeId,
+    AssalDesignRequestDraft draft,
+  );
   Future<AssalLoadState<void>> signOut();
 }
 
@@ -220,6 +339,29 @@ abstract interface class ProductionQueryGateway {
     Map<String, Object?> values, {
     required String id,
   });
+  Future<void> delete(
+    String table, {
+    Map<String, Object?> filters = const <String, Object?>{},
+  });
+  Future<Map<String, Object?>> upsert(
+    String table,
+    Map<String, Object?> values, {
+    String? onConflict,
+  });
+  Future<Map<String, Object?>> rpc(
+    String function,
+    Map<String, Object?> params,
+  );
+  Future<String> uploadPublicImage(
+    String path,
+    Uint8List bytes,
+    String extension,
+  );
+  Future<String> uploadPrivateImage(
+    String path,
+    Uint8List bytes,
+    String extension,
+  );
 }
 
 class AssalAuthIdentity {
