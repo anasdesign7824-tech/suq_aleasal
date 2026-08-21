@@ -35,12 +35,10 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
           'select_ok table=$table count=${result.length} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
           name: 'assalkom.network');
       return result;
-    } on Object catch (error, stackTrace) {
+    } on Object catch (_) {
       developer.log(
           'select_failed table=$table elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
-          name: 'assalkom.network',
-          error: error,
-          stackTrace: stackTrace);
+          name: 'assalkom.network');
       rethrow;
     }
   }
@@ -63,9 +61,9 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
           'insert_ok table=$table elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
           name: 'assalkom.network');
       return Map<String, Object?>.from(row);
-    } on Object catch (error, stackTrace) {
+    } on Object catch (_) {
       developer.log('insert_failed table=$table',
-          name: 'assalkom.network', error: error, stackTrace: stackTrace);
+          name: 'assalkom.network');
       rethrow;
     }
   }
@@ -89,9 +87,9 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
           'update_ok table=$table elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
           name: 'assalkom.network');
       return Map<String, Object?>.from(row);
-    } on Object catch (error, stackTrace) {
+    } on Object catch (_) {
       developer.log('update_failed table=$table',
-          name: 'assalkom.network', error: error, stackTrace: stackTrace);
+          name: 'assalkom.network');
       rethrow;
     }
   }
@@ -116,9 +114,9 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
       developer.log(
           'delete_ok table=$table elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
           name: 'assalkom.network');
-    } on Object catch (error, stackTrace) {
+    } on Object catch (_) {
       developer.log('delete_failed table=$table',
-          name: 'assalkom.network', error: error, stackTrace: stackTrace);
+          name: 'assalkom.network');
       rethrow;
     }
   }
@@ -141,9 +139,9 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
           'rpc_ok function=$function elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
           name: 'assalkom.network');
       return result;
-    } on Object catch (error, stackTrace) {
+    } on Object catch (_) {
       developer.log('rpc_failed function=$function',
-          name: 'assalkom.network', error: error, stackTrace: stackTrace);
+          name: 'assalkom.network');
       rethrow;
     }
   }
@@ -215,9 +213,9 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
           'upsert_ok table=$table elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
           name: 'assalkom.network');
       return Map<String, Object?>.from(row);
-    } on Object catch (error, stackTrace) {
+    } on Object catch (_) {
       developer.log('upsert_failed table=$table',
-          name: 'assalkom.network', error: error, stackTrace: stackTrace);
+          name: 'assalkom.network');
       rethrow;
     }
   }

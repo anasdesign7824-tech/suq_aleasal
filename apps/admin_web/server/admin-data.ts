@@ -1,9 +1,20 @@
 import { randomBytes } from "node:crypto";
 import type { Database, Json } from "../../../packages/contracts_ts/src/database";
 import { createServiceSupabaseClient } from "./supabase";
-import { type AdminSession, hasPermission } from "./admin-auth";
+import { type AdminPermission, type AdminSession, hasPermission } from "./admin-auth";
 
 const MAX_PAGE_SIZE = 50;
+export const MAX_PUBLIC_IMAGE_BYTES = 10 * 1024 * 1024;
+export const ADMIN_PRODUCT_STATUSES = ["draft", "pending", "active", "paused", "rejected"] as const;
+export const STORE_MODERATION_ACTIONS = ["approve", "reject", "suspend", "reactivate"] as const;
+export type StoreModerationAction = (typeof STORE_MODERATION_ACTIONS)[number];
+export const ADMIN_NETWORK_TELEMETRY_UNAVAILABLE = "عنوان IP غير مسجل في مخطط Production الحالي.";
+export function buildAdminNetworkTelemetry(): { ipAddress: null; noteAr: string } {
+  return { ipAddress: null, noteAr: ADMIN_NETWORK_TELEMETRY_UNAVAILABLE };
+}
+export function storeModerationPermission(action: StoreModerationAction): AdminPermission {
+  return action === "approve" || action === "reactivate" ? "store.approve" : action === "reject" ? "store.reject" : "store.suspend";
+}
 type TableName = Extract<keyof Database["public"]["Tables"], string>;
 
 type QueryOptions = {
@@ -16,6 +27,30 @@ function pageOf(options: QueryOptions = {}) {
   const page = Math.max(1, Math.floor(options.page ?? 1));
   const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Math.floor(options.pageSize ?? 20)));
   return { page, pageSize, from: (page - 1) * pageSize, to: page * pageSize - 1 };
+}
+
+export type AdminPaginationTelemetry = {
+  resource: string;
+  page: number;
+  pageSize: number;
+  returnedCount: number;
+  total: number;
+  elapsedMs: number;
+};
+
+export function buildAdminPaginationTelemetry(input: Omit<AdminPaginationTelemetry, "elapsedMs"> & { startedAt: number }): AdminPaginationTelemetry {
+  return {
+    resource: input.resource,
+    page: input.page,
+    pageSize: input.pageSize,
+    returnedCount: input.returnedCount,
+    total: input.total,
+    elapsedMs: Math.max(0, Date.now() - input.startedAt),
+  };
+}
+
+function logAdminPagination(input: Omit<AdminPaginationTelemetry, "elapsedMs"> & { startedAt: number }) {
+  console.info("[Admin Performance]", buildAdminPaginationTelemetry(input));
 }
 
 async function countRows(table: TableName): Promise<number> {
@@ -42,20 +77,24 @@ export async function getDashboardSnapshot() {
 }
 
 export async function listProducts(options: QueryOptions = {}) {
+  const startedAt = Date.now();
   const { page, pageSize, from, to } = pageOf(options);
   const service = createServiceSupabaseClient();
   let query = service
     .from("products")
-    .select("id, store_id, taxonomy_id, name_ar, name_en, description, product_type, grade_level, status, is_featured, metadata, created_at, updated_at", { count: "exact" })
+    .select("id, store_id, taxonomy_id, name_ar, name_en, description, product_type, grade_level, status, is_featured, metadata, created_at, updated_at, product_images(id, image_url, sort_order)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, to);
   if (options.search?.trim()) query = query.ilike("name_ar", `%${options.search.trim()}%`);
   const result = await query;
   if (result.error) throw result.error;
-  return { items: result.data ?? [], page, pageSize, total: result.count ?? 0 };
+  const items = result.data ?? [];
+  logAdminPagination({ resource: "products", page, pageSize, returnedCount: items.length, total: result.count ?? 0, startedAt });
+  return { items, page, pageSize, total: result.count ?? 0 };
 }
 
 export async function listStores(options: QueryOptions = {}) {
+  const startedAt = Date.now();
   const { page, pageSize, from, to } = pageOf(options);
   const service = createServiceSupabaseClient();
   let query = service
@@ -66,7 +105,9 @@ export async function listStores(options: QueryOptions = {}) {
   if (options.search?.trim()) query = query.ilike("name_ar", `%${options.search.trim()}%`);
   const result = await query;
   if (result.error) throw result.error;
-  return { items: result.data ?? [], page, pageSize, total: result.count ?? 0 };
+  const items = result.data ?? [];
+  logAdminPagination({ resource: "stores", page, pageSize, returnedCount: items.length, total: result.count ?? 0, startedAt });
+  return { items, page, pageSize, total: result.count ?? 0 };
 }
 
 export async function deleteStore(session: AdminSession, storeId: string) {
@@ -75,14 +116,14 @@ export async function deleteStore(session: AdminSession, storeId: string) {
   const existing = await service.from("stores").select("id, merchant_id, name_ar").eq("id", storeId).maybeSingle();
   if (existing.error) throw existing.error;
   if (!existing.data) throw new Error("المتجر غير موجود.");
-  await recordAudit(session, {
-    action: "store.delete.requested",
-    entityType: "stores",
-    entityId: storeId,
-    metadata: { merchantId: existing.data.merchant_id, nameAr: existing.data.name_ar },
-  });
   const deleted = await service.from("stores").delete().eq("id", storeId);
   if (deleted.error) throw deleted.error;
+  await recordAudit(session, {
+    action: "store.delete",
+    entityType: "stores",
+    entityId: storeId,
+    metadata: { merchantId: existing.data.merchant_id, nameAr: existing.data.name_ar, cascade: true },
+  });
   return { id: storeId, deleted: true };
 }
 
@@ -92,9 +133,9 @@ export async function deleteProduct(session: AdminSession, productId: string) {
   const existing = await service.from("products").select("id, store_id, name_ar").eq("id", productId).maybeSingle();
   if (existing.error) throw existing.error;
   if (!existing.data) throw new Error("المنتج غير موجود.");
-  await recordAudit(session, { action: "product.delete.requested", entityType: "products", entityId: productId, metadata: { storeId: existing.data.store_id, nameAr: existing.data.name_ar } });
   const deleted = await service.from("products").delete().eq("id", productId);
   if (deleted.error) throw deleted.error;
+  await recordAudit(session, { action: "product.delete", entityType: "products", entityId: productId, metadata: { storeId: existing.data.store_id, nameAr: existing.data.name_ar, deleted: true } });
   return { id: productId, deleted: true };
 }
 
@@ -104,37 +145,58 @@ export async function deleteBanner(session: AdminSession, bannerId: string) {
   const existing = await service.from("banners").select("id, title_ar, image_url").eq("id", bannerId).maybeSingle();
   if (existing.error) throw existing.error;
   if (!existing.data) throw new Error("البانر غير موجود.");
-  await recordAudit(session, { action: "banner.delete.requested", entityType: "banners", entityId: bannerId, metadata: { titleAr: existing.data.title_ar, imageUrl: existing.data.image_url } });
   const deleted = await service.from("banners").delete().eq("id", bannerId);
   if (deleted.error) throw deleted.error;
+  await recordAudit(session, { action: "banner.delete", entityType: "banners", entityId: bannerId, metadata: { titleAr: existing.data.title_ar, imageUrl: existing.data.image_url, deleted: true } });
   return { id: bannerId, deleted: true };
+}
+
+export function assertUserDeletionAllowed(currentAdminId: string, targetUserId: string, targetIsAdmin: boolean): void {
+  if (targetUserId === currentAdminId) throw new Error("لا يمكن حذف الهوية الإدارية الحالية من داخل الجلسة.");
+  if (targetIsAdmin) throw new Error("لا يُحذف مدير إداري من مسار حذف المستخدمين. عطّل العضوية من قسم المديرين أولًا.");
 }
 
 export async function deleteUser(session: AdminSession, userId: string) {
   if (!hasPermission(session, "user.delete")) throw new Error("لا تملك صلاحية حذف المستخدم.");
-  if (userId === session.user.id) throw new Error("لا يمكن حذف الهوية الإدارية الحالية من داخل الجلسة.");
   const service = createServiceSupabaseClient();
   const membership = await service.from("admin_users").select("user_id").eq("user_id", userId).maybeSingle();
   if (membership.error) throw membership.error;
-  if (membership.data) throw new Error("لا يُحذف مدير إداري من مسار حذف المستخدمين. عطّل العضوية من قسم المديرين أولًا.");
+  assertUserDeletionAllowed(session.user.id, userId, Boolean(membership.data));
   const existing = await service.from("users").select("id").eq("id", userId).maybeSingle();
   if (existing.error) throw existing.error;
   if (!existing.data) throw new Error("المستخدم غير موجود.");
-  await recordAudit(session, { action: "user.delete.requested", entityType: "users", entityId: userId, metadata: { cascade: true } });
   const deleted = await service.auth.admin.deleteUser(userId);
   if (deleted.error) throw deleted.error;
+  await recordAudit(session, { action: "user.delete", entityType: "users", entityId: userId, metadata: { cascade: true, deleted: true } });
   return { id: userId, deleted: true };
+}
+
+export function decodePublicImageInput(input: { contentType?: string; base64?: string }) {
+  const contentType = typeof input.contentType === "string" ? input.contentType.trim().toLowerCase() : "";
+  const supported = new Map([
+    ["image/jpeg", "jpg"],
+    ["image/png", "png"],
+    ["image/webp", "webp"],
+    ["image/svg+xml", "svg"],
+  ]);
+  const extension = supported.get(contentType);
+  if (!extension) throw new Error("نوع الصورة غير مدعوم. استخدم JPG أو PNG أو WEBP أو SVG.");
+  const encoded = typeof input.base64 === "string"
+    ? input.base64.replace(/^data:[^;]+;base64,/, "").replace(/\s/g, "")
+    : "";
+  if (!encoded || encoded.length % 4 === 1 || !/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) {
+    throw new Error("بيانات الصورة المشفرة غير صالحة.");
+  }
+  const bytes = Buffer.from(encoded, "base64");
+  if (!bytes.length || bytes.length > MAX_PUBLIC_IMAGE_BYTES) {
+    throw new Error("حجم الصورة يجب أن يكون بين 1 بايت و10 ميجابايت.");
+  }
+  return { contentType, extension, bytes };
 }
 
 export async function uploadPublicImage(session: AdminSession, input: { contentType: string; base64: string; purpose?: string }) {
   if (!hasPermission(session, "storage.public.write")) throw new Error("لا تملك صلاحية رفع الصور العامة.");
-  const contentType = input.contentType.trim().toLowerCase();
-  const supported = new Map([["image/jpeg", "jpg"], ["image/png", "png"], ["image/webp", "webp"], ["image/gif", "gif"]]);
-  const extension = supported.get(contentType);
-  if (!extension) throw new Error("نوع الصورة غير مدعوم. استخدم JPG أو PNG أو WEBP أو GIF.");
-  const encoded = input.base64.replace(/^data:[^;]+;base64,/, "");
-  const bytes = Buffer.from(encoded, "base64");
-  if (!bytes.length || bytes.length > 10 * 1024 * 1024) throw new Error("حجم الصورة يجب أن يكون بين 1 بايت و10 ميجابايت.");
+  const { contentType, extension, bytes } = decodePublicImageInput(input);
   const purpose = (input.purpose?.trim().replace(/[^a-z0-9_-]/gi, "-") || "admin").slice(0, 32);
   const path = `${purpose}/${Date.now()}-${randomBytes(12).toString("hex")}.${extension}`;
   const service = createServiceSupabaseClient();
@@ -146,6 +208,7 @@ export async function uploadPublicImage(session: AdminSession, input: { contentT
 }
 
 export async function listRequests(options: QueryOptions = {}) {
+  const startedAt = Date.now();
   const { page, pageSize, from, to } = pageOf(options);
   const service = createServiceSupabaseClient();
   const result = await service
@@ -154,7 +217,9 @@ export async function listRequests(options: QueryOptions = {}) {
     .order("created_at", { ascending: false })
     .range(from, to);
   if (result.error) throw result.error;
-  return { items: result.data ?? [], page, pageSize, total: result.count ?? 0 };
+  const items = result.data ?? [];
+  logAdminPagination({ resource: "requests", page, pageSize, returnedCount: items.length, total: result.count ?? 0, startedAt });
+  return { items, page, pageSize, total: result.count ?? 0 };
 }
 
 export async function listMerchantApplications(options: QueryOptions = {}) {
@@ -197,7 +262,7 @@ export async function reviewMerchantApplication(
     entityType: "merchant_applications",
     entityId: applicationId,
     metadata: {
-      reviewNote,
+      hasReviewNote: Boolean(reviewNote?.trim()),
       synchronized: input.status === "approved",
       storeId: payload.store?.id ?? null,
       notificationId: payload.notification?.id ?? null,
@@ -392,28 +457,59 @@ export async function listBanners() {
   return result.data ?? [];
 }
 
-export async function recordAudit(
+const AUDIT_SENSITIVE_METADATA_FLAGS: Record<string, string> = {
+  email: "hasEmail",
+  phone: "hasPhone",
+  senderPhone: "hasSenderPhone",
+  accountNumber: "hasAccountNumber",
+  iban: "hasIban",
+  proofPath: "hasProofPath",
+  paymentReference: "hasPaymentReference",
+  note: "hasNote",
+  reviewNote: "hasReviewNote",
+  adminNote: "hasAdminNote",
+};
+
+function redactAuditMetadata(metadata: Record<string, unknown> = {}) {
+  const redacted = { ...metadata };
+  for (const [sensitiveKey, flagKey] of Object.entries(AUDIT_SENSITIVE_METADATA_FLAGS)) {
+    if (!(sensitiveKey in redacted)) continue;
+    const value = redacted[sensitiveKey];
+    delete redacted[sensitiveKey];
+    redacted[flagKey] = typeof value === "string" ? value.trim().length > 0 : value != null;
+  }
+  return redacted;
+}
+
+export function buildAuditEntry(
   session: AdminSession,
   input: { action: string; entityType: string; entityId?: string | null; metadata?: Record<string, unknown> },
 ) {
   if (!session.user.id) throw new Error("لا توجد هوية إدارية لتسجيل التدقيق.");
-  const service = createServiceSupabaseClient();
-  const result = await service.from("audit_logs").insert({
+  return {
     actor_user_id: session.user.id,
     action: input.action,
     entity_type: input.entityType,
     entity_id: input.entityId ?? null,
-    metadata: (input.metadata ?? {}) as Json,
-  });
+    metadata: redactAuditMetadata(input.metadata) as Json,
+  };
+}
+
+export async function recordAudit(
+  session: AdminSession,
+  input: { action: string; entityType: string; entityId?: string | null; metadata?: Record<string, unknown> },
+) {
+  const service = createServiceSupabaseClient();
+  const result = await service.from("audit_logs").insert(buildAuditEntry(session, input));
   if (result.error) throw result.error;
 }
 
 export async function moderateStore(
   session: AdminSession,
   storeId: string,
-  action: "approve" | "reject" | "suspend" | "reactivate",
+  action: StoreModerationAction,
 ) {
-  const permission = action === "approve" ? "store.approve" : action === "reject" ? "store.reject" : "store.suspend";
+  const permission = storeModerationPermission(action);
   if (!hasPermission(session, permission)) throw new Error("لا تملك صلاحية تعديل المتجر.");
   const service = createServiceSupabaseClient();
   const result = await service.rpc("admin_moderate_store", {
@@ -534,7 +630,7 @@ export async function reviewStoreVerification(
     action: `store_verification.${action}`,
     entityType: 'store_verification_requests',
     entityId: requestId,
-    metadata: { reviewNote: reviewNote?.trim() || null, expiresAt: expiresAt ?? null },
+    metadata: { hasReviewNote: Boolean(reviewNote?.trim()), expiresAt: expiresAt ?? null },
   });
   return result.data;
 }
@@ -563,8 +659,8 @@ export async function reconcileStoreVerificationPayment(
     entityType: 'store_verification_requests',
     entityId: requestId,
     metadata: {
-      paymentReference: paymentReference?.trim() || null,
-      note: note?.trim() || null,
+      hasPaymentReference: Boolean(paymentReference?.trim()),
+      hasNote: Boolean(note?.trim()),
     },
   });
   return result.data;
@@ -670,7 +766,7 @@ export async function reconcilePaymentRequest(session: AdminSession, paymentRequ
   const service = createServiceSupabaseClient();
   const result = await service.rpc('admin_reconcile_payment_request', { p_payment_request_id: paymentRequestId, p_status: status, ...(note?.trim() ? { p_note: note.trim() } : {}), p_reviewer_id: session.user.id });
   if (result.error) throw result.error;
-  await recordAudit(session, { action: `payment_request.${status}`, entityType: 'payment_requests', entityId: paymentRequestId, metadata: { note: note?.trim() || null } });
+  await recordAudit(session, { action: `payment_request.${status}`, entityType: 'payment_requests', entityId: paymentRequestId, metadata: { hasNote: Boolean(note?.trim()) } });
   return result.data;
 }
 
@@ -688,7 +784,7 @@ export async function setMerchantSubscriptionStatus(session: AdminSession, subsc
   const service = createServiceSupabaseClient();
   const result = await service.rpc('admin_set_subscription_status', { p_subscription_id: subscriptionId, p_status: status, ...(note?.trim() ? { p_note: note.trim() } : {}), p_reviewer_id: session.user.id });
   if (result.error) throw result.error;
-  await recordAudit(session, { action: `subscription.${status}`, entityType: 'merchant_subscriptions', entityId: subscriptionId, metadata: { note: note?.trim() || null } });
+  await recordAudit(session, { action: `subscription.${status}`, entityType: 'merchant_subscriptions', entityId: subscriptionId, metadata: { hasNote: Boolean(note?.trim()) } });
   return result.data;
 }
 
@@ -707,7 +803,7 @@ export async function activateSubscriptionForUser(session: AdminSession, merchan
     action: 'subscription.manual_activate',
     entityType: 'merchant_subscriptions',
     entityId: String(activationPayload?.id ?? merchantId),
-    metadata: { merchantId, planId, note: note?.trim() || null },
+    metadata: { merchantId, planId, hasNote: Boolean(note?.trim()) },
   });
   return result.data;
 }
@@ -728,7 +824,7 @@ export async function updateDesignRequest(session: AdminSession, requestId: stri
   const service = createServiceSupabaseClient();
   const updated = await service.from('design_requests').update({ status: input.status, admin_note: input.adminNote?.trim() || null, assigned_admin_id: input.assignedAdminId ?? null, completed_at: input.status === 'completed' ? new Date().toISOString() : null }).eq('id', requestId).select('*').single();
   if (updated.error) throw updated.error;
-  await recordAudit(session, { action: `design_request.${input.status}`, entityType: 'design_requests', entityId: requestId, metadata: { note: input.adminNote?.trim() || null } });
+  await recordAudit(session, { action: `design_request.${input.status}`, entityType: 'design_requests', entityId: requestId, metadata: { hasAdminNote: Boolean(input.adminNote?.trim()) } });
   return updated.data;
 }
 
@@ -754,8 +850,7 @@ function requireText(value: unknown, label: string): string {
   return value.trim();
 }
 
-export async function createProduct(session: AdminSession, input: ProductWriteInput) {
-  if (!hasPermission(session, "product.write")) throw new Error("لا تملك صلاحية إنشاء منتج.");
+export function buildProductInsert(input: ProductWriteInput): Database["public"]["Tables"]["products"]["Insert"] {
   const nameAr = requireText(input.nameAr, "اسم المنتج");
   const storeId = requireText(input.storeId, "المتجر");
   const metadata = {
@@ -763,8 +858,7 @@ export async function createProduct(session: AdminSession, input: ProductWriteIn
     ...(input.price === undefined ? {} : { price: input.price === null ? null : String(input.price) }),
     ...(input.currencyCode === undefined ? {} : { currency_code: input.currencyCode }),
   };
-  const service = createServiceSupabaseClient();
-  const created = await service.from("products").insert({
+  return {
     store_id: storeId,
     taxonomy_id: input.taxonomyId ?? null,
     name_ar: nameAr,
@@ -775,9 +869,16 @@ export async function createProduct(session: AdminSession, input: ProductWriteIn
     is_featured: input.isFeatured ?? false,
     status: input.status ?? "draft",
     metadata: metadata as Json,
-  }).select("id, store_id, taxonomy_id, name_ar, name_en, description, product_type, grade_level, status, is_featured, metadata, created_at, updated_at").single();
+  };
+}
+
+export async function createProduct(session: AdminSession, input: ProductWriteInput) {
+  if (!hasPermission(session, "product.write")) throw new Error("لا تملك صلاحية إنشاء منتج.");
+  const service = createServiceSupabaseClient();
+  const insert = buildProductInsert(input);
+  const created = await service.from("products").insert(insert).select("id, store_id, taxonomy_id, name_ar, name_en, description, product_type, grade_level, status, is_featured, metadata, created_at, updated_at").single();
   if (created.error) throw created.error;
-  await recordAudit(session, { action: "product.create", entityType: "products", entityId: created.data.id, metadata: { storeId, status: input.status ?? "draft" } });
+  await recordAudit(session, { action: "product.create", entityType: "products", entityId: created.data.id, metadata: { storeId: insert.store_id, status: input.status ?? "draft" } });
   if (input.categoryId) {
     const relation = await service.from("product_categories").upsert({ product_id: created.data.id, category_id: input.categoryId });
     if (relation.error) throw relation.error;
@@ -794,6 +895,9 @@ export async function createProduct(session: AdminSession, input: ProductWriteIn
 
 export async function updateProduct(session: AdminSession, productId: string, patch: Partial<ProductWriteInput>) {
   if (!hasPermission(session, "product.write")) throw new Error("لا تملك صلاحية تعديل المنتج.");
+  if (patch.status !== undefined && !(ADMIN_PRODUCT_STATUSES as readonly string[]).includes(patch.status)) {
+    throw new Error("حالة المنتج غير صحيحة.");
+  }
   const update: Database["public"]["Tables"]["products"]["Update"] = {};
   if (patch.storeId !== undefined) update.store_id = requireText(patch.storeId, "المتجر");
   if (patch.taxonomyId !== undefined) update.taxonomy_id = patch.taxonomyId;
@@ -846,8 +950,17 @@ export type BannerWriteInput = {
   isActive?: boolean;
 };
 
+export function assertBannerSchedule(startsAt?: string | null, endsAt?: string | null): void {
+  if (!startsAt || !endsAt) return;
+  const start = new Date(startsAt).getTime();
+  const end = new Date(endsAt).getTime();
+  if (!Number.isFinite(start) || !Number.isFinite(end)) throw new Error("تاريخ جدولة البانر غير صالح.");
+  if (end <= start) throw new Error("يجب أن يكون انتهاء البانر بعد بدايته.");
+}
+
 export async function createBanner(session: AdminSession, input: BannerWriteInput) {
   if (!hasPermission(session, "banner.write")) throw new Error("لا تملك صلاحية إنشاء بانر.");
+  assertBannerSchedule(input.startsAt, input.endsAt);
   const service = createServiceSupabaseClient();
   const result = await service.from("banners").insert({
     title_ar: requireText(input.titleAr, "عنوان البانر"),
@@ -875,7 +988,13 @@ export async function updateBanner(session: AdminSession, bannerId: string, patc
   if (patch.ctaUrl !== undefined) update.cta_url = patch.ctaUrl;
   if (patch.startsAt !== undefined) update.starts_at = patch.startsAt;
   if (patch.endsAt !== undefined) update.ends_at = patch.endsAt;
-  if (patch.sortOrder !== undefined) update.sort_order = patch.sortOrder;
+  if (patch.startsAt !== undefined || patch.endsAt !== undefined) {
+    assertBannerSchedule(patch.startsAt ?? null, patch.endsAt ?? null);
+  }
+  if (patch.sortOrder !== undefined) {
+    if (!Number.isFinite(patch.sortOrder) || patch.sortOrder < 0) throw new Error("ترتيب البانر يجب أن يكون رقمًا غير سالب.");
+    update.sort_order = patch.sortOrder;
+  }
   if (patch.isActive !== undefined) {
     if (patch.isActive && !hasPermission(session, "banner.publish")) throw new Error("لا تملك صلاحية نشر البانر.");
     update.is_active = patch.isActive;
@@ -888,6 +1007,12 @@ export async function updateBanner(session: AdminSession, bannerId: string, patc
   return result.data;
 }
 
+export function requireTaxonomyKey(value: string, label: string): string {
+  const key = requireText(value, label);
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(key)) throw new Error(`${label} يجب أن يحتوي على أحرف وأرقام و- أو _ فقط.`);
+  return key;
+}
+
 export async function upsertCategory(session: AdminSession, input: { id?: string; parentId?: string | null; nameAr: string; nameEn?: string | null; slug: string; categoryKind?: string; sortOrder?: number; isActive?: boolean }) {
   if (!hasPermission(session, "taxonomy.manage")) throw new Error("لا تملك صلاحية إدارة التصنيفات.");
   const service = createServiceSupabaseClient();
@@ -896,7 +1021,7 @@ export async function upsertCategory(session: AdminSession, input: { id?: string
     parent_id: input.parentId ?? null,
     name_ar: requireText(input.nameAr, "اسم التصنيف"),
     name_en: input.nameEn ?? null,
-    slug: requireText(input.slug, "slug التصنيف"),
+    slug: requireTaxonomyKey(input.slug, "slug التصنيف"),
     category_kind: input.categoryKind ?? "honey",
     sort_order: input.sortOrder ?? 0,
     is_active: input.isActive ?? true,
@@ -911,7 +1036,7 @@ export async function upsertTaxonomy(session: AdminSession, input: { id?: string
   const service = createServiceSupabaseClient();
   const result = await service.from("honey_taxonomy").upsert({
     id: input.id,
-    code: requireText(input.code, "رمز التصنيف"),
+    code: requireTaxonomyKey(input.code, "رمز التصنيف"),
     name_ar: requireText(input.nameAr, "اسم التصنيف"),
     name_en: input.nameEn ?? null,
     description: input.description ?? null,
@@ -976,28 +1101,58 @@ export async function listAuditLogs() {
 }
 
 export async function listUsers(options: QueryOptions = {}) {
+  const startedAt = Date.now();
   const { page, pageSize, from, to } = pageOf(options);
   const service = createServiceSupabaseClient();
-  const users = await service
+  const search = options.search?.trim();
+  let userQuery = service
     .from("users")
     .select("id, created_at, last_seen_at", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(from, to);
+    .order("created_at", { ascending: false });
+  if (search) {
+    const [nameMatches, phoneMatches, authMatches] = await Promise.all([
+      service.from("profiles").select("user_id").ilike("display_name", `%${search}%`).limit(1000),
+      service.from("profiles").select("user_id").ilike("phone", `%${search}%`).limit(1000),
+      service.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+    ]);
+    if (nameMatches.error) throw nameMatches.error;
+    if (phoneMatches.error) throw phoneMatches.error;
+    if (authMatches.error) throw authMatches.error;
+    const matchingIds = new Set<string>([
+      ...(nameMatches.data ?? []).map((row) => row.user_id),
+      ...(phoneMatches.data ?? []).map((row) => row.user_id),
+      ...authMatches.data.users
+        .filter((user) => [user.id, user.email, user.phone, user.user_metadata?.name, user.user_metadata?.display_name].some((value) => typeof value === "string" && value.toLowerCase().includes(search.toLowerCase())))
+        .map((user) => user.id),
+    ]);
+      if (matchingIds.size === 0) {
+      logAdminPagination({ resource: "users", page, pageSize, returnedCount: 0, total: 0, startedAt });
+      return { items: [], page, pageSize, total: 0 };
+    }
+    userQuery = userQuery.in("id", Array.from(matchingIds));
+  }
+  const users = await userQuery.range(from, to);
   if (users.error) throw users.error;
   const userIds = (users.data ?? []).map((user) => user.id);
-  const [profiles, applications, stores, identities] = await Promise.all([
+  const [profiles, applications, stores, identities, memberships, roles] = await Promise.all([
     userIds.length ? service.from("profiles").select("user_id, display_name, phone, avatar_url, bio, locale, role, is_active, created_at, updated_at").in("user_id", userIds) : Promise.resolve({ data: [], error: null }),
     userIds.length ? service.from("merchant_applications").select("id, user_id, status, location, review_note, submitted_at, reviewed_at").in("user_id", userIds).order("submitted_at", { ascending: false }) : Promise.resolve({ data: [], error: null }),
     userIds.length ? service.from("stores").select("id, merchant_id, name_ar, status, is_verified, updated_at").in("merchant_id", userIds) : Promise.resolve({ data: [], error: null }),
     service.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+    userIds.length ? service.from("admin_users").select("user_id, role_id, is_active, scope, created_at, updated_at").in("user_id", userIds) : Promise.resolve({ data: [], error: null }),
+    service.from("admin_roles").select("id, code, name_ar").limit(50),
   ]);
   if (profiles.error) throw profiles.error;
   if (applications.error) throw applications.error;
   if (stores.error) throw stores.error;
   if (identities.error) throw identities.error;
+  if (memberships.error) throw memberships.error;
+  if (roles.error) throw roles.error;
   const profileByUserId = new Map((profiles.data ?? []).map((profile) => [profile.user_id, profile]));
   const applicationByUserId = new Map((applications.data ?? []).map((application) => [application.user_id, application]));
   const storeByMerchantId = new Map((stores.data ?? []).map((store) => [store.merchant_id, store]));
+  const roleById = new Map((roles.data ?? []).map((role) => [role.id, role]));
+  const membershipByUserId = new Map((memberships.data ?? []).map((membership) => [membership.user_id, { ...membership, role: roleById.get(membership.role_id) ?? null }]));
   const identityByUserId = new Map(identities.data.users.map((user) => [user.id, user]));
   const items = (users.data ?? []).map((user) => {
     const identity = identityByUserId.get(user.id);
@@ -1014,9 +1169,11 @@ export async function listUsers(options: QueryOptions = {}) {
       profile: profileByUserId.get(user.id) ?? null,
       merchantApplication: application,
       store,
-      networkTelemetry: { ipAddress: null, noteAr: "عنوان IP غير مسجل في مخطط Production الحالي." },
+      adminMembership: membershipByUserId.get(user.id) ?? null,
+      networkTelemetry: buildAdminNetworkTelemetry(),
     };
   });
+  logAdminPagination({ resource: "users", page, pageSize, returnedCount: items.length, total: users.count ?? 0, startedAt });
   return { items, page, pageSize, total: users.count ?? 0 };
 }
 
@@ -1038,38 +1195,58 @@ export async function listNotifications() {
   return result.data ?? [];
 }
 
+export function buildAdminNotificationPayload(input: { payload?: Record<string, unknown>; imageUrl?: string | null }): Json {
+  return {
+    ...(input.payload ?? {}),
+    ...(input.imageUrl?.trim() ? { image_url: input.imageUrl.trim() } : {}),
+  } as Json;
+}
+
 export async function sendNotification(session: AdminSession, input: { userId?: string | null; broadcast?: boolean; titleAr: string; bodyAr?: string | null; notificationType?: string; imageUrl?: string | null; payload?: Record<string, unknown> }) {
   if (!hasPermission(session, "notification.write")) throw new Error("لا تملك صلاحية إرسال إشعار.");
   const titleAr = requireText(input.titleAr, "عنوان الإشعار");
   const service = createServiceSupabaseClient();
-  const usersResult = input.broadcast
-    ? await service.from("users").select("id").limit(10000)
-    : null;
-  if (usersResult?.error) throw usersResult.error;
-  const resolvedRecipients: Array<{ id: string }> = input.broadcast
-    ? ((usersResult?.data ?? []) as Array<{ id: string }>)
-    : [{ id: requireText(input.userId, "المستخدم") }];
-  if (!resolvedRecipients.length) throw new Error("لا يوجد مستخدمون مستهدفون في Production.");
-  const payload = {
-    ...(input.payload ?? {}),
-    ...(input.imageUrl?.trim() ? { image_url: input.imageUrl.trim() } : {}),
-  } as Json;
-  const rows = resolvedRecipients.map((recipient) => ({
-    user_id: recipient.id,
+  const broadcast = input.broadcast === true;
+  const recipientIds: string[] = [];
+  if (broadcast) {
+    const pageSize = 1000;
+    for (let from = 0; ; from += pageSize) {
+      const usersResult = await service.from("users").select("id").order("id", { ascending: true }).range(from, from + pageSize - 1);
+      if (usersResult.error) throw usersResult.error;
+      const ids = (usersResult.data ?? []).map((user) => user.id);
+      recipientIds.push(...ids);
+      if (ids.length < pageSize) break;
+    }
+  } else {
+    const userId = requireText(input.userId, "المستخدم");
+    const target = await service.from("users").select("id").eq("id", userId).maybeSingle();
+    if (target.error) throw target.error;
+    if (!target.data) throw new Error("المستخدم المستهدف غير موجود في Production.");
+    recipientIds.push(target.data.id);
+  }
+  if (!recipientIds.length) throw new Error("لا يوجد مستخدمون مستهدفون في Production.");
+  const payload = buildAdminNotificationPayload(input);
+  const rows = recipientIds.map((userId) => ({
+    user_id: userId,
     title_ar: titleAr,
     body_ar: input.bodyAr?.trim() || null,
-    notification_type: input.notificationType ?? (input.broadcast ? "admin_broadcast" : "admin_message"),
+    notification_type: input.notificationType?.trim() || (broadcast ? "admin_broadcast" : "admin_message"),
     payload,
   }));
-  const inserted = await service.from("notifications").insert(rows).select("id, user_id, notification_type, title_ar, body_ar, payload, read_at, created_at");
-  if (inserted.error) throw inserted.error;
+  const insertedItems: Array<Database["public"]["Tables"]["notifications"]["Row"]> = [];
+  const insertBatchSize = 500;
+  for (let from = 0; from < rows.length; from += insertBatchSize) {
+    const inserted = await service.from("notifications").insert(rows.slice(from, from + insertBatchSize)).select("id, user_id, notification_type, title_ar, body_ar, payload, read_at, created_at");
+    if (inserted.error) throw inserted.error;
+    insertedItems.push(...(inserted.data ?? []));
+  }
   await recordAudit(session, {
-    action: input.broadcast ? "notification.broadcast" : "notification.create",
+    action: broadcast ? "notification.broadcast" : "notification.create",
     entityType: "notifications",
     entityId: null,
-    metadata: { recipientCount: rows.length, userId: input.userId ?? null, imageUrl: input.imageUrl ?? null },
+    metadata: { recipientCount: insertedItems.length, userId: broadcast ? null : recipientIds[0], imageUrl: input.imageUrl?.trim() || null },
   });
-  return { broadcast: input.broadcast === true, recipientCount: rows.length, items: inserted.data ?? [] };
+  return { broadcast, recipientCount: insertedItems.length, items: insertedItems };
 }
 
 export async function getOperationalAnalytics() {
@@ -1108,6 +1285,6 @@ export async function createAdminIdentity(session: AdminSession, input: { email:
     await service.auth.admin.deleteUser(identity.data.user.id);
     throw membership.error;
   }
-  await recordAudit(session, { action: "admin_user.create", entityType: "admin_users", entityId: identity.data.user.id, metadata: { email, roleCode } });
+  await recordAudit(session, { action: "admin_user.create", entityType: "admin_users", entityId: identity.data.user.id, metadata: { roleCode } });
   return { email, temporaryPassword: password, membership: membership.data, role: role.data };
 }
