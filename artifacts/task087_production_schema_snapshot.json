@@ -1,0 +1,8 @@
+{
+  "source": "Production information_schema.tables, public, BASE TABLE and VIEW, LIMIT 100 OFFSET 0, executed inside BEGIN/ROLLBACK on 2026-08-21",
+  "count": 62,
+  "relations": [
+    "admin_bootstrap_state", "admin_roles", "admin_users", "audit_logs", "banners", "categories", "certifications", "comment_likes", "comments", "conversation_participants", "conversations", "customer_banners", "customer_comments", "customer_conversations", "customer_favorite_products", "customer_followed_stores", "customer_products", "customer_stores", "delivery_methods", "design_requests", "favorites", "handoff_options", "honey_taxonomy", "local_transfer_settings", "merchant_application_drafts", "merchant_applications", "merchant_delivery_options", "merchant_pickup_locations", "merchant_profiles", "merchant_subscriptions", "messages", "notifications", "payment_events", "payment_provider_settings", "payment_requests", "plan_entitlements", "product_categories", "product_certifications", "product_images", "product_likes", "product_revisions", "product_view_events", "products", "profiles", "regions", "request_items", "request_messages", "requests", "review_likes", "reviews", "social_links", "store_badges", "store_followers", "store_gallery", "store_statistics", "store_verification_documents", "store_verification_events", "store_verification_requests", "stores", "subscription_campaigns", "subscription_plans", "users"
+  ],
+  "transaction_effect": "rollback; no Production rows written"
+}

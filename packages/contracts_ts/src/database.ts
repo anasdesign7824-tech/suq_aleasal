@@ -2289,6 +2289,339 @@ export type Database = {
       }
     }
     Views: {
+      customer_comments: {
+        Row: {
+          id: string | null
+          author_id: string | null
+          target_id: string | null
+          product_id: string | null
+          review_id: string | null
+          parent_comment_id: string | null
+          body: string | null
+          status: string | null
+          created_at: string | null
+          updated_at: string | null
+          author_name: string | null
+        }
+        Insert: {
+          id?: never
+          author_id?: never
+          target_id?: never
+          product_id?: never
+          review_id?: never
+          parent_comment_id?: never
+          body?: never
+          status?: never
+          created_at?: never
+          updated_at?: never
+          author_name?: never
+        }
+        Update: {
+          id?: never
+          author_id?: never
+          target_id?: never
+          product_id?: never
+          review_id?: never
+          parent_comment_id?: never
+          body?: never
+          status?: never
+          created_at?: never
+          updated_at?: never
+          author_name?: never
+        }
+        Relationships: []
+      }
+      customer_conversations: {
+        Row: {
+          user_id: string | null
+          id: string | null
+          store_id: string | null
+          created_by: string | null
+          store_name: string | null
+          last_message: string | null
+          updated_at: string | null
+          created_at: string | null
+          participant_ids: string[] | null
+        }
+        Insert: {
+          user_id?: never
+          id?: never
+          store_id?: never
+          created_by?: never
+          store_name?: never
+          last_message?: never
+          updated_at?: never
+          created_at?: never
+          participant_ids?: never
+        }
+        Update: {
+          user_id?: never
+          id?: never
+          store_id?: never
+          created_by?: never
+          store_name?: never
+          last_message?: never
+          updated_at?: never
+          created_at?: never
+          participant_ids?: never
+        }
+        Relationships: []
+      }
+      customer_favorite_products: {
+        Row: {
+          user_id: string | null
+          id: string | null
+          store_id: string | null
+          merchant_id: string | null
+          taxonomy_id: string | null
+          subcategory_id: string | null
+          category_id: string | null
+          name_ar: string | null
+          name_en: string | null
+          description: string | null
+          product_type: string | null
+          grade_level: number | null
+          status: string | null
+          is_featured: boolean | null
+          metadata: Json | null
+          subcategory_name_ar: string | null
+          category_name_ar: string | null
+          region_name_ar: string | null
+          region_id: string | null
+          province_id: string | null
+          origin_country: string | null
+          honey_identity: string | null
+          quality_label_ar: string | null
+          processing_method_ar: string | null
+          processing_status_ar: string | null
+          packaging_label_ar: string | null
+          availability: string | null
+          weight_label: string | null
+          harvest_label: string | null
+          province_name_ar: string | null
+          grade_label_ar: string | null
+          purpose: string | null
+          currency_code: string | null
+          price: number | null
+          rating_average: number | null
+          review_count: number | null
+          views_count: number | null
+          likes_count: number | null
+          primary_image_url: string | null
+          image_urls: string[] | null
+          delivery_options: string[] | null
+          pickup_locations: string[] | null
+          tags: string[] | null
+          badges: string[] | null
+          regions: string[] | null
+          forms: string[] | null
+          certifications: string[] | null
+          production_date: string | null
+          packaged_date: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          user_id?: never
+          id?: never
+          store_id?: never
+          merchant_id?: never
+          taxonomy_id?: never
+          subcategory_id?: never
+          category_id?: never
+          name_ar?: never
+          name_en?: never
+          description?: never
+          product_type?: never
+          grade_level?: never
+          status?: never
+          is_featured?: never
+          metadata?: never
+          subcategory_name_ar?: never
+          category_name_ar?: never
+          region_name_ar?: never
+          region_id?: never
+          province_id?: never
+          origin_country?: never
+          honey_identity?: never
+          quality_label_ar?: never
+          processing_method_ar?: never
+          processing_status_ar?: never
+          packaging_label_ar?: never
+          availability?: never
+          weight_label?: never
+          harvest_label?: never
+          province_name_ar?: never
+          grade_label_ar?: never
+          purpose?: never
+          currency_code?: never
+          price?: never
+          rating_average?: never
+          review_count?: never
+          views_count?: never
+          likes_count?: never
+          primary_image_url?: never
+          image_urls?: never
+          delivery_options?: never
+          pickup_locations?: never
+          tags?: never
+          badges?: never
+          regions?: never
+          forms?: never
+          certifications?: never
+          production_date?: never
+          packaged_date?: never
+          created_at?: never
+          updated_at?: never
+        }
+        Update: {
+          user_id?: never
+          id?: never
+          store_id?: never
+          merchant_id?: never
+          taxonomy_id?: never
+          subcategory_id?: never
+          category_id?: never
+          name_ar?: never
+          name_en?: never
+          description?: never
+          product_type?: never
+          grade_level?: never
+          status?: never
+          is_featured?: never
+          metadata?: never
+          subcategory_name_ar?: never
+          category_name_ar?: never
+          region_name_ar?: never
+          region_id?: never
+          province_id?: never
+          origin_country?: never
+          honey_identity?: never
+          quality_label_ar?: never
+          processing_method_ar?: never
+          processing_status_ar?: never
+          packaging_label_ar?: never
+          availability?: never
+          weight_label?: never
+          harvest_label?: never
+          province_name_ar?: never
+          grade_label_ar?: never
+          purpose?: never
+          currency_code?: never
+          price?: never
+          rating_average?: never
+          review_count?: never
+          views_count?: never
+          likes_count?: never
+          primary_image_url?: never
+          image_urls?: never
+          delivery_options?: never
+          pickup_locations?: never
+          tags?: never
+          badges?: never
+          regions?: never
+          forms?: never
+          certifications?: never
+          production_date?: never
+          packaged_date?: never
+          created_at?: never
+          updated_at?: never
+        }
+        Relationships: []
+      }
+      customer_followed_stores: {
+        Row: {
+          user_id: string | null
+          id: string | null
+          merchant_id: string | null
+          name_ar: string | null
+          slug: string | null
+          description: string | null
+          region_id: string | null
+          region_name_ar: string | null
+          logo_url: string | null
+          cover_url: string | null
+          avatar_url: string | null
+          merchant_name_ar: string | null
+          gallery_urls: string[] | null
+          social_links: Json | null
+          delivery_options: string[] | null
+          pickup_locations: string[] | null
+          contact_phone: string | null
+          contact_whatsapp: string | null
+          contact_telegram: string | null
+          is_verified: boolean | null
+          status: string | null
+          rating_average: number | null
+          review_count: number | null
+          followers_count: number | null
+          years_experience: number | null
+          bio: string | null
+          specialties: string[] | null
+          certifications: string[] | null
+        }
+        Insert: {
+          user_id?: never
+          id?: never
+          merchant_id?: never
+          name_ar?: never
+          slug?: never
+          description?: never
+          region_id?: never
+          region_name_ar?: never
+          logo_url?: never
+          cover_url?: never
+          avatar_url?: never
+          merchant_name_ar?: never
+          gallery_urls?: never
+          social_links?: never
+          delivery_options?: never
+          pickup_locations?: never
+          contact_phone?: never
+          contact_whatsapp?: never
+          contact_telegram?: never
+          is_verified?: never
+          status?: never
+          rating_average?: never
+          review_count?: never
+          followers_count?: never
+          years_experience?: never
+          bio?: never
+          specialties?: never
+          certifications?: never
+        }
+        Update: {
+          user_id?: never
+          id?: never
+          merchant_id?: never
+          name_ar?: never
+          slug?: never
+          description?: never
+          region_id?: never
+          region_name_ar?: never
+          logo_url?: never
+          cover_url?: never
+          avatar_url?: never
+          merchant_name_ar?: never
+          gallery_urls?: never
+          social_links?: never
+          delivery_options?: never
+          pickup_locations?: never
+          contact_phone?: never
+          contact_whatsapp?: never
+          contact_telegram?: never
+          is_verified?: never
+          status?: never
+          rating_average?: never
+          review_count?: never
+          followers_count?: never
+          years_experience?: never
+          bio?: never
+          specialties?: never
+          certifications?: never
+        }
+        Relationships: []
+      }
       customer_banners: {
         Row: {
           created_at: string | null
