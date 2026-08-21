@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:assalkom_data/assal_repository.dart';
-import 'package:assalkom_data/demo_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 import '../core/assal_widgets.dart';
 import '../core/supabase_realtime_sync.dart';
@@ -37,9 +36,14 @@ class AssalApp extends StatelessWidget {
             child: Directionality(
                 textDirection: TextDirection.rtl,
                 child: child ?? const SizedBox.shrink())),
-        home: startupError == null
-            ? AssalHomeShell(repository: repository, realtimeSync: realtimeSync)
-            : AssalStartupErrorScreen(messageAr: startupError!),
+        home: startupError != null
+            ? AssalStartupErrorScreen(messageAr: startupError!)
+            : repository == null
+                ? const AssalStartupErrorScreen(
+                    messageAr:
+                        'لم يتم تزويد التطبيق بمصدر بيانات Production صالح.')
+                : AssalHomeShell(
+                    repository: repository!, realtimeSync: realtimeSync),
       );
 }
 
@@ -80,8 +84,9 @@ class AssalStartupErrorScreen extends StatelessWidget {
 }
 
 class AssalHomeShell extends StatefulWidget {
-  const AssalHomeShell({super.key, this.repository, this.realtimeSync});
-  final AssalRepository? repository;
+  const AssalHomeShell(
+      {super.key, required this.repository, this.realtimeSync});
+  final AssalRepository repository;
   final SupabaseRealtimeSync? realtimeSync;
   @override
   State<AssalHomeShell> createState() => _AssalHomeShellState();
@@ -94,8 +99,7 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
   @override
   void initState() {
     super.initState();
-    repository = widget.repository ??
-        DemoRepository(loader: const InMemoryDemoCatalogLoader('{}'));
+    repository = widget.repository;
     widget.realtimeSync?.start(() {
       if (mounted) setState(() {});
     });

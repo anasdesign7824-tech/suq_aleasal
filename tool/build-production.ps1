@@ -25,7 +25,6 @@ Push-Location $project
 try {
   $args = @(
     "build", "apk", "--release",
-    "--target-platform", "android-arm64",
     "--dart-define-from-file=$definesPath"
   )
   if (-not $NoSplit) { $args += "--split-per-abi" }
@@ -33,15 +32,21 @@ try {
   & $Flutter @args
   if ($LASTEXITCODE -ne 0) { throw "Flutter Production build failed with exit code $LASTEXITCODE." }
 
-  $apk = if ($NoSplit) {
-    Join-Path $project "build\app\outputs\flutter-apk\app-release.apk"
+  $apks = if ($NoSplit) {
+    @(Join-Path $project "build\app\outputs\flutter-apk\app-release.apk")
   } else {
-    Join-Path $project "build\app\outputs\flutter-apk\app-arm64-v8a-release.apk"
+    @(
+      (Join-Path $project "build\app\outputs\flutter-apk\app-arm64-v8a-release.apk"),
+      (Join-Path $project "build\app\outputs\flutter-apk\app-armeabi-v7a-release.apk"),
+      (Join-Path $project "build\app\outputs\flutter-apk\app-x86_64-release.apk")
+    )
   }
-  if (-not (Test-Path $apk)) { throw "Production APK was not produced at: $apk" }
-  $hash = (Get-FileHash -Algorithm SHA256 -Path $apk).Hash.ToLowerInvariant()
-  Write-Host "Production APK: $apk"
-  Write-Host "SHA256: $hash"
+  foreach ($apk in $apks) {
+    if (-not (Test-Path $apk)) { throw "Production APK was not produced at: $apk" }
+    $hash = (Get-FileHash -Algorithm SHA256 -Path $apk).Hash.ToLowerInvariant()
+    Write-Host "Production APK: $apk"
+    Write-Host "SHA256: $hash"
+  }
 } finally {
   Pop-Location
 }
