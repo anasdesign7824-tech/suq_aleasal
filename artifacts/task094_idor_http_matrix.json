@@ -1,0 +1,110 @@
+﻿[
+    {
+        "name":  "delete_store",
+        "method":  "DELETE",
+        "path":  "/api/admin/stores/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "moderate_store",
+        "method":  "POST",
+        "path":  "/api/admin/stores/00000000-0000-0000-0000-000000000001/approve",
+        "status":  401
+    },
+    {
+        "name":  "delete_product",
+        "method":  "DELETE",
+        "path":  "/api/admin/products/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "update_product",
+        "method":  "PATCH",
+        "path":  "/api/admin/products/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "delete_banner",
+        "method":  "DELETE",
+        "path":  "/api/admin/banners/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "update_banner",
+        "method":  "PATCH",
+        "path":  "/api/admin/banners/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "review_store_verification",
+        "method":  "PATCH",
+        "path":  "/api/admin/store-verification-requests/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "reconcile_store_verification_payment",
+        "method":  "PATCH",
+        "path":  "/api/admin/store-verification-requests/00000000-0000-0000-0000-000000000001/payment",
+        "status":  401
+    },
+    {
+        "name":  "review_merchant_application",
+        "method":  "PATCH",
+        "path":  "/api/admin/merchant-applications/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "reconcile_payment_request",
+        "method":  "PATCH",
+        "path":  "/api/admin/payment-requests/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "set_subscription_status",
+        "method":  "PATCH",
+        "path":  "/api/admin/subscriptions/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "activate_subscription_for_user",
+        "method":  "POST",
+        "path":  "/api/admin/subscriptions/activate",
+        "status":  401
+    },
+    {
+        "name":  "update_design_request",
+        "method":  "PATCH",
+        "path":  "/api/admin/design-requests/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "answer_request",
+        "method":  "POST",
+        "path":  "/api/admin/requests/00000000-0000-0000-0000-000000000001/reply",
+        "status":  401
+    },
+    {
+        "name":  "delete_delivery_option",
+        "method":  "DELETE",
+        "path":  "/api/admin/logistics/delivery-options/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "delete_pickup_location",
+        "method":  "DELETE",
+        "path":  "/api/admin/logistics/pickup-locations/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "update_admin_membership",
+        "method":  "PATCH",
+        "path":  "/api/admin/admin-users/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    },
+    {
+        "name":  "delete_user",
+        "method":  "DELETE",
+        "path":  "/api/admin/users/00000000-0000-0000-0000-000000000001",
+        "status":  401
+    }
+]
