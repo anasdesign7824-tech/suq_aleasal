@@ -2,6 +2,7 @@ import express, { type ErrorRequestHandler, type Request, type Response } from "
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import { buildAdminErrorResponse } from "./admin-error";
 import {
   changeAdminPassword,
   clearAdminCookies,
@@ -69,6 +70,7 @@ import {
   upsertTaxonomy,
 } from "./admin-data";
 import { signInAdmin } from "./admin-auth";
+import { requireSameOriginAdminMutation } from "./admin-csrf";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,17 +85,8 @@ function numericQuery(value: unknown, fallback: number): number {
 
 function sendError(response: Response, error: unknown) {
   console.error("[Admin Backend]", error);
-  const candidate = error as { code?: unknown; message?: unknown; status?: unknown } | null;
-  const code = typeof candidate?.code === "string" ? candidate.code : undefined;
-  const rawMessage = typeof candidate?.message === "string" ? candidate.message : error instanceof Error ? error.message : "";
-  const status = typeof candidate?.status === "number" && candidate.status >= 400 && candidate.status < 600 ? candidate.status : code === "42501" ? 503 : 500;
-  const messageAr = code === "42501"
-    ? "رفضت قاعدة بيانات Production العملية بسبب صلاحيات مسار الإدارة. تم تسجيل الخطأ، تحقق من اتصال الخادم المحلي وصلاحياته ثم أعد المحاولة."
-    : rawMessage || "تعذر تنفيذ العملية الإدارية الآن.";
-  response.status(status).json({
-    error: code ?? "admin_backend_error",
-    messageAr,
-  });
+  const normalized = buildAdminErrorResponse(error);
+  response.status(normalized.status).json(normalized.payload);
 }
 
 async function startServer() {
@@ -102,6 +95,7 @@ async function startServer() {
   app.disable("x-powered-by");
   // Base64 image upload is bounded by the public Storage bucket's 10 MB limit.
   app.use(express.json({ limit: "15mb" }));
+  app.use("/api/admin", requireSameOriginAdminMutation);
 
   app.get("/api/health", (_request, response) => {
     response.json({ ok: true, service: "assalkom-admin-local", source: "supabase-production" });
