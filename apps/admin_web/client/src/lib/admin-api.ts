@@ -20,6 +20,23 @@ export type AdminSessionPayload = {
 
 export type AdminError = Error & { status?: number; code?: string };
 
+export function normalizeAdminRequestError(error: unknown): AdminError | null {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    const timeoutError = new Error("انتهت مهلة الاتصال بالخادم المحلي. تحقق من تشغيل لوحة الإدارة ثم أعد المحاولة.") as AdminError;
+    timeoutError.status = 504;
+    timeoutError.code = "admin_request_timeout";
+    return timeoutError;
+  }
+  const raw = error instanceof Error ? error.message : String(error);
+  if (error instanceof TypeError || /failed to fetch|networkerror|fetch failed|connection reset|network unavailable/i.test(raw)) {
+    const networkError = new Error("تعذر الوصول إلى الخادم المحلي الآن. تحقق من تشغيل لوحة الإدارة ثم أعد المحاولة.") as AdminError;
+    networkError.status = 503;
+    networkError.code = "admin_network_unavailable";
+    return networkError;
+  }
+  return null;
+}
+
 function queryString(params: Record<string, string | number | undefined>): string {
   const values = Object.entries(params).filter(([, value]) => value !== undefined && value !== "");
   return new URLSearchParams(values.map(([key, value]) => [key, String(value)])).toString();
@@ -44,12 +61,8 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     }
     return payload as T;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      const timeoutError = new Error("انتهت مهلة الاتصال بالخادم المحلي. تحقق من تشغيل لوحة الإدارة ثم أعد المحاولة.") as AdminError;
-      timeoutError.status = 504;
-      timeoutError.code = "admin_request_timeout";
-      throw timeoutError;
-    }
+    const normalized = normalizeAdminRequestError(error);
+    if (normalized) throw normalized;
     throw error;
   } finally {
     window.clearTimeout(timeout);
