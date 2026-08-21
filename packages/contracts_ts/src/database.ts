@@ -2420,6 +2420,10 @@ export type Database = {
           packaged_date: string | null
           created_at: string | null
           updated_at: string | null
+          components: string[] | null
+          grade_levels: number[] | null
+          grade_labels: string[] | null
+          shelf_life_label_ar: string | null
         }
         Insert: {
           user_id?: never
@@ -2473,6 +2477,10 @@ export type Database = {
           packaged_date?: never
           created_at?: never
           updated_at?: never
+          components?: never
+          grade_levels?: never
+          grade_labels?: never
+          shelf_life_label_ar?: never
         }
         Update: {
           user_id?: never
@@ -2526,6 +2534,10 @@ export type Database = {
           packaged_date?: never
           created_at?: never
           updated_at?: never
+          components?: never
+          grade_levels?: never
+          grade_labels?: never
+          shelf_life_label_ar?: never
         }
         Relationships: []
       }
@@ -2719,6 +2731,10 @@ export type Database = {
           updated_at: string | null
           views_count: number | null
           weight_label: string | null
+          components: string[] | null
+          grade_levels: number[] | null
+          grade_labels: string[] | null
+          shelf_life_label_ar: string | null
         }
         Relationships: [
           {

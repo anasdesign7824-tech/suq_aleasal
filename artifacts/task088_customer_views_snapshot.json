@@ -1,0 +1,22 @@
+{
+  "source": "Production information_schema.columns, public customer_* views, queried with LIMIT 500 OFFSET 0 on 2026-08-21",
+  "views": {
+    "customer_banners": {"column_count": 12, "source_migration": "0004_customer_read_models"},
+    "customer_comments": {"column_count": 11, "source_migration": "0039_customer_comments_read_model"},
+    "customer_conversations": {"column_count": 9, "source_migration": "0038_customer_sync_read_models"},
+    "customer_favorite_products": {"column_count": 55, "source_migration": "0038_customer_sync_read_models + 0059_refresh_customer_favorite_products_read_model", "new_columns": ["components", "grade_levels", "grade_labels", "shelf_life_label_ar"]},
+    "customer_followed_stores": {"column_count": 28, "source_migration": "0038_customer_sync_read_models"},
+    "customer_products": {"column_count": 54, "source_migration": "0004_customer_read_models + 0058_complete_customer_product_read_model", "new_columns": ["components", "grade_levels", "grade_labels", "shelf_life_label_ar"]},
+    "customer_stores": {"column_count": 27, "source_migration": "0004_customer_read_models"}
+  },
+  "post_apply_new_column_probe": {
+    "customer_products": ["components", "grade_levels", "grade_labels", "shelf_life_label_ar"],
+    "customer_favorite_products": ["components", "grade_levels", "grade_labels", "shelf_life_label_ar"]
+  },
+  "production_rows_sampled": {
+    "customer_products": 1,
+    "customer_favorite_products": 1,
+    "rich_projection_values_in_sample": "empty/default because the sampled product metadata has no optional rich values; column readability and types passed"
+  },
+  "transaction_effect": "All schema probes were read-only or rolled back; migrations 0058 and 0059 were applied as conservative CREATE OR REPLACE VIEW changes only."
+}
