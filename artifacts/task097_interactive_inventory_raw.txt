@@ -1,0 +1,251 @@
+﻿apps/admin_web/client/src/App.tsx:1:import { Route, Switch } from "wouter";
+apps/admin_web/client/src/App.tsx:11:  return <ErrorBoundary><AdminAuthGate>{({ session, logout }) => <TooltipProvider><Toaster richColors position="bottom-left" /><Switch><Route path="/" component={() => <Home session={session} onLogout={logout} />} /><Route path="/landing" component={Landing} /><Route component={NotFound} /></Switch></TooltipProvider>}</AdminAuthGate></ErrorBoundary>;
+apps/admin_web/client/src/components/ui/checkbox.tsx:2:import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+apps/admin_web/client/src/components/ui/checkbox.tsx:7:function Checkbox({
+apps/admin_web/client/src/components/ui/checkbox.tsx:10:}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
+apps/admin_web/client/src/components/ui/checkbox.tsx:12:    <CheckboxPrimitive.Root
+apps/admin_web/client/src/components/ui/checkbox.tsx:20:      <CheckboxPrimitive.Indicator
+apps/admin_web/client/src/components/ui/checkbox.tsx:25:      </CheckboxPrimitive.Indicator>
+apps/admin_web/client/src/components/ui/checkbox.tsx:26:    </CheckboxPrimitive.Root>
+apps/admin_web/client/src/components/ui/checkbox.tsx:30:export { Checkbox };
+apps/admin_web/client/src/components/ui/context-menu.tsx:43:function ContextMenuRadioGroup({
+apps/admin_web/client/src/components/ui/context-menu.tsx:45:}: React.ComponentProps<typeof ContextMenuPrimitive.RadioGroup>) {
+apps/admin_web/client/src/components/ui/context-menu.tsx:47:    <ContextMenuPrimitive.RadioGroup
+apps/admin_web/client/src/components/ui/context-menu.tsx:135:function ContextMenuCheckboxItem({
+apps/admin_web/client/src/components/ui/context-menu.tsx:140:}: React.ComponentProps<typeof ContextMenuPrimitive.CheckboxItem>) {
+apps/admin_web/client/src/components/ui/context-menu.tsx:142:    <ContextMenuPrimitive.CheckboxItem
+apps/admin_web/client/src/components/ui/context-menu.tsx:157:    </ContextMenuPrimitive.CheckboxItem>
+apps/admin_web/client/src/components/ui/context-menu.tsx:161:function ContextMenuRadioItem({
+apps/admin_web/client/src/components/ui/context-menu.tsx:165:}: React.ComponentProps<typeof ContextMenuPrimitive.RadioItem>) {
+apps/admin_web/client/src/components/ui/context-menu.tsx:167:    <ContextMenuPrimitive.RadioItem
+apps/admin_web/client/src/components/ui/context-menu.tsx:181:    </ContextMenuPrimitive.RadioItem>
+apps/admin_web/client/src/components/ui/context-menu.tsx:239:  ContextMenuCheckboxItem,
+apps/admin_web/client/src/components/ui/context-menu.tsx:240:  ContextMenuRadioItem,
+apps/admin_web/client/src/components/ui/context-menu.tsx:249:  ContextMenuRadioGroup,
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:83:function DropdownMenuCheckboxItem({
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:88:}: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>) {
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:90:    <DropdownMenuPrimitive.CheckboxItem
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:105:    </DropdownMenuPrimitive.CheckboxItem>
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:109:function DropdownMenuRadioGroup({
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:111:}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) {
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:113:    <DropdownMenuPrimitive.RadioGroup
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:120:function DropdownMenuRadioItem({
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:124:}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem>) {
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:126:    <DropdownMenuPrimitive.RadioItem
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:140:    </DropdownMenuPrimitive.RadioItem>
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:247:  DropdownMenuCheckboxItem,
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:248:  DropdownMenuRadioGroup,
+apps/admin_web/client/src/components/ui/dropdown-menu.tsx:249:  DropdownMenuRadioItem,
+apps/admin_web/client/src/components/ui/menubar.tsx:41:function MenubarRadioGroup({
+apps/admin_web/client/src/components/ui/menubar.tsx:43:}: React.ComponentProps<typeof MenubarPrimitive.RadioGroup>) {
+apps/admin_web/client/src/components/ui/menubar.tsx:45:    <MenubarPrimitive.RadioGroup data-slot="menubar-radio-group" {...props} />
+apps/admin_web/client/src/components/ui/menubar.tsx:112:function MenubarCheckboxItem({
+apps/admin_web/client/src/components/ui/menubar.tsx:117:}: React.ComponentProps<typeof MenubarPrimitive.CheckboxItem>) {
+apps/admin_web/client/src/components/ui/menubar.tsx:119:    <MenubarPrimitive.CheckboxItem
+apps/admin_web/client/src/components/ui/menubar.tsx:134:    </MenubarPrimitive.CheckboxItem>
+apps/admin_web/client/src/components/ui/menubar.tsx:138:function MenubarRadioItem({
+apps/admin_web/client/src/components/ui/menubar.tsx:142:}: React.ComponentProps<typeof MenubarPrimitive.RadioItem>) {
+apps/admin_web/client/src/components/ui/menubar.tsx:144:    <MenubarPrimitive.RadioItem
+apps/admin_web/client/src/components/ui/menubar.tsx:158:    </MenubarPrimitive.RadioItem>
+apps/admin_web/client/src/components/ui/menubar.tsx:268:  MenubarCheckboxItem,
+apps/admin_web/client/src/components/ui/menubar.tsx:269:  MenubarRadioGroup,
+apps/admin_web/client/src/components/ui/menubar.tsx:270:  MenubarRadioItem,
+apps/admin_web/client/src/components/ui/radio-group.tsx:2:import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
+apps/admin_web/client/src/components/ui/radio-group.tsx:7:function RadioGroup({
+apps/admin_web/client/src/components/ui/radio-group.tsx:10:}: React.ComponentProps<typeof RadioGroupPrimitive.Root>) {
+apps/admin_web/client/src/components/ui/radio-group.tsx:12:    <RadioGroupPrimitive.Root
+apps/admin_web/client/src/components/ui/radio-group.tsx:20:function RadioGroupItem({
+apps/admin_web/client/src/components/ui/radio-group.tsx:23:}: React.ComponentProps<typeof RadioGroupPrimitive.Item>) {
+apps/admin_web/client/src/components/ui/radio-group.tsx:25:    <RadioGroupPrimitive.Item
+apps/admin_web/client/src/components/ui/radio-group.tsx:33:      <RadioGroupPrimitive.Indicator
+apps/admin_web/client/src/components/ui/radio-group.tsx:38:      </RadioGroupPrimitive.Indicator>
+apps/admin_web/client/src/components/ui/radio-group.tsx:39:    </RadioGroupPrimitive.Item>
+apps/admin_web/client/src/components/ui/radio-group.tsx:43:export { RadioGroup, RadioGroupItem };
+apps/admin_web/client/src/components/ui/switch.tsx:2:import * as SwitchPrimitive from "@radix-ui/react-switch";
+apps/admin_web/client/src/components/ui/switch.tsx:6:function Switch({
+apps/admin_web/client/src/components/ui/switch.tsx:9:}: React.ComponentProps<typeof SwitchPrimitive.Root>) {
+apps/admin_web/client/src/components/ui/switch.tsx:11:    <SwitchPrimitive.Root
+apps/admin_web/client/src/components/ui/switch.tsx:19:      <SwitchPrimitive.Thumb
+apps/admin_web/client/src/components/ui/switch.tsx:25:    </SwitchPrimitive.Root>
+apps/admin_web/client/src/components/ui/switch.tsx:29:export { Switch };
+apps/mobile_flutter/lib/app/assal_app.dart:36:            child: Directionality(
+apps/mobile_flutter/lib/app/assal_theme.dart:179:    filledButtonTheme: FilledButtonThemeData(
+apps/mobile_flutter/lib/app/assal_theme.dart:182:    elevatedButtonTheme: ElevatedButtonThemeData(
+apps/mobile_flutter/lib/app/assal_theme.dart:185:    outlinedButtonTheme: OutlinedButtonThemeData(
+apps/mobile_flutter/lib/app/assal_theme.dart:186:      style: OutlinedButton.styleFrom(
+apps/mobile_flutter/lib/app/assal_theme.dart:195:    textButtonTheme: TextButtonThemeData(
+apps/mobile_flutter/lib/app/assal_theme.dart:196:      style: TextButton.styleFrom(
+apps/mobile_flutter/lib/app/assal_theme.dart:204:    iconButtonTheme: IconButtonThemeData(
+apps/mobile_flutter/lib/app/assal_theme.dart:205:      style: IconButton.styleFrom(
+apps/mobile_flutter/lib/app/assal_theme.dart:210:    switchTheme: SwitchThemeData(
+apps/mobile_flutter/lib/core/assal_widgets.dart:46:    return Semantics(
+apps/mobile_flutter/lib/core/assal_widgets.dart:122:            ? IconButton(
+apps/mobile_flutter/lib/core/assal_widgets.dart:193:    return Semantics(
+apps/mobile_flutter/lib/core/assal_widgets.dart:336:                  TextButton.icon(
+apps/mobile_flutter/lib/core/assal_widgets.dart:362:          TextButton(onPressed: onAction, child: Text(actionLabel!)),
+apps/mobile_flutter/lib/core/assal_widgets.dart:705:                    child: OutlinedButton.icon(
+apps/mobile_flutter/lib/core/assal_widgets.dart:792:    return Semantics(
+apps/mobile_flutter/lib/core/assal_widgets.dart:826:                    child: IconButton.filled(
+apps/mobile_flutter/lib/core/assal_widgets.dart:844:                      child: IconButton.filledTonal(
+apps/mobile_flutter/lib/core/assal_widgets.dart:912:        Semantics(
+apps/mobile_flutter/lib/core/assal_widgets.dart:946:                        child: IconButton.filled(
+apps/mobile_flutter/lib/core/assal_widgets.dart:960:                          child: IconButton.filledTonal(
+apps/mobile_flutter/lib/core/assal_widgets.dart:1036:  Widget build(BuildContext context) => Semantics(
+apps/mobile_flutter/lib/core/assal_widgets.dart:1051:                      child: IconButton.filledTonal(
+apps/mobile_flutter/lib/core/assal_widgets.dart:1185:                    IconButton(
+apps/mobile_flutter/lib/core/assal_widgets.dart:1382:          TextButton(
+apps/mobile_flutter/lib/core/assal_widgets.dart:1385:          OutlinedButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:69:          TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:71:              textInputAction: TextInputAction.next,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:75:        TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:77:            keyboardType: TextInputType.emailAddress,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:79:                registerMode ? TextInputAction.next : TextInputAction.done,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:83:          TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:108:          TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:116:            child: FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:126:        TextButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:251:                    TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:252:                      keyboardType: TextInputType.emailAddress,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:266:                    TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:268:                      autofocus: true,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:269:                      keyboardType: TextInputType.number,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:274:                      textInputAction: TextInputAction.done,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:308:                TextButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:344:                FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:585:          FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:613:            OutlinedButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:614:              style: OutlinedButton.styleFrom(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:628:            FilledButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:629:              style: FilledButton.styleFrom(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:649:        OutlinedButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:668:        TextButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:717:          TextButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:720:          FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:812:        content: TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:814:          autofocus: true,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:821:          TextButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:825:          FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:933:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:941:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:950:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:952:              keyboardType: TextInputType.phone,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:959:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:964:                suffixIcon: IconButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:974:              child: FilledButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1057:                child: FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1120:                child: FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1224:                  child: TextField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1230:              IconButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1304:                child: FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1360:            SwitchListTile(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1392:                              FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1670:            TextFormField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1681:            TextFormField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1683:              keyboardType: TextInputType.phone,
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1690:            TextFormField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1698:            TextFormField(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1707:            OutlinedButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_account.dart:1715:              child: FilledButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:67:        IconButton(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:141:                        child: FilledButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:272:                  trailing: TextButton(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:296:                  child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:320:                  child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:767:                  child: FilledButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:787:                  child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:821:                FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:893:              TextField(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:899:              TextField(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:901:                  keyboardType: TextInputType.phone,
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:905:              TextField(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:912:              DropdownButtonFormField<HandoffOption>(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:926:                DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:939:                DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:953:                IconButton(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:959:                IconButton(
+apps/mobile_flutter/lib/features/customer/customer_catalog.dart:966:                  child: FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:531:                  child: AnimatedSwitcher(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:646:                    IconButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:670:                            IconButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:738:            child: TextField(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:863:                child: Directionality(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1103:                                  OutlinedButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1107:                                  TextButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1175:          FilledButton.tonal(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1679:          child: TextField(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1681:            autofocus: true,
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1683:            textInputAction: TextInputAction.search,
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1687:              suffixIcon: IconButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1727:                child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1766:                TextButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:1994:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2003:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2019:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2027:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2034:                      DropdownButtonFormField<ProductType?>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2041:                      DropdownButtonFormField<int?>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2048:                      SwitchListTile(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2053:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2060:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2067:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2074:                      DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2113:                          child: FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2236:            child: TextField(
+apps/mobile_flutter/lib/features/customer/customer_discovery.dart:2255:                      child: DropdownButtonFormField<String?>(
+apps/mobile_flutter/lib/features/customer/customer_favorites.dart:66:                child: FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_social.dart:48:      OutlinedButton.icon(onPressed: _writeReview, icon: const Icon(Icons.rate_review_outlined), label: const Text('╪ث╪╢┘ ┘à╪▒╪د╪ش╪╣╪ز┘â')),
+apps/mobile_flutter/lib/features/customer/customer_social.dart:62:          DropdownButtonFormField<int>(initialValue: rating, items: [1, 2, 3, 4, 5].map<DropdownMenuItem<int>>((item) => DropdownMenuItem(value: item, child: Text('$item ┘╪ش┘ê┘à'))).toList(), onChanged: (value) => setModal(() => rating = value ?? 5)),
+apps/mobile_flutter/lib/features/customer/customer_social.dart:63:          TextField(controller: body, maxLines: 3, decoration: const InputDecoration(hintText: '╪┤╪د╪▒┘â ┘à╪د ┘è┘┘è╪» ╪د┘╪ت╪«╪▒┘è┘')),
+apps/mobile_flutter/lib/features/customer/customer_social.dart:66:          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('╪ح┘╪║╪د╪ة')),
+apps/mobile_flutter/lib/features/customer/customer_social.dart:67:          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('┘╪┤╪▒')),
+apps/mobile_flutter/lib/features/customer/customer_social.dart:143:        Expanded(child: TextField(controller: controller, maxLines: 2, decoration: const InputDecoration(hintText: '╪د┘â╪ز╪ذ ╪ز╪╣┘┘è┘é┘ï╪د ┘à┘┘è╪»┘ï╪د'))),
+apps/mobile_flutter/lib/features/customer/customer_social.dart:144:        IconButton(onPressed: _add, icon: const Icon(Icons.send_rounded), tooltip: '╪ح╪▒╪│╪د┘ ╪د┘╪ز╪╣┘┘è┘é'),
+apps/mobile_flutter/lib/features/customer/customer_support.dart:121:            FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_support.dart:137:            FilledButton(
+apps/mobile_flutter/lib/features/customer/customer_support.dart:203:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_support.dart:211:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_support.dart:221:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_support.dart:229:            TextField(
+apps/mobile_flutter/lib/features/customer/customer_support.dart:240:              child: FilledButton.icon(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:172:              trailing: IconButton(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:278:            child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:297:            child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:313:            child: FilledButton.icon(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:365:                child: FilledButton.icon(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:602:                child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:612:              IconButton.filledTonal(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:653:          TextButton(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:656:          FilledButton(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:928:            TextField(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:936:            TextField(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:945:            TextField(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:947:              keyboardType: TextInputType.phone,
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:982:                    DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:1009:                    DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart:1071:              child: FilledButton.icon(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:392:    TextInputType? keyboardType,
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:395:      TextFormField(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:398:        keyboardType: keyboardType,
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:404:      TextFormField(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:506:              return DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:533:          DropdownButtonFormField<ProductType>(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:577:                  keyboardType: const TextInputType.numberWithOptions(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:591:                child: DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:623:                child: DropdownButtonFormField<int>(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:677:                  DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:710:                  DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:775:          DropdownButtonFormField<String>(
+apps/mobile_flutter/lib/features/merchant/merchant_product_editor.dart:874:                      child: FilledButton.icon(
+apps/mobile_flutter/lib/features/merchant/store_verification_screen.dart:318:                child: FilledButton.icon(
+apps/mobile_flutter/lib/features/merchant/store_verification_screen.dart:356:              TextField(
+apps/mobile_flutter/lib/features/merchant/store_verification_screen.dart:358:                enabled: !busy &&
+apps/mobile_flutter/lib/features/merchant/store_verification_screen.dart:369:                child: OutlinedButton.icon(
+apps/mobile_flutter/lib/features/merchant/store_verification_screen.dart:421:                  trailing: OutlinedButton(
+apps/mobile_flutter/lib/features/merchant/store_verification_screen.dart:441:            child: FilledButton.icon(
+apps/mobile_flutter/lib/features/merchant/subscription_plans_screen.dart:239:      SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: busy ? null : () => _choosePlan(plan), icon: const Icon(Icons.arrow_forward_outlined), label: Text(plan.priceAmount == 0 ? '╪د╪│╪ز╪«╪»╪د┘à ╪د┘╪«╪╖╪ر ╪د┘╪ث╪│╪د╪│┘è╪ر' : '╪د╪«╪ز┘è╪د╪▒ ╪د┘╪«╪╖╪ر ┘ê╪ذ╪»╪ة ╪د┘╪ص┘ê╪د┘╪ر'))),
+apps/mobile_flutter/lib/features/merchant/subscription_plans_screen.dart:257:          TextField(controller: referenceController, decoration: const InputDecoration(labelText: '┘à╪▒╪ش╪╣ ╪د┘╪ص┘ê╪د┘╪ر ╪ث┘ê ╪▒┘é┘à ╪د┘╪╣┘à┘┘è╪ر')),
+apps/mobile_flutter/lib/features/merchant/subscription_plans_screen.dart:259:          TextField(controller: amountController, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: '╪د┘┘à╪ذ┘╪║ ╪د┘┘à╪ص┘ê┘')),
+apps/mobile_flutter/lib/features/merchant/subscription_plans_screen.dart:261:          TextField(controller: senderNameController, decoration: const InputDecoration(labelText: '╪د╪│┘à ╪د┘┘à╪ص┘ê┘')),
+apps/mobile_flutter/lib/features/merchant/subscription_plans_screen.dart:263:          TextField(controller: senderPhoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: '┘ç╪د╪ز┘ ╪د┘┘à╪ص┘ê┘')),
+apps/mobile_flutter/lib/features/merchant/subscription_plans_screen.dart:265:          OutlinedButton.icon(onPressed: busy ? null : _pickProof, icon: const Icon(Icons.upload_file_outlined), label: Text(proofName == null ? '╪▒┘╪╣ ┘à╪│╪ز┘╪» ╪د┘╪ص┘ê╪د┘╪ر' : '╪ز┘à ╪د╪«╪ز┘è╪د╪▒: $proofName')),
+apps/mobile_flutter/lib/features/merchant/subscription_plans_screen.dart:267:          SizedBox(width: double.infinity, child: FilledButton.icon(onPressed: busy ? null : _submitProof, icon: const Icon(Icons.send_outlined), label: const Text('╪ح╪▒╪│╪د┘ ┘┘┘à╪▒╪د╪ش╪╣╪ر'))),
