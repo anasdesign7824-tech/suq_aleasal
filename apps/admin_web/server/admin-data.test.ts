@@ -155,6 +155,24 @@ describe("admin notification payload contract", () => {
     expect(buildAdminNotificationPayload({ payload: { screen: "home", store_id: "store-1" }, imageUrl: "  https://cdn.example/notice.webp  " })).toEqual({ screen: "home", store_id: "store-1", image_url: "https://cdn.example/notice.webp" });
     expect(buildAdminNotificationPayload({ payload: { screen: "home" }, imageUrl: "  " })).toEqual({ screen: "home" });
   });
+
+  it("redacts sensitive keys recursively from custom notification payloads", () => {
+    expect(buildAdminNotificationPayload({
+      payload: {
+        screen: "payment",
+        phone: "+967700000000",
+        senderPhone: "700000000",
+        contactPhone: "700000001",
+        payment_reference: "BANK-REF",
+        nested: { iban: "SA00", safe: "kept" },
+        items: [{ sender_phone: "700000000", action: "review" }],
+      },
+    })).toEqual({
+      screen: "payment",
+      nested: { safe: "kept" },
+      items: [{ action: "review" }],
+    });
+  });
 });
 
 describe("public image input validation", () => {

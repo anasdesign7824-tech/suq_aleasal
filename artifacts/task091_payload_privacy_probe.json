@@ -1,0 +1,29 @@
+{
+  "task": "091",
+  "date": "2026-08-21",
+  "production_payload_key_probe": {
+    "notification_keys": {
+      "action": 1,
+      "image_url": 2,
+      "payment_status": 2,
+      "request_id": 5,
+      "status": 4,
+      "store_id": 4
+    },
+    "sensitive_keys_observed": []
+  },
+  "recipient_policies": {
+    "notifications_select": "user_id = auth.uid()",
+    "requests_select": "requester_id = auth.uid() OR store owner OR private.is_admin()",
+    "request_messages_select": "sender OR request requester/store owner OR private.is_admin()",
+    "comments_select": "approved OR author OR product store owner OR private.is_admin()"
+  },
+  "source_contracts": {
+    "customer_create_request": "phone is sent only as the requester's own request field; target reads are constrained by requests_select",
+    "customer_send_message": "only conversation_id and body are sent; no phone/payment fields are added by repository",
+    "merchant_submit_payment_proof": "payment proof fields remain on payment_requests and are not copied into notification payloads",
+    "admin_notification_payload": "recursive redaction now removes email/phone/sender/payment/proof/account/IBAN keys before insert"
+  },
+  "redaction_test": "PASS",
+  "production_write_effect": "No Production data was changed by probes."
+}

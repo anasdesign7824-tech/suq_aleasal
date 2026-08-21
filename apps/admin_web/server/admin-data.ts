@@ -1215,11 +1215,51 @@ export async function listNotifications() {
   return result.data ?? [];
 }
 
+const SENSITIVE_NOTIFICATION_KEYS = new Set([
+  "email",
+  "phone",
+  "contact_phone",
+  "contactphone",
+  "sender_phone",
+  "senderphone",
+  "sender_name",
+  "sendername",
+  "payment_reference",
+  "paymentreference",
+  "proof_path",
+  "proofpath",
+  "proof_file_name",
+  "prooffilename",
+  "proof_mime_type",
+  "proofmimetype",
+  "proof_byte_size",
+  "proofbytesize",
+  "account_number",
+  "accountnumber",
+  "iban",
+  "bank_account",
+  "bankaccount",
+]);
+
+function isSensitiveNotificationKey(key: string): boolean {
+  return SENSITIVE_NOTIFICATION_KEYS.has(key.trim().toLowerCase().replace(/-/g, "_"));
+}
+
+function redactNotificationValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(redactNotificationValue);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([key]) => !isSensitiveNotificationKey(key))
+      .map(([key, child]) => [key, redactNotificationValue(child)]),
+  );
+}
+
 export function buildAdminNotificationPayload(input: { payload?: Record<string, unknown>; imageUrl?: string | null }): Json {
-  return {
+  return redactNotificationValue({
     ...(input.payload ?? {}),
     ...(input.imageUrl?.trim() ? { image_url: input.imageUrl.trim() } : {}),
-  } as Json;
+  }) as Json;
 }
 
 export async function sendNotification(session: AdminSession, input: { userId?: string | null; broadcast?: boolean; titleAr: string; bodyAr?: string | null; notificationType?: string; imageUrl?: string | null; payload?: Record<string, unknown> }) {
