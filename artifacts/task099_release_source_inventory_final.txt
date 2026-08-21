@@ -1,0 +1,10 @@
+﻿TASK 099 Final Release Source Inventory
+branch=audit/launch-fixes-2026-08-20
+head=ad73e4355d77619c9d714d36d7fcc033dafc51eb
+head_subject=task 099: commit release source baseline
+tracked_status_entries=1
+untracked_entries=352
+source_migration_files=54
+working_tree_migration_files=54
+flutter_test_files=19
+admin_test_files=302

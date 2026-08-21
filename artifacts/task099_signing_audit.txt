@@ -1,0 +1,29 @@
+﻿TASK 099 APK signing audit
+--- build.gradle.kts signing lines ---
+    namespace = "com.assalkom.assalkom"
+        applicationId = "com.assalkom.assalkom"
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("debug")
+--- keystore/config files by name ---
+--- references ---
+apps/mobile_flutter/android/.gitignore:10:# Remember to never publicly share your keystore.
+apps/mobile_flutter/android/.gitignore:11:# See https://flutter.dev/to/reference-keystore
+apps/mobile_flutter/android/.gitignore:12:key.properties
+apps/mobile_flutter/android/.gitignore:13:**/*.keystore
+apps/mobile_flutter/android/app/build.gradle.kts:33:            signingConfig = signingConfigs.getByName("debug")
+docs/deployment.md:41:| Android release keystore | ╪«╪د╪▒╪ش Git╪î secure operator storage | repository/client artifact |
+docs/evidence/customer_app_evidence.md:38:| ╪ز┘ê┘é┘è╪╣ APK ╪د┘╪ح┘╪ز╪د╪ش┘è | release build ┘╪د╪ش╪ص ┘┘â┘┘ç ┘┘è╪│ artifact ┘à┘ê┘é┘ّ╪╣┘ï╪د ╪ذ┘à┘╪ز╪د╪ص ┘à╪ز╪ش╪▒ ╪د┘┘à╪│╪ز╪«╪»┘à | ╪ز╪▓┘ê┘è╪» keystore ┘ê╪ز┘ç┘è╪خ╪ر `key.properties` ╪«╪د╪▒╪ش Git ┘é╪ذ┘ ╪د┘┘╪┤╪▒ |
+docs/evidence/customer_app_go_memo.md:38:| APK signing | release artifact ┘à╪ذ┘┘è╪î ┘┘â┘┘ç ┘╪د ┘è╪ص┘à┘ keystore ┘à╪ز╪ش╪▒ ╪د┘┘à╪│╪ز╪«╪»┘à | ╪╡╪د╪ص╪ذ ╪د┘┘à┘╪ز╪ش/DevOps |
+docs/evidence/email_only_acceptance_2026.md:54:┘â┘à╪د ╪ث┘ artifact ╪د┘╪ص╪د┘┘è ┘à╪ذ┘┘è ┘ê┘à┘ê┘é┘ّ╪╣ ╪ذ╪┤┘ç╪د╪»╪ر `Android Debug` ╪»╪د╪«┘ ╪ذ┘è╪خ╪ر ╪د┘╪ذ┘╪د╪ة ╪د┘╪░╪د╪ز┘è╪ر╪î ┘ê┘┘è╪│ upload key ╪«╪د╪╡┘ï╪د ╪ذ┘Google Play. ┘╪░┘┘â ┘è╪ش╪ذ ┘é╪ذ┘ ╪د┘┘╪┤╪▒ ╪ح┘╪┤╪د╪ة keystore release ╪«╪د╪▒╪ش Git╪î ╪ذ┘╪د╪ة AAB ╪ذ┘ç╪î ╪ز┘╪╣┘è┘ Play App Signing╪î ╪س┘à ╪د╪«╪ز╪ذ╪د╪▒ ╪د┘╪ز╪│╪ش┘è┘ ┘ê╪ز╪ث┘â┘è╪» ╪د┘╪ذ╪▒┘è╪» ┘ê╪ح╪╣╪د╪»╪ر ╪ز╪╣┘è┘è┘ ┘â┘┘à╪ر ╪د┘┘à╪▒┘ê╪▒ ┘ê╪ص╪░┘ ╪د┘╪ص╪│╪د╪ذ ╪╣┘┘ë Internal Testing ╪ث┘ê ╪ش┘ç╪د╪▓ Android ╪ص┘é┘è┘é┘è.
+docs/evidence/email_only_acceptance_2026.md:62:3. ╪ح┘╪┤╪د╪ة upload keystore╪î ╪ص┘╪╕┘ç ╪«╪د╪▒╪ش Git╪î ╪ز┘╪╣┘è┘ Play App Signing╪î ┘ê╪ح╪╣╪د╪»╪ر ╪ذ┘╪د╪ة AAB release ╪ذ┘ç ╪ذ╪»┘ ╪┤┘ç╪د╪»╪ر Android Debug ╪د┘╪ص╪د┘┘è╪ر.
+docs/evidence/email_only_acceptance_2026.md:80:╪د┘╪ز┘╪د╪╡┘è┘ ╪د┘┘â╪د┘à┘╪ر ┘à╪ص┘┘ê╪╕╪ر ┘┘è `docs/evidence/size_optimization_final_2026-08-17.md`. ┘à╪د ┘è╪▓╪د┘ ╪د┘╪ز┘ê┘é┘è╪╣ ╪د┘╪ص╪د┘┘è Debug certificate╪ؤ ┘ê┘è┘╪▓┘à ┘é╪ذ┘ Google Play ╪ح┘╪┤╪د╪ة upload keystore ╪«╪د╪▒╪ش Git ┘ê╪ح╪╣╪د╪»╪ر ╪ذ┘╪د╪ة AAB ┘à┘ê┘é┘ّ╪╣┘ï╪د ╪ذ┘ç.
+docs/evidence/google_play_requirements_2026.md:13:Google requires Android artifacts to be digitally signed. For Google Play, the recommended flow is an upload key plus Play App Signing. The current repository still uses `signingConfigs.getByName("debug")`; the locally built APK reports certificate DN `Android Debug`, so it is not a Play release artifact. A production upload key/keystore and Play App Signing setup are required. Google states that the app-signing and upload certificate fingerprints can be obtained from Play Console and registered with API providers such as Google Sign-In.
+docs/evidence/master_authority.md:65:6. ╪د┘╪ث╪│╪▒╪د╪▒╪î ┘à┘╪د╪ز┘è╪ص Google/Facebook/Supabase service role╪î ┘â┘┘à╪د╪ز ┘à╪▒┘ê╪▒ Admin╪î ┘êkeystore ┘╪د ╪ز┘╪ص┘╪╕ ┘┘è Git ╪ث┘ê client artifacts.
+docs/evidence/master_execution_plan.md:47:┘╪د ╪ز┘╪ص┘╪╕ Google Client Secret ╪ث┘ê Supabase Service Role ╪ث┘ê ╪ث┘è FCM/service credential ╪ث┘ê keystore ╪ث┘ê ┘â┘┘à╪ر ┘à╪▒┘ê╪▒ ╪»╪د╪«┘ Git ╪ث┘ê Flutter bundle ╪ث┘ê `main.dart.js`. ╪ز┘╪ص┘╪╕ ╪د┘╪ث╪│╪▒╪د╪▒ ┘┘è ┘┘ê╪ص╪ر Supabase/╪ذ┘è╪خ╪ر ╪ز╪┤╪║┘è┘ ┘à╪ص┘┘è╪ر ignored╪î ┘ê╪ز┘╪│┘┘à ╪ذ┘è╪د┘╪د╪ز Admin ╪د┘╪ث┘ê┘┘è╪ر ┘┘┘à╪│╪ز╪«╪»┘à ┘à╪▒╪ر ┘ê╪د╪ص╪»╪ر ╪ذ╪╣╪» ╪د┘╪ح┘╪┤╪د╪ة╪î ╪س┘à ┘è┘╪╖┘╪ذ ╪ز╪║┘è┘è╪▒┘ç╪د. ┘╪د ╪ز┘╪╣╪د╪» ╪╖╪ذ╪د╪╣╪ر ╪د┘╪ث╪│╪▒╪د╪▒ ┘┘è ╪د┘╪ز┘é╪د╪▒┘è╪▒.
+docs/evidence/size_optimization_final_2026-08-17.md:93:┘ç╪░┘ç artifacts ┘à╪ص╪│┘ّ┘╪ر ┘ê┘é╪د╪ذ┘╪ر ┘┘╪د╪«╪ز╪ذ╪د╪▒╪î ┘┘â┘ ╪د┘╪ز┘ê┘é┘è╪╣ ╪د┘╪ص╪د┘┘è **Debug certificate** ┘ê┘┘è╪│ upload keystore ┘┘╪ح╪╖┘╪د┘é. ┘é╪ذ┘ ╪د┘┘╪┤╪▒ ┘è╪ش╪ذ ╪ح┘╪┤╪د╪ة release keystore ╪«╪د╪▒╪ش Git╪î ╪ذ┘╪د╪ة AAB ┘à┘ê┘é┘ّ╪╣ ╪ذ┘ç╪î ╪ز┘╪╣┘è┘ Play App Signing╪î ╪س┘à ╪ح╪╣╪د╪»╪ر ╪د╪«╪ز╪ذ╪د╪▒ ┘à╪│╪د╪▒ ╪د┘╪ذ╪▒┘è╪» ┘êOTP ┘ê╪ص╪░┘ ╪د┘╪ص╪│╪د╪ذ ╪╣┘┘ë Internal Testing. ┘╪د ┘è┘┘╪┤╪▒ ╪د┘╪▒┘à╪▓ ╪د┘╪ز╪ش╪▒┘è╪ذ┘è `123456` ┘â┘à╪│╪د╪▒ ┘à╪│╪ز╪«╪»┘à ╪ح┘╪ز╪د╪ش┘è.
+docs/evidence/supabase_google_play_readiness_audit.md:38:1. ╪ح┘╪┤╪د╪ة **upload keystore** ╪ت┘à┘ ╪«╪د╪▒╪ش Git╪î ┘ê╪ز┘ç┘è╪خ╪ر `release` signing ┘┘è Gradle ╪ذ╪»┘ `signingConfigs.getByName("debug")`. ╪د┘┘APK ╪د┘╪ص╪د┘┘è ┘è╪س╪ذ╪ز ╪░┘┘â ╪ذ┘ê╪╢┘ê╪ص: ╪┤┘ç╪د╪»╪ر `Android Debug` ┘ê╪ذ╪╡┘à╪ر SHA-1 ┘┘┘debug ┘ê┘┘è╪│╪ز ╪┤┘ç╪د╪»╪ر Play.
+docs/evidence/supabase_google_play_readiness_audit.md:114:| Play App Signing | ╪ز┘╪╣┘è┘ Google Play App Signing ┘ê╪ص┘╪╕ upload keystore ╪«╪د╪▒╪ش Git |
+docs/evidence/supabase_google_play_readiness_audit.md:126:**╪ث┘ê┘┘ï╪د:** ╪ث╪║┘┘é ╪╣┘é╪» ╪د┘╪ح╪╖┘╪د┘é ╪د┘╪ث╪»┘┘ë ╪د┘╪░┘è ┘è╪«╪╡ Auth ┘┘é╪╖: release keystore ┘êAAB╪î Play App Signing╪î fingerprints ┘┘è Google Cloud╪î Client IDs ┘┘è Supabase╪î SMTP/confirmation/reset╪î ┘ê╪د╪«╪ز╪ذ╪د╪▒ Google native ╪╣┘┘ë internal testing.

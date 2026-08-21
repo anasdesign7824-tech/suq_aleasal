@@ -1,0 +1,55 @@
+﻿TASK 099 env/build inventory (names only; values redacted)
+--- Flutter env/build references ---
+apps/mobile_flutter/lib/app/assal_runtime_config.dart:4:      required this.supabaseUrl,
+apps/mobile_flutter/lib/app/assal_runtime_config.dart:8:  final String supabaseUrl;
+apps/mobile_flutter/lib/app/assal_runtime_config.dart:12:        mode: String.fromEnvironment('ASSALKOM_MODE',
+apps/mobile_flutter/lib/app/assal_runtime_config.dart:14:        supabaseUrl=<REDACTED>),
+apps/mobile_flutter/lib/app/assal_runtime_config.dart:16:            String.fromEnvironment('ASSALKOM_SUPABASE_PUBLISHABLE_KEY'),
+apps/mobile_flutter/lib/app/assal_runtime_config.dart:23:      supabaseUrl.startsWith('https://') &&
+apps/mobile_flutter/lib/main.dart:23:            '╪┤╪║┘ّ┘ ┘╪│╪«╪ر Production ┘à╪╣ ASSALKOM_SUPABASE_URL ┘êASSALKOM_SUPABASE_PUBLISHABLE_KEY ┘êASSALKOM_MODE=production.'));
+apps/mobile_flutter/lib/main.dart:29:        url: config.supabaseUrl, publishableKey: config.supabasePublishableKey);
+apps/mobile_flutter/lib/main.dart:34:          client: client, emailRedirectTo: config.supabaseUrl),
+apps/mobile_flutter/test/runtime_config_test.dart:8:      supabaseUrl=<REDACTED>,
+apps/mobile_flutter/test/runtime_config_test.dart:20:      supabaseUrl=<REDACTED>,
+apps/mobile_flutter/test/runtime_config_test.dart:25:      supabaseUrl=<REDACTED>,
+apps/mobile_flutter/web/index.html:15:    the `--base-href` argument provided to `flutter build`.
+--- Admin env/build references ---
+apps/admin_web/client/src/components/Map.tsx:89:const API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KE=<REDACTED>;
+apps/admin_web/client/src/components/Map.tsx:91:  import.meta.env.VITE_FRONTEND_FORGE_API_URL=<REDACTED>
+apps/admin_web/client/src/const.ts:5:  const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_UR=<REDACTED>;
+apps/admin_web/client/src/const.ts:6:  const appId = import.meta.env.VITE_APP_I=<REDACTED>;
+apps/admin_web/package.json:8:    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+apps/admin_web/package.json:12:    "check": "tsc --noEmit",
+apps/admin_web/scripts/start-admin.mjs:6:const envPath = process.env.ASSALKOM_ADMIN_ENV_FILE=<REDACTED> defaultEnvPath;
+apps/admin_web/scripts/start-admin.mjs:11:process.env.NODE_ENV=<REDACTED> 'production';
+apps/admin_web/scripts/start-admin.mjs:12:process.env.ADMIN_BIND_HOST=<REDACTED> '127.0.0.1';
+apps/admin_web/scripts/start-admin.mjs:13:process.env.PORT=<REDACTED> '3210';
+apps/admin_web/server/admin-auth.ts:82:  secure: process.env.ASSALKOM_ADMIN_HTTPS=<REDACTED> "true",
+apps/admin_web/server/admin-csrf.test.ts:4:const originalAllowedOrigins = process.env.ASSALKOM_ADMIN_ALLOWED_ORIGIN=<REDACTED>;
+apps/admin_web/server/admin-csrf.test.ts:5:const originalHttps = process.env.ASSALKOM_ADMIN_HTTP=<REDACTED>;
+apps/admin_web/server/admin-csrf.test.ts:8:  if (originalAllowedOrigins === undefined) delete process.env.ASSALKOM_ADMIN_ALLOWED_ORIGIN=<REDACTED>;
+apps/admin_web/server/admin-csrf.test.ts:9:  else process.env.ASSALKOM_ADMIN_ALLOWED_ORIGINS=<REDACTED>;
+apps/admin_web/server/admin-csrf.test.ts:10:  if (originalHttps === undefined) delete process.env.ASSALKOM_ADMIN_HTTP=<REDACTED>;
+apps/admin_web/server/admin-csrf.test.ts:11:  else process.env.ASSALKOM_ADMIN_HTTPS=<REDACTED>;
+apps/admin_web/server/admin-csrf.test.ts:28:    process.env.ASSALKOM_ADMIN_ALLOWED_ORIGINS=<REDACTED>;
+apps/admin_web/server/admin-csrf.test.ts:50:    process.env.ASSALKOM_ADMIN_HTTPS=<REDACTED>;
+apps/admin_web/server/admin-csrf.ts:6:  const values = (process.env.ASSALKOM_ADMIN_ALLOWED_ORIGINS=<REDACTED> "")
+apps/admin_web/server/admin-csrf.ts:24:  const protocol = process.env.ASSALKOM_ADMIN_HTTPS=<REDACTED> "true"
+apps/admin_web/server/admin-security.test.ts:5:const originalHttps = process.env.ASSALKOM_ADMIN_HTTP=<REDACTED>;
+apps/admin_web/server/admin-security.test.ts:8:  if (originalHttps === undefined) delete process.env.ASSALKOM_ADMIN_HTTP=<REDACTED>;
+apps/admin_web/server/admin-security.test.ts:9:  else process.env.ASSALKOM_ADMIN_HTTPS=<REDACTED>;
+apps/admin_web/server/admin-security.test.ts:22:    process.env.ASSALKOM_ADMIN_HTTPS=<REDACTED>;
+apps/admin_web/server/admin-security.test.ts:44:    process.env.ASSALKOM_ADMIN_HTTPS=<REDACTED>;
+apps/admin_web/server/bootstrap-admin.ts:7:const url = (process.env.ASSALKOM_SUPABASE_URL=<REDACTED> process.env.SUPABASE_URL=<REDACTED> "").trim();
+apps/admin_web/server/bootstrap-admin.ts:8:const serviceRoleKey = (process.env.ASSALKOM_SUPABASE_SERVICE_ROLE_KEY=<REDACTED> process.env.SUPABASE_SERVICE_ROLE_KEY=<REDACTED> process.env.service_role=<REDACTED> "").trim();
+apps/admin_web/server/bootstrap-admin.ts:9:const email = (process.env.ASSALKOM_BOOTSTRAP_ADMIN_EMAIL=<REDACTED> "admin@assalkom.local").trim().toLowerCase();
+apps/admin_web/server/index.ts:517:  const staticPath = process.env.NODE_ENV=<REDACTED> "production"
+apps/admin_web/server/index.ts:528:  const port = numericQuery(process.env.POR=<REDACTED>, 3000);
+apps/admin_web/server/index.ts:529:  const host = process.env.ADMIN_BIND_HOST=<REDACTED>) || "127.0.0.1";
+apps/admin_web/template.json:9:    "package.json": "{\n  \"name\": \"assalkom-admin\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"license\": \"MIT\",\n  \"scripts\": {\n    \"dev\": \"vite --host\",\n    \"build\": \"vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist\",\n    \"start\": \"NODE_ENV=production node dist/index.js\",\n    \"preview\": \"vite preview --host\",\n    \"check\": \"tsc --noEmit\",\n    \"format\": \"prettier --write .\"\n  },\n  \"dependencies\": {\n    \"@hookform/resolvers\": \"^5.2.2\",\n    \"@radix-ui/react-accordion\": \"^1.2.12\",\n    \"@radix-ui/react-alert-dialog\": \"^1.1.15\",\n    \"@radix-ui/react-aspect-ratio\": \"^1.1.7\",\n    \"@radix-ui/react-avatar\": \"^1.1.10\",\n    \"@radix-ui/react-checkbox\": \"^1.3.3\",\n    \"@radix-ui/react-collapsible\": \"^1.1.12\",\n    \"@radix-ui/react-context-menu\": \"^2.2.16\",\n    \"@radix-ui/react-dialog\": \"^1.1.15\",\n    \"@radix-ui/react-dropdown-menu\": \"^2.1.16\",\n    \"@radix-ui/react-hover-card\": \"^1.1.15\",\n    \"@radix-ui/react-label\": \"^2.1.7\",\n    \"@radix-ui/react-menubar\": \"^1.1.16\",\n    \"@radix-ui/react-navigation-menu\": \"^1.2.14\",\n    \"@radix-ui/react-popover\": \"^1.1.15\",\n    \"@radix-ui/react-progress\": \"^1.1.7\",\n    \"@radix-ui/react-radio-group\": \"^1.3.8\",\n    \"@radix-ui/react-scroll-area\": \"^1.2.10\",\n    \"@radix-ui/react-select\": \"^2.2.6\",\n    \"@radix-ui/react-separator\": \"^1.1.7\",\n    \"@radix-ui/react-slider\": \"^1.3.6\",\n    \"@radix-ui/react-slot\": \"^1.2.3\",\n    \"@radix-ui/react-switch\": \"^1.2.6\",\n    \"@radix-ui/react-tabs\": \"^1.1.13\",\n    \"@radix-ui/react-toggle\": \"^1.1.10\",\n    \"@radix-ui/react-toggle-group\": \"^1.1.11\",\n    \"@radix-ui/react-tooltip\": \"^1.2.8\",\n    \"axios\": \"^1.12.0\",\n    \"class-variance-authority\": \"^0.7.1\",\n    \"clsx\": \"^2.1.1\",\n    \"cmdk\": \"^1.1.1\",\n    \"embla-carousel-react\": \"^8.6.0\",\n    \"express\": \"^4.21.2\",\n    \"framer-motion\": \"^12.23.22\",\n    \"input-otp\": \"^1.4.2\",\n    \"lucide-react\": \"^0.453.0\",\n    \"nanoid\": \"^5.1.5\",\n    \"next-themes\": \"^0.4.6\",\n    \"react\": \"^19.2.1\",\n    \"react-day-picker\": \"^9.11.1\",\n    \"react-dom\": \"^19.2.1\",\n    \"react-hook-form\": \"^7.64.0\",\n    \"react-resizable-panels\": \"^3.0.6\",\n    \"recharts\": \"^2.15.2\",\n    \"sonner\": \"^2.0.7\",\n    \"streamdown\": \"^1.4.0\",\n    \"tailwind-merge\": \"^3.3.1\",\n    \"tailwindcss-animate\": \"^1.0.7\",\n    \"vaul\": \"^1.1.2\",\n    \"wouter\": \"^3.3.5\",\n    \"zod\": \"^4.1.12\"\n  },\n  \"devDependencies\": {\n    \"@builder.io/vite-plugin-jsx-loc\": \"^0.1.1\",\n    \"@tailwindcss/typography\": \"^0.5.15\",\n    \"@tailwindcss/vite\": \"^4.1.3\",\n    \"@types/express\": \"4.17.21\",\n    \"@types/google.maps\": \"^3.58.1\",\n    \"@types/node\": \"^24.7.0\",\n    \"@types/react\": \"^19.2.1\",\n    \"@types/react-dom\": \"^19.2.1\",\n    \"@vitejs/plugin-react\": \"^5.0.4\",\n    \"add\": \"^2.0.6\",\n    \"autoprefixer\": \"^10.4.20\",\n    \"esbuild\": \"^0.25.0\",\n    \"pnpm\": \"^10.15.1\",\n    \"postcss\": \"^8.4.47\",\n    \"prettier\": \"^3.6.2\",\n    \"tailwindcss\": \"^4.1.14\",\n    \"tsx\": \"^4.19.1\",\n    \"tw-animate-css\": \"^1.4.0\",\n    \"typescript\": \"5.6.3\",\n    \"vite\": \"^7.1.7\",\n    \"vite-plugin-manus-runtime\": \"^0.0.58\",\n    \"vitest\": \"^2.1.4\"\n  },\n  \"packageManager\": \"pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af\",\n  \"pnpm\": {\n    \"patchedDependencies\": {\n      \"wouter@3.7.1\": \"patches/wouter@3.7.1.patch\"\n    },\n    \"overrides\": {\n      \"tailwindcss>nanoid\": \"3.3.7\"\n    }\n  }\n}",
+apps/admin_web/template.json:14:    "server/index.ts": "import express from \"express\";\nimport { createServer } from \"http\";\nimport path from \"path\";\nimport { fileURLToPath } from \"url\";\n\nconst __filename = fileURLToPath(import.meta.url);\nconst __dirname = path.dirname(__filename);\n\nasync function startServer() {\n  const app = express();\n  const server = createServer(app);\n\n  // Serve static files from dist/public in production\n  const staticPath =\n    process.env.NODE_ENV=<REDACTED> \"production\"\n      ? path.resolve(__dirname, \"public\")\n      : path.resolve(__dirname, \"..\", \"dist\", \"public\");\n\n  app.use(express.static(staticPath));\n\n  // Handle client-side routing - serve index.html for all routes\n  app.get(\"*\", (_req, res) => {\n    res.sendFile(path.join(staticPath, \"index.html\"));\n  });\n\n  const port = process.env.PORT=<REDACTED> 3000;\n\n  server.listen(port, () => {\n    console.log(`Server running on http://localhost:${port}/`);\n  });\n}\n\nstartServer().catch(console.error);"
+apps/admin_web/vite.config.ts:82:      if (process.env.NODE_ENV=<REDACTED> "production") {
+apps/admin_web/vite.config.ts:165:        const forgeBaseUrl = (process.env.BUILT_IN_FORGE_API_URL=<REDACTED> "").replace(/\/+$/, "");
+apps/admin_web/vite.config.ts:166:        const forgeKey = process.env.BUILT_IN_FORGE_API_KE=<REDACTED>;
+--- env files by name only ---
+apps\admin_web\.env

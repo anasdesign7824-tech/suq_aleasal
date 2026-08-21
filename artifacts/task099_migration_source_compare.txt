@@ -1,0 +1,19 @@
+﻿database/migrations/0018_admin_policy_index_cleanup.sql:22:create index if not exists merchant_applications_region_id_idx
+database/migrations/0018_admin_policy_index_cleanup.sql:23:  on public.merchant_applications(region_id);
+database/migrations/0018_admin_policy_index_cleanup.sql:24:create index if not exists merchant_applications_reviewed_by_idx
+database/migrations/0018_admin_policy_index_cleanup.sql:25:  on public.merchant_applications(reviewed_by);
+database/migrations/0023_admin_store_moderation_sync.sql:17:  v_application public.merchant_applications%rowtype;
+database/migrations/0023_admin_store_moderation_sync.sql:110:  from public.merchant_applications
+database/migrations/0023_admin_store_moderation_sync.sql:118:      update public.merchant_applications
+database/migrations/0023_admin_store_moderation_sync.sql:125:      update public.merchant_applications
+database/migrations/0023_admin_store_moderation_sync.sql:160:    select * into v_application from public.merchant_applications where id = v_application.id;
+database/migrations/0036_atomic_social_messaging_sync.sql:46:           to_jsonb((select count(*)::integer from public.product_likes where product_id = p_product_id)),
+database/migrations/0036_atomic_social_messaging_sync.sql:54:       to_jsonb((select count(*)::integer from public.product_view_events where product_id = p_product_id)),
+database/migrations/0036_atomic_social_messaging_sync.sql:95:drop trigger if exists product_likes_sync_count on public.product_likes;
+database/migrations/0036_atomic_social_messaging_sync.sql:96:create trigger product_likes_sync_count
+database/migrations/0036_atomic_social_messaging_sync.sql:97:after insert or delete on public.product_likes
+database/migrations/0036_atomic_social_messaging_sync.sql:388:  if exists (select 1 from public.product_likes where product_id = p_product_id and user_id = v_user_id) then
+database/migrations/0036_atomic_social_messaging_sync.sql:389:    delete from public.product_likes where product_id = p_product_id and user_id = v_user_id;
+database/migrations/0036_atomic_social_messaging_sync.sql:392:    insert into public.product_likes (product_id, user_id) values (p_product_id, v_user_id);
+database/migrations/0036_atomic_social_messaging_sync.sql:451:create index if not exists product_likes_product_created_idx on public.product_likes(product_id, created_at desc);
+database/migrations/0037_realtime_publication.sql:14:    'product_likes',

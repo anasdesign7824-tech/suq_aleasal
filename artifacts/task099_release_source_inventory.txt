@@ -1,0 +1,112 @@
+﻿TASK 099 Release Source Inventory
+--- repository ---
+root=D:/suq_aleasa
+branch=audit/launch-fixes-2026-08-20
+head=b89d815c72ce873f661970f14abcd5c922b5d013
+head_subject=task 098: unify UI consistency vocabulary
+commit_date=2026-08-22T00:39:34+03:00
+--- recent commits ---
+b89d815 task 098: unify UI consistency vocabulary
+7aa2375 task 097: harden social composer accessibility
+3b1ed31 task 096: add write idempotency keys
+c5bd320 task 095: normalize admin failure recovery
+f4e4602 task 094: prove admin idor boundaries
+--- working tree status count ---
+status_entries=340
+ M apps/admin_web/client/src/components/AdminAuthGate.tsx
+ M apps/admin_web/client/src/components/AdminOperations.tsx
+ M apps/admin_web/client/src/components/AdminPeople.tsx
+ M apps/admin_web/client/src/components/AdminPlansPanel.tsx
+ M apps/mobile_flutter/lib/core/assal_widgets.dart
+ M apps/mobile_flutter/lib/core/supabase_realtime_sync.dart
+ M apps/mobile_flutter/lib/features/customer/customer_account.dart
+ M apps/mobile_flutter/lib/features/customer/customer_catalog.dart
+ M apps/mobile_flutter/lib/features/customer/customer_discovery.dart
+ M apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart
+ M apps/mobile_flutter/test/data_layer_test.dart
+ M apps/mobile_flutter/test/unified_ui_test.dart
+?? _customer_host_export/
+?? analyze_logo_assets.ps1
+?? apps/admin_web/admin-unauth-response.json
+?? apps/admin_web/client/src/components/ProductEditPanel.tsx
+?? apps/admin_web/server/admin-error.test.ts
+?? apps/admin_web/server/admin-error.ts
+?? apps/admin_web/task064_discovery_grep.txt
+?? apps/admin_web/task065_discovery_grep.txt
+?? apps/admin_web/task066_discovery_grep.txt
+?? apps/admin_web/task071_audit_discovery.txt
+?? apps/admin_web/task071_record_audit_calls_final.txt
+?? apps/admin_web/task072_navigation_contract.json
+?? apps/admin_web/task072_sidebar_discovery.txt
+?? apps/admin_web/task073_buttons_discovery.txt
+?? apps/admin_web/task073_click_path_contract.json
+?? apps/admin_web/task073_focused_buttons.txt
+?? apps/admin_web/task073_success_toast_only.txt
+?? apps/admin_web/task073_toast_scan.txt
+?? apps/admin_web/task074_english_hits.txt
+?? apps/admin_web/task074_terms_context_light.txt
+?? apps/admin_web/task074_visible_technical_scan.txt
+?? apps/admin_web/task074_visible_terms_after.txt
+?? apps/admin_web/task075_error_discovery.txt
+?? apps/mobile_flutter/task077_future_lifecycle_scan.txt
+?? apps/mobile_flutter/task077_lifecycle_discovery.txt
+?? apps/mobile_flutter/task077_mounted_scan.txt
+?? apps/mobile_flutter/test/merchant_analytics_widget_test.dart
+?? apps/mobile_flutter/test/performance_contract_test.dart
+?? apps/mobile_flutter/test/profile_reverify_widget_test.dart
+?? apps/mobile_flutter/test/realtime_lifecycle_test.dart
+?? apps/mobile_flutter/test/search_filter_widget_test.dart
+?? apps/mobile_flutter/test/search_location_cascade_widget_test.dart
+?? artifacts/assalkom-demo-arm64-release.apk
+?? artifacts/assalkom-production-arm64-release.apk
+?? artifacts/assalkom-production-connected-arm64-release.apk
+?? artifacts/assalkom-production-merchant-sync-arm64-release.apk
+?? artifacts/current-window.xml
+?? artifacts/search-window.xml
+?? artifacts/task005_temp_machine.json
+?? artifacts/task006_temp_machine.json
+?? artifacts/task008_routes.ps1
+?? artifacts/task008_routes_result.json
+?? artifacts/task010_apk_match_locations.ps1
+?? artifacts/task010_apk_match_locations_result.json
+?? artifacts/task010_apk_precise_scan.ps1
+?? artifacts/task010_apk_precise_scan_result.json
+?? artifacts/task010_apk_scan.ps1
+?? artifacts/task010_apk_scan_result.json
+?? artifacts/task010_apk_scan_result_after_build.json
+?? artifacts/task010_clean_rebuild.ps1
+?? artifacts/task010_current_apk_scan.ps1
+?? artifacts/task010_current_apk_scan_result.json
+?? artifacts/task011_profile_rls_probe.sql
+?? artifacts/task011_profile_rls_probe_result.json
+?? artifacts/task012_acl_revoke_probe_v2.json
+?? artifacts/task012_merchant_workspace_probe.sql
+?? artifacts/task012_merchant_workspace_probe_result.json
+?? artifacts/task012_post_migration_verify.json
+?? artifacts/task013_merchant_approval_probe_v3.json
+?? artifacts/task014_pending_product_trigger_probe.sql
+?? artifacts/task014_pending_product_trigger_result.json
+?? artifacts/task015_inactive_merchant_visibility_probe.sql
+?? artifacts/task015_inactive_merchant_visibility_result.json
+?? artifacts/task016_active_store_second_client_probe.sql
+?? artifacts/task016_active_store_second_client_result.json
+?? artifacts/task017_conversation_creation_probe.sql
+?? artifacts/task017_conversation_creation_result.json
+?? artifacts/task018_message_delivery_probe.sql
+--- matrix rows 091-100 ---
+| 091 | Security/Privacy | طھط¯ظ‚ظٹظ‚ payloads ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ظˆط§ظ„ط·ظ„ط¨ط§طھ ظˆط§ظ„طھط¹ظ„ظٹظ‚ط§طھ ظ„ظ…ظ†ط¹ طھط³ط±ظٹط¨ phone ط£ظˆ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¯ظپط¹ ظ„ظ…طھظ„ظ‚ظٹ ط؛ظٹط± ظ…ظ‚طµظˆط¯ | **PASS** | `docs/evidence/TASK_091_PAYLOAD_PRIVACY_EVIDENCE.md`; `artifacts/task091_payload_privacy_probe.json`; Production notification key probeط› recipient policy probeط› Admin redaction test | `apps/admin_web/server/admin-data.ts`طŒ `apps/admin_web/server/admin-data.test.ts`طŒ `packages/data_dart/lib/production_repository.dart`طŒ `database/migrations/0031_plans_campaigns_bank_transfer_design.sql`طŒ `pg_policies` | current notification keys contain no phone/email/payment/proof/account/IBANط› notifications scoped to auth.uidط› requests/messages/comments scoped to intended partiesط› Admin custom payload recursive redaction for snake_case/camelCase sensitive keysط› Admin check/29 tests/build PASSط› no Production writes | HIGH â€” CLOSED | 029,055,067 |
+| 092 | Security/Abuse | ظپط­طµ ط­ط¯ظˆط¯ ط§ظ„ط¥ط¯ط®ط§ظ„ ظˆط§ظ„ط·ظˆظ„ ظˆط§ظ„ظ€ JSON ظˆط§ظ„ظƒظ…ظٹط© ظˆط§ظ„طھظ‚ظٹظٹظ… ظˆط§ظ„ط­ظ‚ظˆظ„ ط§ظ„ظ†طµظٹط© ظپظٹ RPCs ط§ظ„ط¹ط§ظ…ط© | **PASS** | `database/migrations/0060_harden_public_rpc_input_bounds.sql`; `docs/evidence/TASK_092_RPC_INPUT_BOUNDS_EVIDENCE.md`; `artifacts/task092_pre_boundary_probe.json`; `artifacts/task092_post_boundary_probe.json`; `artifacts/task092_valid_probe.json`; `artifacts/task092_acl_flags_probe.json`; `artifacts/task092_security_advisors_after_migration.json`; Production migration registry and BEGIN/ROLLBACK boundary probes | RPCs authenticated-onlyط› rating 1â€“5 ظƒط§ظ† ALREADY FIXEDط› ط£ط¶ظٹظپطھ ط­ط¯ظˆط¯ body 5000طŒ request quantity 1â€“1000طŒ text fieldsطŒ JSON object/array type and byte-size limitsطŒ proof/workspace/design boundsط› invalid cases rejected before writesط› valid boundary payloads acceptedط› no permanent probe writes | HIGH â€” CLOSED | 004,025,027 |
+| 093 | Security/Admin | ط§ط®طھط¨ط§ط± CSRF/session fixation/cookie flags ظˆط±ظپط¶ ط§ظ„ط·ظ„ط¨ط§طھ ط§ظ„ط¥ط¯ط§ط±ظٹط© ط¨ظ„ط§ ط¬ظ„ط³ط© | **PASS WITH DOCUMENTED LOCAL-ADMIN LIMITATION** | `apps/admin_web/server/admin-csrf.ts`; `apps/admin_web/server/admin-csrf.test.ts`; `apps/admin_web/server/admin-security.test.ts`; `apps/admin_web/server/admin-auth.ts`; `apps/admin_web/server/index.ts`; `artifacts/task093_pre_security_inventory.md`; `docs/evidence/TASK_093_ADMIN_CSRF_SESSION_EVIDENCE.md` | same-origin guard ط¹ظ„ظ‰ mutationsط› cross-origin ظˆmissing-origin evidence â†’ 403ط› same-origin ط¨ظ„ط§ session â†’ 401ط› logout same-origin ظٹط¹ظ…ظ„ط› cookies HttpOnly/SameSite=Lax/Path=/ ظˆSecure ط¹ظ†ط¯ HTTPSط› session tokens طھظڈظƒطھط¨ ظ…ظ† Supabase ظˆطھظڈط³طھط¨ط¯ظ„ ط¹ظ†ط¯ login/refreshط› pnpm check/37 tests/build PASSط› loopback-only deployment limitation ظ…ظˆط«ظ‚ط© | HIGH â€” CLOSED WITH LIMITATION | 008,009 |
+| 094 | Security/Admin | ط§ط®طھط¨ط§ط± ط¹ط¯ظ… طھط¬ط§ظˆط² ط§ظ„طµظ„ط§ط­ظٹط§طھ ط¹ط¨ط± طھط؛ظٹظٹط± IDs ظپظٹ ظ…ط³ط§ط±ط§طھ delete/update/review | **PASS** | `apps/admin_web/server/admin-idor.test.ts`; `artifacts/task094_idor_http_matrix.json`; `artifacts/task094_idor_http_matrix.ps1`; `artifacts/task094_idor_scope_decision.md`; `docs/evidence/TASK_094_IDOR_EVIDENCE.md` | 18/18 Admin mutation routes ط°ط§طھ IDs ط£ط¹ط§ط¯طھ 401 ط¨ظ„ط§ sessionط› moderator permission tests ط±ظپط¶طھ delete/update/review/activation/membership ظ‚ط¨ظ„ Supabaseط› RPCs ط§ظ„ط­ط³ط§ط³ط© Production ظ…ط؛ظ„ظ‚ط© ط¹ظ† anon/authenticated ظˆظ…ظ‚ظپظ„ط© ط¨ظ€service_role ACLط› no IDOR bypass foundط› no runtime patch required | CRITICAL â€” CLOSED | 009,064,075 |
+| 095 | Reliability | ط§ط®طھط¨ط§ط± ظپط´ظ„ Supabase ظˆط§ظ„ط®ط§ط¯ظ… ط§ظ„ظ…ط­ظ„ظٹ ظˆط§ظ„ظ€ timeout ط«ظ… ط§ط³طھط¹ط§ط¯ط© ط§ظ„ط®ط¯ظ…ط© ط¯ظˆظ† state stale ط£ظˆ ظ†ط¬ط§ط­ ظƒط§ط°ط¨ | **PASS WITH DOCUMENTED WORKSPACE-SCOPE LIMITATION** | `apps/admin_web/client/src/lib/admin-api.ts`; `apps/admin_web/client/src/lib/admin-api.test.ts`; `apps/mobile_flutter/test/task095_failure_recovery_test.dart`; `docs/evidence/TASK_095_FAILURE_RECOVERY_EVIDENCE.md` | Admin AbortError â†’ 504/admin_request_timeoutط› fetch/network â†’ 503/admin_network_unavailableط› application errors preservedط› Flutter timeout/socket/server errors remain AssalError non-success and retryable when networkط› transient read recovered to valid AssalData on second callط› Admin check/43 tests/build PASSط› Flutter analyze/60 tests PASSط› root workspace analyze limitation documented | HIGH â€” CLOSED WITH LIMITATION | 020,075,076 |
+| 096 | Reliability | ط§ط®طھط¨ط§ط± ط¥ط¹ط§ط¯ط© ط§ظ„ظ…ط­ط§ظˆظ„ط© ظˆطھظƒط±ط§ط± ط§ظ„ظ†ظ‚ط± ظپظٹ ط¹ظ…ظ„ظٹط§طھ ط§ظ„ظƒطھط§ط¨ط© ط§ظ„ط­ط³ط§ط³ط© ط¯ظˆظ† ط³ط¬ظ„ط§طھ ظ…ظƒط±ط±ط© | **PASS** | `database/migrations/0061_write_idempotency_keys.sql`; `docs/evidence/TASK_096_WRITE_IDEMPOTENCY_EVIDENCE.md`; `artifacts/task096_apply_migration_result.json`; `artifacts/task096_pre_duplicate_probe.json`; `artifacts/task096_post_duplicate_probe.json`; `artifacts/task096_legacy_signature_probe.json`; `artifacts/task096_production_write_constraints.md`; `artifacts/task096_write_rpc_defs_summary.md` | Production migration successط› pre/post probes ط¯ط§ط®ظ„ BEGIN/ROLLBACKط› fallback deterministic keysط› private ledger ظˆadvisory locksط› legacy signatures SAME_ID=trueط› Admin 43 tests/check/build ظˆFlutter 60 tests | HIGH â€” CLOSED | 085,095 |
+| 097 | UX/Accessibility | ظ…ط±ط§ط¬ط¹ط© ط­ظ‚ظˆظ„ ط§ظ„ط¥ط¯ط®ط§ظ„ ظˆط§ظ„ط£ط²ط±ط§ط± ظˆط­ط§ظ„ط§طھ disabled/focus/keyboard ظˆRTL ظپظٹ Flutter ظˆط§ظ„ط¥ط¯ط§ط±ط© | **PASS** | `apps/mobile_flutter/lib/features/customer/customer_social.dart`; `apps/mobile_flutter/test/task097_social_accessibility_test.dart`; `docs/evidence/TASK_097_UX_ACCESSIBILITY_EVIDENCE.md`; `artifacts/task097_interactive_inventory_raw.txt` | comment/review busy guardsط› disabled until valid textط› keyboard submitط› RTL/semantic labelط› Future-returning setState assertion fixedط› Admin primitives/auth baseline ALREADY FIXEDط› Flutter analyze/62 tests ظˆAdmin check/43 tests/build PASS | MEDIUM â€” CLOSED | 007,033,073 |
+| 098 | UX/Consistency | ظ…ط±ط§ط¬ط¹ط© ط§ظ„ظ…طµط·ظ„ط­ط§طھ ظˆط§ظ„ط­ط§ظ„ط§طھ ظˆط§ظ„ط£ظ„ظˆط§ظ† ط¨ظٹظ† ط§ظ„ط¹ظ…ظٹظ„ ظˆط§ظ„طھط§ط¬ط± ظˆط§ظ„ط¥ط¯ط§ط±ط©طŒ ظ…ط¹ ط¹ط¯ظ… ظƒط´ظپ identifiers ط§ظ„طھظ‚ظ†ظٹط© | **PASS** | `apps/admin_web/client/src/lib/ui-consistency.ts`; `apps/admin_web/client/src/lib/ui-consistency.test.ts`; `apps/admin_web/client/src/pages/Home.tsx`; `apps/admin_web/client/src/components/AdminMerchantApplications.tsx`; `apps/admin_web/client/src/components/AdminGovernance.tsx`; `docs/evidence/TASK_098_UI_CONSISTENCY_EVIDENCE.md`; `artifacts/task098_post_ui_consistency_scan.txt`; status/color/identifier/audit inventories | shared Arabic status vocabulary by contextط› product type labels aligned with Flutterط› unknown values safe fallbacksط› UUIDs removed from presentation pathsط› Admin 47 tests/check/build ظˆFlutter analyze/62 tests PASS | LOW â€” CLOSED | 074,097 |
+| 099 | Release/Operations | ط¥ظ†ط´ط§ط، Release Readiness Gate ظ†ظ‡ط§ط¦ظٹ: ظ†ط³ط®ط© ط§ظ„ظ…طµط¯ط±طŒ migrations appliedطŒ env definesطŒ health checksطŒ rollback note | UNVERIFIED | branch/HEAD/migration inventory | docs/deployment/build scripts | release checklist + evidence index | HIGH | 078,079,080,087â€“098 |
+| 100 | Acceptance | طھظ†ظپظٹط° Full End-to-End Production Acceptance ظˆط¥طµط¯ط§ط± PASS/FAIL/BLOCKED ظ„ظƒظ„ ط±ط­ظ„ط© ظˆطھظ‚ط§ط±ظٹط± 13 ط§ظ„ظ…ط·ظ„ظˆط¨ط© | NOT STARTED | ظƒظ„ ط§ظ„ط£ط¯ظ„ط© ط§ظ„ط³ط§ط¨ظ‚ط© | all surfaces | customer/merchant/admin/security/data/release matrix | CRITICAL | 001â€“099 |
+--- migration inventory ---
+migration_files=54
+last_migration=0061_write_idempotency_keys.sql
+--- source test/build manifests ---
+flutter_tests=19
+admin_test_files=302

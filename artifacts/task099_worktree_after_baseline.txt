@@ -1,0 +1,5 @@
+﻿TASK 099 worktree after release baseline commit
+head=ad73e4355d77619c9d714d36d7fcc033dafc51eb
+tracked_change_entries=0
+untracked_entries=352
+untracked entries are evidence/logs/APKs/legacy discovery outside the release source commit; no tracked source modifications remain.

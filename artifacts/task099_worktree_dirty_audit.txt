@@ -1,0 +1,81 @@
+﻿TASK 099 worktree dirty audit
+status_entries=340
+tracked_change_entries=12
+untracked_entries=328
+--- tracked changes ---
+ M apps/admin_web/client/src/components/AdminAuthGate.tsx
+ M apps/admin_web/client/src/components/AdminOperations.tsx
+ M apps/admin_web/client/src/components/AdminPeople.tsx
+ M apps/admin_web/client/src/components/AdminPlansPanel.tsx
+ M apps/mobile_flutter/lib/core/assal_widgets.dart
+ M apps/mobile_flutter/lib/core/supabase_realtime_sync.dart
+ M apps/mobile_flutter/lib/features/customer/customer_account.dart
+ M apps/mobile_flutter/lib/features/customer/customer_catalog.dart
+ M apps/mobile_flutter/lib/features/customer/customer_discovery.dart
+ M apps/mobile_flutter/lib/features/merchant/merchant_dashboard.dart
+ M apps/mobile_flutter/test/data_layer_test.dart
+ M apps/mobile_flutter/test/unified_ui_test.dart
+--- untracked summary by root ---
+"eSensitive=1
+_customer_host_export=1
+analyze_logo_assets.ps1=1
+apps=30
+artifacts=155
+artifacts_task064_moderate_store.txt=1
+artifacts_task064_rpc_search.txt=1
+artifacts_task064_sql_discovery.txt=1
+database=8
+demo_current_screen.png=1
+desktop.ini=1
+docs=90
+mimo_demo_current_base.apk=1
+mimo_demo_window_latest.xml=1
+mimo_demo_window_real.xml=1
+mimo_final_size_optimized.png=1
+mimo_production_after_apply.xml=1
+mimo_production_boot.png=1
+mimo_production_filters_window.xml=1
+mimo_production_search_window.xml=1
+mimo_production_window.xml=1
+mimo_rpc_final_boot_logcat.txt=1
+mimo_rpc_fixed_boot_logcat.txt=1
+mimo_rpc_fixed_screen.png=1
+mimo_rpc_logcat_after_start.txt=1
+mimo_rpc_logcat_clean.txt=1
+mimo_rpc_profile_logcat.txt=1
+mimo_window.xml=1
+optimized_mimo_size_test.png=1
+production_candidate_screen.png=1
+production_filter_after_tap.png=1
+production_filter_fixed_screen.png=1
+production_latest_boot.png=1
+task068_customer_banner_discovery.txt=1
+task068_customer_banners_exact.txt=1
+task068_customer_banners_sql.txt=1
+task068_list_banners_hits.txt=1
+task068_repository_banner_hits.txt=1
+task069_customer_delivery_labels.txt=1
+task069_customer_logistics_hits.txt=1
+task069_dart_contract_hits.txt=1
+task069_discovery_grep.txt=1
+task069_logistics_policies.txt=1
+task069_request_draft_definition.txt=1
+task069_request_draft_exact.txt=1
+task070_consumers_exact.txt=1
+task070_discovery_grep.txt=1
+task070_taxonomy_seed_hits.txt=1
+task096_patch_social.ps1=1
+--- tracked diff stat ---
+ .../client/src/components/AdminAuthGate.tsx        |    6 +-
+ .../client/src/components/AdminOperations.tsx      |   21 +-
+ .../client/src/components/AdminPeople.tsx          |   16 +-
+ .../client/src/components/AdminPlansPanel.tsx      |   20 +-
+ apps/mobile_flutter/lib/core/assal_widgets.dart    |   31 +-
+ .../lib/core/supabase_realtime_sync.dart           |   24 +-
+ .../lib/features/customer/customer_account.dart    |  106 +-
+ .../lib/features/customer/customer_catalog.dart    |   48 +-
+ .../lib/features/customer/customer_discovery.dart  |   27 +-
+ .../lib/features/merchant/merchant_dashboard.dart  |   85 +-
+ apps/mobile_flutter/test/data_layer_test.dart      | 1625 +++++++++++++++++++-
+ apps/mobile_flutter/test/unified_ui_test.dart      |   55 +
+ 12 files changed, 1950 insertions(+), 114 deletions(-)

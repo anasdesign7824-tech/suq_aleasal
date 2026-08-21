@@ -1,0 +1,1464 @@
+{
+  "result": {
+    "lints": [
+      {
+        "cache_key": "auth_rls_init_plan_public_messages_messages_participant_insert",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if calls to \\`current_setting()\\` and \\`auth.\u003cfunction\u003e()\\` in RLS policies are being unnecessarily re-evaluated for each row",
+        "detail": "Table \\`public.messages\\` has a row level security policy \\`messages_participant_insert\\` that re-evaluates current_setting() or auth.\u003cfunction\u003e() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.\u003cfunction\u003e()\\` with \\`(select auth.\u003cfunction\u003e())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "messages",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "auth_rls_initplan",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan",
+        "title": "Auth RLS Initialization Plan"
+      },
+      {
+        "cache_key": "auth_rls_init_plan_public_messages_messages_participant_select",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if calls to \\`current_setting()\\` and \\`auth.\u003cfunction\u003e()\\` in RLS policies are being unnecessarily re-evaluated for each row",
+        "detail": "Table \\`public.messages\\` has a row level security policy \\`messages_participant_select\\` that re-evaluates current_setting() or auth.\u003cfunction\u003e() for each row. This produces suboptimal query performance at scale. Resolve the issue by replacing \\`auth.\u003cfunction\u003e()\\` with \\`(select auth.\u003cfunction\u003e())\\`. See [docs](https://supabase.com/docs/guides/database/postgres/row-level-security#call-functions-with-select) for more info.",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "messages",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "auth_rls_initplan",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0003_auth_rls_initplan",
+        "title": "Auth RLS Initialization Plan"
+      },
+      {
+        "cache_key": "unused_index_public_comments_comments_parent_comment_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`comments_parent_comment_id_idx\\` on table \\`public.comments\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "comments",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_product_certifications_product_certifications_certification_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`product_certifications_certification_id_idx\\` on table \\`public.product_certifications\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "product_certifications",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_regions_regions_parent_region_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`regions_parent_region_id_idx\\` on table \\`public.regions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "regions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_favorites_favorites_store_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`favorites_store_id_idx\\` on table \\`public.favorites\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "favorites",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_delivery_options_merchant_delivery_options_delivery_method_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_delivery_options_delivery_method_id_idx\\` on table \\`public.merchant_delivery_options\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_delivery_options",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_delivery_options_merchant_delivery_options_region_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_delivery_options_region_id_idx\\` on table \\`public.merchant_delivery_options\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_delivery_options",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_pickup_locations_merchant_pickup_locations_region_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_pickup_locations_region_id_idx\\` on table \\`public.merchant_pickup_locations\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_pickup_locations",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_product_categories_product_categories_category_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`product_categories_category_id_idx\\` on table \\`public.product_categories\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "product_categories",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_events_payment_events_request_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_events_request_idx\\` on table \\`public.payment_events\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_events",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_design_requests_design_requests_merchant_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`design_requests_merchant_idx\\` on table \\`public.design_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "design_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_design_requests_design_requests_admin_queue_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`design_requests_admin_queue_idx\\` on table \\`public.design_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "design_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_merchant_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_merchant_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_admin_queue_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_admin_queue_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_stores_stores_region_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`stores_region_idx\\` on table \\`public.stores\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "stores",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_request_messages_request_messages_request_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`request_messages_request_idx\\` on table \\`public.request_messages\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "request_messages",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_audit_logs_audit_logs_entity_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`audit_logs_entity_idx\\` on table \\`public.audit_logs\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "audit_logs",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_categories_categories_parent_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`categories_parent_id_idx\\` on table \\`public.categories\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "categories",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_regions_regions_parent_active_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`regions_parent_active_idx\\` on table \\`public.regions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "regions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_requests_requests_contact_channel_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`requests_contact_channel_idx\\` on table \\`public.requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_product_revisions_product_revisions_product_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`product_revisions_product_idx\\` on table \\`public.product_revisions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "product_revisions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_product_revisions_product_revisions_store_status_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`product_revisions_store_status_idx\\` on table \\`public.product_revisions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "product_revisions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_product_revisions_product_revisions_editor_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`product_revisions_editor_idx\\` on table \\`public.product_revisions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "product_revisions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_admin_bootstrap_state_admin_bootstrap_state_admin_user_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`admin_bootstrap_state_admin_user_id_idx\\` on table \\`public.admin_bootstrap_state\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "admin_bootstrap_state",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_admin_bootstrap_state_admin_bootstrap_state_bootstrapped_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`admin_bootstrap_state_bootstrapped_by_idx\\` on table \\`public.admin_bootstrap_state\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "admin_bootstrap_state",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_admin_users_admin_users_created_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`admin_users_created_by_idx\\` on table \\`public.admin_users\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "admin_users",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_application_drafts_merchant_application_drafts_region_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_application_drafts_region_id_idx\\` on table \\`public.merchant_application_drafts\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_application_drafts",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_applications_merchant_applications_region_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_applications_region_id_idx\\` on table \\`public.merchant_applications\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_applications",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_applications_merchant_applications_reviewed_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_applications_reviewed_by_idx\\` on table \\`public.merchant_applications\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_applications",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_messages_messages_sender_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`messages_sender_id_idx\\` on table \\`public.messages\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "messages",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_verification_requests_store_verification_requests_merchant_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_verification_requests_merchant_idx\\` on table \\`public.store_verification_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_verification_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_verification_events_store_verification_events_request_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_verification_events_request_idx\\` on table \\`public.store_verification_events\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_verification_events",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_product_likes_product_likes_product_created_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`product_likes_product_created_idx\\` on table \\`public.product_likes\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "product_likes",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_followers_store_followers_store_created_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_followers_store_created_idx\\` on table \\`public.store_followers\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_followers",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_comments_comments_product_status_created_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`comments_product_status_created_idx\\` on table \\`public.comments\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "comments",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_provider_status_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_provider_status_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_comments_comments_review_status_created_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`comments_review_status_created_idx\\` on table \\`public.comments\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "comments",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_verification_documents_store_verification_documents_store_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_verification_documents_store_id_idx\\` on table \\`public.store_verification_documents\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_verification_events_store_verification_events_actor_user_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_verification_events_actor_user_id_idx\\` on table \\`public.store_verification_events\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_verification_events",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_verification_requests_store_verification_requests_reviewed_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_verification_requests_reviewed_by_idx\\` on table \\`public.store_verification_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_verification_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_merchant_status_created_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_merchant_status_created_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_design_requests_design_requests_assigned_admin_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`design_requests_assigned_admin_id_idx\\` on table \\`public.design_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "design_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_design_requests_design_requests_store_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`design_requests_store_id_idx\\` on table \\`public.design_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "design_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_design_requests_design_requests_subscription_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`design_requests_subscription_id_idx\\` on table \\`public.design_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "design_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_local_transfer_settings_local_transfer_settings_updated_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`local_transfer_settings_updated_by_idx\\` on table \\`public.local_transfer_settings\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "local_transfer_settings",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_subscriptions_merchant_subscriptions_activated_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_subscriptions_activated_by_idx\\` on table \\`public.merchant_subscriptions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_subscriptions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_merchant_subscriptions_merchant_subscriptions_plan_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`merchant_subscriptions_plan_id_idx\\` on table \\`public.merchant_subscriptions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "merchant_subscriptions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_events_payment_events_actor_user_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_events_actor_user_id_idx\\` on table \\`public.payment_events\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_events",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_provider_settings_payment_provider_settings_updated_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_provider_settings_updated_by_idx\\` on table \\`public.payment_provider_settings\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_provider_settings",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_campaign_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_campaign_id_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_plan_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_plan_id_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_reviewed_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_reviewed_by_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_store_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_store_id_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_payment_requests_payment_requests_verification_request_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`payment_requests_verification_request_id_idx\\` on table \\`public.payment_requests\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "payment_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_product_revisions_product_revisions_reviewed_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`product_revisions_reviewed_by_idx\\` on table \\`public.product_revisions\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "product_revisions",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_badges_store_badges_request_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_badges_request_id_idx\\` on table \\`public.store_badges\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_badges",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_store_verification_documents_store_verification_documents_merchant_id_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`store_verification_documents_merchant_id_idx\\` on table \\`public.store_verification_documents\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_subscription_campaigns_subscription_campaigns_created_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`subscription_campaigns_created_by_idx\\` on table \\`public.subscription_campaigns\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "subscription_campaigns",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_public_subscription_campaigns_subscription_campaigns_updated_by_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`subscription_campaigns_updated_by_idx\\` on table \\`public.subscription_campaigns\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "subscription_campaigns",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "unused_index_private_client_mutations_client_mutations_created_idx",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if an index has never been used and may be a candidate for removal.",
+        "detail": "Index \\`client_mutations_created_idx\\` on table \\`private.client_mutations\\` has not been used",
+        "facing": "EXTERNAL",
+        "level": "INFO",
+        "metadata": {
+          "name": "client_mutations",
+          "schema": "private",
+          "type": "table"
+        },
+        "name": "unused_index",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0005_unused_index",
+        "title": "Unused Index"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_badges_anon_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_badges\\` has multiple permissive policies for role \\`anon\\` for action \\`SELECT\\`. Policies include \\`{store_badges_admin_write,store_badges_owner_read,store_badges_public_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_badges",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_badges_authenticated_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_badges\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{store_badges_admin_write,store_badges_owner_read,store_badges_public_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_badges",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_badges_authenticator_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_badges\\` has multiple permissive policies for role \\`authenticator\\` for action \\`SELECT\\`. Policies include \\`{store_badges_admin_write,store_badges_owner_read,store_badges_public_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_badges",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_badges_dashboard_user_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_badges\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`SELECT\\`. Policies include \\`{store_badges_admin_write,store_badges_owner_read,store_badges_public_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_badges",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_badges_supabase_privileged_role_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_badges\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`SELECT\\`. Policies include \\`{store_badges_admin_write,store_badges_owner_read,store_badges_public_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_badges",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_anon_INSERT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`anon\\` for action \\`INSERT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_insert}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_anon_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`anon\\` for action \\`SELECT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_authenticated_INSERT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`authenticated\\` for action \\`INSERT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_insert}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_authenticated_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`authenticated\\` for action \\`SELECT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_authenticator_INSERT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`authenticator\\` for action \\`INSERT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_insert}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_authenticator_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`authenticator\\` for action \\`SELECT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_dashboard_user_INSERT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`INSERT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_insert}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_dashboard_user_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`SELECT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_supabase_privileged_role_INSERT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`INSERT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_insert}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_documents_supabase_privileged_role_SELECT",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_documents\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`SELECT\\`. Policies include \\`{store_verification_documents_admin_write,store_verification_documents_owner_read}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_documents",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_requests_anon_UPDATE",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_requests\\` has multiple permissive policies for role \\`anon\\` for action \\`UPDATE\\`. Policies include \\`{store_verification_requests_admin_write,store_verification_requests_owner_payment_update}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_requests_authenticated_UPDATE",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_requests\\` has multiple permissive policies for role \\`authenticated\\` for action \\`UPDATE\\`. Policies include \\`{store_verification_requests_admin_write,store_verification_requests_owner_payment_update}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_requests_authenticator_UPDATE",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_requests\\` has multiple permissive policies for role \\`authenticator\\` for action \\`UPDATE\\`. Policies include \\`{store_verification_requests_admin_write,store_verification_requests_owner_payment_update}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_requests_dashboard_user_UPDATE",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_requests\\` has multiple permissive policies for role \\`dashboard_user\\` for action \\`UPDATE\\`. Policies include \\`{store_verification_requests_admin_write,store_verification_requests_owner_payment_update}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      },
+      {
+        "cache_key": "multiple_permissive_policies_public_store_verification_requests_supabase_privileged_role_UPDATE",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "description": "Detects if multiple permissive row level security policies are present on a table for the same \\`role\\` and \\`action\\` (e.g. insert). Multiple permissive policies are suboptimal for performance as each policy must be executed for every relevant query.",
+        "detail": "Table \\`public.store_verification_requests\\` has multiple permissive policies for role \\`supabase_privileged_role\\` for action \\`UPDATE\\`. Policies include \\`{store_verification_requests_admin_write,store_verification_requests_owner_payment_update}\\`",
+        "facing": "EXTERNAL",
+        "level": "WARN",
+        "metadata": {
+          "name": "store_verification_requests",
+          "schema": "public",
+          "type": "table"
+        },
+        "name": "multiple_permissive_policies",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0006_multiple_permissive_policies",
+        "title": "Multiple Permissive Policies"
+      }
+    ]
+  }
+}

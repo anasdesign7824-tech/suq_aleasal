@@ -1,0 +1,9 @@
+﻿TASK 099 release artifact metadata
+--- APKs ---
+file=app-arm64-v8a-release.apk;bytes=22768389;sha256=9a543552d46d80ee793f621f09219c31f1856c97c03d6c2e797cff1362878e8a
+file=app-armeabi-v7a-release.apk;bytes=20590611;sha256=d14c72ce3b7af6ee997da18f4546733dee42a677ce194ba87122a525e90c81e0
+file=app-x86_64-release.apk;bytes=24242592;sha256=26953cc06d209533224dd7c868eb1bb51e4df04c22b7de730562a109ba1d7253
+--- Flutter Web ---
+web_files=45;total_bytes=46498074;main_dart_js_sha256=58962581c37cc7c3125510225d27e276776ca6d93382f4d6e0d273c57b080239
+--- Admin dist ---
+dist_files=6;total_bytes=1248252
