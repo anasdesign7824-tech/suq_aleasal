@@ -171,6 +171,25 @@ export async function deleteUser(session: AdminSession, userId: string) {
   return { id: userId, deleted: true };
 }
 
+export function sanitizeStoragePurpose(purpose?: string): string {
+  return (purpose?.trim().replace(/[^a-z0-9_-]/gi, "-") || "admin").slice(0, 32);
+}
+
+export function validatePublicImageSignature(contentType: string, bytes: Buffer): void {
+  const startsWith = (signature: number[]) => bytes.subarray(0, signature.length).equals(Buffer.from(signature));
+  const valid = contentType === "image/jpeg"
+    ? startsWith([0xff, 0xd8, 0xff])
+    : contentType === "image/png"
+      ? startsWith([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+      : contentType === "image/webp"
+        ? startsWith([0x52, 0x49, 0x46, 0x46]) && bytes.subarray(8, 12).equals(Buffer.from([0x57, 0x45, 0x42, 0x50]))
+        : (() => {
+            const prefix = bytes.subarray(0, 4096).toString("utf8").trimStart().toLowerCase();
+            return prefix.startsWith("<svg") || (prefix.startsWith("<?xml") && prefix.includes("<svg"));
+          })();
+  if (!valid) throw new Error("توقيع الملف لا يطابق نوع الصورة المعلن.");
+}
+
 export function decodePublicImageInput(input: { contentType?: string; base64?: string }) {
   const contentType = typeof input.contentType === "string" ? input.contentType.trim().toLowerCase() : "";
   const supported = new Map([
@@ -191,13 +210,14 @@ export function decodePublicImageInput(input: { contentType?: string; base64?: s
   if (!bytes.length || bytes.length > MAX_PUBLIC_IMAGE_BYTES) {
     throw new Error("حجم الصورة يجب أن يكون بين 1 بايت و10 ميجابايت.");
   }
+  validatePublicImageSignature(contentType, bytes);
   return { contentType, extension, bytes };
 }
 
 export async function uploadPublicImage(session: AdminSession, input: { contentType: string; base64: string; purpose?: string }) {
   if (!hasPermission(session, "storage.public.write")) throw new Error("لا تملك صلاحية رفع الصور العامة.");
   const { contentType, extension, bytes } = decodePublicImageInput(input);
-  const purpose = (input.purpose?.trim().replace(/[^a-z0-9_-]/gi, "-") || "admin").slice(0, 32);
+  const purpose = sanitizeStoragePurpose(input.purpose);
   const path = `${purpose}/${Date.now()}-${randomBytes(12).toString("hex")}.${extension}`;
   const service = createServiceSupabaseClient();
   const uploaded = await service.storage.from("assalkom_public").upload(path, bytes, { contentType, upsert: false });

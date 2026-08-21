@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ADMIN_NETWORK_TELEMETRY_UNAVAILABLE, ADMIN_PRODUCT_STATUSES, STORE_MODERATION_ACTIONS, assertBannerSchedule, assertUserDeletionAllowed, buildAdminNetworkTelemetry, buildAdminNotificationPayload, buildAdminPaginationTelemetry, buildAuditEntry, buildProductInsert, decodePublicImageInput, MAX_PUBLIC_IMAGE_BYTES, requireTaxonomyKey, storeModerationPermission } from "./admin-data";
+import { ADMIN_NETWORK_TELEMETRY_UNAVAILABLE, ADMIN_PRODUCT_STATUSES, STORE_MODERATION_ACTIONS, assertBannerSchedule, assertUserDeletionAllowed, buildAdminNetworkTelemetry, buildAdminNotificationPayload, buildAdminPaginationTelemetry, buildAuditEntry, buildProductInsert, decodePublicImageInput, MAX_PUBLIC_IMAGE_BYTES, requireTaxonomyKey, sanitizeStoragePurpose, storeModerationPermission } from "./admin-data";
 
 describe("admin product draft payload", () => {
   it("builds a draft payload with store, taxonomy, price, currency, and metadata", () => {
@@ -161,18 +161,18 @@ describe("public image input validation", () => {
   it("decodes a data URL and strips whitespace before the storage write", () => {
     const result = decodePublicImageInput({
       contentType: " IMAGE/PNG ",
-      base64: "data:image/png;base64, aG\nVsbG8= ",
+      base64: "data:image/png;base64, iVBORw0KGg\noAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII= ",
     });
 
     expect(result.contentType).toBe("image/png");
     expect(result.extension).toBe("png");
-    expect(Buffer.from(result.bytes).toString("utf8")).toBe("hello");
+    expect(result.bytes.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
   });
 
   it("accepts SVG because the Production public bucket allows it", () => {
     const result = decodePublicImageInput({
       contentType: "image/svg+xml",
-      base64: "PHN2Zy8+",
+      base64: "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4=",
     });
 
     expect(result.extension).toBe("svg");
@@ -205,5 +205,22 @@ describe("public image input validation", () => {
         base64: bytes.toString("base64"),
       }),
     ).toThrow("10 ميجابايت");
+  });
+
+  it("rejects a valid payload whose bytes do not match the declared MIME", () => {
+    expect(() =>
+      decodePublicImageInput({
+        contentType: "image/png",
+        base64: "2vv8aGVsbG8=",
+      }),
+    ).toThrow("توقيع الملف");
+  });
+
+  it("sanitizes traversal and separators out of the generated purpose prefix", () => {
+    const purpose = sanitizeStoragePurpose("../private/..\\proof secrets");
+    expect(purpose).not.toContain("/");
+    expect(purpose).not.toContain("\\\\");
+    expect(purpose).not.toContain("..");
+    expect(purpose).toMatch(/^-+private-+proof-secrets$/);
   });
 });

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:assalkom_data/assal_repository.dart';
+import 'package:assalkom_data/storage_upload_policy.dart';
 
 class SupabaseQueryGateway implements ProductionQueryGateway {
   const SupabaseQueryGateway(this.client);
@@ -152,7 +153,14 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
     Uint8List bytes,
     String extension,
   ) async {
-    final contentType = switch (extension.toLowerCase()) {
+    final safeExtension = normalizePublicImageExtension(extension);
+    validateStorageUploadPath(path);
+    validateImageUploadBytes(
+      bytes,
+      safeExtension,
+      maxBytes: maxPublicImageUploadBytes,
+    );
+    final contentType = switch (safeExtension) {
       'png' => 'image/png',
       'webp' => 'image/webp',
       'svg' => 'image/svg+xml',
@@ -163,7 +171,7 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
         .uploadBinary(
           path,
           bytes,
-          fileOptions: FileOptions(contentType: contentType, upsert: true),
+          fileOptions: FileOptions(contentType: contentType, upsert: false),
         )
         .timeout(requestTimeout);
     return client.storage.from('assalkom_public').getPublicUrl(path);
@@ -175,7 +183,14 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
     Uint8List bytes,
     String extension,
   ) async {
-    final contentType = switch (extension.toLowerCase()) {
+    final safeExtension = normalizePrivateImageExtension(extension);
+    validateStorageUploadPath(path);
+    validateImageUploadBytes(
+      bytes,
+      safeExtension,
+      maxBytes: maxPrivateImageUploadBytes,
+    );
+    final contentType = switch (safeExtension) {
       'png' => 'image/png',
       'webp' => 'image/webp',
       'pdf' => 'application/pdf',
@@ -186,7 +201,7 @@ class SupabaseQueryGateway implements ProductionQueryGateway {
         .uploadBinary(
           path,
           bytes,
-          fileOptions: FileOptions(contentType: contentType, upsert: true),
+          fileOptions: FileOptions(contentType: contentType, upsert: false),
         )
         .timeout(requestTimeout);
     return path;

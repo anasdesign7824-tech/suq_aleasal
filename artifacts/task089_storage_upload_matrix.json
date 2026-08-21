@@ -1,0 +1,19 @@
+{
+  "task": "089",
+  "date": "2026-08-21",
+  "public_bucket": {"name": "assalkom_public", "max_bytes": 10485760, "overwrite": "rejected by upsert=false", "allowed_extensions": ["jpg", "jpeg", "png", "webp", "svg"]},
+  "private_bucket": {"name": "assalkom_private", "max_bytes": 20971520, "overwrite": "rejected by upsert=false", "allowed_extensions": ["jpg", "jpeg", "png", "webp", "pdf"]},
+  "matrix": [
+    {"case": "unsupported extension", "expected": "reject", "result": "PASS", "guard": "normalizePublicImageExtension/normalizePrivateImageExtension"},
+    {"case": "MIME/signature mismatch", "expected": "reject", "result": "PASS", "guard": "validatePublicImageSignature/validateImageUploadBytes"},
+    {"case": "empty payload", "expected": "reject", "result": "PASS", "guard": "size validation"},
+    {"case": "public payload > 10 MiB", "expected": "reject", "result": "PASS", "guard": "MAX_PUBLIC_IMAGE_BYTES and maxPublicImageUploadBytes"},
+    {"case": "private payload > 20 MiB", "expected": "reject", "result": "PASS", "guard": "maxPrivateImageUploadBytes"},
+    {"case": "absolute/relative/backslash/double-separator/traversal path", "expected": "reject", "result": "PASS", "guard": "validateStorageUploadPath"},
+    {"case": "Admin purpose traversal", "expected": "sanitize to safe prefix", "result": "PASS", "guard": "sanitizeStoragePurpose"},
+    {"case": "same path overwrite", "expected": "Storage rejection", "result": "PASS BY CONTRACT", "guard": "upsert=false in both gateway uploadBinary calls and Admin upload"},
+    {"case": "private SVG", "expected": "reject", "result": "PASS", "guard": "private extension whitelist"}
+  ],
+  "test_gates": {"flutter_analyze": "PASS", "flutter_tests": 59, "admin_check": "PASS", "admin_tests": 28, "admin_build": "PASS"},
+  "production_effect": "No database or Storage writes were performed by the audit tests; code-level Storage overwrite behavior is enforced by upsert=false."
+}

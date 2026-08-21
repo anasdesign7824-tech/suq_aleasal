@@ -5,6 +5,7 @@ import 'dart:developer' as developer;
 import 'dart:typed_data';
 
 import 'assal_repository.dart';
+import 'storage_upload_policy.dart';
 
 class ProductionRepository implements AssalRepository {
   ProductionRepository({
@@ -1891,14 +1892,10 @@ class ProductionRepository implements AssalRepository {
         filters: {'id': requestId, 'merchant_id': userId},
       );
       if (requests.isEmpty) throw StateError('verification_request_not_found');
-      final safeExtension = switch (extension.toLowerCase()) {
-        'png' => 'png',
-        'webp' => 'webp',
-        'pdf' => 'pdf',
-        _ => 'jpg',
-      };
+      final safeExtension = normalizePrivateImageExtension(extension);
       final path =
           '$userId/verification/$requestId/document-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+      validateStorageUploadPath(path);
       return _gateway.uploadPrivateImage(path, bytes, safeExtension);
     },
   );
@@ -2007,11 +2004,13 @@ class ProductionRepository implements AssalRepository {
     String extension,
   ) => _write(
     resource: 'payment_proof.upload',
-    write: () => _gateway.uploadPrivateImage(
-      '$userId/payment-proofs/$paymentRequestId-${DateTime.now().toUtc().millisecondsSinceEpoch}.$extension',
-      bytes,
-      extension,
-    ),
+    write: () async {
+      final safeExtension = normalizePrivateImageExtension(extension);
+      final path =
+          '$userId/payment-proofs/$paymentRequestId-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+      validateStorageUploadPath(path);
+      return _gateway.uploadPrivateImage(path, bytes, safeExtension);
+    },
   );
 
   @override
