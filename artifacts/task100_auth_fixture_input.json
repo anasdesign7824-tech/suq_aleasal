@@ -1,0 +1,4 @@
+{
+  "project_id": "gvalqfgxrkibuydoiuiz",
+  "query": "select id, (email_confirmed_at is not null) as email_confirmed, created_at from auth.users where id in ('1a6880b0-5169-47fc-a490-fd700275632b'::uuid, '4e658ebb-4b2f-4c01-8ee8-e56fc201c673'::uuid, 'd03fc0f2-f189-487c-b58f-2bc06e3aa59a'::uuid) order by id limit 10;"
+}

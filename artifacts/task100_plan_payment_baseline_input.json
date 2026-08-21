@@ -1,0 +1,4 @@
+{
+  "project_id": "gvalqfgxrkibuydoiuiz",
+  "query": "select json_build_object('merchant_applications', (select count(*) from public.merchant_applications), 'merchant_subscriptions_for_fixture', (select count(*) from public.merchant_subscriptions where merchant_id = '4e658ebb-4b2f-4c01-8ee8-e56fc201c673'::uuid), 'payment_requests_for_fixture', (select count(*) from public.payment_requests where merchant_id = '4e658ebb-4b2f-4c01-8ee8-e56fc201c673'::uuid), 'subscription_plans', (select count(*) from public.subscription_plans), 'payment_events', (select count(*) from public.payment_events)) as plan_payment_baseline from (select 1) as probe limit 1;"
+}

@@ -1,0 +1,6 @@
+﻿TASK 100 Admin local unauthenticated acceptance probe
+health_status=200
+session_status=401
+stores_status=401
+expected=health 200; unauth session/stores 401
+base_url=http://127.0.0.1:3210

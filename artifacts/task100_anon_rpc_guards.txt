@@ -1,0 +1,6 @@
+comment_http=403
+comment_body={"code":"42501","details":null,"hint":null,"message":"authentication_required"}
+review_http=403
+review_body={"code":"42501","details":null,"hint":null,"message":"authentication_required"}
+message_http=403
+message_body={"code":"42501","details":null,"hint":null,"message":"authentication_required"}

@@ -1,0 +1,4 @@
+{
+  "project_id": "gvalqfgxrkibuydoiuiz",
+  "query": "select json_build_object('store_followers', (select count(*) from public.store_followers where store_id = '32fb6bdd-ceb4-4a8b-b6a1-1ac92c466c47'::uuid), 'product_likes', (select count(*) from public.product_likes where product_id = '91351884-521b-43d5-9869-aa3a178ebf94'::uuid), 'reviews', (select count(*) from public.reviews where product_id = '91351884-521b-43d5-9869-aa3a178ebf94'::uuid), 'comments', (select count(*) from public.comments where product_id = '91351884-521b-43d5-9869-aa3a178ebf94'::uuid), 'conversations', (select count(*) from public.conversations where store_id = '32fb6bdd-ceb4-4a8b-b6a1-1ac92c466c47'::uuid), 'messages', (select count(*) from public.messages m join public.conversations c on c.id = m.conversation_id where c.store_id = '32fb6bdd-ceb4-4a8b-b6a1-1ac92c466c47'::uuid)) as social_baseline from (select 1) as probe limit 1;"
+}

@@ -1,0 +1,2 @@
+stores_http=200
+products_http=200
