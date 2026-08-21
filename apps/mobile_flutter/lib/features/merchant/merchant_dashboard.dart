@@ -497,24 +497,73 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         },
       );
 
-  Widget _statistics(AssalMerchantWorkspaceSummary workspace) {
-    final store = workspace.store;
-    return ListView(
-      padding: const EdgeInsets.all(AssalSpacing.lg),
-      children: [
-        _metricCard('المشاهدات', 'تُحسب من أحداث فتح المنتج بعد أول نشر.'),
-        _metricCard('الإعجابات', '${store.followersCount} متابع للمتجر'),
-        _metricCard('المراجعات', '${store.reviewCount} مراجعة'),
-        _metricCard('سنوات الخبرة', '${store.yearsExperience} سنوات'),
-        const SizedBox(height: AssalSpacing.md),
-        const AssalMessageCard(
-          icon: Icons.analytics_outlined,
-          message:
-              'تظهر الأرقام المتاحة من Production فقط، ولا يتم اختراع أرقام عند فراغ الجداول.',
-        ),
-      ],
-    );
-  }
+  Widget _statistics(AssalMerchantWorkspaceSummary workspace) =>
+      FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+        future: productsFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const AssalGlassLoading();
+          final state = snapshot.data!;
+          if (state is AssalError<List<AssalProductSummary>>) {
+            return AssalMessageCard(
+              icon: Icons.analytics_outlined,
+              message: state.messageAr,
+            );
+          }
+          final products = state is AssalData<List<AssalProductSummary>>
+              ? state.value
+              : const <AssalProductSummary>[];
+          if (products.isEmpty) {
+            return const AssalMessageCard(
+              icon: Icons.analytics_outlined,
+              message: 'لا توجد منتجات منشورة أو مقاييس متاحة لهذا المتجر بعد.',
+            );
+          }
+          return ListView(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            children: [
+              _metricCard(
+                'متابعو المتجر',
+                '${workspace.store.followersCount} متابع من read model المتجر',
+              ),
+              _metricCard(
+                'مراجعات المتجر',
+                '${workspace.store.reviewCount} مراجعة من read model المتجر',
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              ...products.map(
+                (product) => Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AssalSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(product.nameAr, style: AssalTypography.subtitle),
+                        const SizedBox(height: AssalSpacing.sm),
+                        Wrap(
+                          spacing: AssalSpacing.lg,
+                          runSpacing: AssalSpacing.xs,
+                          children: [
+                            Text('المشاهدات: ${product.viewsCount}'),
+                            Text('الإعجابات: ${product.likesCount}'),
+                            Text('التقييم: ${product.ratingAverage.toStringAsFixed(1)}'),
+                            Text('المراجعات: ${product.reviewCount}'),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              const AssalMessageCard(
+                icon: Icons.analytics_outlined,
+                message:
+                    'الأرقام أعلاه مأخوذة من read model وproduct metrics فقط؛ لا يتم استبدال الحقول برسائل أو أرقام تقديرية.',
+              ),
+            ],
+          );
+        },
+      );
 
   Widget _infoCard(IconData icon, String title, String value) => Card(
         child: ListTile(

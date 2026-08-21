@@ -756,6 +756,8 @@ class AssalImagePickerTile extends StatelessWidget {
     this.onClear,
     this.icon = Icons.add_a_photo_outlined,
     this.size = 112,
+    this.width,
+    this.height,
     this.label,
   });
 
@@ -765,23 +767,28 @@ class AssalImagePickerTile extends StatelessWidget {
   final VoidCallback? onClear;
   final IconData icon;
   final double size;
+  final double? width;
+  final double? height;
   final String? label;
 
   @override
   Widget build(BuildContext context) {
+    final tileWidth = width ?? size;
+    final tileHeight = height ?? size;
+    final fallbackSize = tileWidth < tileHeight ? tileWidth : tileHeight;
     final hasImage = bytes != null ||
         (imageUrl != null && imageUrl!.trim().startsWith('http'));
     final image = bytes != null
-        ? Image.memory(bytes!, fit: BoxFit.cover, width: size, height: size)
+        ? Image.memory(bytes!, fit: BoxFit.cover, width: tileWidth, height: tileHeight)
         : hasImage
             ? Image.network(
                 imageUrl!,
                 fit: BoxFit.cover,
-                width: size,
-                height: size,
-                errorBuilder: (_, __, ___) => _fallback(),
+                width: tileWidth,
+                height: tileHeight,
+                errorBuilder: (_, __, ___) => _fallback(fallbackSize),
               )
-            : _fallback();
+            : _fallback(fallbackSize);
     return Semantics(
       button: onPick != null,
       label: label ?? (hasImage ? 'تغيير الصورة' : 'إضافة الصورة'),
@@ -789,11 +796,11 @@ class AssalImagePickerTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AssalRadius.medium),
         child: Material(
           color: AssalColors.honeyLight,
-          child: InkWell(
-            onTap: onPick,
-            child: SizedBox(
-              width: size,
-              height: size,
+            child: InkWell(
+              onTap: onPick,
+              child: SizedBox(
+                width: tileWidth,
+                height: tileHeight,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -854,10 +861,10 @@ class AssalImagePickerTile extends StatelessWidget {
     );
   }
 
-  Widget _fallback() => Center(
+  Widget _fallback(double fallbackSize) => Center(
         child: Icon(
           icon,
-          size: size * .3,
+          size: fallbackSize * .3,
           color: AssalColors.primaryDark,
         ),
       );

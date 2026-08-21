@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -20,8 +21,12 @@ class SupabaseRealtimeSync {
 
   void start(AssalSyncChanged onChanged) {
     _onChanged = onChanged;
-    if (_started) return;
+    if (_started) {
+      developer.log('realtime_start_ignored already_started=true', name: 'assalkom.realtime');
+      return;
+    }
     _started = true;
+    developer.log('realtime_start', name: 'assalkom.realtime');
     _subscribe();
     _authSubscription = client.auth.onAuthStateChange.listen((_) {
       _subscribe();
@@ -29,14 +34,17 @@ class SupabaseRealtimeSync {
   }
 
   void _subscribe() {
+    if (!_started) return;
     final oldChannel = _channel;
     if (oldChannel != null) {
+      developer.log('realtime_remove_previous_channel', name: 'assalkom.realtime');
       unawaited(client.removeChannel(oldChannel));
     }
 
     final userId = client.auth.currentUser?.id;
     if (userId == null) {
       _channel = null;
+      developer.log('realtime_subscription_skipped authenticated=false', name: 'assalkom.realtime');
       return;
     }
     final channel = client.channel('assalkom-production-sync');
@@ -66,11 +74,16 @@ class SupabaseRealtimeSync {
     }
 
     _channel = channel;
+    developer.log('realtime_subscribe_requested tables=${tables.length} user_scoped=true', name: 'assalkom.realtime');
     channel.subscribe();
   }
 
   void _scheduleNotify() {
-    if (_notifyTimer?.isActive ?? false) return;
+    if (_notifyTimer?.isActive ?? false) {
+      developer.log('realtime_event_coalesced debounce_ms=180', name: 'assalkom.realtime');
+      return;
+    }
+    developer.log('realtime_event_scheduled debounce_ms=180', name: 'assalkom.realtime');
     _notifyTimer = Timer(const Duration(milliseconds: 180), () {
       _notifyTimer = null;
       _onChanged?.call();
@@ -105,7 +118,12 @@ class SupabaseRealtimeSync {
     _authSubscription = null;
     final channel = _channel;
     _channel = null;
-    if (channel != null) await client.removeChannel(channel);
+    if (channel != null) {
+      await client.removeChannel(channel);
+      developer.log('realtime_disposed channel_removed=true', name: 'assalkom.realtime');
+    } else {
+      developer.log('realtime_disposed channel_removed=false', name: 'assalkom.realtime');
+    }
     _onChanged = null;
   }
 }

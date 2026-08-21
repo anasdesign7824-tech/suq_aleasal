@@ -197,8 +197,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _showEmailOtpDialog({required bool loginMode}) async {
-    final dialogEmailController =
-        TextEditingController(text: emailController.text.trim());
+    var dialogEmail = emailController.text.trim();
     otpController.clear();
     var dialogLoading = false;
     var resendSeconds = 30;
@@ -250,7 +249,6 @@ class _AuthScreenState extends State<AuthScreen> {
                         style: AssalTypography.body),
                     const SizedBox(height: AssalSpacing.sm),
                     TextField(
-                      controller: dialogEmailController,
                       keyboardType: TextInputType.emailAddress,
                       textDirection: TextDirection.ltr,
                       textAlign: TextAlign.center,
@@ -258,7 +256,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         labelText: 'البريد الإلكتروني',
                         helperText: 'يمكنك تعديل البريد قبل التحقق',
                       ),
-                      onChanged: (_) => setDialogState(() {
+                      onChanged: (value) => setDialogState(() {
+                        dialogEmail = value;
                         dialogError = null;
                         dialogNotice = null;
                       }),
@@ -310,7 +309,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   onPressed: dialogLoading || resendSeconds > 0
                       ? null
                       : () async {
-                          final email = dialogEmailController.text.trim();
+                          final email = dialogEmail.trim();
                           if (!email.contains('@')) {
                             setDialogState(() =>
                                 dialogError = 'أدخل بريدًا إلكترونيًا صالحًا.');
@@ -347,7 +346,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       ? null
                       : () async {
                           final token = otpController.text.trim();
-                          final email = dialogEmailController.text.trim();
+                          final email = dialogEmail.trim();
                           if (!email.contains('@')) {
                             setDialogState(() =>
                                 dialogError = 'أدخل بريدًا إلكترونيًا صالحًا.');
@@ -392,7 +391,6 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
     );
     resendTimer?.cancel();
-    dialogEmailController.dispose();
     if (verified == true && mounted) {
       Navigator.pop(context, true);
     }
@@ -507,7 +505,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 session.isUnavailable
                     ? AssalMessageCard(
                         icon: Icons.sync_problem_outlined,
-                        message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+                        message: session.errorMessageAr ??
+                            'تعذر مزامنة الحساب الآن.',
                       )
                     : session.isAuthenticated
                         ? _authenticated(context, session)
@@ -527,7 +526,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       icon: Icons.notifications_outlined,
                       title: 'الإشعارات',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => NotificationsScreen(repository: repository),
+                        builder: (_) =>
+                            NotificationsScreen(repository: repository),
                       )),
                     ),
                     const SizedBox(height: AssalSpacing.sm),
@@ -552,7 +552,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: 'المساعدة والدعم',
                       subtitle: 'أسئلة شائعة ودعم فني وطلبات التصميم',
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => SupportCenterScreen(repository: repository),
+                        builder: (_) =>
+                            SupportCenterScreen(repository: repository),
                       )),
                     ),
                   ],
@@ -895,33 +896,37 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
         body: ListView(
           padding: const EdgeInsets.all(AssalSpacing.lg),
           children: [
-            AssalImageUploadSlot(
+            AssalImagePickerTile(
               label: 'صورة الغلاف',
               icon: Icons.landscape_outlined,
               bytes: coverBytes,
               imageUrl: widget.profile.coverUrl,
               onPick: saving ? null : () => _pickImage(cover: true),
-              onClear: saving || (coverBytes == null && widget.profile.coverUrl == null)
+              onClear: saving ||
+                      (coverBytes == null && widget.profile.coverUrl == null)
                   ? null
                   : () => setState(() {
                         coverBytes = null;
                         coverFile = null;
                       }),
+              width: double.infinity,
               height: 150,
             ),
             const SizedBox(height: AssalSpacing.lg),
-            AssalImageUploadSlot(
+            AssalImagePickerTile(
               label: 'الصورة الشخصية',
               icon: Icons.person_outline,
               bytes: avatarBytes,
               imageUrl: widget.profile.avatarUrl,
               onPick: saving ? null : () => _pickImage(cover: false),
-              onClear: saving || (avatarBytes == null && widget.profile.avatarUrl == null)
+              onClear: saving ||
+                      (avatarBytes == null && widget.profile.avatarUrl == null)
                   ? null
                   : () => setState(() {
                         avatarBytes = null;
                         avatarFile = null;
                       }),
+              width: double.infinity,
               height: 150,
             ),
             const SizedBox(height: AssalSpacing.lg),
@@ -1173,6 +1178,7 @@ class ConversationScreen extends StatefulWidget {
 class _ConversationScreenState extends State<ConversationScreen> {
   final controller = TextEditingController();
   late Future<AssalLoadState<List<AssalMessageSummary>>> future;
+  bool _isSending = false;
 
   @override
   void initState() {
@@ -1198,14 +1204,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
               if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalMessageSummary>>(
                 state: snapshot.data!,
-                  builder: (messages) => ListView(
-                    padding: const EdgeInsets.all(AssalSpacing.lg),
-                    children: messages
-                        .map<Widget>((message) => AssalMessageBubble(
-                              message: message,
-                            ))
-                        .toList(),
-                  ),
+                builder: (messages) => ListView(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  children: messages
+                      .map<Widget>((message) => AssalMessageBubble(
+                            message: message,
+                          ))
+                      .toList(),
+                ),
               );
             },
           ),
@@ -1222,8 +1228,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       decoration:
                           const InputDecoration(hintText: 'اكتب رسالتك'))),
               IconButton(
-                  onPressed: _send,
-                  icon: const Icon(Icons.send_rounded),
+                  onPressed: _isSending ? null : _send,
+                  icon: _isSending
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send_rounded),
                   tooltip: 'إرسال'),
             ]),
           ),
@@ -1234,25 +1246,35 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   Future<void> _send() async {
     final body = controller.text.trim();
-    if (body.isEmpty) return;
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) {
-      if (mounted) await openAuth(context, widget.repository);
-      return;
-    }
-    final result = await widget.repository.sendMessage(
-      session.user!.id,
-      AssalMessageDraft(conversationId: widget.conversation.id, body: body),
-    );
-    if (!mounted) return;
-    if (result is AssalData) {
-      controller.clear();
-      setState(
-          () => future = widget.repository.listMessages(widget.conversation.id));
-    } else if (result is AssalError<AssalMessageSummary>) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.messageAr)),
+    if (body.isEmpty || _isSending) return;
+    setState(() => _isSending = true);
+    try {
+      final session = await widget.repository.getSession();
+      if (!session.isAuthenticated || session.user == null) {
+        if (mounted) await openAuth(context, widget.repository);
+        return;
+      }
+      final result = await widget.repository.sendMessage(
+        session.user!.id,
+        AssalMessageDraft(conversationId: widget.conversation.id, body: body),
       );
+      if (!mounted) return;
+      if (result is AssalData) {
+        controller.clear();
+        setState(() =>
+            future = widget.repository.listMessages(widget.conversation.id));
+      } else if (result is AssalError<AssalMessageSummary>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.messageAr),
+            action: result.retryable
+                ? SnackBarAction(label: 'إعادة المحاولة', onPressed: _send)
+                : null,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
     }
   }
 }

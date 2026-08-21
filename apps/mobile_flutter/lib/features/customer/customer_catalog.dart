@@ -859,6 +859,8 @@ class _RequestSheetState extends State<RequestSheet> {
   final deliveryNoteController = TextEditingController();
   int quantity = 1;
   HandoffOption option = HandoffOption.contact;
+  String? selectedDeliveryOption;
+  String? selectedPickupLocation;
   bool saving = false;
 
   @override
@@ -919,6 +921,32 @@ class _RequestSheetState extends State<RequestSheet> {
                   onChanged: (value) {
                     if (value != null) setState(() => option = value);
                   }),
+              if (widget.store.deliveryOptions.isNotEmpty) ...[
+                const SizedBox(height: AssalSpacing.md),
+                DropdownButtonFormField<String>(
+                    initialValue: selectedDeliveryOption,
+                    decoration: const InputDecoration(
+                        labelText: 'خيار التوصيل من هذا المتجر'),
+                    items: widget.store.deliveryOptions
+                        .map((value) => DropdownMenuItem<String>(
+                            value: value, child: Text(value)))
+                        .toList(),
+                    onChanged: (value) =>
+                        setState(() => selectedDeliveryOption = value)),
+              ],
+              if (widget.store.pickupLocations.isNotEmpty) ...[
+                const SizedBox(height: AssalSpacing.md),
+                DropdownButtonFormField<String>(
+                    initialValue: selectedPickupLocation,
+                    decoration: const InputDecoration(
+                        labelText: 'نقطة الاستلام من هذا المتجر'),
+                    items: widget.store.pickupLocations
+                        .map((value) => DropdownMenuItem<String>(
+                            value: value, child: Text(value)))
+                        .toList(),
+                    onChanged: (value) =>
+                        setState(() => selectedPickupLocation = value)),
+              ],
               const SizedBox(height: AssalSpacing.md),
               Row(children: [
                 const Text('الكمية'),
@@ -964,6 +992,19 @@ class _RequestSheetState extends State<RequestSheet> {
       }
       return;
     }
+    final selectedHandoffOption = selectedDeliveryOption != null
+        ? HandoffOption.delivery
+        : selectedPickupLocation != null
+            ? HandoffOption.pickup
+            : option;
+    final handoffDetails = <String, Object?>{
+      'quantity_label': '$quantity',
+      'source': 'customer_request',
+      if (selectedDeliveryOption != null)
+        'delivery_option_label': selectedDeliveryOption,
+      if (selectedPickupLocation != null)
+        'pickup_location_label': selectedPickupLocation,
+    };
     final result = await widget.repository.createRequest(
         session.user!.id,
         AssalRequestDraft(
@@ -975,14 +1016,11 @@ class _RequestSheetState extends State<RequestSheet> {
             phone: phoneController.text.trim().isEmpty
                 ? null
                 : phoneController.text.trim(),
-            handoffOption: option,
+            handoffOption: selectedHandoffOption,
             deliveryNote: deliveryNoteController.text.trim().isEmpty
                 ? null
                 : deliveryNoteController.text.trim(),
-            handoffDetails: {
-              'quantity_label': '$quantity',
-              'source': 'customer_request'
-            }));
+            handoffDetails: handoffDetails));
     if (!mounted) return;
     setState(() => saving = false);
     Navigator.pop(context);

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -51,6 +54,52 @@ void main() {
     expect(picked, isTrue);
   });
 
+  testWidgets('image picker tile previews, replaces, and clears an image',
+      (tester) async {
+    var picked = 0;
+    var cleared = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AssalImagePickerTile(
+            bytes: _onePixelPng,
+            onPick: () => picked++,
+            onClear: () => cleared = true,
+            label: 'صورة المنتج',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.byTooltip('تغيير الصورة'), findsOneWidget);
+    expect(find.byTooltip('إزالة الصورة'), findsOneWidget);
+    await tester.tap(find.byTooltip('تغيير الصورة'));
+    await tester.tap(find.byTooltip('إزالة الصورة'));
+    expect(picked, 1);
+    expect(cleared, isTrue);
+  });
+
+  testWidgets('image picker treats a non-storage URL as an empty preview',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: AssalImagePickerTile(
+            imageUrl: 'not-a-storage-url',
+            onPick: null,
+            icon: Icons.storefront_outlined,
+            label: 'صورة المتجر',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('إضافة الصورة'), findsOneWidget);
+    expect(find.byIcon(Icons.storefront_outlined), findsNWidgets(2));
+    expect(find.byTooltip('تغيير الصورة'), findsNothing);
+  });
+
   testWidgets('premium badge is explicit and readable', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
@@ -64,3 +113,9 @@ void main() {
     expect(find.byIcon(Icons.workspace_premium_outlined), findsOneWidget);
   });
 }
+
+final Uint8List _onePixelPng = Uint8List.fromList(
+  base64Decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+  ),
+);

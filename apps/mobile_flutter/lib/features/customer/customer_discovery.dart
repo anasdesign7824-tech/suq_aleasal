@@ -1387,12 +1387,14 @@ class SearchScreen extends StatefulWidget {
     this.initialCategoryId,
     this.initialSubcategoryId,
     this.verifiedOnly = false,
+    this.locationBundle,
   });
   final AssalRepository repository;
   final String? initialQuery;
   final String? initialCategoryId;
   final String? initialSubcategoryId;
   final bool verifiedOnly;
+  final AssetBundle? locationBundle;
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -1463,7 +1465,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _primeLocationReference() async {
     try {
-      final reference = await YemenLocationReference.load();
+      final reference =
+          await YemenLocationReference.load(widget.locationBundle);
       if (mounted) locationReference = reference;
     } on Object {
       // The filter sheet retries explicitly and owns the user-facing message.
@@ -1800,7 +1803,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   maxCrossAxisExtent: 220,
                                   crossAxisSpacing: AssalSpacing.md,
                                   mainAxisSpacing: AssalSpacing.md,
-                                  childAspectRatio: .68),
+                                  mainAxisExtent: 360),
                           itemCount: products.length,
                           itemBuilder: (_, index) {
                             final product = products[index];
@@ -1855,12 +1858,18 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _showFilters() async {
-    // The sheet must open immediately. Reference reads are local/refreshable and
-    // must not block the user's tap while production queries are in flight.
+    // The location reference is local, but it must be ready before the sheet is
+    // built; otherwise the governorate/district cascade would render empty.
     unawaited(_primeFilterLabels());
-    unawaited(_primeLocationReference());
+    if (locationReference == null) await _primeLocationReference();
     final reference = locationReference;
     if (!mounted) return;
+    if (reference == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر تحميل مرجع المحافظات والمديريات. حاول مرة أخرى.')),
+      );
+      return;
+    }
     var draftRegion = regionId ?? '';
     var draftProvince = provinceId ?? '';
     var draftCategory = categoryId ?? '';
@@ -1944,7 +1953,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final availabilityItems = _stringOptions(availabilityOptions);
     final regionItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل المحافظات')),
-      ...(reference?.governorates ?? const <AssalRegion>[]).map(
+      ...reference.governorates.map(
         (region) => DropdownMenuItem<String>(
           value: region.code ?? region.id,
           child: Text(region.nameAr),
@@ -1954,8 +1963,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (!regionItems.any((item) => item.value == draftRegion)) {
       draftRegion = '';
     }
-    final validDistricts =
-        reference?.districtsFor(draftRegion) ?? const <AssalRegion>[];
+    final validDistricts = reference.districtsFor(draftRegion);
     if (!validDistricts
         .any((item) => (item.code ?? item.id) == draftProvince)) {
       draftProvince = '';
@@ -1999,8 +2007,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           items: [
                             const DropdownMenuItem<String>(
                                 value: '', child: Text('كل المديريات')),
-                            ...(reference?.districtsFor(draftRegion) ??
-                                    const <AssalRegion>[])
+                            ...reference.districtsFor(draftRegion)
                                 .map((district) => DropdownMenuItem<String>(
                                     value: district.code ?? district.id,
                                     child: Text(district.nameAr)))
