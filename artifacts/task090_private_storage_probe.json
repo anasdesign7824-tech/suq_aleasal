@@ -1,0 +1,32 @@
+{
+  "task": "090",
+  "date": "2026-08-21",
+  "production_project": "gvalqfgxrkibuydoiuiz",
+  "buckets": {
+    "assalkom_private": {"public": false, "file_size_limit": 20971520, "allowed_mime_types": ["image/jpeg", "image/png", "image/webp", "application/pdf"]},
+    "assalkom_public": {"public": true, "file_size_limit": 10485760, "allowed_mime_types": ["image/jpeg", "image/png", "image/webp", "image/svg+xml"]},
+    "sok1": {"public": false, "objects_sampled": 0}
+  },
+  "private_object_probe": {"buckets": ["assalkom_private", "sok1"], "rows_returned": 0, "query_limit": 20, "offset": 0},
+  "storage_policy_probe": {
+    "private_select_roles": ["authenticated"],
+    "private_select_guard": "bucket_id=assalkom_private AND first path segment equals auth.uid() OR public.is_admin()",
+    "public_select_guard": "bucket_id=assalkom_public",
+    "private_insert_update_delete_roles": ["authenticated"],
+    "private_insert_update_delete_guard": "same owner/admin prefix guard"
+  },
+  "http_negative_probe": {
+    "endpoint_shape": "/storage/v1/object/public/assalkom_private/task090-probe/nonexistent.pdf",
+    "authorization": "none",
+    "http_status": 400,
+    "body_bytes": 98,
+    "interpretation": "private bucket is not served through the public object endpoint"
+  },
+  "source_path_contracts": {
+    "verification_documents": "assalkom_private/<userId>/verification/<requestId>/document-<timestamp>.<safeExtension>",
+    "payment_proofs": "assalkom_private/<userId>/payment-proofs/<paymentRequestId>-<timestamp>.<safeExtension>",
+    "public_urls": "only returned by assalkom_public upload path"
+  },
+  "prior_verified_probes": "TASK_085 evidence includes owner/cross-prefix/admin/anonymous storage isolation probes with rollback and no persistent test objects.",
+  "limitation": "No live authenticated cross-user HTTP download was claimed because the production private bucket contains zero objects and no user JWT was exposed to the sandbox."
+}
