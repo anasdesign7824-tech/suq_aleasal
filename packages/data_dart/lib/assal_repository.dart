@@ -101,6 +101,16 @@ class AssalMessageDraft {
   final String body;
 }
 
+class AssalRequestReplyDraft {
+  const AssalRequestReplyDraft({
+    required this.body,
+    required this.responseCode,
+  });
+
+  final String body;
+  final RequestResponseCode responseCode;
+}
+
 abstract interface class AssalRepository {
   AssalDataSourceMode get mode;
   Future<AssalSession> getSession();
@@ -141,6 +151,14 @@ abstract interface class AssalRepository {
   Future<AssalLoadState<AssalRequestSummary>> createRequest(
     String requesterId,
     AssalRequestDraft draft,
+  );
+  Future<AssalLoadState<List<AssalRequestMessageSummary>>> listRequestMessages(
+    String requestId,
+  );
+  Future<AssalLoadState<AssalRequestMessageSummary>> replyToRequest(
+    String merchantId,
+    String requestId,
+    AssalRequestReplyDraft draft,
   );
   Future<AssalLoadState<List<AssalNotificationSummary>>> listNotifications(
     String userId,

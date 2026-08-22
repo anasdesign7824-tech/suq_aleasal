@@ -770,6 +770,45 @@ class ProductionRepository implements AssalRepository {
   );
 
   @override
+  Future<AssalLoadState<List<AssalRequestMessageSummary>>> listRequestMessages(
+    String requestId,
+  ) => _readList(
+    resource: 'request_messages',
+    emptyMessage: 'لا توجد ردود على هذا الطلب بعد',
+    read: () async {
+      final identity = await _authGateway?.currentIdentity();
+      final rows = await _gateway.select(
+        'request_messages',
+        filters: {'request_id': requestId},
+      );
+      return rows
+          .map((row) {
+            final value = Map<String, Object?>.from(row);
+            value['is_mine'] = identity?.id == value['sender_id'];
+            return AssalRequestMessageSummary.fromJson(value);
+          })
+          .toList(growable: false);
+    },
+  );
+
+  @override
+  Future<AssalLoadState<AssalRequestMessageSummary>> replyToRequest(
+    String merchantId,
+    String requestId,
+    AssalRequestReplyDraft draft,
+  ) => _write(
+    resource: 'requests.reply',
+    write: () async {
+      final row = await _gateway.rpc('merchant_reply_to_request', {
+        'p_request_id': requestId,
+        'p_body': draft.body.trim(),
+        'p_response_code': draft.responseCode.wireValue,
+      });
+      return AssalRequestMessageSummary.fromJson(row);
+    },
+  );
+
+  @override
   Future<AssalLoadState<List<AssalNotificationSummary>>> listNotifications(
     String userId,
   ) async {

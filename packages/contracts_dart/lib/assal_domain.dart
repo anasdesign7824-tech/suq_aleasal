@@ -46,7 +46,23 @@ enum ReviewStatus { pending, approved, rejected, hidden }
 
 enum RequestStatus { open, inProgress, answered, closed, cancelled }
 
+enum RequestResponseCode { available, unavailable, contactRequired }
+
 enum HandoffOption { pickup, delivery, office, courier, contact }
+
+extension RequestResponseCodeLabel on RequestResponseCode {
+  String get wireValue => switch (this) {
+        RequestResponseCode.available => 'available',
+        RequestResponseCode.unavailable => 'unavailable',
+        RequestResponseCode.contactRequired => 'contact_required',
+      };
+
+  String get labelAr => switch (this) {
+        RequestResponseCode.available => 'متوفر',
+        RequestResponseCode.unavailable => 'غير متوفر حاليًا',
+        RequestResponseCode.contactRequired => 'يتطلب التواصل',
+      };
+}
 
 extension StoreStatusLabel on StoreStatus {
   String get labelAr => switch (this) {
@@ -974,6 +990,46 @@ class AssalRequestSummary {
         deliveryNote: _stringOrNull(json['delivery_note']),
         updatedAt: _dateOrNull(json['updated_at']),
         createdAt: _dateOrNull(json['created_at']),
+      );
+}
+
+RequestResponseCode? _requestResponseCode(Object? value) => switch (value) {
+      'available' => RequestResponseCode.available,
+      'unavailable' => RequestResponseCode.unavailable,
+      'contact_required' => RequestResponseCode.contactRequired,
+      _ => null,
+    };
+
+class AssalRequestMessageSummary {
+  const AssalRequestMessageSummary({
+    required this.id,
+    required this.requestId,
+    required this.senderId,
+    required this.body,
+    required this.createdAt,
+    this.responseCode,
+    this.isMine = false,
+  });
+
+  final String id;
+  final String requestId;
+  final String senderId;
+  final String body;
+  final DateTime createdAt;
+  final RequestResponseCode? responseCode;
+  final bool isMine;
+
+  factory AssalRequestMessageSummary.fromJson(Map<String, Object?> json) =>
+      AssalRequestMessageSummary(
+        id: _string(json['id']),
+        requestId: _string(json['request_id']),
+        senderId: _string(json['sender_id']),
+        body: _string(json['body']),
+        createdAt: _dateOrNull(json['created_at']) ??
+            _dateOrNull(json['sent_at']) ??
+            DateTime.fromMillisecondsSinceEpoch(0),
+        responseCode: _requestResponseCode(json['response_code']),
+        isMine: json['is_mine'] as bool? ?? false,
       );
 }
 

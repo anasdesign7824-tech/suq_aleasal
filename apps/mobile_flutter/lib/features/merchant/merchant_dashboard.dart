@@ -7,6 +7,7 @@ import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'merchant_product_editor.dart';
 import '../customer/customer_catalog.dart';
+import '../customer/customer_request_detail.dart';
 import '../customer/customer_support.dart';
 import 'store_verification_screen.dart';
 import 'subscription_plans_screen.dart';
@@ -481,14 +482,31 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               final request = requests[index];
               return Card(
                 child: ListTile(
+                  onTap: () async {
+                    final changed = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(
+                        builder: (_) => CustomerRequestDetailScreen(
+                          repository: widget.repository,
+                          request: request,
+                          merchantMode: true,
+                        ),
+                      ),
+                    );
+                    if (changed == true && mounted) setState(_refresh);
+                  },
                   leading: const Icon(Icons.assignment_outlined,
                       color: AssalColors.primaryDark),
-                  title: Text(request.subject),
-                  subtitle: Text(
-                    '${request.status.name} · ${request.body ?? 'بدون تفاصيل'}',
-                    maxLines: 3,
+                  title: Text(
+                    request.productName ?? request.subject,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  subtitle: Text(
+                    '${request.requesterName ?? 'عميل عسلكم'} · ${request.quantity ?? 1} · ${request.status.labelAr}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: const Icon(Icons.chevron_left),
                   isThreeLine: true,
                 ),
               );

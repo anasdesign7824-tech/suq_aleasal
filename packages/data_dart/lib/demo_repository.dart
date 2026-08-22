@@ -34,6 +34,8 @@ class DemoRepository implements AssalRepository {
   final List<AssalReviewSummary> _localReviews = <AssalReviewSummary>[];
   final List<AssalCommentSummary> _localComments = <AssalCommentSummary>[];
   final List<AssalRequestSummary> _localRequests = <AssalRequestSummary>[];
+  final List<AssalRequestMessageSummary> _localRequestMessages =
+      <AssalRequestMessageSummary>[];
   final List<AssalNotificationSummary> _localNotifications =
       <AssalNotificationSummary>[];
   final List<AssalConversationSummary> _localConversations =
@@ -529,6 +531,81 @@ class DemoRepository implements AssalRepository {
       ),
     );
     return AssalData(request);
+  }
+
+  @override
+  Future<AssalLoadState<List<AssalRequestMessageSummary>>> listRequestMessages(
+    String requestId,
+  ) async =>
+      _listState(
+        _localRequestMessages
+            .where((message) => message.requestId == requestId)
+            .toList(growable: false),
+        'لا توجد ردود على هذا الطلب بعد.',
+      );
+
+  @override
+  Future<AssalLoadState<AssalRequestMessageSummary>> replyToRequest(
+    String merchantId,
+    String requestId,
+    AssalRequestReplyDraft draft,
+  ) async {
+    final workspace = _merchantWorkspace;
+    final index = _localRequests.indexWhere((request) => request.id == requestId);
+    if (workspace == null ||
+        index < 0 ||
+        workspace.store.merchantId != merchantId ||
+        workspace.store.id != _localRequests[index].storeId) {
+      return const AssalError('لا تملك صلاحية الرد على هذا الطلب.', code: 'not_owned');
+    }
+    final request = _localRequests[index];
+    final now = DateTime.now();
+    final message = AssalRequestMessageSummary(
+      id: 'local-request-message-${now.microsecondsSinceEpoch}',
+      requestId: requestId,
+      senderId: merchantId,
+      body: draft.body.trim(),
+      createdAt: now,
+      responseCode: draft.responseCode,
+      isMine: true,
+    );
+    _localRequestMessages.insert(0, message);
+    _localRequests[index] = AssalRequestSummary(
+      id: request.id,
+      requesterId: request.requesterId,
+      storeId: request.storeId,
+      merchantId: request.merchantId,
+      subject: request.subject,
+      status: RequestStatus.answered,
+      productId: request.productId,
+      productName: request.productName,
+      storeName: request.storeName,
+      requesterName: request.requesterName,
+      body: request.body,
+      quantity: request.quantity,
+      phone: request.phone,
+      preferredHandoffOption: request.preferredHandoffOption,
+      priceNote: request.priceNote,
+      deliveryNote: request.deliveryNote,
+      updatedAt: now,
+      createdAt: request.createdAt,
+    );
+    _localNotifications.insert(
+      0,
+      AssalNotificationSummary(
+        id: 'local-request-answer-${message.id}',
+        userId: request.requesterId,
+        notificationType: 'request_answered',
+        titleAr: 'رد جديد على طلبك',
+        bodyAr: draft.responseCode.labelAr,
+        payload: {
+          'request_id': request.id,
+          'store_id': request.storeId,
+          'response_code': draft.responseCode.wireValue,
+        },
+      ),
+    );
+    return AssalData(message);
   }
 
   @override

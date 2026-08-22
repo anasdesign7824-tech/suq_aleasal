@@ -9,6 +9,7 @@ import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
 import 'customer_favorites.dart';
+import 'customer_request_detail.dart';
 import 'customer_support.dart';
 import '../merchant/merchant_dashboard.dart';
 
@@ -1073,14 +1074,30 @@ class RequestsScreen extends StatelessWidget {
                     final request = requests[index];
                     return Card(
                       child: ListTile(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => CustomerRequestDetailScreen(
+                              repository: repository,
+                              request: request,
+                              merchantMode: false,
+                            ),
+                          ),
+                        ),
                         leading: const CircleAvatar(
                             backgroundColor: AssalColors.honeyLight,
                             child: Icon(Icons.assignment_outlined,
                                 color: AssalColors.primaryDark)),
-                        title: Text(request.subject),
+                        title: Text(
+                          request.productName ?? request.subject,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         subtitle: Text(
-                            '${request.storeName ?? request.storeId} · ${request.preferredHandoffOption ?? 'تواصل مباشر'}'),
-                        trailing: Chip(label: Text(request.status.labelAr)),
+                          '${request.storeName ?? 'متجر عسلكم'} · ${request.status.labelAr}',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        trailing: const Icon(Icons.chevron_left),
                       ),
                     );
                   },
