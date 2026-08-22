@@ -400,6 +400,55 @@ class _MerchantProductEditorScreenState
         decoration: InputDecoration(labelText: label),
       );
 
+  Widget _choiceField(
+    TextEditingController controller,
+    String label,
+    List<String> options, {
+    IconData? icon,
+    String? hint,
+    String? Function(String?)? validator,
+  }) {
+    final current = controller.text.trim();
+    final values = <String>[...options];
+    if (current.isNotEmpty && !values.contains(current)) {
+      values.insert(0, current);
+    }
+    return DropdownButtonFormField<String>(
+      isExpanded: true,
+      initialValue: current.isEmpty ? null : current,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: icon == null ? null : Icon(icon),
+      ),
+      items: values
+          .map((value) => DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              ))
+          .toList(growable: false),
+      hint: hint == null ? null : Text(hint),
+      validator: validator,
+      onChanged: saving
+          ? null
+          : (value) => setState(() => controller.text = value ?? ''),
+    );
+  }
+
+  Widget _readonlyField(
+    TextEditingController controller,
+    String label, {
+    IconData? icon,
+  }) =>
+      TextFormField(
+        controller: controller,
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: icon == null ? null : Icon(icon),
+          helperText: 'يُملأ تلقائيًا من البيانات المعتمدة',
+        ),
+      );
+
   Widget _dateField(TextEditingController controller, String label) =>
       TextFormField(
         controller: controller,
@@ -589,6 +638,7 @@ class _MerchantProductEditorScreenState
               SizedBox(
                 width: 104,
                 child: DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: const ['YER', 'SAR', 'USD']
                           .contains(currencyController.text)
                       ? currencyController.text
@@ -610,11 +660,21 @@ class _MerchantProductEditorScreenState
           Row(
             children: [
               Expanded(
-                child: _field(
+                child: _choiceField(
                   weightController,
                   'الوزن أو الحجم',
+                  const [
+                    '250 غرام',
+                    '500 غرام',
+                    '1 كيلو',
+                    '2 كيلو',
+                    '7 كيلو',
+                    '25 كيلو',
+                  ],
+                  icon: Icons.scale_outlined,
+                  hint: 'اختر الوزن أو الحجم',
                   validator: (value) => value == null || value.trim().isEmpty
-                      ? 'أدخل الوزن أو الحجم.'
+                      ? 'اختر الوزن أو الحجم.'
                       : null,
                 ),
               ),
@@ -638,11 +698,14 @@ class _MerchantProductEditorScreenState
             ],
           ),
           const SizedBox(height: AssalSpacing.md),
-          _field(
+          _choiceField(
             originController,
             'بلد المصدر',
+            const ['اليمن', 'السعودية', 'عُمان', 'الإمارات', 'بلد آخر'],
+            icon: Icons.public_outlined,
+            hint: 'اختر بلد المصدر',
             validator: (value) => value == null || value.trim().isEmpty
-                ? 'أدخل بلد المصدر.'
+                ? 'اختر بلد المصدر.'
                 : null,
           ),
           const SizedBox(height: AssalSpacing.md),
@@ -743,19 +806,76 @@ class _MerchantProductEditorScreenState
             },
           ),
           const SizedBox(height: AssalSpacing.md),
-          _field(provinceController, 'وصف المصدر المحلي (اختياري)'),
+          _readonlyField(
+            provinceController,
+            'المصدر المحلي',
+            icon: Icons.location_city_outlined,
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(identityController, 'هوية العسل أو السلالة'),
+          _choiceField(
+            identityController,
+            'هوية العسل أو السلالة',
+            const ['سدر', 'سمر', 'طلح', 'زهور برية', 'متعدد الأزهار', 'خلطة نحلية'],
+            icon: Icons.hive_outlined,
+            hint: 'اختر الهوية أو السلالة',
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(qualityController, 'وصف الجودة أو التوثيق'),
+          _choiceField(
+            qualityController,
+            'درجة الجودة',
+            const [
+              'ملكي فاخر (Royal)',
+              'درجة أولى (First Class)',
+              'درجة ثانية (Standard)',
+              'تجاري (Commercial)',
+            ],
+            icon: Icons.workspace_premium_outlined,
+            hint: 'اختر درجة الجودة',
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(harvestController, 'موسم أو تاريخ الحصاد'),
+          _choiceField(
+            harvestController,
+            'موسم الحصاد',
+            const [
+              'قطفة ربيع 2026',
+              'قطفة صيف 2026',
+              'قطفة خريف 2026',
+              'حسب الموسم',
+            ],
+            icon: Icons.calendar_month_outlined,
+            hint: 'اختر موسم الحصاد',
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(processingMethodController, 'طريقة المعالجة'),
+          _choiceField(
+            processingMethodController,
+            'طريقة المعالجة',
+            const ['مصفى يدويًا', 'مصفى آليًا', 'خام', 'مبستر', 'غير معالج'],
+            icon: Icons.filter_alt_outlined,
+            hint: 'اختر طريقة المعالجة',
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(processingStatusController, 'حالة المعالجة'),
+          _choiceField(
+            processingStatusController,
+            'حالة المعالجة',
+            const ['خام غير مسخن', 'مصفى', 'مبستر', 'جاهز للتعبئة', 'غير محدد'],
+            icon: Icons.fact_check_outlined,
+            hint: 'اختر حالة المعالجة',
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(packagingController, 'نوع التغليف'),
+          _choiceField(
+            packagingController,
+            'نوع التغليف',
+            const [
+              'مرطبان زجاجي — ربع كيلو',
+              'مرطبان زجاجي — نصف كيلو',
+              'مرطبان زجاجي — كيلو',
+              'عبوة بلاستيكية',
+              'دبة (25 كيلو)',
+              'قرص شمع',
+            ],
+            icon: Icons.inventory_2_outlined,
+            hint: 'اختر نوع التغليف',
+          ),
           const SizedBox(height: AssalSpacing.md),
           _dateField(productionDateController, 'تاريخ الإنتاج'),
           const SizedBox(height: AssalSpacing.md),
