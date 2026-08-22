@@ -1188,6 +1188,9 @@ class AssalStoreHeaderCard extends StatelessWidget {
     this.showVerificationBadge = false,
     this.followersCountOverride,
     this.onFollowersTap,
+    this.onPickLogo,
+    this.onPickCover,
+    this.imageBusy = false,
   });
 
   final AssalStoreSummary store;
@@ -1198,6 +1201,9 @@ class AssalStoreHeaderCard extends StatelessWidget {
   final bool showVerificationBadge;
   final int? followersCountOverride;
   final VoidCallback? onFollowersTap;
+  final VoidCallback? onPickLogo;
+  final VoidCallback? onPickCover;
+  final bool imageBusy;
 
   String _statusLabel() {
     if (showVerificationBadge && store.isVerified) return 'متجر موثق Pro';
@@ -1222,11 +1228,15 @@ class AssalStoreHeaderCard extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            height: 168,
+            height: 200,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                Positioned.fill(
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 168,
                   child: AssalImageTile(
                     imageUrl: store.coverUrl,
                     height: 168,
@@ -1243,6 +1253,22 @@ class AssalStoreHeaderCard extends StatelessWidget {
                     right: AssalSpacing.sm,
                     top: AssalSpacing.sm,
                     child: trailing!,
+                  ),
+                if (onPickCover != null)
+                  Positioned(
+                    right: trailing != null ? 56 : AssalSpacing.sm,
+                    top: AssalSpacing.sm,
+                    child: IconButton.filledTonal(
+                      onPressed: imageBusy ? null : onPickCover,
+                      tooltip: 'تغيير صورة غلاف المتجر',
+                      icon: imageBusy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.camera_alt_outlined),
+                    ),
                   ),
                 if (onFollow != null)
                   Positioned(
@@ -1267,23 +1293,47 @@ class AssalStoreHeaderCard extends StatelessWidget {
                     ),
                   ),
                 Positioned(
-                  bottom: -30,
+                  bottom: 0,
                   left: 0,
                   right: 0,
                   child: Center(
-                    child: CircleAvatar(
-                      radius: 38,
-                      backgroundColor: AssalColors.honeyLight,
-                      backgroundImage: logoUrl != null && logoUrl.startsWith('http')
-                          ? NetworkImage(logoUrl)
-                          : null,
-                      child: logoUrl == null || !logoUrl.startsWith('http')
-                          ? const Icon(
-                              Icons.storefront_outlined,
-                              size: 34,
-                              color: AssalColors.primaryDark,
-                            )
-                          : null,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        CircleAvatar(
+                          radius: 38,
+                          backgroundColor: AssalColors.honeyLight,
+                          backgroundImage:
+                              logoUrl != null && logoUrl.startsWith('http')
+                                  ? NetworkImage(logoUrl)
+                                  : null,
+                          child: logoUrl == null || !logoUrl.startsWith('http')
+                              ? const Icon(
+                                  Icons.storefront_outlined,
+                                  size: 34,
+                                  color: AssalColors.primaryDark,
+                                )
+                              : null,
+                        ),
+                        if (onPickLogo != null)
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: IconButton.filledTonal(
+                              onPressed: imageBusy ? null : onPickLogo,
+                              tooltip: 'تغيير شعار المتجر',
+                              icon: imageBusy
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.camera_alt_outlined),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),

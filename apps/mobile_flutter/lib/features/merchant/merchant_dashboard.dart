@@ -33,6 +33,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
   late Future<AssalLoadState<List<AssalRequestSummary>>> requestsFuture;
   late Future<AssalLoadState<List<AssalCommentSummary>>> commentsFuture;
   int managementView = 0;
+  bool imageBusy = false;
 
   @override
   void initState() {
@@ -162,6 +163,84 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         ),
       );
 
+  String _imageExtension(XFile file) {
+    final name = file.name.toLowerCase();
+    if (name.endsWith('.png')) return 'png';
+    if (name.endsWith('.webp')) return 'webp';
+    return 'jpg';
+  }
+
+  Future<void> _pickAndSaveStoreImage(
+    AssalMerchantWorkspaceSummary workspace, {
+    required bool cover,
+  }) async {
+    if (imageBusy) return;
+    final session = await widget.repository.getSession();
+    if (!mounted) return;
+    if (session.isUnavailable || !session.isAuthenticated || session.user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            session.errorMessageAr ?? 'سجّل الدخول قبل تغيير صور المتجر.',
+          ),
+        ),
+      );
+      return;
+    }
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      imageQuality: 88,
+    );
+    if (picked == null) return;
+    setState(() => imageBusy = true);
+    try {
+      final upload = await widget.repository.uploadMerchantImage(
+        session.user!.id,
+        cover ? 'cover' : 'logo',
+        await picked.readAsBytes(),
+        _imageExtension(picked),
+      );
+      if (!mounted) return;
+      if (upload is! AssalData<String>) {
+        if (upload is AssalError<String>) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(upload.messageAr)));
+        }
+        return;
+      }
+      final store = workspace.store;
+      final update = await widget.repository.updateMerchantWorkspace(
+        session.user!.id,
+        store.id,
+        AssalMerchantWorkspaceDraft(
+          businessName: store.nameAr,
+          description: store.description,
+          phone: store.contactPhone,
+          regionId: store.regionId,
+          logoUrl: cover ? store.logoUrl : upload.value,
+          coverUrl: cover ? upload.value : store.coverUrl,
+        ),
+      );
+      if (!mounted) return;
+      if (update is AssalData<void>) {
+        setState(_refresh);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              cover ? 'تم تحديث صورة غلاف المتجر.' : 'تم تحديث شعار المتجر.',
+            ),
+          ),
+        );
+      } else if (update is AssalError<void>) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(update.messageAr)));
+      }
+    } finally {
+      if (mounted) setState(() => imageBusy = false);
+    }
+  }
+
   Widget _content(AssalMerchantWorkspaceSummary workspace) {
     final store = workspace.store;
     return DefaultTabController(
@@ -178,6 +257,9 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             ),
             child: AssalStoreHeaderCard(
               store: store,
+              imageBusy: imageBusy,
+              onPickLogo: () => _pickAndSaveStoreImage(workspace, cover: false),
+              onPickCover: () => _pickAndSaveStoreImage(workspace, cover: true),
               trailing: IconButton(
                 tooltip: 'تحديث بيانات المتجر',
                 onPressed: () => setState(_refresh),

@@ -2,7 +2,7 @@ import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../lib/core/assal_widgets.dart';
+import 'package:assalkom/core/assal_widgets.dart';
 
 void main() {
   testWidgets('profile header exposes direct cover and avatar actions',
