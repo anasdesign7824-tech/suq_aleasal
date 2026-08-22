@@ -1,0 +1,6 @@
+﻿FINAL REVIEW FUNCTION/PLACEHOLDER SCAN
+scope=apps/mobile_flutter/lib,packages/data_dart/lib,apps/admin_web/server
+--- TODO/FIXME/UNIMPLEMENTED ---
+NONE_FOUND
+--- HTTP 501 LITERAL ---
+NONE_FOUND

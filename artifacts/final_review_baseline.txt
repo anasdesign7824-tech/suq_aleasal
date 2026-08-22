@@ -1,0 +1,137 @@
+﻿FINAL REVIEW BASELINE
+before_commit=
+c5bd320
+after_commit=
+e2b4264cdc2efd5fab4abcc8bde385bbd824ecc7
+branch=
+audit/launch-fixes-2026-08-20
+current_tracked_modifications=
+0
+current_untracked_entries=
+332
+
+COMMITS 092-100
+3b1ed31 task 096: add write idempotency keys
+7aa2375 task 097: harden social composer accessibility
+b89d815 task 098: unify UI consistency vocabulary
+ad73e43 task 099: commit release source baseline
+f1bdc11 task 099: record release readiness gate
+e2b4264 task 100: record full e2e acceptance
+
+DIFFSTAT 092-100
+ .../client/src/components/AdminAuthGate.tsx        |    6 +-
+ .../client/src/components/AdminGovernance.tsx      |    5 +-
+ .../src/components/AdminMerchantApplications.tsx   |   13 +-
+ .../client/src/components/AdminOperations.tsx      |   21 +-
+ .../client/src/components/AdminPeople.tsx          |   16 +-
+ .../client/src/components/AdminPlansPanel.tsx      |   20 +-
+ .../client/src/components/ProductEditPanel.tsx     |  145 ++
+ .../client/src/lib/ui-consistency.test.ts          |   35 +
+ apps/admin_web/client/src/lib/ui-consistency.ts    |  105 +
+ apps/admin_web/client/src/pages/Home.tsx           |   46 +-
+ apps/admin_web/server/admin-error.test.ts          |   35 +
+ apps/admin_web/server/admin-error.ts               |   58 +
+ apps/mobile_flutter/lib/core/assal_widgets.dart    |   31 +-
+ .../lib/core/supabase_realtime_sync.dart           |   24 +-
+ .../lib/features/customer/customer_account.dart    |  106 +-
+ .../lib/features/customer/customer_catalog.dart    |   48 +-
+ .../lib/features/customer/customer_discovery.dart  |   27 +-
+ .../lib/features/customer/customer_social.dart     |  193 +-
+ .../lib/features/merchant/merchant_dashboard.dart  |   85 +-
+ apps/mobile_flutter/test/data_layer_test.dart      | 1625 ++++++++++++++-
+ .../test/merchant_analytics_widget_test.dart       |   95 +
+ .../test/performance_contract_test.dart            |  122 ++
+ .../test/profile_reverify_widget_test.dart         |  105 +
+ .../test/realtime_lifecycle_test.dart              |   18 +
+ .../test/search_filter_widget_test.dart            |   69 +
+ .../test/search_location_cascade_widget_test.dart  |  116 ++
+ .../test/task097_social_accessibility_test.dart    |  196 ++
+ apps/mobile_flutter/test/unified_ui_test.dart      |   55 +
+ artifacts/task096_apply_migration_result.json      |    3 +
+ artifacts/task096_legacy_signature_probe.json      |    3 +
+ artifacts/task096_post_duplicate_probe.json        |    3 +
+ artifacts/task096_pre_duplicate_probe.json         |    3 +
+ artifacts/task096_production_write_constraints.md  |   24 +
+ artifacts/task096_write_rpc_defs_summary.md        |   32 +
+ artifacts/task097_interactive_inventory_raw.txt    |  251 +++
+ artifacts/task098_audit_vocab_hits.txt             |   71 +
+ artifacts/task098_color_inventory_raw.txt          |  364 ++++
+ artifacts/task098_post_ui_consistency_scan.txt     |   11 +
+ artifacts/task098_status_label_hits.txt            |   57 +
+ artifacts/task098_status_term_inventory_raw.txt    | 2079 ++++++++++++++++++++
+ artifacts/task098_ui_identifier_hits.txt           |   41 +
+ artifacts/task099_admin_env_keys_redacted.txt      |   17 +
+ artifacts/task099_env_build_inventory.txt          |   55 +
+ artifacts/task099_health_acl_probe.json            |    3 +
+ artifacts/task099_migration_source_compare.txt     |   19 +
+ artifacts/task099_performance_advisors.json        | 1464 ++++++++++++++
+ artifacts/task099_production_migrations.json       |  272 +++
+ artifacts/task099_project_url.json                 |    3 +
+ artifacts/task099_release_artifact_metadata.txt    |    9 +
+ artifacts/task099_release_health_probe.sql         |   42 +
+ artifacts/task099_release_health_probe_input.json  |    4 +
+ artifacts/task099_release_source_inventory.txt     |  112 ++
+ .../task099_release_source_inventory_final.txt     |   10 +
+ artifacts/task099_rls_health_probe.json            |    3 +
+ artifacts/task099_security_advisors.json           |  403 ++++
+ artifacts/task099_signing_audit.txt                |   29 +
+ artifacts/task099_table_health_probe.json          |    3 +
+ artifacts/task099_tracked_source_diff_audit.txt    |  328 +++
+ artifacts/task099_worktree_after_baseline.txt      |    5 +
+ artifacts/task099_worktree_dirty_audit.txt         |   81 +
+ artifacts/task100_acceptance_baseline.json         |    3 +
+ artifacts/task100_acceptance_baseline_input.json   |    4 +
+ artifacts/task100_admin_release_gate.log           |  Bin 0 -> 8530 bytes
+ artifacts/task100_admin_unauth_probe.txt           |    6 +
+ artifacts/task100_anon_comment.json                |    1 +
+ artifacts/task100_anon_message.json                |    1 +
+ artifacts/task100_anon_review.json                 |    1 +
+ artifacts/task100_anon_rpc_guards.txt              |    6 +
+ artifacts/task100_auth_fixture.json                |    3 +
+ artifacts/task100_auth_fixture_input.json          |    4 +
+ .../task100_flutter_realtime_data_focused.log      |  Bin 0 -> 9432 bytes
+ artifacts/task100_flutter_release_gate.log         |  Bin 0 -> 17450 bytes
+ artifacts/task100_plan_payment_baseline.json       |    3 +
+ artifacts/task100_plan_payment_baseline_input.json |    4 +
+ artifacts/task100_post_failed_probe_counts.json    |    3 +
+ artifacts/task100_post_rollback_counts.json        |    3 +
+ artifacts/task100_product_public.json              |    1 +
+ artifacts/task100_public_read_smoke.txt            |    2 +
+ artifacts/task100_realtime_handshake_result.json   |  Bin 0 -> 572 bytes
+ artifacts/task100_realtime_publication.json        |    3 +
+ artifacts/task100_realtime_publication_input.json  |    4 +
+ artifacts/task100_rollback_probe_corrected.json    |    3 +
+ artifacts/task100_rollback_probe_first_failure.txt |    1 +
+ artifacts/task100_rpc_signatures.json              |    3 +
+ artifacts/task100_social_baseline.json             |    3 +
+ artifacts/task100_social_baseline_input.json       |    4 +
+ artifacts/task100_store_public.json                |    1 +
+ artifacts/task100_write_rollback_probe_input.json  |    4 +
+ .../0046_fix_messages_rls_conversation_scope.sql   |   38 +
+ .../0047_guard_card_payment_authentication.sql     |   38 +
+ .../0048_harden_merchant_workspace_auth.sql        |   13 +
+ ...049_restrict_conversations_to_active_stores.sql |   70 +
+ .../0051_reconcile_private_storage_policies.sql    |   63 +
+ .../0052_harden_payment_reconcile_transitions.sql  |  189 ++
+ ...053_block_expired_subscription_reactivation.sql |   84 +
+ .../0054_customer_store_logistics_read_model.sql   |   72 +
+ .../migrations/0061_write_idempotency_keys.sql     |  373 ++++
+ docs/PRE_PRODUCTION_MASTER_TASK_MATRIX.md          |   11 +-
+ .../TASK_096_WRITE_IDEMPOTENCY_EVIDENCE.md         |  109 +
+ .../evidence/TASK_097_UX_ACCESSIBILITY_EVIDENCE.md |   84 +
+ docs/evidence/TASK_098_UI_CONSISTENCY_EVIDENCE.md  |  103 +
+ .../TASK_099_RELEASE_READINESS_EVIDENCE.md         |  114 ++
+ .../TASK_100_FULL_E2E_ACCEPTANCE_EVIDENCE.md       |  118 ++
+ 103 files changed, 10571 insertions(+), 203 deletions(-)
+
+MATRIX TASK 091-100
+| 091 | Security/Privacy | تدقيق payloads الإشعارات والطلبات والتعليقات لمنع تسريب phone أو بيانات الدفع لمتلقي غير مقصود | **PASS** | `docs/evidence/TASK_091_PAYLOAD_PRIVACY_EVIDENCE.md`; `artifacts/task091_payload_privacy_probe.json`; Production notification key probe؛ recipient policy probe؛ Admin redaction test | `apps/admin_web/server/admin-data.ts`، `apps/admin_web/server/admin-data.test.ts`، `packages/data_dart/lib/production_repository.dart`، `database/migrations/0031_plans_campaigns_bank_transfer_design.sql`، `pg_policies` | current notification keys contain no phone/email/payment/proof/account/IBAN؛ notifications scoped to auth.uid؛ requests/messages/comments scoped to intended parties؛ Admin custom payload recursive redaction for snake_case/camelCase sensitive keys؛ Admin check/29 tests/build PASS؛ no Production writes | HIGH — CLOSED | 029,055,067 |
+| 092 | Security/Abuse | فحص حدود الإدخال والطول والـ JSON والكمية والتقييم والحقول النصية في RPCs العامة | **PASS** | `database/migrations/0060_harden_public_rpc_input_bounds.sql`; `docs/evidence/TASK_092_RPC_INPUT_BOUNDS_EVIDENCE.md`; `artifacts/task092_pre_boundary_probe.json`; `artifacts/task092_post_boundary_probe.json`; `artifacts/task092_valid_probe.json`; `artifacts/task092_acl_flags_probe.json`; `artifacts/task092_security_advisors_after_migration.json`; Production migration registry and BEGIN/ROLLBACK boundary probes | RPCs authenticated-only؛ rating 1–5 كان ALREADY FIXED؛ أضيفت حدود body 5000، request quantity 1–1000، text fields، JSON object/array type and byte-size limits، proof/workspace/design bounds؛ invalid cases rejected before writes؛ valid boundary payloads accepted؛ no permanent probe writes | HIGH — CLOSED | 004,025,027 |
+| 093 | Security/Admin | اختبار CSRF/session fixation/cookie flags ورفض الطلبات الإدارية بلا جلسة | **PASS WITH DOCUMENTED LOCAL-ADMIN LIMITATION** | `apps/admin_web/server/admin-csrf.ts`; `apps/admin_web/server/admin-csrf.test.ts`; `apps/admin_web/server/admin-security.test.ts`; `apps/admin_web/server/admin-auth.ts`; `apps/admin_web/server/index.ts`; `artifacts/task093_pre_security_inventory.md`; `docs/evidence/TASK_093_ADMIN_CSRF_SESSION_EVIDENCE.md` | same-origin guard على mutations؛ cross-origin وmissing-origin evidence → 403؛ same-origin بلا session → 401؛ logout same-origin يعمل؛ cookies HttpOnly/SameSite=Lax/Path=/ وSecure عند HTTPS؛ session tokens تُكتب من Supabase وتُستبدل عند login/refresh؛ pnpm check/37 tests/build PASS؛ loopback-only deployment limitation موثقة | HIGH — CLOSED WITH LIMITATION | 008,009 |
+| 094 | Security/Admin | اختبار عدم تجاوز الصلاحيات عبر تغيير IDs في مسارات delete/update/review | **PASS** | `apps/admin_web/server/admin-idor.test.ts`; `artifacts/task094_idor_http_matrix.json`; `artifacts/task094_idor_http_matrix.ps1`; `artifacts/task094_idor_scope_decision.md`; `docs/evidence/TASK_094_IDOR_EVIDENCE.md` | 18/18 Admin mutation routes ذات IDs أعادت 401 بلا session؛ moderator permission tests رفضت delete/update/review/activation/membership قبل Supabase؛ RPCs الحساسة Production مغلقة عن anon/authenticated ومقفلة بـservice_role ACL؛ no IDOR bypass found؛ no runtime patch required | CRITICAL — CLOSED | 009,064,075 |
+| 095 | Reliability | اختبار فشل Supabase والخادم المحلي والـ timeout ثم استعادة الخدمة دون state stale أو نجاح كاذب | **PASS WITH DOCUMENTED WORKSPACE-SCOPE LIMITATION** | `apps/admin_web/client/src/lib/admin-api.ts`; `apps/admin_web/client/src/lib/admin-api.test.ts`; `apps/mobile_flutter/test/task095_failure_recovery_test.dart`; `docs/evidence/TASK_095_FAILURE_RECOVERY_EVIDENCE.md` | Admin AbortError → 504/admin_request_timeout؛ fetch/network → 503/admin_network_unavailable؛ application errors preserved؛ Flutter timeout/socket/server errors remain AssalError non-success and retryable when network؛ transient read recovered to valid AssalData on second call؛ Admin check/43 tests/build PASS؛ Flutter analyze/60 tests PASS؛ root workspace analyze limitation documented | HIGH — CLOSED WITH LIMITATION | 020,075,076 |
+| 096 | Reliability | اختبار إعادة المحاولة وتكرار النقر في عمليات الكتابة الحساسة دون سجلات مكررة | **PASS** | `database/migrations/0061_write_idempotency_keys.sql`; `docs/evidence/TASK_096_WRITE_IDEMPOTENCY_EVIDENCE.md`; `artifacts/task096_apply_migration_result.json`; `artifacts/task096_pre_duplicate_probe.json`; `artifacts/task096_post_duplicate_probe.json`; `artifacts/task096_legacy_signature_probe.json`; `artifacts/task096_production_write_constraints.md`; `artifacts/task096_write_rpc_defs_summary.md` | Production migration success؛ pre/post probes داخل BEGIN/ROLLBACK؛ fallback deterministic keys؛ private ledger وadvisory locks؛ legacy signatures SAME_ID=true؛ Admin 43 tests/check/build وFlutter 60 tests | HIGH — CLOSED | 085,095 |
+| 097 | UX/Accessibility | مراجعة حقول الإدخال والأزرار وحالات disabled/focus/keyboard وRTL في Flutter والإدارة | **PASS** | `apps/mobile_flutter/lib/features/customer/customer_social.dart`; `apps/mobile_flutter/test/task097_social_accessibility_test.dart`; `docs/evidence/TASK_097_UX_ACCESSIBILITY_EVIDENCE.md`; `artifacts/task097_interactive_inventory_raw.txt` | comment/review busy guards؛ disabled until valid text؛ keyboard submit؛ RTL/semantic label؛ Future-returning setState assertion fixed؛ Admin primitives/auth baseline ALREADY FIXED؛ Flutter analyze/62 tests وAdmin check/43 tests/build PASS | MEDIUM — CLOSED | 007,033,073 |
+| 098 | UX/Consistency | مراجعة المصطلحات والحالات والألوان بين العميل والتاجر والإدارة، مع عدم كشف identifiers التقنية | **PASS** | `apps/admin_web/client/src/lib/ui-consistency.ts`; `apps/admin_web/client/src/lib/ui-consistency.test.ts`; `apps/admin_web/client/src/pages/Home.tsx`; `apps/admin_web/client/src/components/AdminMerchantApplications.tsx`; `apps/admin_web/client/src/components/AdminGovernance.tsx`; `docs/evidence/TASK_098_UI_CONSISTENCY_EVIDENCE.md`; `artifacts/task098_post_ui_consistency_scan.txt`; status/color/identifier/audit inventories | shared Arabic status vocabulary by context؛ product type labels aligned with Flutter؛ unknown values safe fallbacks؛ UUIDs removed from presentation paths؛ Admin 47 tests/check/build وFlutter analyze/62 tests PASS | LOW — CLOSED | 074,097 |
+| 099 | Release/Operations | إنشاء Release Readiness Gate نهائي: نسخة المصدر، migrations applied، env defines، health checks، rollback note | **PASS WITH DOCUMENTED RELEASE BLOCKERS** | `docs/evidence/TASK_099_RELEASE_READINESS_EVIDENCE.md`; `artifacts/task099_release_source_inventory.txt`; `artifacts/task099_worktree_after_baseline.txt`; `artifacts/task099_production_migrations.json`; `artifacts/task099_table_health_probe.json`; `artifacts/task099_rls_health_probe.json`; `artifacts/task099_release_artifact_metadata.txt`; `artifacts/task099_signing_audit.txt`; `artifacts/task099_security_advisors.json`; `artifacts/task099_performance_advisors.json` | source baseline `ad73e43`; Production `ACTIVE_HEALTHY`/PostgreSQL 17.6/latest migration 0061؛ Flutter analyze/62 tests؛ Admin check/47 tests/build؛ APK/Web/Admin artifacts وlocalhost smoke PASS؛ **NO PUBLIC GO** بسبب debug signing، 20 security WARN، migration provenance/worktree hygiene limitations | HIGH — CLOSED WITH DOCUMENTED RELEASE BLOCKERS | 078,079,080,087–098 |
+| 100 | Acceptance | تنفيذ Full End-to-End Production Acceptance عبر العميل والتاجر والإدارة وSupabase/Realtime مع أدلة قابلة للإثبات، وتوثيق كل blocker دون Fake Success | PASS WITH DOCUMENTED LIVE-E2E LIMITATIONS — NOT PUBLIC GO | `docs/evidence/TASK_100_FULL_E2E_ACCEPTANCE_EVIDENCE.md`; `artifacts/task100_acceptance_baseline.json`; `artifacts/task100_auth_fixture.json`; `artifacts/task100_public_read_smoke.txt`; `artifacts/task100_social_baseline.json`; `artifacts/task100_rollback_probe_corrected.json`; `artifacts/task100_post_rollback_counts.json`; `artifacts/task100_anon_rpc_guards.txt`; `artifacts/task100_plan_payment_baseline.json`; `artifacts/task100_admin_unauth_probe.txt`; `artifacts/task100_realtime_publication.json`; `artifacts/task100_realtime_handshake_result.json`; `artifacts/task100_flutter_release_gate.log`; `artifacts/task100_admin_release_gate.log` | customer/merchant/admin/security/data/realtime/release | live OTP inbox and two authenticated devices not available in this run; release keystore and TASK 099 Security Advisor/migration provenance blockers remain documented; no public GO claimed | CRITICAL — CLOSED WITH DOCUMENTED LIMITATIONS | 001–099 |

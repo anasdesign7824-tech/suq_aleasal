@@ -1,0 +1,5 @@
+FINAL REVIEW ADVISOR COUNTS
+security_warns=20
+performance_warns=22
+performance_info=59
+source=Supabase get_advisors results 2026-08-22

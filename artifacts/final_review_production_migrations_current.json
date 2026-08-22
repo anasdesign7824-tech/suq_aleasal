@@ -1,0 +1,272 @@
+{
+  "migrations": [
+    {
+      "name": "initial_souq_al_assal",
+      "version": "20260815210809"
+    },
+    {
+      "name": "security_hardening",
+      "version": "20260815210933"
+    },
+    {
+      "name": "rls_performance_and_policy_cleanup",
+      "version": "20260815211309"
+    },
+    {
+      "name": "admin_helper_security",
+      "version": "20260815211414"
+    },
+    {
+      "name": "public_profile_cards",
+      "version": "20260815211742"
+    },
+    {
+      "name": "remove_security_definer_view",
+      "version": "20260815211924"
+    },
+    {
+      "name": "storage_canonical_policies",
+      "version": "20260816091331"
+    },
+    {
+      "name": "0003_taxonomy_regions_reference",
+      "version": "20260816092353"
+    },
+    {
+      "name": "customer_read_models",
+      "version": "20260816185332"
+    },
+    {
+      "name": "email_account_deletion",
+      "version": "20260816213154"
+    },
+    {
+      "name": "revoke_anon_account_delete",
+      "version": "20260816213601"
+    },
+    {
+      "name": "harden_account_deletion_search_path",
+      "version": "20260816214503"
+    },
+    {
+      "name": "admin_identity_lifecycle",
+      "version": "20260818055301"
+    },
+    {
+      "name": "request_contact_fields",
+      "version": "20260818061926"
+    },
+    {
+      "name": "conversations_messages",
+      "version": "20260818062141"
+    },
+    {
+      "name": "product_view_events",
+      "version": "20260818062255"
+    },
+    {
+      "name": "product_likes",
+      "version": "20260818062338"
+    },
+    {
+      "name": "merchant_applications",
+      "version": "20260818062524"
+    },
+    {
+      "name": "merchant_application_admin_permission",
+      "version": "20260818063457"
+    },
+    {
+      "name": "harden_admin_helper_exposure",
+      "version": "20260818063738"
+    },
+    {
+      "name": "harden_admin_updated_at_trigger_path",
+      "version": "20260818063818"
+    },
+    {
+      "name": "merchant_activation_sync",
+      "version": "20260818113411"
+    },
+    {
+      "name": "harden_merchant_review_rpc",
+      "version": "20260819030357"
+    },
+    {
+      "name": "admin_policy_index_cleanup",
+      "version": "20260819030524"
+    },
+    {
+      "name": "remove_duplicate_admin_select_policies",
+      "version": "20260819030622"
+    },
+    {
+      "name": "merchant_workspace_and_safe_product_edits",
+      "version": "20260819063215"
+    },
+    {
+      "name": "profile_self_write_policy",
+      "version": "20260819083413"
+    },
+    {
+      "name": "admin_private_schema_service_role_fix",
+      "version": "20260819112833"
+    },
+    {
+      "name": "admin_store_moderation_sync",
+      "version": "20260819115507"
+    },
+    {
+      "name": "harden_admin_rpc_and_private_is_admin",
+      "version": "20260819143536"
+    },
+    {
+      "name": "store_pro_verification_foundation",
+      "version": "20260819144517"
+    },
+    {
+      "name": "admin_review_store_verification",
+      "version": "20260819150105"
+    },
+    {
+      "name": "fix_customer_product_date_read_model",
+      "version": "20260819153156"
+    },
+    {
+      "name": "store_verification_payment_reconciliation",
+      "version": "20260819175104"
+    },
+    {
+      "name": "harden_verification_payment_reference_rpc",
+      "version": "20260819180206"
+    },
+    {
+      "name": "admin_logistics_permission",
+      "version": "20260819181341"
+    },
+    {
+      "name": "plans_campaigns_bank_transfer_design",
+      "version": "20260819185026"
+    },
+    {
+      "name": "revoke_anon_subscription_rpc",
+      "version": "20260819190753"
+    },
+    {
+      "name": "enforce_plan_store_product_limits",
+      "version": "20260819190919"
+    },
+    {
+      "name": "pricing_rules_card_payment_freeze",
+      "version": "20260819193855"
+    },
+    {
+      "name": "admin_manual_subscription_activation",
+      "version": "20260819194038"
+    },
+    {
+      "name": "atomic_social_messaging_sync",
+      "version": "20260819211442"
+    },
+    {
+      "name": "realtime_publication",
+      "version": "20260819211703"
+    },
+    {
+      "name": "customer_sync_read_models",
+      "version": "20260819212213"
+    },
+    {
+      "name": "customer_comments_read_model",
+      "version": "20260819212716"
+    },
+    {
+      "name": "atomic_reviews_comments",
+      "version": "20260819212903"
+    },
+    {
+      "name": "secure_social_count_triggers",
+      "version": "20260819213315"
+    },
+    {
+      "name": "message_recipient_sync_fix",
+      "version": "20260819213524"
+    },
+    {
+      "name": "payment_request_idempotency",
+      "version": "20260820051502"
+    },
+    {
+      "name": "realtime_catalog_and_billing",
+      "version": "20260820051855"
+    },
+    {
+      "name": "foreign_key_indexes",
+      "version": "20260820051948"
+    },
+    {
+      "name": "fix_messages_rls_conversation_scope",
+      "version": "20260820085308"
+    },
+    {
+      "name": "guard_card_payment_authentication",
+      "version": "20260820090924"
+    },
+    {
+      "name": "harden_merchant_workspace_auth",
+      "version": "20260820104530"
+    },
+    {
+      "name": "restrict_conversations_to_active_stores",
+      "version": "20260820110717"
+    },
+    {
+      "name": "reconcile_product_like_counts",
+      "version": "20260820115208"
+    },
+    {
+      "name": "reconcile_private_storage_policies",
+      "version": "20260820153632"
+    },
+    {
+      "name": "harden_payment_reconcile_transitions",
+      "version": "20260820163745"
+    },
+    {
+      "name": "block_expired_subscription_reactivation",
+      "version": "20260820164925"
+    },
+    {
+      "name": "customer_store_logistics_read_model",
+      "version": "20260820175454"
+    },
+    {
+      "name": "0055_reconcile_store_merchant_uniqueness",
+      "version": "20260821162038"
+    },
+    {
+      "name": "0056_harden_private_function_execute",
+      "version": "20260821164931"
+    },
+    {
+      "name": "0057_restore_public_is_admin_execute",
+      "version": "20260821170048"
+    },
+    {
+      "name": "complete_customer_product_read_model",
+      "version": "20260821175606"
+    },
+    {
+      "name": "refresh_customer_favorite_products_read_model",
+      "version": "20260821180728"
+    },
+    {
+      "name": "harden_public_rpc_input_bounds",
+      "version": "20260821192247"
+    },
+    {
+      "name": "0061_write_idempotency_keys",
+      "version": "20260821204742"
+    }
+  ]
+}
