@@ -63,6 +63,8 @@ void main() {
     expect(tester.widget<TextField>(field).enabled, isTrue);
     expect(
         tester.widget<IconButton>(find.byType(IconButton)).onPressed, isNull);
+    expect(find.text('تعليق اختبار'), findsOneWidget);
+    expect(find.text('تم حفظ التعليق والمزامنة مع التاجر.'), findsOneWidget);
   });
 
   testWidgets(
@@ -121,6 +123,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.widgetWithText(OutlinedButton, 'أضف مراجعتك'), findsOneWidget);
+    expect(find.text('مراجعة اختبارية'), findsOneWidget);
+    expect(
+      find.text('قيد المراجعة؛ سيظهر للآخرين بعد الاعتماد.'),
+      findsOneWidget,
+    );
   });
 }
 

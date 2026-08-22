@@ -14,6 +14,7 @@ class ReviewsSection extends StatefulWidget {
 }
 class _ReviewsSectionState extends State<ReviewsSection> {
   late Future<AssalLoadState<List<AssalReviewSummary>>> future;
+  final List<AssalReviewSummary> optimisticReviews = <AssalReviewSummary>[];
   bool reviewSubmitting = false;
 
   @override
@@ -30,23 +31,57 @@ class _ReviewsSectionState extends State<ReviewsSection> {
         future: future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
+          final serverState = snapshot.data!;
+          final effectiveState = optimisticReviews.isNotEmpty &&
+                  (serverState is AssalEmpty<List<AssalReviewSummary>> ||
+                      (serverState is AssalData<List<AssalReviewSummary>> &&
+                          serverState.value.isEmpty))
+              ? AssalData<List<AssalReviewSummary>>(optimisticReviews)
+              : serverState;
           return AssalStateView<List<AssalReviewSummary>>(
-            state: snapshot.data!,
+            state: effectiveState,
                         onRetry: () {
               setState(() {
                 future = widget.repository.listReviews(widget.product.id);
               });
             },
 
-            builder: (reviews) => Column(
-              children: reviews.map<Widget>((review) => Card(
-                child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person_outline)),
-                  title: Row(children: [Text(review.authorName ?? 'عميل'), const SizedBox(width: AssalSpacing.sm), RatingStars(rating: review.rating.toDouble())]),
-                  subtitle: Text(review.body ?? 'تجربة موثقة'),
-                ),
-              )).toList(),
-            ),
+            builder: (reviews) {
+              final serverIds = reviews.map((review) => review.id).toSet();
+              final displayedReviews = <AssalReviewSummary>[
+                ...optimisticReviews
+                    .where((review) => !serverIds.contains(review.id)),
+                ...reviews,
+              ];
+              return Column(
+                children: displayedReviews
+                    .map<Widget>((review) => Card(
+                          child: ListTile(
+                            leading: const CircleAvatar(
+                              child: Icon(Icons.person_outline),
+                            ),
+                            title: Row(
+                              children: [
+                                Text(review.authorName ?? 'عميل'),
+                                const SizedBox(width: AssalSpacing.sm),
+                                RatingStars(rating: review.rating.toDouble()),
+                              ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(review.body ?? 'تجربة موثقة'),
+                                if (review.status != ReviewStatus.approved)
+                                  const Text(
+                                    'قيد المراجعة؛ سيظهر للآخرين بعد الاعتماد.',
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ))
+                    .toList(),
+              );
+            },
           );
         },
       ),
@@ -136,12 +171,20 @@ class _ReviewsSectionState extends State<ReviewsSection> {
       );
       if (!mounted) return;
       if (result is AssalData<AssalReviewSummary>) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم إرسال المراجعة للمراجعة قبل نشرها.')),
-        );
+        optimisticReviews.removeWhere((item) => item.id == result.value.id);
         setState(() {
+          optimisticReviews.insert(0, result.value);
           future = widget.repository.listReviews(widget.product.id);
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result.value.status == ReviewStatus.approved
+                  ? 'تم نشر تقييمك.'
+                  : 'تم حفظ تقييمك وسيظهر للآخرين بعد الاعتماد.',
+            ),
+          ),
+        );
       } else if (result is AssalError<AssalReviewSummary>) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result.messageAr)),
@@ -165,6 +208,8 @@ class CommentsSection extends StatefulWidget {
 class _CommentsSectionState extends State<CommentsSection> {
   late Future<AssalLoadState<List<AssalCommentSummary>>> future;
   final controller = TextEditingController();
+  final List<AssalCommentSummary> optimisticComments =
+      <AssalCommentSummary>[];
   bool adding = false;
 
   @override
@@ -187,17 +232,48 @@ class _CommentsSectionState extends State<CommentsSection> {
         future: future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
+          final serverState = snapshot.data!;
+          final effectiveState = optimisticComments.isNotEmpty &&
+                  (serverState is AssalEmpty<List<AssalCommentSummary>> ||
+                      (serverState is AssalData<List<AssalCommentSummary>> &&
+                          serverState.value.isEmpty))
+              ? AssalData<List<AssalCommentSummary>>(optimisticComments)
+              : serverState;
           return AssalStateView<List<AssalCommentSummary>>(
-            state: snapshot.data!,
+            state: effectiveState,
                         onRetry: () {
               setState(() {
                 future = widget.repository.listComments(widget.targetId);
               });
             },
 
-            builder: (comments) => Column(
-              children: comments.map<Widget>((comment) => Card(child: ListTile(title: Text(comment.authorName), subtitle: Text(comment.body)))).toList(),
-            ),
+            builder: (comments) {
+              final serverIds = comments.map((comment) => comment.id).toSet();
+              final displayedComments = <AssalCommentSummary>[
+                ...optimisticComments
+                    .where((comment) => !serverIds.contains(comment.id)),
+                ...comments,
+              ];
+              return Column(
+                children: displayedComments
+                    .map<Widget>(
+                      (comment) => Card(
+                        child: ListTile(
+                          title: Text(comment.authorName),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(comment.body),
+                              if (comment.isLocal)
+                                const Text('تم حفظ التعليق والمزامنة مع التاجر.'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              );
+            },
           );
         },
       ),
@@ -257,13 +333,31 @@ class _CommentsSectionState extends State<CommentsSection> {
       );
       if (!mounted) return;
       if (result is AssalData<AssalCommentSummary>) {
-        controller.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم إرسال التعليق.')),
-        );
+        optimisticComments.removeWhere((item) => item.id == result.value.id);
         setState(() {
+          optimisticComments.insert(
+            0,
+            AssalCommentSummary(
+              id: result.value.id,
+              targetId: result.value.targetId,
+              authorId: result.value.authorId,
+              authorName: result.value.authorName,
+              body: result.value.body,
+              parentId: result.value.parentId,
+              createdAt: result.value.createdAt,
+              updatedAt: result.value.updatedAt,
+              likeCount: result.value.likeCount,
+              replyCount: result.value.replyCount,
+              isLiked: result.value.isLiked,
+              isLocal: true,
+            ),
+          );
+          controller.clear();
           future = widget.repository.listComments(widget.targetId);
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم حفظ التعليق وإرساله للتاجر.')),
+        );
       } else if (result is AssalError<AssalCommentSummary>) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result.messageAr)),
