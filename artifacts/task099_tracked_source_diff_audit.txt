@@ -55,7 +55,7 @@ index 5aaca55..319c88a 100644
 +import { Check, ImagePlus, Layers3, MapPin, Pencil, Plus, RefreshCw, Save, Tag, Trash2, Truck } from "lucide-react";
  import { toast } from "sonner";
 @@ -9,3 +9,3 @@ import { AdminSafeImage } from "@/components/AdminVisuals";
- 
+
 -type Banner = { id: string; title_ar: string; body_ar?: string | null; image_url?: string | null; cta_label_ar?: string | null; cta_url?: string | null; is_active: boolean; sort_order: number };
 +type Banner = { id: string; title_ar: string; body_ar?: string | null; image_url?: string | null; cta_label_ar?: string | null; cta_url?: string | null; starts_at?: string | null; ends_at?: string | null; is_active: boolean; sort_order: number };
  type Taxonomy = { id: string; code: string; name_ar: string; name_en?: string | null; is_active: boolean };
@@ -217,7 +217,7 @@ index 49b9aa2..749e748 100644
 +                height: tileHeight,
                child: Stack(
 @@ -856,6 +863,6 @@ class AssalImagePickerTile extends StatelessWidget {
- 
+
 -  Widget _fallback() => Center(
 +  Widget _fallback(double fallbackSize) => Center(
          child: Icon(
@@ -232,7 +232,7 @@ index 7856c47..8c08248 100644
 @@ -1,2 +1,3 @@
  import 'dart:async';
 +import 'dart:developer' as developer;
- 
+
 @@ -22,4 +23,8 @@ class SupabaseRealtimeSync {
      _onChanged = onChanged;
 -    if (_started) return;
