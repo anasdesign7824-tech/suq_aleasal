@@ -320,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             maxCrossAxisExtent: 220,
                                             crossAxisSpacing: AssalSpacing.md,
                                             mainAxisSpacing: AssalSpacing.md,
-                                            childAspectRatio: .68),
+                                            mainAxisExtent: 400),
                                     itemCount: products.length > 6
                                         ? 6
                                         : products.length,
@@ -1803,7 +1803,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   maxCrossAxisExtent: 220,
                                   crossAxisSpacing: AssalSpacing.md,
                                   mainAxisSpacing: AssalSpacing.md,
-                                  mainAxisExtent: 360),
+                                  mainAxisExtent: 400),
                           itemCount: products.length,
                           itemBuilder: (_, index) {
                             final product = products[index];

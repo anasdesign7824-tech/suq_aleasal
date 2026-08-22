@@ -984,17 +984,21 @@ class AssalImageUploadSlot extends StatelessWidget {
 }
 
 class AssalImageTile extends StatelessWidget {
-  const AssalImageTile(
-      {super.key,
-      this.imageUrl,
-      this.height = 150,
-      this.icon = Icons.local_florist_outlined});
+  const AssalImageTile({
+    super.key,
+    this.imageUrl,
+    this.height = 150,
+    this.icon = Icons.local_florist_outlined,
+    this.expand = false,
+  });
   final String? imageUrl;
   final double height;
   final IconData icon;
+  final bool expand;
   @override
   Widget build(BuildContext context) => Container(
-        height: height,
+        height: expand ? null : height,
+        constraints: expand ? const BoxConstraints.expand() : null,
         width: double.infinity,
         decoration: BoxDecoration(
             color: AssalColors.honeyLight,
@@ -1006,7 +1010,11 @@ class AssalImageTile extends StatelessWidget {
             : _fallback(),
       );
   Widget _fallback() => Center(
-      child: Icon(icon, size: height * .38, color: AssalColors.primaryDark));
+      child: Icon(
+        icon,
+        size: height.isFinite ? height * .38 : 42,
+        color: AssalColors.primaryDark,
+      ));
 }
 
 String formatAssalPrice(double? price, String currencyCode) {
@@ -1043,7 +1051,14 @@ class ProductCard extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Stack(children: [
-                AssalImageTile(imageUrl: product.primaryImageUrl, height: 138),
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: AssalImageTile(
+                    imageUrl: product.primaryImageUrl,
+                    height: 138,
+                    expand: true,
+                  ),
+                ),
                 if (onFavorite != null)
                   Positioned(
                       top: AssalSpacing.sm,
