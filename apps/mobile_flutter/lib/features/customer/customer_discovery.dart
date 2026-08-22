@@ -69,8 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     newProductsFuture = widget.repository
         .listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
     verifiedProductsFuture = widget.repository.listProducts(
-        query: const AssalProductQuery(
-            verifiedStoresOnly: true, sort: AssalSort.rating));
+        query: const AssalProductQuery(sort: AssalSort.rating));
     personalizedFuture = _buildPersonalizedFeed();
     initialContentFuture = Future.wait<Object?>(<Future<Object?>>[
       featuredFuture,
@@ -362,9 +361,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   sliver: SliverToBoxAdapter(
                     child: _ProductRail(
                       repository: widget.repository,
-                      title: 'المنتجات اليمنية الموثوقة',
+                            title: 'منتجات الأعلى تقييمًا',
                       future: verifiedProductsFuture!,
-                      verifiedOnly: true,
+                      verifiedOnly: false,
                       onRetry: _refresh,
                     ),
                   ),
@@ -1169,7 +1168,7 @@ class _HeroBanner extends StatelessWidget {
               style:
                   AssalTypography.heading2.copyWith(color: AssalColors.cream)),
           const SizedBox(height: AssalSpacing.sm),
-          Text('اعرف النوع والمنطقة والتوثيق قبل أن تتواصل.',
+          Text(                                'اعرف النوع والمنطقة قبل أن تتواصل.',
               style: AssalTypography.body.copyWith(color: AssalColors.cream)),
           const SizedBox(height: AssalSpacing.md),
           FilledButton.tonal(
@@ -1265,7 +1264,7 @@ class _ProductRail extends StatelessWidget {
                     width: 168,
                     child: ProductCard(
                       product: products[index],
-                      showVerifiedBadge: verifiedOnly,
+                      showVerifiedBadge: false,
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => ProductDetailScreen(

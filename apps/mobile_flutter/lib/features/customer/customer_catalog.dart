@@ -327,9 +327,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         color: AssalColors.primaryDark),
                   ),
                   title: Text(store.nameAr),
-                  subtitle: Text(store.isVerified
-                      ? 'متجر موثق · ${store.regionNameAr ?? ''}'
-                      : 'متجر على منصة عسلكم'),
+                  subtitle: Text(
+                    'متجر على منصة عسلكم${store.regionNameAr == null ? '' : ' · ${store.regionNameAr}'}',
+                  ),
                   trailing: TextButton(
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(

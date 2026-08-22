@@ -1096,12 +1096,7 @@ class StoreCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: AssalTypography.title
                                       .copyWith(color: AssalColors.deepBrown))),
-                          if (store.isVerified)
-                            const Tooltip(
-                              message: 'متجر موثق Pro',
-                              child: Icon(Icons.verified,
-                                  color: AssalColors.primaryDark, size: 18),
-                            )
+
                         ]),
                         const SizedBox(height: AssalSpacing.xs),
                         Text(store.regionNameAr ?? 'منصة عسلكم',
