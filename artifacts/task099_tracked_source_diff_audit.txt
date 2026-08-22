@@ -1,4 +1,4 @@
-﻿TASK 099 tracked source diff audit
+TASK 099 tracked source diff audit
 --- names ---
 apps/admin_web/client/src/components/AdminAuthGate.tsx
 apps/admin_web/client/src/components/AdminOperations.tsx
