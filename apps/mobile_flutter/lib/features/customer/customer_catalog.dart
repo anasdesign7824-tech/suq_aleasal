@@ -272,6 +272,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 Text('${product.reviewCount} مراجعة',
                     style: AssalTypography.caption
                         .copyWith(color: AssalColors.textMuted)),
+                const SizedBox(width: AssalSpacing.sm),
+                Text('${product.likesCount} إعجاب',
+                    style: AssalTypography.caption
+                        .copyWith(color: AssalColors.textMuted)),
               ],
             ),
           ],
@@ -576,6 +580,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   late Future<AssalLoadState<AssalStoreSummary>> storeFuture;
   late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
   bool following = false;
+  int followerDelta = 0;
   bool followBusy = false;
   bool contactBusy = false;
 
@@ -610,7 +615,12 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       );
       if (!mounted) return;
       if (result is AssalData<bool>) {
-        setState(() => following = result.value);
+        setState(() {
+          if (result.value != following) {
+            followerDelta += result.value ? 1 : -1;
+          }
+          following = result.value;
+        });
       } else if (result is AssalError<bool>) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(result.messageAr)),
@@ -679,12 +689,16 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         ),
       );
 
-  Widget _storeHeader(AssalStoreSummary store) => AssalStoreHeaderCard(
-        store: store,
-        isFollowing: following,
-        followBusy: followBusy,
-        onFollow: _toggleFollow,
-      );
+  Widget _storeHeader(AssalStoreSummary store) {
+    final displayedFollowers = store.followersCount + followerDelta;
+    return AssalStoreHeaderCard(
+      store: store,
+      isFollowing: following,
+      followBusy: followBusy,
+      onFollow: _toggleFollow,
+      followersCountOverride: displayedFollowers < 0 ? 0 : displayedFollowers,
+    );
+  }
 
   Widget _productsTab(AssalStoreSummary store) =>
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(

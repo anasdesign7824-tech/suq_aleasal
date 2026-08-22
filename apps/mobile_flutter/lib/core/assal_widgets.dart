@@ -1134,6 +1134,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
     this.followBusy = false,
     this.onFollow,
     this.showVerificationBadge = false,
+    this.followersCountOverride,
   });
 
   final AssalStoreSummary store;
@@ -1142,6 +1143,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
   final bool followBusy;
   final VoidCallback? onFollow;
   final bool showVerificationBadge;
+  final int? followersCountOverride;
 
   String _statusLabel() {
     if (showVerificationBadge && store.isVerified) return 'متجر موثق Pro';
@@ -1157,6 +1159,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logoUrl = store.logoUrl ?? store.avatarUrl;
+    final displayedFollowersCount = followersCountOverride ?? store.followersCount;
     final badge = showVerificationBadge && store.isVerified
         ? const AssalPremiumBadge(label: 'موثق Pro', compact: true)
         : AssalRoleBadge(label: _statusLabel());
@@ -1264,7 +1267,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _stat('${store.followersCount}', 'متابع'),
+                    _stat('$displayedFollowersCount', 'متابع'),
                     _stat('${store.reviewCount}', 'مراجعة'),
                     _stat(store.ratingAverage.toStringAsFixed(1), 'التقييم'),
                   ],

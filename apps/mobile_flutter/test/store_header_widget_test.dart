@@ -24,6 +24,7 @@ void main() {
           body: AssalStoreHeaderCard(
             store: store,
             onFollow: () => tapped = true,
+            followersCountOverride: 13,
           ),
         ),
       ),
@@ -34,7 +35,8 @@ void main() {
     expect(button, findsOneWidget);
     await tester.tap(button);
     expect(tapped, isTrue);
-    expect(find.text('12'), findsOneWidget);
+    expect(find.text('12'), findsNothing);
+    expect(find.text('13'), findsOneWidget);
     expect(find.text('متابع'), findsOneWidget);
     expect(find.text('موثق Pro'), findsNothing);
     expect(find.text('متجر مفعّل'), findsOneWidget);
