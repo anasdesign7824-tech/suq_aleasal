@@ -657,7 +657,6 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                         final product = products[index];
                         return ProductCard(
                           product: product,
-                          showVerifiedBadge: store.isVerified,
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => ProductDetailScreen(

@@ -13,6 +13,7 @@ void main() {
       nameAr: 'متجر العسل',
       slug: 'honey-store',
       status: StoreStatus.active,
+      isVerified: true,
       followersCount: 12,
     );
     var tapped = false;
@@ -35,5 +36,7 @@ void main() {
     expect(tapped, isTrue);
     expect(find.text('12'), findsOneWidget);
     expect(find.text('متابع'), findsOneWidget);
+    expect(find.text('موثق Pro'), findsNothing);
+    expect(find.text('متجر مفعّل'), findsOneWidget);
   });
 }
