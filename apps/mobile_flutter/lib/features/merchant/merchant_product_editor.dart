@@ -400,6 +400,58 @@ class _MerchantProductEditorScreenState
         decoration: InputDecoration(labelText: label),
       );
 
+  Widget _suggestedField(
+    TextEditingController controller,
+    String label,
+    List<String> suggestions, {
+    IconData? icon,
+    int maxLines = 1,
+    bool appendSuggestion = false,
+  }) {
+    void applySuggestion(String suggestion) {
+      if (appendSuggestion) {
+        final values = controller.text
+            .split(RegExp(r'[,،]'))
+            .map((value) => value.trim())
+            .where((value) => value.isNotEmpty)
+            .toList(growable: true);
+        if (!values.contains(suggestion)) values.add(suggestion);
+        controller.text = values.join('، ');
+      } else {
+        controller.text = suggestion;
+      }
+      setState(() {});
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: icon == null ? null : Icon(icon),
+            helperText: 'اختياري: اختر اقتراحًا أو اكتب القيمة الخاصة بك',
+          ),
+        ),
+        const SizedBox(height: AssalSpacing.xs),
+        Wrap(
+          spacing: AssalSpacing.xs,
+          runSpacing: AssalSpacing.xs,
+          children: suggestions
+              .map(
+                (suggestion) => ActionChip(
+                  label: Text(suggestion),
+                  onPressed: saving ? null : () => applySuggestion(suggestion),
+                ),
+              )
+              .toList(growable: false),
+        ),
+      ],
+    );
+  }
+
   Widget _choiceField(
     TextEditingController controller,
     String label,
@@ -881,11 +933,30 @@ class _MerchantProductEditorScreenState
           const SizedBox(height: AssalSpacing.md),
           _dateField(packagedDateController, 'تاريخ التعبئة'),
           const SizedBox(height: AssalSpacing.md),
-          _field(shelfLifeController, 'مدة الصلاحية'),
+          _suggestedField(
+            shelfLifeController,
+            'مدة الصلاحية',
+            const ['6 أشهر', '12 شهرًا', '24 شهرًا', 'حسب التخزين'],
+            icon: Icons.timelapse_outlined,
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(componentsController, 'المكونات — افصل بينها بفاصلة'),
+          _suggestedField(
+            componentsController,
+            'المكونات — افصل بينها بفاصلة',
+            const ['عسل نحل طبيعي', 'شمع النحل', 'غذاء ملكات النحل', 'حبوب لقاح'],
+            icon: Icons.science_outlined,
+            maxLines: 2,
+            appendSuggestion: true,
+          ),
           const SizedBox(height: AssalSpacing.md),
-          _field(certificationsController, 'الشهادات — افصل بينها بفاصلة'),
+          _suggestedField(
+            certificationsController,
+            'الشهادات — افصل بينها بفاصلة',
+            const ['شهادة منشأ', 'شهادة جودة', 'تحليل مخبري', 'عضوي'],
+            icon: Icons.verified_outlined,
+            maxLines: 2,
+            appendSuggestion: true,
+          ),
         ],
       );
 
@@ -928,11 +999,6 @@ class _MerchantProductEditorScreenState
           const SizedBox(height: AssalSpacing.md),
           _field(tagsController, 'الوسوم — افصل بينها بفاصلة'),
           const SizedBox(height: AssalSpacing.md),
-          const AssalMessageCard(
-            icon: Icons.verified_outlined,
-            message: 'الشارات والتوثيق Pro تُدار من الإدارة بعد المراجعة، ولا يضيفها التاجر يدويًا.',
-          ),
-          const SizedBox(height: AssalSpacing.lg),
           const AssalMessageCard(
             icon: Icons.preview_outlined,
             message:
