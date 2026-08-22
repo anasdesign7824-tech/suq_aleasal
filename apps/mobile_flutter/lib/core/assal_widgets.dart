@@ -891,95 +891,15 @@ class AssalImageUploadSlot extends StatelessWidget {
   final double height;
 
   @override
-  Widget build(BuildContext context) {
-    final hasImage = bytes != null ||
-        (imageUrl != null && imageUrl!.trim().startsWith('http'));
-    final image = bytes != null
-        ? Image.memory(bytes!, fit: BoxFit.cover, width: double.infinity)
-        : hasImage
-            ? Image.network(
-                imageUrl!,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (_, __, ___) => _fallback(icon),
-              )
-            : _fallback(icon);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: AssalTypography.subtitle),
-        const SizedBox(height: AssalSpacing.sm),
-        Semantics(
-          button: onPick != null,
-          label: hasImage ? 'تغيير $label' : 'إضافة $label',
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(AssalRadius.large),
-            child: Material(
-              color: AssalColors.honeyLight,
-              child: InkWell(
-                onTap: onPick,
-                child: SizedBox(
-                  height: height,
-                  width: double.infinity,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      image,
-                      if (hasImage)
-                        Positioned.fill(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Colors.transparent,
-                                  Colors.black.withValues(alpha: .32),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      Positioned(
-                        right: AssalSpacing.sm,
-                        bottom: AssalSpacing.sm,
-                        child: IconButton.filled(
-                          tooltip: hasImage ? 'تغيير الصورة' : 'إضافة الصورة',
-                          onPressed: onPick,
-                          icon: Icon(
-                            hasImage
-                                ? Icons.edit_outlined
-                                : Icons.add_a_photo_outlined,
-                          ),
-                        ),
-                      ),
-                      if (hasImage && onClear != null)
-                        Positioned(
-                          left: AssalSpacing.sm,
-                          top: AssalSpacing.sm,
-                          child: IconButton.filledTonal(
-                            tooltip: 'إزالة الصورة',
-                            onPressed: onClear,
-                            icon: const Icon(Icons.delete_outline),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _fallback(IconData fallbackIcon) => Center(
-        child: Icon(
-          fallbackIcon,
-          size: 42,
-          color: AssalColors.primaryDark,
-        ),
+  Widget build(BuildContext context) => AssalImagePickerTile(
+        imageUrl: imageUrl,
+        bytes: bytes,
+        onPick: onPick,
+        onClear: onClear,
+        icon: icon,
+        width: double.infinity,
+        height: height,
+        label: label,
       );
 }
 

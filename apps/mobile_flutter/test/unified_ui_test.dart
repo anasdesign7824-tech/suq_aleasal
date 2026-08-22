@@ -54,6 +54,28 @@ void main() {
     expect(picked, isTrue);
   });
 
+  testWidgets('large upload slot uses the same in-place image action',
+      (tester) async {
+    var picked = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AssalImageUploadSlot(
+            label: 'غلاف المتجر',
+            icon: Icons.storefront_outlined,
+            imageUrl: null,
+            bytes: null,
+            onPick: () => picked = true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.bySemanticsLabel('غلاف المتجر'), findsOneWidget);
+    await tester.tap(find.byTooltip('إضافة الصورة'));
+    expect(picked, isTrue);
+  });
+
   testWidgets('image picker tile previews, replaces, and clears an image',
       (tester) async {
     var picked = 0;
