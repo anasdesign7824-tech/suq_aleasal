@@ -261,6 +261,35 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<AssalStoreFollowersPage>> listStoreFollowers(
+    String storeId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    final currentUser = _session.user;
+    final followers = <AssalStoreFollowerSummary>[];
+    if (_followedStores.contains(storeId) && currentUser != null) {
+      followers.add(
+        AssalStoreFollowerSummary(
+          displayName: currentUser.nameAr,
+          avatarUrl: currentUser.avatarUrl,
+          followedAt: DateTime.now(),
+        ),
+      );
+    }
+    final start = offset.clamp(0, followers.length);
+    final end = (start + limit).clamp(start, followers.length);
+    return AssalData(
+      AssalStoreFollowersPage(
+        items: followers.sublist(start, end),
+        total: followers.length,
+        limit: limit,
+        offset: offset,
+      ),
+    );
+  }
+
+  @override
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({
     AssalProductQuery query = const AssalProductQuery(),
   }) async {
@@ -435,6 +464,16 @@ class DemoRepository implements AssalRepository {
       code: 'product_not_found',
     );
   }
+
+  @override
+  Future<AssalLoadState<AssalProductInteractionState>>
+      loadProductInteractionState(String userId, String productId) async =>
+      AssalData(
+        AssalProductInteractionState(
+          isLiked: _likes.contains(productId),
+          isFavorited: _favorites.contains(productId),
+        ),
+      );
 
   @override
   Future<AssalLoadState<List<AssalReviewSummary>>> listReviews(

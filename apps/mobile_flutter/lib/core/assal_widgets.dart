@@ -1135,6 +1135,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
     this.onFollow,
     this.showVerificationBadge = false,
     this.followersCountOverride,
+    this.onFollowersTap,
   });
 
   final AssalStoreSummary store;
@@ -1144,6 +1145,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
   final VoidCallback? onFollow;
   final bool showVerificationBadge;
   final int? followersCountOverride;
+  final VoidCallback? onFollowersTap;
 
   String _statusLabel() {
     if (showVerificationBadge && store.isVerified) return 'متجر موثق Pro';
@@ -1267,7 +1269,11 @@ class AssalStoreHeaderCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _stat('$displayedFollowersCount', 'متابع'),
+                    _stat(
+                      '$displayedFollowersCount',
+                      'متابع',
+                      onTap: onFollowersTap,
+                    ),
                     _stat('${store.reviewCount}', 'مراجعة'),
                     _stat(store.ratingAverage.toStringAsFixed(1), 'التقييم'),
                   ],
@@ -1280,22 +1286,36 @@ class AssalStoreHeaderCard extends StatelessWidget {
     );
   }
 
-  Widget _stat(String value, String label) => Column(
-        children: [
-          Text(
-            value,
-            style: AssalTypography.heading3.copyWith(
-              color: AssalColors.deepBrown,
-            ),
+  Widget _stat(String value, String label, {VoidCallback? onTap}) {
+    final content = Column(
+      children: [
+        Text(
+          value,
+          style: AssalTypography.heading3.copyWith(
+            color: AssalColors.deepBrown,
           ),
-          Text(
-            label,
-            style: AssalTypography.caption.copyWith(
-              color: AssalColors.textMuted,
-            ),
+        ),
+        Text(
+          label,
+          style: AssalTypography.caption.copyWith(
+            color: AssalColors.textMuted,
           ),
-        ],
-      );
+        ),
+      ],
+    );
+    if (onTap == null) return content;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AssalRadius.small),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AssalSpacing.sm,
+          vertical: AssalSpacing.xs,
+        ),
+        child: content,
+      ),
+    );
+  }
 }
 
 class RatingStars extends StatelessWidget {

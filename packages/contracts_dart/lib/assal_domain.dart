@@ -634,6 +634,67 @@ class AssalStoreSummary {
       );
 }
 
+class AssalStoreFollowerSummary {
+  const AssalStoreFollowerSummary({
+    required this.displayName,
+    this.avatarUrl,
+    this.followedAt,
+  });
+
+  final String displayName;
+  final String? avatarUrl;
+  final DateTime? followedAt;
+
+  factory AssalStoreFollowerSummary.fromJson(Map<String, Object?> json) =>
+      AssalStoreFollowerSummary(
+        displayName: _string(json['display_name'], fallback: 'مستخدم عسلكم'),
+        avatarUrl: _stringOrNull(json['avatar_url']),
+        followedAt: _dateOrNull(json['followed_at']),
+      );
+}
+
+class AssalStoreFollowersPage {
+  const AssalStoreFollowersPage({
+    required this.items,
+    required this.total,
+    required this.limit,
+    required this.offset,
+  });
+
+  final List<AssalStoreFollowerSummary> items;
+  final int total;
+  final int limit;
+  final int offset;
+
+  factory AssalStoreFollowersPage.fromJson(Map<String, Object?> json) {
+    final rawItems = json['items'];
+    final items = rawItems is List
+        ? rawItems
+            .whereType<Map>()
+            .map((item) => AssalStoreFollowerSummary.fromJson(
+                  item.cast<String, Object?>(),
+                ))
+            .toList(growable: false)
+        : const <AssalStoreFollowerSummary>[];
+    return AssalStoreFollowersPage(
+      items: items,
+      total: _int(json['total']),
+      limit: json['limit'] is num ? (json['limit'] as num).toInt() : 50,
+      offset: _int(json['offset']),
+    );
+  }
+}
+
+class AssalProductInteractionState {
+  const AssalProductInteractionState({
+    this.isLiked = false,
+    this.isFavorited = false,
+  });
+
+  final bool isLiked;
+  final bool isFavorited;
+}
+
 class AssalProductSummary {
   const AssalProductSummary({
     required this.id,

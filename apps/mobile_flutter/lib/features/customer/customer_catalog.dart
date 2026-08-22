@@ -38,6 +38,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late final PageController galleryController;
   bool liked = false;
   bool favorite = false;
+  bool likeBusy = false;
+  bool favoriteBusy = false;
   int galleryIndex = 0;
   @override
   void initState() {
@@ -47,10 +49,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         : widget.repository.getProduct(widget.productId);
     galleryController = PageController();
     _trackProductView();
+    _loadInteractionState();
   }
 
   Future<void> _trackProductView() async {
     await widget.repository.trackProductView(widget.productId);
+  }
+
+  Future<void> _loadInteractionState() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    final result = await widget.repository.loadProductInteractionState(
+      session.user!.id,
+      widget.productId,
+    );
+    if (!mounted || result is! AssalData<AssalProductInteractionState>) return;
+    setState(() {
+      liked = result.value.isLiked;
+      favorite = result.value.isFavorited;
+    });
   }
 
   @override
@@ -359,20 +376,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () async {
+                    onPressed: likeBusy ? null : () async {
                       final session =
                           await requireUserSession(context, widget.repository);
                       if (session == null || !mounted || session.user == null) {
                         return;
                       }
-                      final result = await widget.repository
-                          .toggleLike(session.user!.id, product.id);
-                      if (result is AssalData<bool>) {
-                        setState(() => liked = result.value);
-                      } else if (result is AssalError<bool> && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(result.messageAr)),
-                        );
+                      setState(() => likeBusy = true);
+                      try {
+                        final result = await widget.repository
+                            .toggleLike(session.user!.id, product.id);
+                        if (result is AssalData<bool>) {
+                          setState(() => liked = result.value);
+                        } else if (result is AssalError<bool> && mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(result.messageAr)),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => likeBusy = false);
                       }
                     },
                     icon:
@@ -383,20 +405,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 const SizedBox(width: AssalSpacing.sm),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () async {
+                    onPressed: favoriteBusy ? null : () async {
                       final session =
                           await requireUserSession(context, widget.repository);
                       if (session == null || !mounted || session.user == null) {
                         return;
                       }
-                      final result = await widget.repository
-                          .toggleFavorite(session.user!.id, product.id);
-                      if (result is AssalData<bool>) {
-                        setState(() => favorite = result.value);
-                      } else if (result is AssalError<bool> && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(result.messageAr)),
-                        );
+                      setState(() => favoriteBusy = true);
+                      try {
+                        final result = await widget.repository
+                            .toggleFavorite(session.user!.id, product.id);
+                        if (result is AssalData<bool>) {
+                          setState(() => favorite = result.value);
+                        } else if (result is AssalError<bool> && mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(result.messageAr)),
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => favoriteBusy = false);
                       }
                     },
                     icon:
@@ -582,6 +609,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   bool following = false;
   int followerDelta = 0;
   bool followBusy = false;
+  bool followersBusy = false;
   bool contactBusy = false;
 
   @override
@@ -628,6 +656,62 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       }
     } finally {
       if (mounted) setState(() => followBusy = false);
+    }
+  }
+
+  Future<void> _showFollowers() async {
+    if (followersBusy) return;
+    setState(() => followersBusy = true);
+    try {
+      final result = await widget.repository.listStoreFollowers(widget.storeId);
+      if (!mounted) return;
+      if (result is AssalData<AssalStoreFollowersPage>) {
+        final page = result.value;
+        await showDialog<void>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('متابعو المتجر'),
+            content: SizedBox(
+              width: 360,
+              child: page.items.isEmpty
+                  ? const Text('لا يوجد متابعون ظاهرون بعد.')
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: page.items.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (_, index) {
+                        final follower = page.items[index];
+                        final avatar = follower.avatarUrl;
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: CircleAvatar(
+                            backgroundImage: avatar != null
+                                ? NetworkImage(avatar)
+                                : null,
+                            child: avatar == null
+                                ? const Icon(Icons.person_outline)
+                                : null,
+                          ),
+                          title: Text(follower.displayName),
+                        );
+                      },
+                    ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('إغلاق'),
+              ),
+            ],
+          ),
+        );
+      } else if (result is AssalError<AssalStoreFollowersPage>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.messageAr)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => followersBusy = false);
     }
   }
 
@@ -696,6 +780,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       isFollowing: following,
       followBusy: followBusy,
       onFollow: _toggleFollow,
+      onFollowersTap: followersBusy ? null : _showFollowers,
       followersCountOverride: displayedFollowers < 0 ? 0 : displayedFollowers,
     );
   }

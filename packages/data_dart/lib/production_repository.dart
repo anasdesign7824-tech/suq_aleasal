@@ -526,6 +526,35 @@ class ProductionRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<AssalStoreFollowersPage>> listStoreFollowers(
+    String storeId, {
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    try {
+      final row = await _gateway.rpc('customer_list_store_followers', {
+        'p_store_id': storeId,
+        'p_limit': limit,
+        'p_offset': offset,
+      });
+      return AssalData(AssalStoreFollowersPage.fromJson(row));
+    } on TimeoutException {
+      return _failure(
+        'تأخر الاتصال بالخدمة. حاول مرة أخرى.',
+        code: 'timeout',
+        kind: AssalErrorKind.network,
+        retryable: true,
+      );
+    } on Object catch (error) {
+      return _failure(
+        'تعذر قراءة قائمة المتابعين الآن. حاول مرة أخرى.',
+        code: 'followers_read_failed',
+        source: error,
+      );
+    }
+  }
+
+  @override
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({
     AssalProductQuery query = const AssalProductQuery(),
   }) => _readList(
@@ -673,6 +702,42 @@ class ProductionRepository implements AssalRepository {
     if (rows.isEmpty)
       return const AssalError('المنتج غير موجود', code: 'not_found');
     return AssalData(AssalProductSummary.fromJson(rows.first));
+  }
+
+  @override
+  Future<AssalLoadState<AssalProductInteractionState>>
+      loadProductInteractionState(String userId, String productId) async {
+    try {
+      final rows = await Future.wait([
+        _gateway.select(
+          'product_likes',
+          filters: {'user_id': userId, 'product_id': productId},
+        ),
+        _gateway.select(
+          'favorites',
+          filters: {'user_id': userId, 'product_id': productId},
+        ),
+      ]);
+      return AssalData(
+        AssalProductInteractionState(
+          isLiked: rows[0].isNotEmpty,
+          isFavorited: rows[1].isNotEmpty,
+        ),
+      );
+    } on TimeoutException {
+      return _failure(
+        'تأخر الاتصال بالخدمة. حاول مرة أخرى.',
+        code: 'timeout',
+        kind: AssalErrorKind.network,
+        retryable: true,
+      );
+    } on Object catch (error) {
+      return _failure(
+        'تعذر قراءة حالة تفاعل المنتج الآن.',
+        code: 'product_interaction_read_failed',
+        source: error,
+      );
+    }
   }
 
   @override

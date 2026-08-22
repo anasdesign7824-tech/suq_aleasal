@@ -132,10 +132,17 @@ abstract interface class AssalRepository {
     String userId,
   );
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId);
+  Future<AssalLoadState<AssalStoreFollowersPage>> listStoreFollowers(
+    String storeId, {
+    int limit = 50,
+    int offset = 0,
+  });
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({
     AssalProductQuery query = const AssalProductQuery(),
   });
   Future<AssalLoadState<AssalProductSummary>> getProduct(String productId);
+  Future<AssalLoadState<AssalProductInteractionState>>
+      loadProductInteractionState(String userId, String productId);
   Future<AssalLoadState<List<AssalReviewSummary>>> listReviews(
     String productId,
   );
