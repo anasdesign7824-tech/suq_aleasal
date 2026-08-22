@@ -137,3 +137,4 @@
 - `database/migrations/0064_customer_stores_rich_read_model.sql`
 - `database/migrations/0065_merchant_store_channels.sql`
 - `artifacts/REQ10_11_STORE_CHANNELS_EVIDENCE.md`
+- `artifacts/REQ06_DEMO_APK_SHA256SUMS.md`
