@@ -60,10 +60,17 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('نشاطك'),
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
 
     expect(find.text('مستخدم عسلكم'), findsOneWidget);
     expect(find.text('نبذة اختبارية'), findsOneWidget);
     expect(find.text('صنعاء'), findsOneWidget);
+    expect(find.text('نشاطك'), findsOneWidget);
+    expect(find.text('الحساب والمساعدة'), findsOneWidget);
     expect(find.text('المتابعات'), findsOneWidget);
     expect(find.text('المحفوظات'), findsOneWidget);
     expect(find.text('الطلبات'), findsOneWidget);

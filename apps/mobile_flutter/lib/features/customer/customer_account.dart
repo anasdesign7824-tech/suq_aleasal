@@ -501,8 +501,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 AssalSpacing.x2l,
               ),
               children: [
-                const AssalBrandMark(),
-                const SizedBox(height: AssalSpacing.xl),
+                if (!session.isAuthenticated) ...[
+                  const AssalBrandMark(),
+                  const SizedBox(height: AssalSpacing.xl),
+                ],
                 session.isUnavailable
                     ? AssalMessageCard(
                         icon: Icons.sync_problem_outlined,
@@ -513,55 +515,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ? _authenticated(context, session)
                         : _guest(context),
                 const SizedBox(height: AssalSpacing.lg),
-                Column(
-                  children: [
-                    AssalActionTile(
-                      icon: Icons.bookmarks_outlined,
-                      title: 'المحفوظات والمتاجر المتابَعة',
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => FavoritesScreen(repository: repository),
-                      )),
-                    ),
-                    const SizedBox(height: AssalSpacing.sm),
-                    AssalActionTile(
-                      icon: Icons.notifications_outlined,
-                      title: 'الإشعارات',
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) =>
-                            NotificationsScreen(repository: repository),
-                      )),
-                    ),
-                    const SizedBox(height: AssalSpacing.sm),
-                    AssalActionTile(
-                      icon: Icons.forum_outlined,
-                      title: 'المراسلات',
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => MessagesScreen(repository: repository),
-                      )),
-                    ),
-                    const SizedBox(height: AssalSpacing.sm),
-                    AssalActionTile(
-                      icon: Icons.settings_outlined,
-                      title: 'الإعدادات',
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const SettingsScreen(),
-                      )),
-                    ),
-                    const SizedBox(height: AssalSpacing.sm),
-                    AssalActionTile(
-                      icon: Icons.support_agent_outlined,
-                      title: 'المساعدة والدعم',
-                      subtitle: 'أسئلة شائعة ودعم فني وطلبات التصميم',
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) =>
-                            SupportCenterScreen(repository: repository),
-                      )),
-                    ),
-                  ],
-                ),
+                _accountActions(context, session),
               ]);
         },
       ),
+    );
+  }
+
+  Widget _accountActions(BuildContext context, AssalSession session) {
+    final actions = <Widget>[
+      if (session.isAuthenticated) ...[
+        const SectionHeader(title: 'نشاطك'),
+        const SizedBox(height: AssalSpacing.xs),
+      ],
+      AssalActionTile(
+        icon: Icons.bookmarks_outlined,
+        title: 'المحفوظات والمتاجر المتابَعة',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => FavoritesScreen(repository: repository),
+        )),
+      ),
+      const SizedBox(height: AssalSpacing.sm),
+      AssalActionTile(
+        icon: Icons.forum_outlined,
+        title: 'المراسلات',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => MessagesScreen(repository: repository),
+        )),
+      ),
+      const SizedBox(height: AssalSpacing.sm),
+      AssalActionTile(
+        icon: Icons.notifications_outlined,
+        title: 'الإشعارات',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => NotificationsScreen(repository: repository),
+        )),
+      ),
+      if (session.isAuthenticated) ...[
+        const SizedBox(height: AssalSpacing.lg),
+        const SectionHeader(title: 'الحساب والمساعدة'),
+        const SizedBox(height: AssalSpacing.xs),
+      ],
+      const SizedBox(height: AssalSpacing.sm),
+      AssalActionTile(
+        icon: Icons.settings_outlined,
+        title: 'الإعدادات',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => const SettingsScreen(),
+        )),
+      ),
+      const SizedBox(height: AssalSpacing.sm),
+      AssalActionTile(
+        icon: Icons.support_agent_outlined,
+        title: 'المساعدة والدعم',
+        subtitle: 'أسئلة شائعة ودعم فني وطلبات التصميم',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => SupportCenterScreen(repository: repository),
+        )),
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: actions,
     );
   }
 
