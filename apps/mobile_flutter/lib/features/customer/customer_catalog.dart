@@ -1004,6 +1004,7 @@ class _RequestSheetState extends State<RequestSheet> {
                       hintText: 'مثال: التواصل قبل الوصول')),
               const SizedBox(height: AssalSpacing.md),
               DropdownButtonFormField<HandoffOption>(
+                  isExpanded: true,
                   initialValue: option,
                   decoration:
                       const InputDecoration(labelText: 'طريقة التسليم المفضلة'),
@@ -1018,6 +1019,7 @@ class _RequestSheetState extends State<RequestSheet> {
               if (widget.store.deliveryOptions.isNotEmpty) ...[
                 const SizedBox(height: AssalSpacing.md),
                 DropdownButtonFormField<String>(
+                    isExpanded: true,
                     initialValue: selectedDeliveryOption,
                     decoration: const InputDecoration(
                         labelText: 'خيار التوصيل من هذا المتجر'),
@@ -1031,6 +1033,7 @@ class _RequestSheetState extends State<RequestSheet> {
               if (widget.store.pickupLocations.isNotEmpty) ...[
                 const SizedBox(height: AssalSpacing.md),
                 DropdownButtonFormField<String>(
+                    isExpanded: true,
                     initialValue: selectedPickupLocation,
                     decoration: const InputDecoration(
                         labelText: 'نقطة الاستلام من هذا المتجر'),
@@ -1117,10 +1120,15 @@ class _RequestSheetState extends State<RequestSheet> {
             handoffDetails: handoffDetails));
     if (!mounted) return;
     setState(() => saving = false);
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(result is AssalData<AssalRequestSummary>
-            ? 'تم حفظ الطلب ويمكنك متابعته من ملفك.'
-            : 'تعذر حفظ الطلب، حاول مرة أخرى.')));
+    if (result is AssalData<AssalRequestSummary>) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم حفظ الطلب ويمكنك متابعته من ملفك.')),
+      );
+    } else if (result is AssalError<AssalRequestSummary>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result.messageAr)),
+      );
+    }
   }
 }
