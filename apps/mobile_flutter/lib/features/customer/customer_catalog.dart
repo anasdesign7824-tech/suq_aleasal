@@ -601,7 +601,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                 tabs: [
                   Tab(text: 'المنتجات'),
                   Tab(text: 'معلومات المتجر'),
-                  Tab(text: 'التواصل والطلب'),
+                  Tab(text: 'التواصل'),
                 ],
               ),
             ),
@@ -744,16 +744,15 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         ),
       );
 
-  Widget _contactTab(AssalStoreSummary store) => SingleChildScrollView(
+  Widget _contactTab(AssalStoreSummary store) {
+    final socialLinks = _publicSocialLinks(store);
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(AssalSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SectionHeader(title: 'التواصل والطلب'),
-            if (store.socialLinks.isEmpty &&
-                store.contactPhone == null &&
-                store.contactWhatsapp == null &&
-                store.contactTelegram == null)
+            const SectionHeader(title: 'قنوات التواصل'),
+            if (socialLinks.isEmpty && store.contactPhone == null)
               const AssalMessageCard(
                 icon: Icons.forum_outlined,
                 message: 'لم يضف المتجر قنوات تواصل بعد.',
@@ -765,39 +764,35 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                   label: const Text('الهاتف'),
                   onPressed: () => _showContact('phone', store.contactPhone!),
                 ),
-              if (store.contactWhatsapp != null)
-                ActionChip(
-                  avatar: const Icon(Icons.chat_outlined, size: 16),
-                  label: const Text('واتساب'),
-                  onPressed: () =>
-                      _showContact('whatsapp', store.contactWhatsapp!),
+              if (socialLinks.isNotEmpty)
+                Wrap(
+                  spacing: AssalSpacing.sm,
+                  runSpacing: AssalSpacing.sm,
+                  children: socialLinks.entries
+                      .map((entry) => ActionChip(
+                            avatar: Icon(_socialIcon(entry.key), size: 16),
+                            label: Text(_socialLabel(entry.key)),
+                            onPressed: () =>
+                                _showContact(entry.key, entry.value),
+                          ))
+                      .toList(),
                 ),
-              if (store.contactTelegram != null)
-                ActionChip(
-                  avatar: const Icon(Icons.send_outlined, size: 16),
-                  label: const Text('تلغرام'),
-                  onPressed: () =>
-                      _showContact('telegram', store.contactTelegram!),
-                ),
-              Wrap(
-                spacing: AssalSpacing.sm,
-                runSpacing: AssalSpacing.sm,
-                children: store.socialLinks.entries
-                    .map((entry) => ActionChip(
-                          avatar: const Icon(Icons.link, size: 16),
-                          label: Text(_socialLabel(entry.key)),
-                          onPressed: () => _showContact(entry.key, entry.value),
-                        ))
-                    .toList(),
-              ),
             ],
             const SizedBox(height: AssalSpacing.lg),
-            if (store.deliveryOptions.isNotEmpty)
-              _storeInfoRow(Icons.local_shipping_outlined, 'التوصيل',
-                  store.deliveryOptions.join('، ')),
-            if (store.pickupLocations.isNotEmpty)
-              _storeInfoRow(Icons.location_on_outlined, 'الاستلام',
-                  store.pickupLocations.join('، ')),
+            const SectionHeader(title: 'التسليم والاستلام'),
+            if (store.deliveryOptions.isEmpty && store.pickupLocations.isEmpty)
+              const AssalMessageCard(
+                icon: Icons.local_shipping_outlined,
+                message: 'لم يحدد المتجر خيارات التسليم أو الاستلام بعد.',
+              )
+            else ...[
+              if (store.deliveryOptions.isNotEmpty)
+                _storeInfoRow(Icons.local_shipping_outlined, 'التوصيل',
+                    store.deliveryOptions.join('، ')),
+              if (store.pickupLocations.isNotEmpty)
+                _storeInfoRow(Icons.location_on_outlined, 'الاستلام',
+                    store.pickupLocations.join('، ')),
+            ],
             const SizedBox(height: AssalSpacing.lg),
             SizedBox(
               width: double.infinity,
@@ -826,6 +821,29 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
           ],
         ),
       );
+  }
+
+  Map<String, String> _publicSocialLinks(AssalStoreSummary store) {
+    final links = <String, String>{...store.socialLinks};
+    if (store.contactWhatsapp != null &&
+        store.contactWhatsapp!.trim().isNotEmpty) {
+      links['whatsapp'] = store.contactWhatsapp!;
+    }
+    if (store.contactTelegram != null &&
+        store.contactTelegram!.trim().isNotEmpty) {
+      links['telegram'] = store.contactTelegram!;
+    }
+    return links;
+  }
+
+  IconData _socialIcon(String key) => switch (key) {
+        'whatsapp' => Icons.chat_outlined,
+        'telegram' => Icons.send_outlined,
+        'facebook' => Icons.facebook_outlined,
+        'instagram' => Icons.camera_alt_outlined,
+        'website' => Icons.language_outlined,
+        _ => Icons.link,
+      };
 
   void _showContact(String channel, String value) => showDialog<void>(
       context: context,
@@ -851,6 +869,8 @@ String _socialLabel(String key) => switch (key) {
       'whatsapp' => 'واتساب',
       'instagram' => 'إنستغرام',
       'telegram' => 'تلغرام',
+      'facebook' => 'فيسبوك',
+      'website' => 'الموقع الإلكتروني',
       _ => key
     };
 
