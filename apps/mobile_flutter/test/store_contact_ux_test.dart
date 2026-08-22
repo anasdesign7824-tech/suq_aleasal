@@ -10,14 +10,6 @@ void main() {
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(420, 900));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    const store = AssalStoreSummary(
-      id: 'store-1',
-      merchantId: 'merchant-1',
-      nameAr: 'متجر العسل',
-      slug: 'honey-store',
-      status: StoreStatus.active,
-    );
-
     await tester.pumpWidget(
       const MaterialApp(
         home: StoreProfileScreen(
