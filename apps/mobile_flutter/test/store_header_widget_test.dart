@@ -16,15 +16,18 @@ void main() {
       isVerified: true,
       followersCount: 12,
     );
-    var tapped = false;
+    var following = false;
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: AssalStoreHeaderCard(
-            store: store,
-            onFollow: () => tapped = true,
-            followersCountOverride: 13,
+        home: StatefulBuilder(
+          builder: (context, setState) => Scaffold(
+            body: AssalStoreHeaderCard(
+              store: store,
+              isFollowing: following,
+              onFollow: () => setState(() => following = !following),
+              followersCountOverride: following ? 13 : 12,
+            ),
           ),
         ),
       ),
@@ -34,11 +37,13 @@ void main() {
     final button = find.byTooltip('متابعة المتجر');
     expect(button, findsOneWidget);
     await tester.tap(button);
-    expect(tapped, isTrue);
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('إلغاء متابعة المتجر'), findsOneWidget);
+    expect(find.byIcon(Icons.check_rounded), findsOneWidget);
     expect(find.text('12'), findsNothing);
     expect(find.text('13'), findsOneWidget);
     expect(find.text('متابع'), findsOneWidget);
     expect(find.text('موثق Pro'), findsNothing);
-    expect(find.text('متجر مفعّل'), findsOneWidget);
+    expect(find.text('متجر مفعّل'), findsNothing);
   });
 }

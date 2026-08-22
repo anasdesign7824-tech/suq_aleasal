@@ -617,7 +617,7 @@ class AssalProfileHeaderCard extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            height: 190,
+            height: 158,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -625,10 +625,10 @@ class AssalProfileHeaderCard extends StatelessWidget {
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: 150,
+                  height: 120,
                   child: AssalImageTile(
                     imageUrl: user.coverUrl,
-                    height: 150,
+                    height: 120,
                     icon: Icons.landscape_outlined,
                   ),
                 ),
@@ -637,6 +637,12 @@ class AssalProfileHeaderCard extends StatelessWidget {
                     right: AssalSpacing.sm,
                     top: AssalSpacing.sm,
                     child: IconButton.filledTonal(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 30,
+                        minHeight: 30,
+                      ),
+                      visualDensity: VisualDensity.compact,
                       onPressed: imageBusy ? null : onPickCover,
                       tooltip: 'تغيير صورة الغلاف',
                       icon: imageBusy
@@ -657,7 +663,7 @@ class AssalProfileHeaderCard extends StatelessWidget {
                       clipBehavior: Clip.none,
                       children: [
                         CircleAvatar(
-                          radius: 42,
+                          radius: 34,
                           backgroundColor: AssalColors.honeyLight,
                           backgroundImage:
                               avatarUrl != null && avatarUrl.startsWith('http')
@@ -680,6 +686,12 @@ class AssalProfileHeaderCard extends StatelessWidget {
                             right: 0,
                             bottom: 0,
                             child: IconButton.filledTonal(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 30,
+                                minHeight: 30,
+                              ),
+                              visualDensity: VisualDensity.compact,
                               onPressed: imageBusy ? null : onPickAvatar,
                               tooltip: 'تغيير الصورة الشخصية',
                               icon: imageBusy
@@ -700,7 +712,7 @@ class AssalProfileHeaderCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 38),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AssalSpacing.lg,
@@ -878,14 +890,15 @@ class AssalImagePickerTile extends StatelessWidget {
                     child: IconButton.filled(
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
-                        minWidth: 36,
-                        minHeight: 36,
+                        minWidth: 30,
+                        minHeight: 30,
                       ),
+                      visualDensity: VisualDensity.compact,
                       tooltip: hasImage ? 'تغيير الصورة' : 'إضافة الصورة',
                       onPressed: onPick,
                       icon: Icon(
                         hasImage ? Icons.edit_outlined : icon,
-                        size: 18,
+                        size: 16,
                       ),
                     ),
                   ),
@@ -895,13 +908,14 @@ class AssalImagePickerTile extends StatelessWidget {
                       top: AssalSpacing.xs,
                       child: IconButton.filledTonal(
                         padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 34,
-                          minHeight: 34,
-                        ),
-                        tooltip: 'إزالة الصورة',
+                      constraints: const BoxConstraints(
+                        minWidth: 28,
+                        minHeight: 28,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: 'إزالة الصورة',
                         onPressed: onClear,
-                        icon: const Icon(Icons.delete_outline, size: 18),
+                        icon: const Icon(Icons.delete_outline, size: 16),
                       ),
                     ),
                 ],
@@ -1006,12 +1020,10 @@ class ProductCard extends StatelessWidget {
     required this.product,
     required this.onTap,
     this.onFavorite,
-    this.showVerifiedBadge = false,
   });
   final AssalProductSummary product;
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
-  final bool showVerifiedBadge;
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
@@ -1039,12 +1051,6 @@ class ProductCard extends StatelessWidget {
                           onPressed: onFavorite,
                           icon: const Icon(Icons.bookmark_border),
                           tooltip: 'حفظ المنتج')),
-                if (showVerifiedBadge)
-                  const Positioned(
-                    top: AssalSpacing.sm,
-                    right: AssalSpacing.sm,
-                    child: AssalPremiumBadge(label: 'موثق Pro', compact: true),
-                  ),
               ]),
               Padding(
                 padding: const EdgeInsets.all(AssalSpacing.md),
@@ -1185,7 +1191,6 @@ class AssalStoreHeaderCard extends StatelessWidget {
     this.isFollowing = false,
     this.followBusy = false,
     this.onFollow,
-    this.showVerificationBadge = false,
     this.followersCountOverride,
     this.onFollowersTap,
     this.onPickLogo,
@@ -1198,37 +1203,22 @@ class AssalStoreHeaderCard extends StatelessWidget {
   final bool isFollowing;
   final bool followBusy;
   final VoidCallback? onFollow;
-  final bool showVerificationBadge;
   final int? followersCountOverride;
   final VoidCallback? onFollowersTap;
   final VoidCallback? onPickLogo;
   final VoidCallback? onPickCover;
   final bool imageBusy;
 
-  String _statusLabel() {
-    if (showVerificationBadge && store.isVerified) return 'متجر موثق Pro';
-    return switch (store.status) {
-      StoreStatus.active => 'متجر مفعّل',
-      StoreStatus.pending => 'المتجر قيد التفعيل',
-      StoreStatus.paused => 'المتجر موقوف مؤقتًا',
-      StoreStatus.rejected => 'المتجر يحتاج مراجعة',
-      StoreStatus.suspended => 'المتجر موقوف',
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final logoUrl = store.logoUrl ?? store.avatarUrl;
     final displayedFollowersCount = followersCountOverride ?? store.followersCount;
-    final badge = showVerificationBadge && store.isVerified
-        ? const AssalPremiumBadge(label: 'موثق Pro', compact: true)
-        : AssalRoleBadge(label: _statusLabel());
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           SizedBox(
-            height: 200,
+            height: 168,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -1236,17 +1226,12 @@ class AssalStoreHeaderCard extends StatelessWidget {
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: 168,
+                  height: 128,
                   child: AssalImageTile(
                     imageUrl: store.coverUrl,
-                    height: 168,
+                    height: 128,
                     icon: Icons.hive_outlined,
                   ),
-                ),
-                Positioned(
-                  left: AssalSpacing.md,
-                  top: AssalSpacing.md,
-                  child: badge,
                 ),
                 if (trailing != null)
                   Positioned(
@@ -1259,6 +1244,12 @@ class AssalStoreHeaderCard extends StatelessWidget {
                     right: trailing != null ? 56 : AssalSpacing.sm,
                     top: AssalSpacing.sm,
                     child: IconButton.filledTonal(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 30,
+                        minHeight: 30,
+                      ),
+                      visualDensity: VisualDensity.compact,
                       onPressed: imageBusy ? null : onPickCover,
                       tooltip: 'تغيير صورة غلاف المتجر',
                       icon: imageBusy
@@ -1274,22 +1265,44 @@ class AssalStoreHeaderCard extends StatelessWidget {
                   Positioned(
                     right: AssalSpacing.sm,
                     top: AssalSpacing.sm,
-                    child: IconButton.filledTonal(
-                      onPressed: followBusy ? null : onFollow,
-                      tooltip: isFollowing
-                          ? 'إلغاء متابعة المتجر'
-                          : 'متابعة المتجر',
-                      icon: followBusy
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(
-                              isFollowing
-                                  ? Icons.person_remove_alt_1_outlined
-                                  : Icons.person_add_alt_1_outlined,
-                            ),
+                    child: AnimatedScale(
+                      scale: isFollowing ? 1 : .92,
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutBack,
+                      child: IconButton.filledTonal(
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 30,
+                          minHeight: 30,
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        style: IconButton.styleFrom(
+                          backgroundColor: isFollowing
+                              ? AssalColors.honey
+                              : Colors.white.withValues(alpha: .88),
+                          foregroundColor: AssalColors.deepBrown,
+                        ),
+                        onPressed: followBusy ? null : onFollow,
+                        tooltip: isFollowing
+                            ? 'إلغاء متابعة المتجر'
+                            : 'متابعة المتجر',
+                        icon: followBusy
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 220),
+                                child: Icon(
+                                  key: ValueKey<bool>(isFollowing),
+                                  isFollowing
+                                      ? Icons.check_rounded
+                                      : Icons.add_rounded,
+                                ),
+                              ),
+                      ),
                     ),
                   ),
                 Positioned(
@@ -1301,7 +1314,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
                       clipBehavior: Clip.none,
                       children: [
                         CircleAvatar(
-                          radius: 38,
+                          radius: 32,
                           backgroundColor: AssalColors.honeyLight,
                           backgroundImage:
                               logoUrl != null && logoUrl.startsWith('http')
@@ -1320,6 +1333,12 @@ class AssalStoreHeaderCard extends StatelessWidget {
                             right: 0,
                             bottom: 0,
                             child: IconButton.filledTonal(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 30,
+                                minHeight: 30,
+                              ),
+                              visualDensity: VisualDensity.compact,
                               onPressed: imageBusy ? null : onPickLogo,
                               tooltip: 'تغيير شعار المتجر',
                               icon: imageBusy
@@ -1340,7 +1359,7 @@ class AssalStoreHeaderCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 42),
+          const SizedBox(height: 36),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AssalSpacing.lg,

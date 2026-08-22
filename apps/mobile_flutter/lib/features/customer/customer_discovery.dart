@@ -1264,8 +1264,7 @@ class _ProductRail extends StatelessWidget {
                     width: 168,
                     child: ProductCard(
                       product: products[index],
-                      showVerifiedBadge: false,
-                      onTap: () => Navigator.of(context).push(
+                              onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => ProductDetailScreen(
                             repository: repository,

@@ -32,6 +32,7 @@ void main() {
       nameAr: 'متجر العسل',
       slug: 'honey-store',
       status: StoreStatus.active,
+      regionNameAr: 'صنعاء',
       deliveryOptions: ['شركة توصيل'],
       pickupLocations: ['نقطة استلام صنعاء'],
     );
@@ -51,6 +52,10 @@ void main() {
     expect(find.text('متاح للاستفسار'), findsOneWidget);
     expect(find.textContaining('التوصيل: شركة توصيل'), findsOneWidget);
     expect(find.text('اسأل عن التوفر'), findsOneWidget);
+    expect(find.text('صنعاء'), findsAtLeastNWidgets(1));
+    final heroRatio = tester.widget<AspectRatio>(find.byType(AspectRatio).first);
+    expect(heroRatio.aspectRatio, 1);
+
   });
 }
 

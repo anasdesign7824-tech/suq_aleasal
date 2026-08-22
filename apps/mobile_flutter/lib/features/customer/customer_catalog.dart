@@ -236,15 +236,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, 0),
         child: Column(
           children: [
-            SizedBox(
-              height: 220,
+            AspectRatio(
+              aspectRatio: 1,
               child: PageView.builder(
                 controller: galleryController,
                 itemCount: gallery.length,
                 onPageChanged: (index) => setState(() => galleryIndex = index),
                 itemBuilder: (_, index) => AssalImageTile(
                   imageUrl: gallery[index],
-                  height: 220,
+                  expand: true,
                   icon: index.isEven
                       ? Icons.wb_sunny_outlined
                       : Icons.hive_outlined,
@@ -337,7 +337,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ],
             const SizedBox(height: AssalSpacing.lg),
-            _MetadataCard(product: product),
+            _MetadataCard(product: product, store: store),
             if (store != null) ...[
               const SizedBox(height: AssalSpacing.lg),
               Card(
@@ -526,8 +526,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 }
 
 class _MetadataCard extends StatelessWidget {
-  const _MetadataCard({required this.product});
+  const _MetadataCard({required this.product, this.store});
   final AssalProductSummary product;
+  final AssalStoreSummary? store;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -543,7 +544,10 @@ class _MetadataCard extends StatelessWidget {
             _row('نوع المنتج', _productTypeLabel(product.productType)),
             if (product.honeyIdentity != null)
               _row('هوية العسل', product.honeyIdentity!),
-            _row('المنطقة', product.regionNameAr ?? 'غير محددة'),
+            _row(
+              'المنطقة',
+              product.regionNameAr ?? store?.regionNameAr ?? 'غير محددة',
+            ),
             if (product.provinceNameAr != null)
               _row('المحافظة', product.provinceNameAr!),
             if (product.originCountry != null)
