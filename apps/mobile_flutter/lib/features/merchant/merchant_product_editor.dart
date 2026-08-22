@@ -47,6 +47,7 @@ class _MerchantProductEditorScreenState
   late final TextEditingController weightController;
   late final TextEditingController originController;
   late final TextEditingController provinceController;
+  late final TextEditingController gradeController;
   late final TextEditingController identityController;
   late final TextEditingController qualityController;
   late final TextEditingController processingMethodController;
@@ -95,6 +96,8 @@ class _MerchantProductEditorScreenState
         TextEditingController(text: product?.originCountry ?? 'اليمن');
     provinceController =
         TextEditingController(text: product?.provinceNameAr ?? '');
+    gradeController =
+        TextEditingController(text: product?.gradeLevel?.toString() ?? '');
     identityController =
         TextEditingController(text: product?.honeyIdentity ?? '');
     qualityController =
@@ -152,8 +155,9 @@ class _MerchantProductEditorScreenState
       currencyController,
       weightController,
       originController,
-      provinceController,
-      identityController,
+        provinceController,
+        gradeController,
+        identityController,
       qualityController,
       processingMethodController,
       processingStatusController,
@@ -228,7 +232,7 @@ class _MerchantProductEditorScreenState
             : descriptionController.text.trim(),
         taxonomyId: taxonomyId,
         productType: productType,
-        gradeLevel: gradeLevel,
+        gradeLevel: int.tryParse(gradeController.text.trim()),
         metadata: _metadata(),
         imageUrls: existingImageUrls,
       );
@@ -460,46 +464,68 @@ class _MerchantProductEditorScreenState
     String? hint,
     String? Function(String?)? validator,
   }) {
-    final current = controller.text.trim();
-    final values = <String>[...options];
-    if (current.isNotEmpty && !values.contains(current)) {
-      values.insert(0, current);
-    }
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      initialValue: current.isEmpty ? null : current,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: icon == null ? null : Icon(icon),
+    final values = options.toSet().toList(growable: false);
+    return Autocomplete<String>(
+      initialValue: TextEditingValue(text: controller.text),
+      optionsBuilder: (value) {
+        final query = value.text.trim().toLowerCase();
+        if (query.isEmpty) return values;
+        return values.where(
+          (option) => option.toLowerCase().contains(query),
+        );
+      },
+      onSelected: (value) {
+        controller.text = value;
+        setState(() {});
+      },
+      optionsViewBuilder: (context, onSelected, suggestions) => Align(
+        alignment: AlignmentDirectional.topStart,
+        child: Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(AssalRadius.medium),
+          color: Theme.of(context).colorScheme.surface,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 220),
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              itemCount: suggestions.length,
+              itemBuilder: (context, index) {
+                final suggestion = suggestions.elementAt(index);
+                return ListTile(
+                  dense: true,
+                  title: Text(suggestion),
+                  onTap: () => onSelected(suggestion),
+                );
+              },
+            ),
+          ),
+        ),
       ),
-      items: values
-          .map((value) => DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              ))
-          .toList(growable: false),
-      hint: hint == null ? null : Text(hint),
-      validator: validator,
-      onChanged: saving
-          ? null
-          : (value) => setState(() => controller.text = value ?? ''),
+      fieldViewBuilder: (
+        context,
+        textController,
+        focusNode,
+        onFieldSubmitted,
+      ) {
+        return TextFormField(
+          key: ValueKey<String>(label),
+          controller: textController,
+          focusNode: focusNode,
+          readOnly: saving,
+          onChanged: (value) => controller.text = value,
+          onFieldSubmitted: (_) => onFieldSubmitted(),
+          validator: validator,
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: icon == null ? null : Icon(icon),
+            helperText: hint ?? 'اختر اقتراحًا أو اكتب القيمة الخاصة بك',
+            suffixIcon: const Icon(Icons.expand_more_rounded),
+          ),
+        );
+      },
     );
   }
-
-  Widget _readonlyField(
-    TextEditingController controller,
-    String label, {
-    IconData? icon,
-  }) =>
-      TextFormField(
-        controller: controller,
-        readOnly: true,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: icon == null ? null : Icon(icon),
-          helperText: 'يُملأ تلقائيًا من البيانات المعتمدة',
-        ),
-      );
 
   Widget _dateField(TextEditingController controller, String label) =>
       TextFormField(
@@ -688,22 +714,12 @@ class _MerchantProductEditorScreenState
               ),
               const SizedBox(width: AssalSpacing.sm),
               SizedBox(
-                width: 104,
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  initialValue: const ['YER', 'SAR', 'USD']
-                          .contains(currencyController.text)
-                      ? currencyController.text
-                      : 'YER',
-                  decoration: const InputDecoration(labelText: 'العملة'),
-                  items: const [
-                    DropdownMenuItem(value: 'YER', child: Text('ريال يمني')),
-                    DropdownMenuItem(value: 'SAR', child: Text('ريال سعودي')),
-                    DropdownMenuItem(value: 'USD', child: Text('دولار')),
-                  ],
-                  onChanged: saving
-                      ? null
-                      : (value) => currencyController.text = value ?? 'YER',
+                width: 132,
+                child: _choiceField(
+                  currencyController,
+                  'العملة',
+                  const ['YER', 'SAR', 'USD'],
+                  hint: 'اختر أو اكتب الرمز',
                 ),
               ),
             ],
@@ -732,19 +748,19 @@ class _MerchantProductEditorScreenState
               ),
               const SizedBox(width: AssalSpacing.sm),
               Expanded(
-                child: DropdownButtonFormField<int>(
-                  initialValue: gradeLevel,
-                  decoration: const InputDecoration(labelText: 'درجة الجودة'),
-                  items: [
-                    for (var level = 1; level <= 5; level++)
-                      DropdownMenuItem(
-                        value: level,
-                        child: Text('درجة $level'),
-                      ),
-                  ],
-                  onChanged: saving
-                      ? null
-                      : (value) => setState(() => gradeLevel = value),
+                child: _choiceField(
+                  gradeController,
+                  'درجة الجودة',
+                  const ['1', '2', '3', '4', '5'],
+                  hint: 'اكتب رقمًا من 1 إلى 5',
+                  validator: (value) {
+                    final parsed = int.tryParse(value?.trim() ?? '');
+                    return value == null || value.trim().isEmpty
+                        ? null
+                        : parsed == null || parsed < 1 || parsed > 5
+                            ? 'اكتب درجة من 1 إلى 5.'
+                            : null;
+                  },
                 ),
               ),
             ],
@@ -858,9 +874,10 @@ class _MerchantProductEditorScreenState
             },
           ),
           const SizedBox(height: AssalSpacing.md),
-          _readonlyField(
+          _suggestedField(
             provinceController,
             'المصدر المحلي',
+            const ['منحل محلي', 'مصدر يمني', 'مصدر غير محدد'],
             icon: Icons.location_city_outlined,
           ),
           const SizedBox(height: AssalSpacing.md),
@@ -963,28 +980,17 @@ class _MerchantProductEditorScreenState
   Widget _salesTab() => ListView(
         padding: const EdgeInsets.only(top: AssalSpacing.lg),
         children: [
-          DropdownButtonFormField<String>(
-            initialValue: const [
+          _choiceField(
+            availabilityController,
+            'حالة التوفر',
+            const [
               'متاح للاستفسار',
               'متاح للطلب',
               'غير متاح مؤقتًا',
               'نفد المخزون',
-            ].contains(availabilityController.text)
-                ? availabilityController.text
-                : 'متاح للاستفسار',
-            decoration: const InputDecoration(
-              labelText: 'حالة التوفر',
-              prefixIcon: Icon(Icons.inventory_outlined),
-            ),
-            items: const [
-              DropdownMenuItem(value: 'متاح للاستفسار', child: Text('متاح للاستفسار')),
-              DropdownMenuItem(value: 'متاح للطلب', child: Text('متاح للطلب')),
-              DropdownMenuItem(value: 'غير متاح مؤقتًا', child: Text('غير متاح مؤقتًا')),
-              DropdownMenuItem(value: 'نفد المخزون', child: Text('نفد المخزون')),
             ],
-            onChanged: saving
-                ? null
-                : (value) => availabilityController.text = value ?? 'متاح للاستفسار',
+            icon: Icons.inventory_outlined,
+            hint: 'اختر الحالة أو اكتب وصفًا خاصًا',
           ),
           const SizedBox(height: AssalSpacing.md),
           _field(purposeController, 'الاستخدام أو الغرض'),
