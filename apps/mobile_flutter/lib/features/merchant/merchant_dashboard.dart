@@ -12,6 +12,12 @@ import '../customer/customer_support.dart';
 import 'store_verification_screen.dart';
 import 'subscription_plans_screen.dart';
 
+const _merchantDeliveryLabels = <String, String>{
+  'courier': 'شركة توصيل',
+  'merchant_delivery': 'توصيل التاجر',
+  'pickup': 'استلام من المتجر',
+};
+
 class MerchantDashboard extends StatefulWidget {
   const MerchantDashboard({super.key, required this.repository});
 
@@ -736,6 +742,10 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   late final TextEditingController nameController;
   late final TextEditingController descriptionController;
   late final TextEditingController phoneController;
+  late final TextEditingController whatsappController;
+  late final TextEditingController telegramController;
+  late final TextEditingController websiteController;
+  late final TextEditingController pickupController;
   String? regionId;
   String? governorateId;
   String? districtId;
@@ -743,6 +753,8 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   String? coverUrl;
   late final Future<AssalLoadState<List<AssalRegion>>> regionsFuture;
   final galleryUrls = <String>[];
+  final selectedDeliveryCodes = <String>{};
+  final pickupLocations = <String>[];
   bool saving = false;
   bool uploading = false;
 
@@ -754,6 +766,22 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     descriptionController =
         TextEditingController(text: store.description ?? '');
     phoneController = TextEditingController(text: store.contactPhone ?? '');
+    whatsappController = TextEditingController(
+      text: store.socialLinks['whatsapp'] ?? store.contactWhatsapp ?? '',
+    );
+    telegramController = TextEditingController(
+      text: store.socialLinks['telegram'] ?? store.contactTelegram ?? '',
+    );
+    websiteController = TextEditingController(
+      text: store.socialLinks['website'] ?? '',
+    );
+    pickupController = TextEditingController();
+    for (final entry in _merchantDeliveryLabels.entries) {
+      if (store.deliveryOptions.contains(entry.value)) {
+        selectedDeliveryCodes.add(entry.key);
+      }
+    }
+    pickupLocations.addAll(store.pickupLocations);
     regionId = store.regionId;
     logoUrl = store.logoUrl;
     coverUrl = store.coverUrl;
@@ -766,6 +794,10 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     nameController.dispose();
     descriptionController.dispose();
     phoneController.dispose();
+    whatsappController.dispose();
+    telegramController.dispose();
+    websiteController.dispose();
+    pickupController.dispose();
     super.dispose();
   }
 
@@ -858,6 +890,54 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     }
   }
 
+  AssalStoreChannelsDraft? _buildChannelsDraft() {
+    final links = <String, String>{};
+    final fields = <String, TextEditingController>{
+      'whatsapp': whatsappController,
+      'telegram': telegramController,
+      'website': websiteController,
+    };
+    for (final entry in fields.entries) {
+      final value = entry.value.text.trim();
+      if (value.isEmpty) continue;
+      final uri = Uri.tryParse(value);
+      final valid = uri != null &&
+          (uri.scheme == 'http' || uri.scheme == 'https') &&
+          uri.host.isNotEmpty;
+      if (!valid) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'رابط ${entry.key == 'whatsapp' ? 'واتساب' : entry.key == 'telegram' ? 'تيليجرام' : 'الموقع'} يجب أن يبدأ بـ http:// أو https://.',
+            ),
+          ),
+        );
+        return null;
+      }
+      links[entry.key] = value;
+    }
+    return AssalStoreChannelsDraft(
+      socialLinks: links,
+      deliveryCodes: selectedDeliveryCodes.toList(growable: false),
+      pickupLocations: pickupLocations.toList(growable: false),
+    );
+  }
+
+  void _addPickupLocation() {
+    final value = pickupController.text.trim();
+    if (value.isEmpty) return;
+    if (pickupLocations.contains(value)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('نقطة الاستلام مضافة بالفعل.')),
+      );
+      return;
+    }
+    setState(() {
+      pickupLocations.add(value);
+      pickupController.clear();
+    });
+  }
+
   Future<void> _save() async {
     if (nameController.text.trim().length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -865,6 +945,8 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
       );
       return;
     }
+    final channelsDraft = _buildChannelsDraft();
+    if (channelsDraft == null) return;
     final session = await widget.repository.getSession();
     if (!mounted) return;
     if (session.isUnavailable) {
@@ -880,7 +962,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
       return;
     }
     setState(() => saving = true);
-    final result = await widget.repository.updateMerchantWorkspace(
+    final workspaceResult = await widget.repository.updateMerchantWorkspace(
       session.user!.id,
       widget.workspace.store.id,
       AssalMerchantWorkspaceDraft(
@@ -897,17 +979,143 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
       ),
     );
     if (!mounted) return;
+    if (workspaceResult is AssalError<void>) {
+      setState(() => saving = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(workspaceResult.messageAr)));
+      return;
+    }
+    if (workspaceResult is! AssalData<void>) {
+      setState(() => saving = false);
+      return;
+    }
+    final channelsResult = await widget.repository.saveMerchantStoreChannels(
+      session.user!.id,
+      widget.workspace.store.id,
+      channelsDraft,
+    );
+    if (!mounted) return;
     setState(() => saving = false);
-    if (result is AssalData<void>) {
+    if (channelsResult is AssalData<AssalStoreSummary>) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ بيانات المتجر.')),
+        const SnackBar(content: Text('تم حفظ بيانات المتجر والتواصل والتسليم.')),
       );
       Navigator.of(context).pop();
-    } else if (result is AssalError<void>) {
+    } else if (channelsResult is AssalError<AssalStoreSummary>) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+          .showSnackBar(SnackBar(content: Text(channelsResult.messageAr)));
     }
   }
+
+  Widget _buildChannelsSection() => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('التواصل والتسليم', style: AssalTypography.subtitle),
+              const SizedBox(height: AssalSpacing.xs),
+              Text(
+                'أضف روابط عامة بصيغة http:// أو https://، ثم اختر طرق التسليم التي تظهر للعميل.',
+                style: AssalTypography.bodySmall.copyWith(
+                  color: AssalColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              TextField(
+                key: const ValueKey('merchant-whatsapp-url'),
+                controller: whatsappController,
+                keyboardType: TextInputType.url,
+                autocorrect: false,
+                decoration: const InputDecoration(
+                  labelText: 'رابط واتساب',
+                  hintText: 'https://wa.me/9677xxxxxxx',
+                  prefixIcon: Icon(Icons.chat_outlined),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              TextField(
+                controller: telegramController,
+                keyboardType: TextInputType.url,
+                autocorrect: false,
+                decoration: const InputDecoration(
+                  labelText: 'رابط تيليجرام',
+                  hintText: 'https://t.me/اسم_المتجر',
+                  prefixIcon: Icon(Icons.send_outlined),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              TextField(
+                controller: websiteController,
+                keyboardType: TextInputType.url,
+                autocorrect: false,
+                decoration: const InputDecoration(
+                  labelText: 'الموقع الإلكتروني',
+                  hintText: 'https://example.com',
+                  prefixIcon: Icon(Icons.language_outlined),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.lg),
+              const Text('طرق التسليم المتاحة', style: AssalTypography.body),
+              const SizedBox(height: AssalSpacing.xs),
+              ..._merchantDeliveryLabels.entries.map(
+                (entry) => CheckboxListTile(
+                  value: selectedDeliveryCodes.contains(entry.key),
+                  onChanged: saving
+                      ? null
+                      : (checked) => setState(() {
+                            if (checked == true) {
+                              selectedDeliveryCodes.add(entry.key);
+                            } else {
+                              selectedDeliveryCodes.remove(entry.key);
+                            }
+                          }),
+                  title: Text(entry.value),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              TextField(
+                controller: pickupController,
+                enabled: !saving,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _addPickupLocation(),
+                decoration: InputDecoration(
+                  labelText: 'نقطة استلام جديدة',
+                  hintText: 'مثال: فرع صنعاء - شارع حدة',
+                  prefixIcon: const Icon(Icons.location_on_outlined),
+                  suffixIcon: IconButton(
+                    tooltip: 'إضافة نقطة الاستلام',
+                    onPressed: saving ? null : _addPickupLocation,
+                    icon: const Icon(Icons.add_circle_outline),
+                  ),
+                ),
+              ),
+              if (pickupLocations.isNotEmpty) ...[
+                const SizedBox(height: AssalSpacing.sm),
+                Wrap(
+                  spacing: AssalSpacing.xs,
+                  runSpacing: AssalSpacing.xs,
+                  children: pickupLocations
+                      .map(
+                        (location) => InputChip(
+                          label: Text(location),
+                          onDeleted: saving
+                              ? null
+                              : () => setState(
+                                    () => pickupLocations.remove(location),
+                                  ),
+                        ),
+                      )
+                      .toList(growable: false),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -1054,6 +1262,8 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               },
             ),
             const SizedBox(height: AssalSpacing.lg),
+            _buildChannelsSection(),
+            const SizedBox(height: AssalSpacing.lg),
             const Text('صور المعرض', style: AssalTypography.subtitle),
             const SizedBox(height: AssalSpacing.xs),
             Text(
@@ -1087,6 +1297,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
+                key: const ValueKey('merchant-store-save'),
                 onPressed: saving || uploading ? null : _save,
                 icon: saving
                     ? const SizedBox(

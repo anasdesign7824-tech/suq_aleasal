@@ -1469,6 +1469,24 @@ class ProductionRepository implements AssalRepository {
     },
   );
 
+  @override
+  Future<AssalLoadState<AssalStoreSummary>> saveMerchantStoreChannels(
+    String userId,
+    String storeId,
+    AssalStoreChannelsDraft draft,
+  ) => _write(
+    resource: 'merchant_store_channels.update',
+    write: () async {
+      final row = await _gateway.rpc('merchant_save_store_channels', {
+        'p_store_id': storeId,
+        'p_social_links': draft.socialLinks,
+        'p_delivery_codes': draft.deliveryCodes,
+        'p_pickup_locations': draft.pickupLocations,
+      });
+      return AssalStoreSummary.fromJson(row);
+    },
+  );
+
   Future<List<String>> _merchantStoreIds(String userId) async {
     final stores = await _gateway.select(
       'stores',

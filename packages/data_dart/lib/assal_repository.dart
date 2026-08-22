@@ -239,6 +239,11 @@ abstract interface class AssalRepository {
     String storeId,
     AssalMerchantWorkspaceDraft draft,
   );
+  Future<AssalLoadState<AssalStoreSummary>> saveMerchantStoreChannels(
+    String userId,
+    String storeId,
+    AssalStoreChannelsDraft draft,
+  );
   Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
     String userId,
   );

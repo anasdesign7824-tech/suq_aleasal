@@ -1125,6 +1125,81 @@ class DemoRepository implements AssalRepository {
   }
 
   @override
+  Future<AssalLoadState<AssalStoreSummary>> saveMerchantStoreChannels(
+    String userId,
+    String storeId,
+    AssalStoreChannelsDraft draft,
+  ) async {
+    if (!_session.isAuthenticated) {
+      return const AssalError(
+        'سجّل الدخول أولًا لحفظ قنوات المتجر.',
+        code: 'merchant_auth_required',
+      );
+    }
+    final workspace = _merchantWorkspace;
+    if (workspace == null ||
+        workspace.store.id != storeId ||
+        workspace.store.merchantId != userId) {
+      return const AssalError(
+        'مساحة المتجر غير متاحة لهذا الحساب.',
+        code: 'merchant_workspace_not_owned',
+      );
+    }
+    String labelFor(String code) => switch (code) {
+          'courier' => 'شركة توصيل',
+          'merchant_delivery' => 'توصيل التاجر',
+          'pickup' => 'استلام من المتجر',
+          _ => code,
+        };
+    final current = workspace.store;
+    final socialLinks = Map<String, String>.unmodifiable(draft.socialLinks);
+    final updatedStore = AssalStoreSummary(
+      id: current.id,
+      merchantId: current.merchantId,
+      nameAr: current.nameAr,
+      slug: current.slug,
+      description: current.description,
+      regionId: current.regionId,
+      regionNameAr: current.regionNameAr,
+      logoUrl: current.logoUrl,
+      coverUrl: current.coverUrl,
+      avatarUrl: current.avatarUrl,
+      merchantNameAr: current.merchantNameAr,
+      galleryUrls: current.galleryUrls,
+      socialLinks: socialLinks,
+      deliveryOptions: List<String>.unmodifiable(
+        draft.deliveryCodes.map(labelFor),
+      ),
+      pickupLocations: List<String>.unmodifiable(draft.pickupLocations),
+      contactPhone: current.contactPhone,
+      contactWhatsapp: socialLinks['whatsapp'],
+      contactTelegram: socialLinks['telegram'],
+      isVerified: current.isVerified,
+      status: current.status,
+      ratingAverage: current.ratingAverage,
+      reviewCount: current.reviewCount,
+      followersCount: current.followersCount,
+      yearsExperience: current.yearsExperience,
+      bio: current.bio,
+      specialties: current.specialties,
+      certifications: current.certifications,
+    );
+    _merchantWorkspace = AssalMerchantWorkspaceSummary(
+      store: updatedStore,
+      verificationStatus: workspace.verificationStatus,
+      publicStatus: workspace.publicStatus,
+      canEdit: workspace.canEdit,
+      canPublish: workspace.canPublish,
+      planCode: workspace.planCode,
+      planStatus: workspace.planStatus,
+      storeLimit: workspace.storeLimit,
+      productLimit: workspace.productLimit,
+      designRequestsRemaining: workspace.designRequestsRemaining,
+    );
+    return AssalData(updatedStore);
+  }
+
+  @override
   Future<AssalLoadState<List<AssalProductSummary>>> listMerchantProducts(
     String userId,
   ) async =>

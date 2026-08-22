@@ -1103,6 +1103,18 @@ class AssalMerchantWorkspaceDraft {
   final String? coverUrl;
 }
 
+class AssalStoreChannelsDraft {
+  const AssalStoreChannelsDraft({
+    this.socialLinks = const <String, String>{},
+    this.deliveryCodes = const <String>[],
+    this.pickupLocations = const <String>[],
+  });
+
+  final Map<String, String> socialLinks;
+  final List<String> deliveryCodes;
+  final List<String> pickupLocations;
+}
+
 class AssalMerchantWorkspaceSummary {
   const AssalMerchantWorkspaceSummary({
     required this.store,
