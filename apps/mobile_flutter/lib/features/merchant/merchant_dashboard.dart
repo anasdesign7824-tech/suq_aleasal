@@ -32,6 +32,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
   late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
   late Future<AssalLoadState<List<AssalRequestSummary>>> requestsFuture;
   late Future<AssalLoadState<List<AssalCommentSummary>>> commentsFuture;
+  int managementView = 0;
 
   @override
   void initState() {
@@ -164,7 +165,8 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
   Widget _content(AssalMerchantWorkspaceSummary workspace) {
     final store = workspace.store;
     return DefaultTabController(
-      length: 6,
+            length: 4,
+
       child: Column(
         children: [
           Padding(
@@ -202,11 +204,9 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               dividerColor: Colors.transparent,
               tabs: const [
                 Tab(text: 'نظرة عامة'),
-                Tab(text: 'المنتجات'),
-                Tab(text: 'المسودات والمراجعة'),
-                Tab(text: 'الإحصاءات'),
-                Tab(text: 'التعليقات'),
+                Tab(text: 'الكتالوج'),
                 Tab(text: 'الطلبات'),
+                Tab(text: 'إدارة'),
               ],
             ),
           ),
@@ -215,10 +215,8 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               children: [
                 _overview(workspace),
                 _products(workspace),
-                _drafts(workspace),
-                _statistics(workspace),
-                _comments(),
                 _requests(),
+                _management(workspace),
               ],
             ),
           ),
@@ -387,6 +385,45 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             ],
           );
         },
+      );
+
+  Widget _management(AssalMerchantWorkspaceSummary workspace) =>
+      Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.md,
+              AssalSpacing.lg,
+              AssalSpacing.sm,
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _managementChoice(0, 'المسودات والمراجعة'),
+                  const SizedBox(width: AssalSpacing.sm),
+                  _managementChoice(1, 'الإحصاءات'),
+                  const SizedBox(width: AssalSpacing.sm),
+                  _managementChoice(2, 'التعليقات'),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: switch (managementView) {
+              0 => _drafts(workspace),
+              1 => _statistics(workspace),
+              _ => _comments(),
+            },
+          ),
+        ],
+      );
+
+  Widget _managementChoice(int value, String label) => ChoiceChip(
+        label: Text(label),
+        selected: managementView == value,
+        onSelected: (_) => setState(() => managementView = value),
       );
 
   Widget _drafts(AssalMerchantWorkspaceSummary workspace) =>

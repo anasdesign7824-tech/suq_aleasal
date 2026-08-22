@@ -14,7 +14,13 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(find.text('نظرة عامة'), findsOneWidget);
+    expect(find.text('الكتالوج'), findsOneWidget);
+    expect(find.text('الطلبات'), findsOneWidget);
+    expect(find.text('إدارة'), findsOneWidget);
 
+    await tester.tap(find.text('إدارة'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('الإحصاءات'));
     await tester.pumpAndSettle();
     expect(find.text('متابعو المتجر'), findsOneWidget);
