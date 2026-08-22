@@ -28,7 +28,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: StoreProfileScreen(
-          repository: _StoreRepository(store),
+          repository: const _StoreRepository(store),
           storeId: store.id,
         ),
       ),
