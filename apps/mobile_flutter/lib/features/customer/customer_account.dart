@@ -481,6 +481,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   AssalRepository get repository => widget.repository;
+  bool imageBusy = false;
+  AssalUserProfile? profileOverride;
 
   @override
   Widget build(BuildContext context) {
@@ -610,7 +612,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _authenticated(BuildContext context, AssalSession session) {
-    final user = session.user;
+    final user = profileOverride ?? session.user;
     return Column(
       children: [
         if (user != null) _profileHeader(context, user),
@@ -691,9 +693,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  String _imageExtension(XFile file) {
+    final name = file.name.toLowerCase();
+    if (name.endsWith('.png')) return 'png';
+    if (name.endsWith('.webp')) return 'webp';
+    return 'jpg';
+  }
+
+  Future<void> _pickAndSaveProfileImage(
+    AssalUserProfile user, {
+    required bool cover,
+  }) async {
+    if (imageBusy) return;
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 88,
+      maxWidth: 1800,
+    );
+    if (picked == null) return;
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+    setState(() => imageBusy = true);
+    try {
+      final upload = await repository.uploadMerchantImage(
+        user.id,
+        cover ? 'cover' : 'logo',
+        bytes,
+        _imageExtension(picked),
+      );
+      if (!mounted) return;
+      if (upload is! AssalData<String>) {
+        if (upload is AssalError<String>) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(upload.messageAr)));
+        }
+        return;
+      }
+      final url = upload.value;
+      final update = await repository.updateUserProfile(
+        user.id,
+        AssalUserProfilePatch(
+          avatarUrl: cover ? null : url,
+          coverUrl: cover ? url : null,
+        ),
+      );
+      if (!mounted) return;
+      if (update is AssalData<void>) {
+        setState(() {
+          profileOverride = AssalUserProfile(
+            id: user.id,
+            nameAr: user.nameAr,
+            email: user.email,
+            avatarUrl: cover ? user.avatarUrl : url,
+            coverUrl: cover ? url : user.coverUrl,
+            bio: user.bio,
+            phone: user.phone,
+            location: user.location,
+            preferences: user.preferences,
+            createdAt: user.createdAt,
+            updatedAt: DateTime.now(),
+            followersCount: user.followersCount,
+            followingCount: user.followingCount,
+            role: user.role,
+          );
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(cover ? 'تم تحديث صورة الغلاف.' : 'تم تحديث الصورة الشخصية.')),
+        );
+      } else if (update is AssalError<void>) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(update.messageAr)));
+      }
+    } finally {
+      if (mounted) setState(() => imageBusy = false);
+    }
+  }
+
   Widget _profileHeader(BuildContext context, AssalUserProfile user) =>
       AssalProfileHeaderCard(
         user: user,
+        imageBusy: imageBusy,
+        onPickAvatar: () => _pickAndSaveProfileImage(user, cover: false),
+        onPickCover: () => _pickAndSaveProfileImage(user, cover: true),
         onEdit: () async {
           await Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => ProfileEditorScreen(

@@ -591,10 +591,16 @@ class AssalProfileHeaderCard extends StatelessWidget {
     super.key,
     required this.user,
     this.onEdit,
+    this.onPickAvatar,
+    this.onPickCover,
+    this.imageBusy = false,
   });
 
   final AssalUserProfile user;
   final VoidCallback? onEdit;
+  final VoidCallback? onPickAvatar;
+  final VoidCallback? onPickCover;
+  final bool imageBusy;
 
   String _roleLabel() => switch (user.role) {
         AssalRole.guest => 'زائر',
@@ -611,37 +617,83 @@ class AssalProfileHeaderCard extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            height: 150,
+            height: 190,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                Positioned.fill(
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 150,
                   child: AssalImageTile(
                     imageUrl: user.coverUrl,
                     height: 150,
                     icon: Icons.landscape_outlined,
                   ),
                 ),
+                if (onPickCover != null)
+                  Positioned(
+                    right: AssalSpacing.sm,
+                    top: AssalSpacing.sm,
+                    child: IconButton.filledTonal(
+                      onPressed: imageBusy ? null : onPickCover,
+                      tooltip: 'تغيير صورة الغلاف',
+                      icon: imageBusy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.camera_alt_outlined),
+                    ),
+                  ),
                 Positioned(
-                  bottom: -34,
+                  bottom: 0,
                   left: 0,
                   right: 0,
                   child: Center(
-                    child: CircleAvatar(
-                      radius: 42,
-                      backgroundColor: AssalColors.honeyLight,
-                      backgroundImage:
-                          avatarUrl != null && avatarUrl.startsWith('http')
-                              ? NetworkImage(avatarUrl)
-                              : null,
-                      child: avatarUrl == null || !avatarUrl.startsWith('http')
-                          ? Text(
-                              user.nameAr.isEmpty ? 'ع' : user.nameAr.substring(0, 1),
-                              style: AssalTypography.heading1.copyWith(
-                                color: AssalColors.primaryDark,
-                              ),
-                            )
-                          : null,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        CircleAvatar(
+                          radius: 42,
+                          backgroundColor: AssalColors.honeyLight,
+                          backgroundImage:
+                              avatarUrl != null && avatarUrl.startsWith('http')
+                                  ? NetworkImage(avatarUrl)
+                                  : null,
+                          child:
+                              avatarUrl == null || !avatarUrl.startsWith('http')
+                                  ? Text(
+                                      user.nameAr.isEmpty
+                                          ? 'ع'
+                                          : user.nameAr.substring(0, 1),
+                                      style: AssalTypography.heading1.copyWith(
+                                        color: AssalColors.primaryDark,
+                                      ),
+                                    )
+                                  : null,
+                        ),
+                        if (onPickAvatar != null)
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: IconButton.filledTonal(
+                              onPressed: imageBusy ? null : onPickAvatar,
+                              tooltip: 'تغيير الصورة الشخصية',
+                              icon: imageBusy
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.camera_alt_outlined),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
