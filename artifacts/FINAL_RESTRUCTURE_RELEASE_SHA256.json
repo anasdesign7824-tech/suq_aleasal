@@ -1,0 +1,22 @@
+﻿[
+    {
+        "file":  "app-armeabi-v7a-release.apk",
+        "size_mb":  19.78,
+        "sha256":  "A672F1EC1FA3156E9A4DDAD10CA96E5CE5738E185DF7DD43CF08F12ADF07F0D5"
+    },
+    {
+        "file":  "app-arm64-v8a-release.apk",
+        "size_mb":  21.84,
+        "sha256":  "D5D82440B599B8B6D3AC0C0FC64013B34067B858B9AD22AC142E6E5CC3E5FF81"
+    },
+    {
+        "file":  "app-x86_64-release.apk",
+        "size_mb":  23.25,
+        "sha256":  "3EFD626B45F0219079329893850A77B94A567503E4CEBF9030A377FD3A6C9FDF"
+    },
+    {
+        "file":  "app-release.aab",
+        "size_mb":  58.48,
+        "sha256":  "CEC127959B09CBE4FC99D2A1908C6F1A2C615409B21E7F7C7F3CE87C7A1EDA96"
+    }
+]
