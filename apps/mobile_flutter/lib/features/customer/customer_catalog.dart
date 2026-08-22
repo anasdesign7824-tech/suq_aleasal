@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
@@ -822,7 +823,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                 ActionChip(
                   avatar: const Icon(Icons.phone_outlined, size: 16),
                   label: const Text('الهاتف'),
-                  onPressed: () => _showContact('phone', store.contactPhone!),
+                  onPressed: () => _openContact('phone', store.contactPhone!),
                 ),
               if (socialLinks.isNotEmpty)
                 Wrap(
@@ -833,7 +834,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                             avatar: Icon(_socialIcon(entry.key), size: 16),
                             label: Text(_socialLabel(entry.key)),
                             onPressed: () =>
-                                _showContact(entry.key, entry.value),
+                                _openContact(entry.key, entry.value),
                           ))
                       .toList(),
                 ),
@@ -921,16 +922,42 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     }
   }
 
-  void _showContact(String channel, String value) => showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-              title: Text('بيانات ${_socialLabel(channel)}'),
-              content: SelectableText(value),
-              actions: [
-                FilledButton(
-                    onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('إغلاق'))
-              ]));
+  Future<void> _openContact(String channel, String value) async {
+    final uri = _contactUri(channel, value);
+    final opened = uri != null &&
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (opened || !mounted) return;
+    await _showContactFallback(channel, value);
+  }
+
+  Uri? _contactUri(String channel, String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return null;
+    if (channel == 'phone') {
+      final phone = trimmed.replaceAll(RegExp(r'[\s()-]'), '');
+      return phone.isEmpty ? null : Uri(scheme: 'tel', path: phone);
+    }
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null || !{'http', 'https'}.contains(uri.scheme.toLowerCase())) {
+      return null;
+    }
+    return uri;
+  }
+
+  Future<void> _showContactFallback(String channel, String value) =>
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('بيانات ${_socialLabel(channel)}'),
+          content: SelectableText(value),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('إغلاق'),
+            ),
+          ],
+        ),
+      );
 
   Widget _storeInfoRow(IconData icon, String label, String value) => ListTile(
       contentPadding: EdgeInsets.zero,
