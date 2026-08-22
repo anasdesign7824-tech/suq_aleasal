@@ -101,6 +101,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Column(
               children: [
                 _productHero(product, gallery),
+                _decisionCard(product, store),
                 Container(
                   margin:
                       const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
@@ -130,27 +131,86 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ],
                   ),
                 ),
-                if (store != null)
-                  SafeArea(
-                    top: false,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(AssalSpacing.lg,
-                          AssalSpacing.sm, AssalSpacing.lg, AssalSpacing.sm),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: () => _request(product, store),
-                          icon: const Icon(Icons.chat_bubble_outline),
-                          label: const Text('إرسال طلب تواصل'),
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           );
         },
       );
+
+  Widget _decisionCard(
+      AssalProductSummary product, AssalStoreSummary? store) {
+    final deliveryOptions = product.deliveryOptions.isNotEmpty
+        ? product.deliveryOptions
+        : store?.deliveryOptions ?? const <String>[];
+    final pickupLocations = product.pickupLocations.isNotEmpty
+        ? product.pickupLocations
+        : store?.pickupLocations ?? const <String>[];
+    return Card(
+      margin: const EdgeInsets.fromLTRB(
+        AssalSpacing.lg,
+        AssalSpacing.md,
+        AssalSpacing.lg,
+        AssalSpacing.sm,
+      ),
+      color: AssalColors.cream,
+      child: Padding(
+        padding: const EdgeInsets.all(AssalSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    formatAssalPrice(product.price, product.currencyCode),
+                    style: AssalTypography.heading3.copyWith(
+                      color: AssalColors.primaryDark,
+                    ),
+                  ),
+                ),
+                if (product.availability.isNotEmpty)
+                  Flexible(
+                    child: Text(
+                      product.availability,
+                      textAlign: TextAlign.end,
+                      style: AssalTypography.bodySmall.copyWith(
+                        color: AssalColors.textSecondary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (deliveryOptions.isNotEmpty || pickupLocations.isNotEmpty) ...[
+              const SizedBox(height: AssalSpacing.sm),
+              Text(
+                [
+                  if (deliveryOptions.isNotEmpty)
+                    'التوصيل: ${deliveryOptions.join('، ')}',
+                  if (pickupLocations.isNotEmpty)
+                    'الاستلام: ${pickupLocations.join('، ')}',
+                ].join(' · '),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AssalTypography.bodySmall.copyWith(
+                  color: AssalColors.textSecondary,
+                ),
+              ),
+            ],
+            const SizedBox(height: AssalSpacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: store == null ? null : () => _request(product, store),
+                icon: const Icon(Icons.chat_bubble_outline),
+                label: const Text('اسأل عن التوفر'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _productHero(AssalProductSummary product, List<String?> gallery) =>
       Padding(
@@ -471,7 +531,6 @@ class _MetadataCard extends StatelessWidget {
               _row('تاريخ التعبئة', _dateLabel(product.packagedDate)),
             if (product.shelfLifeLabelAr != null)
               _row('الصلاحية', product.shelfLifeLabelAr!),
-            _row('التوفر', product.availability),
             if (product.weightLabel != null)
               _row('الوزن', product.weightLabel!),
             if (product.harvestLabel != null)
