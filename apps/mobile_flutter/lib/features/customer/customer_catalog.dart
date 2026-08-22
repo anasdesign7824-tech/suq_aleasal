@@ -576,6 +576,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
   bool following = false;
   bool followBusy = false;
+  bool contactBusy = false;
 
   @override
   void initState() {
@@ -856,25 +857,15 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () async {
-                  final session =
-                      await requireUserSession(context, widget.repository);
-                  if (session == null || !mounted || session.user == null) {
-                    return;
-                  }
-                  final result = await widget.repository
-                      .createConversation(session.user!.id, store.id);
-                  if (!mounted ||
-                      result is! AssalData<AssalConversationSummary>) {
-                    return;
-                  }
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ConversationScreen(
-                          repository: widget.repository,
-                          conversation: result.value)));
-                },
-                icon: const Icon(Icons.forum_outlined),
-                label: const Text('مراسلة التاجر'),
+                onPressed: contactBusy ? null : () => _openConversation(store),
+                icon: contactBusy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.forum_outlined),
+                label: Text(contactBusy ? 'جارٍ فتح المراسلة...' : 'مراسلة التاجر'),
               ),
             ),
           ],
@@ -903,6 +894,32 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         'website' => Icons.language_outlined,
         _ => Icons.link,
       };
+
+  Future<void> _openConversation(AssalStoreSummary store) async {
+    if (contactBusy) return;
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted || session.user == null) return;
+    setState(() => contactBusy = true);
+    try {
+      final result = await widget.repository
+          .createConversation(session.user!.id, store.id);
+      if (!mounted) return;
+      if (result is AssalData<AssalConversationSummary>) {
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ConversationScreen(
+            repository: widget.repository,
+            conversation: result.value,
+          ),
+        ));
+      } else if (result is AssalError<AssalConversationSummary>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.messageAr)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => contactBusy = false);
+    }
+  }
 
   void _showContact(String channel, String value) => showDialog<void>(
       context: context,
