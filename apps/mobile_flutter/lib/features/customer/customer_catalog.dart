@@ -799,52 +799,29 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
               _storeInfoRow(Icons.location_on_outlined, 'الاستلام',
                   store.pickupLocations.join('، ')),
             const SizedBox(height: AssalSpacing.lg),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () async {
-                      final session =
-                          await requireUserSession(context, widget.repository);
-                      if (session == null || !mounted || session.user == null) {
-                        return;
-                      }
-                      final result = await widget.repository
-                          .toggleFollow(session.user!.id, store.id);
-                      if (result is AssalData<bool>) {
-                        setState(() => following = result.value);
-                      }
-                    },
-                    icon:
-                        Icon(following ? Icons.check : Icons.person_add_alt_1),
-                    label: Text(following ? 'تتابعه' : 'متابعة'),
-                  ),
-                ),
-                const SizedBox(width: AssalSpacing.sm),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final session =
-                          await requireUserSession(context, widget.repository);
-                      if (session == null || !mounted || session.user == null) {
-                        return;
-                      }
-                      final result = await widget.repository
-                          .createConversation(session.user!.id, store.id);
-                      if (!mounted ||
-                          result is! AssalData<AssalConversationSummary>) {
-                        return;
-                      }
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => ConversationScreen(
-                              repository: widget.repository,
-                              conversation: result.value)));
-                    },
-                    icon: const Icon(Icons.forum_outlined),
-                    label: const Text('مراسلة'),
-                  ),
-                ),
-              ],
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final session =
+                      await requireUserSession(context, widget.repository);
+                  if (session == null || !mounted || session.user == null) {
+                    return;
+                  }
+                  final result = await widget.repository
+                      .createConversation(session.user!.id, store.id);
+                  if (!mounted ||
+                      result is! AssalData<AssalConversationSummary>) {
+                    return;
+                  }
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => ConversationScreen(
+                          repository: widget.repository,
+                          conversation: result.value)));
+                },
+                icon: const Icon(Icons.forum_outlined),
+                label: const Text('مراسلة التاجر'),
+              ),
             ),
           ],
         ),
