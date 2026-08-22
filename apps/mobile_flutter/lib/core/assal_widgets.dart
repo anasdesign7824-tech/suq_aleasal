@@ -1215,10 +1215,16 @@ class AssalStoreHeaderCard extends StatelessWidget {
     super.key,
     required this.store,
     this.trailing,
+    this.isFollowing = false,
+    this.followBusy = false,
+    this.onFollow,
   });
 
   final AssalStoreSummary store;
   final Widget? trailing;
+  final bool isFollowing;
+  final bool followBusy;
+  final VoidCallback? onFollow;
 
   String _statusLabel() {
     if (store.isVerified) return 'متجر موثق Pro';
@@ -1263,6 +1269,28 @@ class AssalStoreHeaderCard extends StatelessWidget {
                     right: AssalSpacing.sm,
                     top: AssalSpacing.sm,
                     child: trailing!,
+                  ),
+                if (onFollow != null)
+                  Positioned(
+                    right: AssalSpacing.sm,
+                    top: AssalSpacing.sm,
+                    child: IconButton.filledTonal(
+                      onPressed: followBusy ? null : onFollow,
+                      tooltip: isFollowing
+                          ? 'إلغاء متابعة المتجر'
+                          : 'متابعة المتجر',
+                      icon: followBusy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              isFollowing
+                                  ? Icons.person_remove_alt_1_outlined
+                                  : Icons.person_add_alt_1_outlined,
+                            ),
+                    ),
                   ),
                 Positioned(
                   bottom: -30,

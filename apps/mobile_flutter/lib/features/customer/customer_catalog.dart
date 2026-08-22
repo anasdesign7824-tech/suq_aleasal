@@ -516,6 +516,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   late Future<AssalLoadState<AssalStoreSummary>> storeFuture;
   late Future<AssalLoadState<List<AssalProductSummary>>> productsFuture;
   bool following = false;
+  bool followBusy = false;
 
   @override
   void initState() {
@@ -523,6 +524,40 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     storeFuture = widget.repository.getStore(widget.storeId);
     productsFuture = widget.repository
         .listProducts(query: AssalProductQuery(storeId: widget.storeId));
+    _loadFollowState();
+  }
+
+  Future<void> _loadFollowState() async {
+    final session = await widget.repository.getSession();
+    if (!session.isAuthenticated || session.user == null) return;
+    final result = await widget.repository.listFollowedStores(session.user!.id);
+    if (!mounted || result is! AssalData<List<AssalStoreSummary>>) return;
+    setState(() {
+      following = result.value.any((store) => store.id == widget.storeId);
+    });
+  }
+
+  Future<void> _toggleFollow() async {
+    if (followBusy) return;
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted || session.user == null) return;
+    setState(() => followBusy = true);
+    try {
+      final result = await widget.repository.toggleFollow(
+        session.user!.id,
+        widget.storeId,
+      );
+      if (!mounted) return;
+      if (result is AssalData<bool>) {
+        setState(() => following = result.value);
+      } else if (result is AssalError<bool>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.messageAr)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => followBusy = false);
+    }
   }
 
   @override
@@ -583,8 +618,12 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         ),
       );
 
-  Widget _storeHeader(AssalStoreSummary store) =>
-      AssalStoreHeaderCard(store: store);
+  Widget _storeHeader(AssalStoreSummary store) => AssalStoreHeaderCard(
+        store: store,
+        isFollowing: following,
+        followBusy: followBusy,
+        onFollow: _toggleFollow,
+      );
 
   Widget _productsTab(AssalStoreSummary store) =>
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
@@ -611,7 +650,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                         maxCrossAxisExtent: 220,
                         crossAxisSpacing: AssalSpacing.md,
                         mainAxisSpacing: AssalSpacing.md,
-                        childAspectRatio: .68,
+                        mainAxisExtent: 400,
                       ),
                       itemCount: products.length,
                       itemBuilder: (_, index) {
