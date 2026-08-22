@@ -9,8 +9,6 @@ import 'merchant_product_editor.dart';
 import '../customer/customer_catalog.dart';
 import '../customer/customer_request_detail.dart';
 import '../customer/customer_support.dart';
-import 'store_verification_screen.dart';
-import 'subscription_plans_screen.dart';
 
 const _merchantDeliveryLabels = <String, String>{
   'courier': 'شركة توصيل',
@@ -326,25 +324,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               AssalTypography.body.copyWith(color: AssalColors.textSecondary),
         ),
         const SizedBox(height: AssalSpacing.lg),
-        if (workspace.planCode != null && workspace.planStatus != 'active')
-          const AssalMessageCard(
-            icon: Icons.hourglass_top_outlined,
-            message: 'الباقة في انتظار التفعيل — قد يستغرق التفعيل حتى 24 ساعة. يمكنك متابعة إعداد المتجر وإضافة المنتجات، وستظهر للعملاء بعد اعتماد الإدارة.',
-          ),
-        if (workspace.planCode != null && workspace.planStatus != 'active') const SizedBox(height: AssalSpacing.md),
         _infoCard(Icons.storefront_outlined, 'حالة المتجر', store.status.labelAr),
-        _infoCard(
-          Icons.verified_user_outlined,
-          'توثيق Pro',
-          _verificationLabel(workspace.verificationStatus),
-        ),
-        _infoCard(
-          Icons.workspace_premium_outlined,
-          'الخطة الفعالة',
-          workspace.planCode == null
-              ? 'لا توجد خطة مدفوعة؛ الحدود الأساسية فعالة'
-              : '${workspace.planCode} · ${workspace.planStatus == 'active' ? 'نشطة' : 'غير نشطة'} · ${workspace.storeLimit} متاجر · ${workspace.productLimit} منتج لكل متجر · ${workspace.designRequestsRemaining} طلب تصميم متبقٍ',
-        ),
         _infoCard(Icons.location_on_outlined, 'الموقع',
             store.regionNameAr ?? 'لم يُحدد بعد'),
         _infoCard(
@@ -378,38 +358,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               label: const Text('تعديل بيانات المتجر والصور'),
             ),
           ),
-          const SizedBox(height: AssalSpacing.sm),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => StoreVerificationScreen(
-                    repository: widget.repository,
-                    storeId: store.id,
-                  ),
-                ),
-              ),
-              icon: const Icon(Icons.verified_user_outlined),
-              label: const Text('طلب أو متابعة توثيق Pro'),
-            ),
-          ),
-          const SizedBox(height: AssalSpacing.sm),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => SubscriptionPlansScreen(repository: widget.repository),
-                  ),
-                );
-                if (mounted) setState(_refresh);
-              },
-              icon: const Icon(Icons.workspace_premium_outlined),
-              label: Text(workspace.planCode == null ? 'اختيار خطة ورفع الحوالة' : 'إدارة الخطة الحالية'),
-            ),
-          ),
+
           const SizedBox(height: AssalSpacing.sm),
           AssalActionTile(
             icon: Icons.support_agent_outlined,
@@ -826,19 +775,6 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           .showSnackBar(SnackBar(content: Text(state.messageAr)));
     }
   }
-
-  String _verificationLabel(String status) => switch (status) {
-        'approved' || 'verified' => 'موثق Pro',
-        'draft' => 'مسودة طلب التوثيق',
-        'payment_pending' => 'بانتظار إكمال الدفع',
-        'submitted' => 'أُرسل للمراجعة',
-        'under_review' => 'قيد المراجعة',
-        'needs_more_info' => 'يلزم استكمال البيانات',
-        'rejected' => 'لم تتم الموافقة',
-        'expired' => 'انتهى التوثيق',
-        'revoked' => 'سُحب التوثيق',
-        _ => 'لم يُطلب توثيق Pro',
-      };
 
 }
 

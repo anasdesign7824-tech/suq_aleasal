@@ -18,6 +18,10 @@ void main() {
     expect(find.text('الكتالوج'), findsOneWidget);
     expect(find.text('الطلبات'), findsOneWidget);
     expect(find.text('إدارة'), findsOneWidget);
+    expect(find.text('توثيق Pro'), findsNothing);
+    expect(find.text('طلب أو متابعة توثيق Pro'), findsNothing);
+    expect(find.text('اختيار خطة ورفع الحوالة'), findsNothing);
+    expect(find.text('إدارة الخطة الحالية'), findsNothing);
 
     await tester.tap(find.text('إدارة'));
     await tester.pumpAndSettle();
