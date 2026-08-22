@@ -709,7 +709,7 @@ class ProductionRepository implements AssalRepository {
     String requesterId,
   ) async {
     final rows = await _gateway.select(
-      'requests',
+      'customer_requests',
       filters: {'requester_id': requesterId},
     );
     return _state(
@@ -722,23 +722,10 @@ class ProductionRepository implements AssalRepository {
   Future<AssalLoadState<List<AssalRequestSummary>>> listMerchantRequests(
     String merchantId,
   ) async {
-    final stores = await _gateway.select(
-      'stores',
+    final rows = await _gateway.select(
+      'customer_requests',
       filters: {'merchant_id': merchantId},
     );
-    final storeIds = stores
-        .map((row) => row['id'])
-        .whereType<String>()
-        .toList(growable: false);
-    if (storeIds.isEmpty) {
-      return const AssalData(<AssalRequestSummary>[]);
-    }
-    final rows = <Map<String, Object?>>[];
-    for (final storeId in storeIds) {
-      rows.addAll(
-        await _gateway.select('requests', filters: {'store_id': storeId}),
-      );
-    }
     return _state(
       rows.map(AssalRequestSummary.fromJson).toList(growable: false),
       'لا توجد طلبات لهذا المتجر',
