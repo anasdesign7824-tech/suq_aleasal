@@ -41,6 +41,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   bool likeBusy = false;
   bool favoriteBusy = false;
   int galleryIndex = 0;
+  int likeDelta = 0;
   @override
   void initState() {
     super.initState();
@@ -156,28 +157,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 SliverToBoxAdapter(
                   child: _decisionCard(product, store),
                 ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: AssalSpacing.lg,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: AssalColors.darkGradient,
-                      borderRadius: BorderRadius.circular(AssalRadius.medium),
-                    ),
-                    child: const TabBar(
-                      isScrollable: true,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white70,
-                      indicatorColor: AssalColors.honey,
-                      dividerColor: Colors.transparent,
-                      tabs: [
-                        Tab(text: 'معلومات المنتج'),
-                        Tab(text: 'التقييمات والتفاعل'),
-                        Tab(text: 'منتجات مشابهة'),
-                      ],
-                    ),
-                  ),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _ProductTabsDelegate(),
                 ),
               ],
               body: TabBarView(
@@ -367,7 +349,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     style: AssalTypography.caption
                         .copyWith(color: AssalColors.textMuted)),
                 const SizedBox(width: AssalSpacing.sm),
-                Text('${product.likesCount} إعجاب',
+                Text('${product.likesCount + likeDelta} إعجاب',
                     style: AssalTypography.caption
                         .copyWith(color: AssalColors.textMuted)),
               ],
@@ -481,7 +463,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         final result = await widget.repository
                             .toggleLike(session.user!.id, product.id);
                         if (result is AssalData<bool>) {
-                          setState(() => liked = result.value);
+                          setState(() {
+                            if (result.value != liked) {
+                              likeDelta += result.value ? 1 : -1;
+                            }
+                            liked = result.value;
+                          });
                         } else if (result is AssalError<bool> && mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(result.messageAr)),
@@ -508,6 +495,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            Card(
+              color: AssalColors.cream,
+              child: Padding(
+                padding: const EdgeInsets.all(AssalSpacing.lg),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star, color: AssalColors.honey, size: 34),
+                    const SizedBox(width: AssalSpacing.md),
+                    Text(
+                      product.ratingAverage.toStringAsFixed(1),
+                      style: AssalTypography.heading2.copyWith(
+                        color: AssalColors.deepBrown,
+                      ),
+                    ),
+                    const SizedBox(width: AssalSpacing.sm),
+                    Text(
+                      'من 5\n(${product.reviewCount} تقييم)',
+                      style: AssalTypography.body.copyWith(
+                        color: AssalColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: AssalSpacing.xl),
             ReviewsSection(repository: widget.repository, product: product),
@@ -599,6 +612,45 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       const SnackBar(content: Text('تم نسخ بطاقة المنتج للمشاركة.')),
     );
   }
+}
+
+class _ProductTabsDelegate extends SliverPersistentHeaderDelegate {
+  @override
+  double get minExtent => 56;
+
+  @override
+  double get maxExtent => 56;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: AssalColors.darkGradient,
+            borderRadius: BorderRadius.circular(AssalRadius.medium),
+          ),
+          child: const TabBar(
+            isScrollable: true,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: AssalColors.honey,
+            dividerColor: Colors.transparent,
+            tabs: [
+              Tab(text: 'معلومات المنتج'),
+              Tab(text: 'التقييمات والتفاعل'),
+              Tab(text: 'منتجات مشابهة'),
+            ],
+          ),
+        ),
+      );
+
+  @override
+  bool shouldRebuild(covariant _ProductTabsDelegate oldDelegate) => false;
 }
 
 class _MetadataCard extends StatelessWidget {

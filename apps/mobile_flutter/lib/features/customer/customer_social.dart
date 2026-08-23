@@ -26,6 +26,8 @@ class _ReviewsSectionState extends State<ReviewsSection> {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      _ReviewSummary(product: widget.product),
+      const SizedBox(height: AssalSpacing.md),
       const SectionHeader(title: 'المراجعات'),
       FutureBuilder<AssalLoadState<List<AssalReviewSummary>>>(
         future: future,
@@ -60,10 +62,11 @@ class _ReviewsSectionState extends State<ReviewsSection> {
                             leading: const CircleAvatar(
                               child: Icon(Icons.person_outline),
                             ),
-                            title: Row(
+                            title: Wrap(
+                              spacing: AssalSpacing.sm,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Text(review.authorName ?? 'عميل'),
-                                const SizedBox(width: AssalSpacing.sm),
                                 RatingStars(rating: review.rating.toDouble()),
                               ],
                             ),
@@ -101,73 +104,23 @@ class _ReviewsSectionState extends State<ReviewsSection> {
     ]);
   }
 
-    Future<void> _writeReview() async {
+  Future<void> _writeReview() async {
     if (reviewSubmitting) return;
     final session = await requireUserSession(context, widget.repository);
     if (session == null || !mounted || session.user == null) return;
-    final body = TextEditingController();
-    var rating = 5;
-    final submit = await showDialog<bool>(
+    final draft = await showDialog<AssalReviewDraft>(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setModal) => AlertDialog(
-          title: const Text('مراجعتك'),
-          content: Column(mainAxisSize: MainAxisSize.min, children: [
-            DropdownButtonFormField<int>(
-              initialValue: rating,
-              decoration: const InputDecoration(labelText: 'التقييم'),
-              items: [1, 2, 3, 4, 5]
-                  .map<DropdownMenuItem<int>>(
-                    (item) => DropdownMenuItem(
-                      value: item,
-                      child: Text('$item نجوم'),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) => setModal(() => rating = value ?? 5),
-            ),
-            const SizedBox(height: AssalSpacing.sm),
-            TextField(
-              controller: body,
-              minLines: 2,
-              maxLines: 4,
-              textInputAction: TextInputAction.newline,
-              onChanged: (_) => setModal(() {}),
-              decoration: const InputDecoration(
-                labelText: 'نص المراجعة',
-                hintText: 'شارك ما يفيد الآخرين',
-              ),
-            ),
-          ]),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('إلغاء'),
-            ),
-            FilledButton(
-              onPressed: body.text.trim().isEmpty
-                  ? null
-                  : () => Navigator.pop(dialogContext, true),
-              child: const Text('نشر'),
-            ),
-          ],
-        ),
+      builder: (_) => _ReviewComposerDialog(
+        productId: widget.product.id,
+        storeId: widget.product.storeId,
       ),
     );
-    if (submit != true || body.text.trim().isEmpty) {
-      body.dispose();
-      return;
-    }
+    if (draft == null || !mounted) return;
     setState(() => reviewSubmitting = true);
     try {
       final result = await widget.repository.createReview(
         session.user!.id,
-        AssalReviewDraft(
-          productId: widget.product.id,
-          storeId: widget.product.storeId,
-          rating: rating,
-          body: body.text.trim(),
-        ),
+        draft,
       );
       if (!mounted) return;
       if (result is AssalData<AssalReviewSummary>) {
@@ -191,11 +144,126 @@ class _ReviewsSectionState extends State<ReviewsSection> {
         );
       }
     } finally {
-      body.dispose();
       if (mounted) setState(() => reviewSubmitting = false);
     }
   }
 
+}
+
+class _ReviewComposerDialog extends StatefulWidget {
+  const _ReviewComposerDialog({required this.productId, required this.storeId});
+
+  final String productId;
+  final String storeId;
+
+  @override
+  State<_ReviewComposerDialog> createState() => _ReviewComposerDialogState();
+}
+
+class _ReviewComposerDialogState extends State<_ReviewComposerDialog> {
+  final body = TextEditingController();
+  int rating = 5;
+
+  @override
+  void dispose() {
+    body.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: const Text('مراجعتك'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButtonFormField<int>(
+              initialValue: rating,
+              decoration: const InputDecoration(labelText: 'التقييم'),
+              items: [1, 2, 3, 4, 5]
+                  .map<DropdownMenuItem<int>>(
+                    (item) => DropdownMenuItem(
+                      value: item,
+                      child: Text('$item نجوم'),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) => setState(() => rating = value ?? 5),
+            ),
+            const SizedBox(height: AssalSpacing.sm),
+            TextField(
+              controller: body,
+              minLines: 2,
+              maxLines: 4,
+              textInputAction: TextInputAction.newline,
+              onChanged: (_) => setState(() {}),
+              decoration: const InputDecoration(
+                labelText: 'نص المراجعة',
+                hintText: 'شارك ما يفيد الآخرين',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: body.text.trim().isEmpty
+                ? null
+                : () => Navigator.of(context).pop(
+                      AssalReviewDraft(
+                        productId: widget.productId,
+                        storeId: widget.storeId,
+                        rating: rating,
+                        body: body.text.trim(),
+                      ),
+                    ),
+            child: const Text('نشر'),
+          ),
+        ],
+      );
+}
+
+class _ReviewSummary extends StatelessWidget {
+  const _ReviewSummary({required this.product});
+
+  final AssalProductSummary product;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        color: AssalColors.cream,
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          child: Row(
+            children: [
+              const Icon(Icons.star, color: AssalColors.honey, size: 38),
+              const SizedBox(width: AssalSpacing.md),
+              Text(
+                product.ratingAverage.toStringAsFixed(1),
+                style: AssalTypography.heading1.copyWith(
+                  color: AssalColors.deepBrown,
+                ),
+              ),
+              const SizedBox(width: AssalSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('التقييم العام', style: AssalTypography.title),
+                    Text(
+                      'من 5 · ${product.reviewCount} تقييم',
+                      style: AssalTypography.body.copyWith(
+                        color: AssalColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
 }
 
 class CommentsSection extends StatefulWidget {
