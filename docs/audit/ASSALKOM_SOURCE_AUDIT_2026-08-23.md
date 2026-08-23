@@ -911,3 +911,7 @@
 ## TASK 052 — إنشاء منتج في Admin
 
 جُرد `ProductCreationPanel` مع `admin-api.ts` و`admin-data.ts`: الحقول المصدرية، validation للاسم/المتجر/التصنيف/السعر، بناء metadata، رفع الصور المحدود، وإنشاء مسودة عبر `product.write` مع إدخال الصور وسجل التدقيق. لم تُنفذ كتابة Production، ولم يتغير عقد أو API أو DB أو RLS أو صلاحية؛ نجحت اختبارات Admin الثمانية و`pnpm check` و`pnpm build`. غياب `052_admin_product_create.md/.png` منع المقارنة البصرية وسُجل GAP-026 دون اختراع baseline.
+
+## TASK 053 — تعديل منتج في Admin
+
+جُرد `ProductEditPanel` و`updateProduct` للتحقق من تعديل الهوية والوصف والتصنيف والنوع والجودة والسعر والعملة والحالة وmetadata والصور. تبين أن الحفظ يرسل قائمة الصور صراحة، فيستبدل الخادم صور `product_images` المرتبة ويسجل `product.update` مع صلاحية `product.write`؛ الإغلاق لا يحفظ و`onSaved` يحدّث الموجز والقائمة. نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 053 منع golden وسُجل GAP-027، دون write حي أو تغيير DB/API/RLS/permissions.

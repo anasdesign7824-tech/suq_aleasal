@@ -1,0 +1,30 @@
+{
+  "task": "053",
+  "scope": "admin product editing",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "sourcePath": [
+    "apps/admin_web/client/src/components/ProductEditPanel.tsx",
+    "apps/admin_web/client/src/lib/admin-api.ts",
+    "apps/admin_web/server/admin-data.ts"
+  ],
+  "verifiedContract": [
+    "editable identity, description, taxonomy, product type, grade, price, currency, status, metadata, and images",
+    "name and price validation",
+    "metadata JSON validation",
+    "bounded image upload and explicit image replacement on save",
+    "product.write permission and product.update audit boundary",
+    "Arabic retry when taxonomy reference fails"
+  ],
+  "changes": [],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
