@@ -35,6 +35,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   late Future<AssalLoadState<AssalProductSummary>> productFuture;
   final Map<String, Future<AssalLoadState<AssalStoreSummary>>> storeFutures =
       <String, Future<AssalLoadState<AssalStoreSummary>>>{};
+  final Map<String, Future<AssalLoadState<List<AssalProductSummary>>>>
+      similarFutures =
+      <String, Future<AssalLoadState<List<AssalProductSummary>>>>{};
   late final PageController galleryController;
   bool liked = false;
   bool favorite = false;
@@ -533,40 +536,67 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Widget _similarProductsTab(AssalProductSummary product) {
     if (product.taxonomyId == null) {
-      return const AssalMessageCard(
+      return const Padding(
+        padding: EdgeInsets.all(AssalSpacing.lg),
+        child: AssalMessageCard(
           icon: Icons.category_outlined,
-          message: 'لا تتوفر منتجات مشابهة لهذا التصنيف بعد.');
+          message: 'لا تتوفر منتجات مشابهة لهذا التصنيف بعد.',
+        ),
+      );
     }
-    return FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
-      future: widget.repository.listProducts(
+
+    final future = similarFutures.putIfAbsent(
+      product.id,
+      () => widget.repository.listProducts(
         query: AssalProductQuery(subcategoryId: product.taxonomyId),
       ),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const AssalMessageCard(
-              icon: Icons.wifi_off_outlined,
-              message:
-                  'تعذر تحميل المنتجات المشابهة الآن. تحقق من الاتصال ثم أعد المحاولة.');
-        }
-        if (!snapshot.hasData) return const AssalGlassLoading();
-        return Padding(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
-          child: AssalStateView<List<AssalProductSummary>>(
-            state: snapshot.data!,
-            builder: (items) {
-              final similar =
-                  items.where((item) => item.id != product.id).toList();
-              return similar.isEmpty
-                  ? const AssalMessageCard(
-                      icon: Icons.inventory_2_outlined,
-                      message: 'لا توجد منتجات مشابهة منشورة بعد.')
-                  : GridView.builder(
+    );
+    void retry() {
+      setState(() {
+        similarFutures.remove(product.id);
+      });
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(AssalSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: 'المنتجات المشابهة'),
+          const SizedBox(height: AssalSpacing.sm),
+          Expanded(
+            child: FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+              future: future,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return AssalMessageCard(
+                    icon: Icons.wifi_off_outlined,
+                    message:
+                        'تعذر تحميل المنتجات المشابهة الآن. تحقق من الاتصال ثم أعد المحاولة.',
+                    onRetry: retry,
+                  );
+                }
+                if (!snapshot.hasData) return const AssalGlassLoading();
+                return AssalStateView<List<AssalProductSummary>>(
+                  state: snapshot.data!,
+                  onRetry: retry,
+                  builder: (items) {
+                    final similar =
+                        items.where((item) => item.id != product.id).toList();
+                    if (similar.isEmpty) {
+                      return AssalMessageCard(
+                        icon: Icons.inventory_2_outlined,
+                        message: 'لا توجد منتجات مشابهة منشورة بعد.',
+                        onRetry: retry,
+                      );
+                    }
+                    return GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 220,
                         crossAxisSpacing: AssalSpacing.md,
                         mainAxisSpacing: AssalSpacing.md,
-                        childAspectRatio: .68,
+                        childAspectRatio: .48,
                       ),
                       itemCount: similar.length,
                       itemBuilder: (_, index) {
@@ -584,10 +614,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         );
                       },
                     );
-            },
+                  },
+                );
+              },
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -616,10 +649,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
 class _ProductTabsDelegate extends SliverPersistentHeaderDelegate {
   @override
-  double get minExtent => 56;
+  double get minExtent => 48;
 
   @override
-  double get maxExtent => 56;
+  double get maxExtent => 48;
 
   @override
   Widget build(

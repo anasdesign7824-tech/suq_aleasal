@@ -1754,9 +1754,15 @@ class InfoChip extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         if (icon != null) Icon(icon, size: 14, color: AssalColors.primaryDark),
         if (icon != null) const SizedBox(width: 3),
-        Text(label,
-            style:
-                AssalTypography.caption.copyWith(color: AssalColors.secondary))
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AssalTypography.caption
+                .copyWith(color: AssalColors.secondary),
+          ),
+        )
       ]));
 }
 
