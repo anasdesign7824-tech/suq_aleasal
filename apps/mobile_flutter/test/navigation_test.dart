@@ -13,8 +13,8 @@ void main() {
     await tester
         .runAsync(() => Future<void>.delayed(const Duration(seconds: 3)));
     await tester.pump();
-    expect(find.textContaining('الثقة تبدأ من المصدر'), findsAtLeastNWidgets(1));
-
+    expect(
+        find.textContaining('الثقة تبدأ من المصدر'), findsAtLeastNWidgets(1));
 
     await tester.tap(find.text('التصنيفات').last);
     await tester.pump();
@@ -30,8 +30,9 @@ void main() {
     await tester.tap(find.text('تسجيل الدخول أو إنشاء حساب'));
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.text('إرسال رمز الدخول'), findsOneWidget);
-    expect(find.text('مرحبًا بك من جديد'), findsOneWidget);
+    expect(find.text('إرسال رمز التحقق'), findsOneWidget);
+    expect(find.text('مرحبًا بك في عسلكم'), findsOneWidget);
+    expect(find.text('إنشاء حساب'), findsOneWidget);
     expect(find.text('هل لديك حساب؟ سجّل الدخول إلى حسابك الموجود.'),
         findsNothing);
     expect(find.text('نسيت كلمة المرور؟'), findsNothing);

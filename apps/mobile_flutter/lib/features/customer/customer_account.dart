@@ -6,7 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import 'package:assalkom_design/assal_tokens.dart';
+import '../../core/assal_assets.dart';
 import '../../core/assal_widgets.dart';
+
 import 'customer_core.dart';
 import 'customer_favorites.dart';
 import 'customer_request_detail.dart';
@@ -40,101 +42,149 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AssalAppBar(
-          title: registerMode ? 'إنشاء حساب' : 'تسجيل الدخول',
-          showBrand: false),
-      body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [
-        const Center(
-          child: AssalBrandMark(size: 92, showName: false),
-        ),
-        const SizedBox(height: AssalSpacing.xl),
-        Text(
-          registerMode ? 'ابدأ تجربتك مع العسل' : 'مرحبًا بك من جديد',
-          textAlign: TextAlign.center,
-          style: AssalTypography.heading1.copyWith(
-            color: AssalColors.deepBrown,
+        backgroundColor: AssalColors.cream,
+        appBar: null,
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.xl,
+              AssalSpacing.x2l,
+              AssalSpacing.xl,
+              AssalSpacing.x4l,
+            ),
+            children: [
+              const Center(
+                child: AssalBrandMark(
+                  size: 116,
+                  assetPath: AssalAssets.logoExternal,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Text(
+                'عسلكم',
+                textAlign: TextAlign.center,
+                style: AssalTypography.display.copyWith(
+                  color: AssalColors.deepBrown,
+                  fontSize: 34,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.xs),
+              Text(
+                'من اليمن .. طبيعة أصيلة',
+                textAlign: TextAlign.center,
+                style: AssalTypography.body.copyWith(
+                  color: AssalColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.x3l),
+              Text(
+                registerMode ? 'ابدأ تجربتك مع عسلكم' : 'مرحبًا بك في عسلكم',
+                textAlign: TextAlign.center,
+                style: AssalTypography.heading1.copyWith(
+                  color: AssalColors.deepBrown,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Text(
+                registerMode
+                    ? 'أنشئ حسابك للوصول إلى الحفظ والمتابعة والطلبات والمراسلة.'
+                    : 'أدخل بريدك الإلكتروني للمتابعة',
+                textAlign: TextAlign.center,
+                style: AssalTypography.bodyLarge.copyWith(
+                  color: AssalColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.xl),
+              if (registerMode) ...[
+                TextField(
+                    controller: nameController,
+                    textInputAction: TextInputAction.next,
+                    decoration: const InputDecoration(labelText: 'الاسم')),
+                const SizedBox(height: AssalSpacing.md)
+              ],
+              TextField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: registerMode
+                      ? TextInputAction.next
+                      : TextInputAction.done,
+                  decoration: const InputDecoration(
+                    labelText: 'البريد الإلكتروني',
+                    hintText: 'name@example.com',
+                    prefixIcon: Icon(Icons.mail_outline_rounded),
+                  )),
+              if (registerMode) ...[
+                const SizedBox(height: AssalSpacing.md),
+                TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      labelText: 'كلمة المرور',
+                      filled: true,
+                      fillColor: _passwordIsStrong(passwordController.text)
+                          ? AssalColors.success.withAlpha(18)
+                          : AssalColors.error.withAlpha(12),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: _passwordIsStrong(passwordController.text)
+                                  ? AssalColors.success
+                                  : AssalColors.error)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: _passwordIsStrong(passwordController.text)
+                                  ? AssalColors.success
+                                  : AssalColors.error,
+                              width: 2)),
+                    )),
+                const SizedBox(height: AssalSpacing.sm),
+                _PasswordStrength(value: passwordController.text),
+                const SizedBox(height: AssalSpacing.md),
+                TextField(
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    decoration:
+                        const InputDecoration(labelText: 'تأكيد كلمة المرور'))
+              ],
+              const SizedBox(height: AssalSpacing.lg),
+              SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                      onPressed: loading ? null : _submit,
+                      child: loading
+                          ? const SizedBox(
+                              height: 44,
+                              child: AssalGlassLoading(
+                                  height: 44, label: 'جارٍ تجهيز الطلب...'))
+                          : Text(registerMode
+                              ? 'إنشاء الحساب'
+                              : 'إرسال رمز التحقق'))),
+              const SizedBox(height: AssalSpacing.sm),
+              TextButton(
+                onPressed: loading
+                    ? null
+                    : () => setState(() {
+                          registerMode = !registerMode;
+                          otpController.clear();
+                        }),
+                child: Text(registerMode ? 'تسجيل الدخول' : 'إنشاء حساب'),
+              ),
+              TextButton.icon(
+                onPressed: loading
+                    ? null
+                    : () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => SupportCenterScreen(
+                            repository: widget.repository,
+                          ),
+                        )),
+                icon: const Icon(Icons.help_outline_rounded),
+                label: const Text('المساعدة'),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: AssalSpacing.sm),
-        Text(
-          registerMode
-              ? 'أنشئ حسابك للوصول إلى الحفظ والمتابعة والطلبات والمراسلة.'
-              : 'سجّل دخولك بالبريد الإلكتروني، وسنرسل لك رمز التحقق.',
-          textAlign: TextAlign.center,
-          style: AssalTypography.bodyLarge.copyWith(
-            color: AssalColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: AssalSpacing.xl),
-        if (registerMode) ...[
-          TextField(
-              controller: nameController,
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(labelText: 'الاسم')),
-          const SizedBox(height: AssalSpacing.md)
-        ],
-        TextField(
-            controller: emailController,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction:
-                registerMode ? TextInputAction.next : TextInputAction.done,
-            decoration: const InputDecoration(labelText: 'البريد الإلكتروني')),
-        if (registerMode) ...[
-          const SizedBox(height: AssalSpacing.md),
-          TextField(
-              controller: passwordController,
-              obscureText: true,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: 'كلمة المرور',
-                filled: true,
-                fillColor: _passwordIsStrong(passwordController.text)
-                    ? AssalColors.success.withAlpha(18)
-                    : AssalColors.error.withAlpha(12),
-                enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: _passwordIsStrong(passwordController.text)
-                            ? AssalColors.success
-                            : AssalColors.error)),
-                focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: _passwordIsStrong(passwordController.text)
-                            ? AssalColors.success
-                            : AssalColors.error,
-                        width: 2)),
-              )),
-          const SizedBox(height: AssalSpacing.sm),
-          _PasswordStrength(value: passwordController.text),
-          const SizedBox(height: AssalSpacing.md),
-          TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور'))
-        ],
-        const SizedBox(height: AssalSpacing.lg),
-        SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-                onPressed: loading ? null : _submit,
-                child: loading
-                    ? const SizedBox(
-                        height: 44,
-                        child: AssalGlassLoading(
-                            height: 44, label: 'جارٍ تجهيز الطلب...'))
-                    : Text(
-                        registerMode ? 'إنشاء الحساب' : 'إرسال رمز الدخول'))),
-        const SizedBox(height: AssalSpacing.sm),
-        TextButton(
-            onPressed: loading
-                ? null
-                : () => setState(() {
-                      registerMode = !registerMode;
-                      otpController.clear();
-                    }),
-            child: Text(registerMode
-                ? 'لديك حساب؟ سجّل الدخول إلى حسابك الموجود'
-                : 'ليس لديك حساب؟ أنشئ حسابًا جديدًا'))
-      ]));
+      );
+
   Future<void> _submit() async {
     final email = emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
@@ -758,7 +808,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(cover ? 'تم تحديث صورة الغلاف.' : 'تم تحديث الصورة الشخصية.')),
+          SnackBar(
+              content: Text(cover
+                  ? 'تم تحديث صورة الغلاف.'
+                  : 'تم تحديث الصورة الشخصية.')),
         );
       } else if (update is AssalError<void>) {
         ScaffoldMessenger.of(context)
