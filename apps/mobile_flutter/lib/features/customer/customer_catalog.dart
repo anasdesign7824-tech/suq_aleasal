@@ -79,6 +79,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Future<AssalLoadState<AssalStoreSummary>> _storeFuture(String storeId) =>
       storeFutures.putIfAbsent(
           storeId, () => widget.repository.getStore(storeId));
+
+  Future<void> _toggleFavorite(AssalProductSummary product) async {
+    if (favoriteBusy) return;
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted || session.user == null) return;
+    setState(() => favoriteBusy = true);
+    try {
+      final result = await widget.repository.toggleFavorite(
+        session.user!.id,
+        product.id,
+      );
+      if (!mounted) return;
+      if (result is AssalData<bool>) {
+        setState(() => favorite = result.value);
+      } else if (result is AssalError<bool>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.messageAr)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => favoriteBusy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AssalAppBar(title: 'تفاصيل المنتج', actions: [
@@ -91,10 +115,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           future: productFuture,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return const AssalMessageCard(
-                  icon: Icons.wifi_off_outlined,
-                  message:
-                      'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.');
+              return AssalMessageCard(
+                icon: Icons.wifi_off_outlined,
+                message:
+                    'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.',
+                onRetry: () {
+                  setState(() {
+                    productFuture = widget.repository.getProduct(
+                      widget.productId,
+                    );
+                  });
+                },
+              );
             }
             if (!snapshot.hasData) return const AssalGlassLoading();
             return AssalStateView<AssalProductSummary>(
@@ -116,40 +148,45 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               : product.imageUrls;
           return DefaultTabController(
             length: 3,
-            child: Column(
-              children: [
-                _productHero(product, gallery),
-                _decisionCard(product, store),
-                Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
-                  decoration: BoxDecoration(
-                    gradient: AssalColors.darkGradient,
-                    borderRadius: BorderRadius.circular(AssalRadius.medium),
-                  ),
-                  child: const TabBar(
-                    isScrollable: true,
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white70,
-                    indicatorColor: AssalColors.honey,
-                    dividerColor: Colors.transparent,
-                    tabs: [
-                      Tab(text: 'معلومات المنتج'),
-                      Tab(text: 'التقييمات والتفاعل'),
-                      Tab(text: 'منتجات مشابهة'),
-                    ],
-                  ),
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverToBoxAdapter(
+                  child: _productHero(product, gallery, store),
                 ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _productInfoTab(product, store),
-                      _productInteractionTab(product),
-                      _similarProductsTab(product),
-                    ],
+                SliverToBoxAdapter(
+                  child: _decisionCard(product, store),
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: AssalSpacing.lg,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: AssalColors.darkGradient,
+                      borderRadius: BorderRadius.circular(AssalRadius.medium),
+                    ),
+                    child: const TabBar(
+                      isScrollable: true,
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.white70,
+                      indicatorColor: AssalColors.honey,
+                      dividerColor: Colors.transparent,
+                      tabs: [
+                        Tab(text: 'معلومات المنتج'),
+                        Tab(text: 'التقييمات والتفاعل'),
+                        Tab(text: 'منتجات مشابهة'),
+                      ],
+                    ),
                   ),
                 ),
               ],
+              body: TabBarView(
+                children: [
+                  _productInfoTab(product, store),
+                  _productInteractionTab(product),
+                  _similarProductsTab(product),
+                ],
+              ),
             ),
           );
         },
@@ -177,6 +214,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'خيارات التوفر والاستلام',
+                    style: AssalTypography.title,
+                  ),
+                ),
+                if (product.availability.isNotEmpty)
+                  Chip(
+                    label: Text(product.availability),
+                    avatar: const Icon(Icons.circle, size: 10),
+                  ),
+              ],
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
@@ -187,16 +240,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                 ),
-                if (product.availability.isNotEmpty)
-                  Flexible(
-                    child: Text(
-                      product.availability,
-                      textAlign: TextAlign.end,
-                      style: AssalTypography.bodySmall.copyWith(
-                        color: AssalColors.textSecondary,
-                      ),
-                    ),
-                  ),
               ],
             ),
             if (deliveryOptions.isNotEmpty || pickupLocations.isNotEmpty) ...[
@@ -230,25 +273,59 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _productHero(AssalProductSummary product, List<String?> gallery) =>
+  Widget _productHero(
+    AssalProductSummary product,
+    List<String?> gallery,
+    AssalStoreSummary? store,
+  ) =>
       Padding(
         padding: const EdgeInsets.fromLTRB(
             AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, 0),
         child: Column(
           children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: PageView.builder(
-                controller: galleryController,
-                itemCount: gallery.length,
-                onPageChanged: (index) => setState(() => galleryIndex = index),
-                itemBuilder: (_, index) => AssalImageTile(
-                  imageUrl: gallery[index],
-                  expand: true,
-                  icon: index.isEven
-                      ? Icons.wb_sunny_outlined
-                      : Icons.hive_outlined,
-                ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(AssalRadius.large),
+              child: Stack(
+                children: [
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: PageView.builder(
+                      controller: galleryController,
+                      itemCount: gallery.length,
+                      onPageChanged: (index) =>
+                          setState(() => galleryIndex = index),
+                      itemBuilder: (_, index) => AssalImageTile(
+                        imageUrl: gallery[index],
+                        expand: true,
+                        icon: index.isEven
+                            ? Icons.wb_sunny_outlined
+                            : Icons.hive_outlined,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: AssalSpacing.md,
+                    bottom: AssalSpacing.md,
+                    child: IconButton.filledTonal(
+                      onPressed: favoriteBusy
+                          ? null
+                          : () => _toggleFavorite(product),
+                      tooltip: favorite ? 'إزالة الحفظ' : 'حفظ المنتج',
+                      icon: Icon(
+                        favorite ? Icons.favorite : Icons.favorite_border,
+                      ),
+                    ),
+                  ),
+                  if (product.categoryNameAr != null)
+                    Positioned(
+                      right: AssalSpacing.md,
+                      top: AssalSpacing.md,
+                      child: Chip(
+                        label: Text(product.categoryNameAr!),
+                        avatar: const Icon(Icons.local_florist_outlined),
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: AssalSpacing.sm),
@@ -295,6 +372,23 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         .copyWith(color: AssalColors.textMuted)),
               ],
             ),
+            if (store != null) ...[
+              const SizedBox(height: AssalSpacing.md),
+              Card(
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: AssalColors.honeyLight,
+                    child: Icon(
+                      Icons.storefront_outlined,
+                      color: AssalColors.primaryDark,
+                    ),
+                  ),
+                  title: Text(store.nameAr),
+                  subtitle: Text(store.regionNameAr ?? 'الموقع غير محدد'),
+                  trailing: const Icon(Icons.chevron_left),
+                ),
+              ),
+            ],
           ],
         ),
       );
@@ -405,27 +499,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 const SizedBox(width: AssalSpacing.sm),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: favoriteBusy ? null : () async {
-                      final session =
-                          await requireUserSession(context, widget.repository);
-                      if (session == null || !mounted || session.user == null) {
-                        return;
-                      }
-                      setState(() => favoriteBusy = true);
-                      try {
-                        final result = await widget.repository
-                            .toggleFavorite(session.user!.id, product.id);
-                        if (result is AssalData<bool>) {
-                          setState(() => favorite = result.value);
-                        } else if (result is AssalError<bool> && mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(result.messageAr)),
-                          );
-                        }
-                      } finally {
-                        if (mounted) setState(() => favoriteBusy = false);
-                      }
-                    },
+                    onPressed: favoriteBusy
+                        ? null
+                        : () => _toggleFavorite(product),
                     icon:
                         Icon(favorite ? Icons.bookmark : Icons.bookmark_border),
                     label: Text(favorite ? 'محفوظ' : 'حفظ'),
@@ -555,6 +631,8 @@ class _MetadataCard extends StatelessWidget {
             _row('التصنيف', product.subcategoryNameAr ?? 'غير محدد'),
             if (product.qualityLabelAr != null)
               _row('الجودة', product.qualityLabelAr!),
+            if (product.components.isNotEmpty)
+              _row('المكونات', product.components.join('، ')),
             if (product.processingMethodAr != null)
               _row('المعالجة', product.processingMethodAr!),
             if (product.processingStatusAr != null)
