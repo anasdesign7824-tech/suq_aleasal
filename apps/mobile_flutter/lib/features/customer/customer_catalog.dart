@@ -1204,31 +1204,34 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(title: 'قنوات التواصل'),
-          if (socialLinks.isEmpty && store.contactPhone == null)
+          if (socialLinks.isEmpty &&
+              (store.contactPhone == null ||
+                  store.contactPhone!.trim().isEmpty))
             const AssalMessageCard(
               icon: Icons.forum_outlined,
               message: 'لم يضف المتجر قنوات تواصل بعد.',
             )
-          else ...[
-            if (store.contactPhone != null)
-              ActionChip(
-                avatar: const Icon(Icons.phone_outlined, size: 16),
-                label: const Text('الهاتف'),
-                onPressed: () => _openContact('phone', store.contactPhone!),
-              ),
-            if (socialLinks.isNotEmpty)
-              Wrap(
-                spacing: AssalSpacing.sm,
-                runSpacing: AssalSpacing.sm,
-                children: socialLinks.entries
-                    .map((entry) => ActionChip(
-                          avatar: Icon(_socialIcon(entry.key), size: 16),
-                          label: Text(_socialLabel(entry.key)),
-                          onPressed: () => _openContact(entry.key, entry.value),
-                        ))
-                    .toList(),
-              ),
-          ],
+          else
+            Wrap(
+              spacing: AssalSpacing.sm,
+              runSpacing: AssalSpacing.sm,
+              children: [
+                if (store.contactPhone != null &&
+                    store.contactPhone!.trim().isNotEmpty)
+                  ActionChip(
+                    avatar: const Icon(Icons.phone_outlined, size: 16),
+                    label: const Text('الهاتف'),
+                    onPressed: () => _openContact('phone', store.contactPhone!),
+                  ),
+                ...socialLinks.entries.map(
+                  (entry) => ActionChip(
+                    avatar: Icon(_socialIcon(entry.key), size: 16),
+                    label: Text(_socialLabel(entry.key)),
+                    onPressed: () => _openContact(entry.key, entry.value),
+                  ),
+                ),
+              ],
+            ),
           const SizedBox(height: AssalSpacing.lg),
           const SectionHeader(title: 'التسليم والاستلام'),
           if (store.deliveryOptions.isEmpty && store.pickupLocations.isEmpty)
