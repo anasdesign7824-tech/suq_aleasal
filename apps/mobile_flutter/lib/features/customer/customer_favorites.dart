@@ -29,6 +29,9 @@ class _FavoritesScreenState extends State<FavoritesScreen>
   late Future<AssalSession> sessionFuture;
   final Set<String> removingFavoriteIds = <String>{};
   final Set<String> removingFollowedStoreIds = <String>{};
+  final Map<String, Future<AssalLoadState<List<AssalProductSummary>>>>
+      storeProductFutures =
+      <String, Future<AssalLoadState<List<AssalProductSummary>>>>{};
   String? _loadedUserId;
 
   @override
@@ -44,6 +47,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
 
   void _load(String userId) {
     _loadedUserId = userId;
+    storeProductFutures.clear();
     productsFuture = widget.repository.listFavoriteProducts(userId);
     storesFuture = widget.repository.listFollowedStores(userId);
     taxonomiesFuture = widget.repository.listFavoriteTaxonomies(userId);
@@ -173,7 +177,13 @@ class _FavoritesScreenState extends State<FavoritesScreen>
     );
   }
 
-  Widget _emptyState(String message, {VoidCallback? onAction}) => Center(
+  Widget _emptyState(
+    String message, {
+    VoidCallback? onAction,
+    String actionLabel = 'استكشف المنتجات',
+    IconData actionIcon = Icons.search_rounded,
+  }) =>
+      Center(
         child: Padding(
           padding: const EdgeInsets.all(AssalSpacing.xl),
           child: Column(
@@ -196,8 +206,8 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                 const SizedBox(height: AssalSpacing.md),
                 OutlinedButton.icon(
                   onPressed: onAction,
-                  icon: const Icon(Icons.search_rounded),
-                  label: const Text('استكشف المنتجات'),
+                  icon: Icon(actionIcon),
+                  label: Text(actionLabel),
                 ),
               ],
             ],
@@ -210,6 +220,8 @@ class _FavoritesScreenState extends State<FavoritesScreen>
     required Widget Function(List<T>) builder,
     required String emptyMessage,
     VoidCallback? onEmptyAction,
+    String emptyActionLabel = 'استكشف المنتجات',
+    IconData emptyActionIcon = Icons.search_rounded,
     required VoidCallback onRetry,
   }) {
     if (state is AssalLoading<List<T>>) {
@@ -223,11 +235,21 @@ class _FavoritesScreenState extends State<FavoritesScreen>
       );
     }
     if (state is AssalEmpty<List<T>>) {
-      return _emptyState(emptyMessage, onAction: onEmptyAction);
+      return _emptyState(
+        emptyMessage,
+        onAction: onEmptyAction,
+        actionLabel: emptyActionLabel,
+        actionIcon: emptyActionIcon,
+      );
     }
     if (state is AssalData<List<T>>) {
       if (state.value.isEmpty) {
-        return _emptyState(emptyMessage, onAction: onEmptyAction);
+        return _emptyState(
+          emptyMessage,
+          onAction: onEmptyAction,
+          actionLabel: emptyActionLabel,
+          actionIcon: emptyActionIcon,
+        );
       }
       return builder(state.value);
     }
@@ -297,6 +319,24 @@ class _FavoritesScreenState extends State<FavoritesScreen>
         },
       );
 
+  Future<void> _discoverStores() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => StoresScreen(repository: widget.repository),
+      ),
+    );
+  }
+
+  Future<AssalLoadState<List<AssalProductSummary>>> _productsForStore(
+    String storeId,
+  ) =>
+      storeProductFutures.putIfAbsent(
+        storeId,
+        () => widget.repository.listProducts(
+          query: AssalProductQuery(storeId: storeId),
+        ),
+      );
+
   Widget _stores() => FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
         future: storesFuture!,
         builder: (context, snapshot) {
@@ -304,22 +344,36 @@ class _FavoritesScreenState extends State<FavoritesScreen>
           return _listState<AssalStoreSummary>(
             state: snapshot.data!,
             onRetry: () => setState(() => _load(_loadedUserId!)),
-            emptyMessage: 'لم تحفظ أي متجر بعد.',
-            onEmptyAction: _exploreProducts,
+            emptyMessage: 'لا تتابع متاجر بعد.',
+            onEmptyAction: _discoverStores,
+            emptyActionLabel: 'اكتشف المتاجر',
+            emptyActionIcon: Icons.storefront_outlined,
             builder: (items) => ListView.separated(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
               separatorBuilder: (_, __) =>
                   const SizedBox(height: AssalSpacing.sm),
-              itemBuilder: (_, index) => StoreCard(
-                store: items[index],
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => StoreProfileScreen(
-                    repository: widget.repository,
-                    storeId: items[index].id,
-                  ),
-                )),
-                onAction: () => _removeFollow(items[index].id),
+              itemBuilder: (_, index) =>
+                  FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+                future: _productsForStore(items[index].id),
+                builder: (context, productSnapshot) {
+                  final productState = productSnapshot.data;
+                  final productCount =
+                      productState is AssalData<List<AssalProductSummary>>
+                          ? productState.value.length
+                          : null;
+                  return StoreCard(
+                    store: items[index],
+                    productCount: productCount,
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => StoreProfileScreen(
+                        repository: widget.repository,
+                        storeId: items[index].id,
+                      ),
+                    )),
+                    onAction: () => _removeFollow(items[index].id),
+                  );
+                },
               ),
             ),
           );
