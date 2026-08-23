@@ -1050,6 +1050,7 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
   Uint8List? coverBytes;
   XFile? avatarFile;
   XFile? coverFile;
+  final formKey = GlobalKey<FormState>();
   bool saving = false;
 
   @override
@@ -1151,127 +1152,154 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
   }
 
   Future<void> _save() async {
-    if (saving) return;
+    if (saving || !(formKey.currentState?.validate() ?? false)) return;
     setState(() => saving = true);
-    final avatarUrl = await _upload(avatarFile, avatarBytes, 'logo');
-    final coverUrl = await _upload(coverFile, coverBytes, 'cover');
-    final result = await widget.repository.updateUserProfile(
-      widget.profile.id,
-      AssalUserProfilePatch(
-        nameAr: nameController.text,
-        bio: bioController.text,
-        phone: phoneController.text,
-        locationLabel: locationController.text,
-        avatarUrl: avatarUrl,
-        coverUrl: coverUrl,
-      ),
-    );
-    if (!mounted) return;
-    setState(() => saving = false);
-    if (result is AssalData<void>) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('تم حفظ الملف الشخصي.')));
-      Navigator.of(context).pop();
-    } else if (result is AssalError<void>) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    try {
+      final avatarUrl = await _upload(avatarFile, avatarBytes, 'logo');
+      final coverUrl = await _upload(coverFile, coverBytes, 'cover');
+      final result = await widget.repository.updateUserProfile(
+        widget.profile.id,
+        AssalUserProfilePatch(
+          nameAr: nameController.text.trim(),
+          bio: bioController.text.trim(),
+          phone: phoneController.text.trim(),
+          locationLabel: locationController.text.trim(),
+          avatarUrl: avatarUrl,
+          coverUrl: coverUrl,
+        ),
+      );
+      if (!mounted) return;
+      if (result is AssalData<void>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم حفظ التغييرات.')),
+        );
+        Navigator.of(context).pop(true);
+      } else if (result is AssalError<void>) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(result.messageAr)));
+      }
+    } finally {
+      if (mounted) setState(() => saving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: const AssalAppBar(title: 'تعديل الملف الشخصي'),
-        body: ListView(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
-          children: [
-            AssalImagePickerTile(
-              label: 'صورة الغلاف',
-              icon: Icons.landscape_outlined,
-              bytes: coverBytes,
-              imageUrl: widget.profile.coverUrl,
-              onPick: saving ? null : () => _pickImage(cover: true),
-              onClear: saving ||
-                      (coverBytes == null && widget.profile.coverUrl == null)
-                  ? null
-                  : () => setState(() {
-                        coverBytes = null;
-                        coverFile = null;
-                      }),
-              width: double.infinity,
-              height: 150,
-            ),
-            const SizedBox(height: AssalSpacing.lg),
-            AssalImagePickerTile(
-              label: 'الصورة الشخصية',
-              icon: Icons.person_outline,
-              bytes: avatarBytes,
-              imageUrl: widget.profile.avatarUrl,
-              onPick: saving ? null : () => _pickImage(cover: false),
-              onClear: saving ||
-                      (avatarBytes == null && widget.profile.avatarUrl == null)
-                  ? null
-                  : () => setState(() {
-                        avatarBytes = null;
-                        avatarFile = null;
-                      }),
-              width: double.infinity,
-              height: 150,
-            ),
-            const SizedBox(height: AssalSpacing.lg),
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'الاسم',
-                prefixIcon: Icon(Icons.person_outline),
+        body: Form(
+          key: formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            children: [
+              AssalImagePickerTile(
+                label: 'صورة الغلاف',
+                icon: Icons.landscape_outlined,
+                bytes: coverBytes,
+                imageUrl: widget.profile.coverUrl,
+                onPick: saving ? null : () => _pickImage(cover: true),
+                onClear: saving ||
+                        (coverBytes == null && widget.profile.coverUrl == null)
+                    ? null
+                    : () => setState(() {
+                          coverBytes = null;
+                          coverFile = null;
+                        }),
+                width: double.infinity,
+                height: 150,
               ),
-            ),
-            const SizedBox(height: AssalSpacing.md),
-            TextField(
-              controller: bioController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'النبذة التعريفية',
-                prefixIcon: Icon(Icons.notes_outlined),
+              const SizedBox(height: AssalSpacing.lg),
+              AssalImagePickerTile(
+                label: 'الصورة الشخصية',
+                icon: Icons.person_outline,
+                bytes: avatarBytes,
+                imageUrl: widget.profile.avatarUrl,
+                onPick: saving ? null : () => _pickImage(cover: false),
+                onClear: saving ||
+                        (avatarBytes == null &&
+                            widget.profile.avatarUrl == null)
+                    ? null
+                    : () => setState(() {
+                          avatarBytes = null;
+                          avatarFile = null;
+                        }),
+                width: double.infinity,
+                height: 150,
               ),
-            ),
-            const SizedBox(height: AssalSpacing.md),
-            TextField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'الهاتف',
-                prefixIcon: Icon(Icons.phone_outlined),
+              const SizedBox(height: AssalSpacing.lg),
+              TextFormField(
+                controller: nameController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'الاسم العربي',
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'أدخل الاسم العربي'
+                    : null,
               ),
-            ),
-            const SizedBox(height: AssalSpacing.md),
-            TextField(
-              controller: locationController,
-              decoration: InputDecoration(
-                labelText: 'الموقع',
-                prefixIcon: const Icon(Icons.location_on_outlined),
-                suffixIcon: IconButton(
-                  onPressed: _chooseLocation,
-                  icon: const Icon(Icons.my_location_outlined),
-                  tooltip: 'تحديد الموقع الجغرافي',
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                controller: bioController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'النبذة التعريفية',
+                  prefixIcon: Icon(Icons.notes_outlined),
+                  hintText: 'اكتب نبذة مختصرة عنك (اختياري)',
                 ),
               ),
-            ),
-            const SizedBox(height: AssalSpacing.xl),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: saving ? null : _save,
-                icon: saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.save_outlined),
-                label: Text(saving ? 'جارٍ الحفظ...' : 'حفظ التغييرات'),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'الهاتف',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                  hintText: 'أدخل رقم التواصل (اختياري)',
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                controller: locationController,
+                decoration: InputDecoration(
+                  labelText: 'الموقع',
+                  prefixIcon: const Icon(Icons.location_on_outlined),
+                  hintText: 'مثال: صنعاء، حدة (اختياري)',
+                  suffixIcon: IconButton(
+                    onPressed: saving ? null : _chooseLocation,
+                    icon: const Icon(Icons.my_location_outlined),
+                    tooltip: 'تحديد الموقع الجغرافي',
+                  ),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.xl),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          saving ? null : () => Navigator.of(context).pop(),
+                      child: const Text('إلغاء'),
+                    ),
+                  ),
+                  const SizedBox(width: AssalSpacing.md),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: saving ? null : _save,
+                      icon: saving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.save_outlined),
+                      label: Text(saving ? 'جارٍ الحفظ...' : 'حفظ التغييرات'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
 }
