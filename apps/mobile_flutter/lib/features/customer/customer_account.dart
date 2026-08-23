@@ -12,6 +12,7 @@ import '../../core/assal_widgets.dart';
 import 'customer_core.dart';
 import 'customer_favorites.dart';
 import 'customer_discovery.dart';
+import 'customer_catalog.dart';
 import 'customer_request_detail.dart';
 import 'customer_support.dart';
 import '../merchant/merchant_dashboard.dart';
@@ -1438,6 +1439,79 @@ class _RequestsScreenState extends State<RequestsScreen> {
                                           repository: widget.repository,
                                           request: visibleRequests[index],
                                           merchantMode: false,
+                                          onOpenStore: () async {
+                                            await Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    StoreProfileScreen(
+                                                  repository: widget.repository,
+                                                  storeId: visibleRequests[index]
+                                                      .storeId,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          onMessageMerchant: () async {
+                                            final session = await widget.repository
+                                                .getSession();
+                                            if (!context.mounted) return;
+                                            if (session.isUnavailable) {
+                                              ScaffoldMessenger.of(context)
+                                                ..hideCurrentSnackBar()
+                                                ..showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      session.errorMessageAr ??
+                                                          'تعذر مزامنة الحساب الآن.',
+                                                    ),
+                                                  ),
+                                                );
+                                              return;
+                                            }
+                                            if (!session.isAuthenticated ||
+                                                session.user == null) {
+                                              ScaffoldMessenger.of(context)
+                                                ..hideCurrentSnackBar()
+                                                ..showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'سجّل الدخول لمراسلة التاجر.',
+                                                    ),
+                                                  ),
+                                                );
+                                              return;
+                                            }
+                                            final result = await widget.repository
+                                                .createConversation(
+                                              session.user!.id,
+                                              visibleRequests[index].storeId,
+                                            );
+                                            if (!context.mounted) return;
+                                            if (result is
+                                                AssalData<
+                                                    AssalConversationSummary>) {
+                                              await Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      ConversationScreen(
+                                                    repository: widget.repository,
+                                                    conversation: result.value,
+                                                  ),
+                                                ),
+                                              );
+                                            } else if (result is
+                                                AssalError<
+                                                    AssalConversationSummary>) {
+                                              ScaffoldMessenger.of(context)
+                                                ..hideCurrentSnackBar()
+                                                ..showSnackBar(
+                                                  SnackBar(
+                                                    content:
+                                                        Text(result.messageAr),
+                                                  ),
+                                                );
+                                            }
+                                          },
                                         ),
                                       ),
                                     ),

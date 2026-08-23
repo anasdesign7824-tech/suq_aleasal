@@ -11,11 +11,15 @@ class CustomerRequestDetailScreen extends StatefulWidget {
     required this.repository,
     required this.request,
     required this.merchantMode,
+    this.onOpenStore,
+    this.onMessageMerchant,
   });
 
   final AssalRepository repository;
   final AssalRequestSummary request;
   final bool merchantMode;
+  final Future<void> Function()? onOpenStore;
+  final Future<void> Function()? onMessageMerchant;
 
   @override
   State<CustomerRequestDetailScreen> createState() =>
@@ -139,6 +143,10 @@ class _CustomerRequestDetailScreenState
             ),
             const SizedBox(height: AssalSpacing.sm),
             _messages(),
+            if (!widget.merchantMode) ...[
+              const SizedBox(height: AssalSpacing.lg),
+              _customerActions(),
+            ],
             if (widget.merchantMode) ...[
               const SizedBox(height: AssalSpacing.lg),
               _replyComposer(),
@@ -199,9 +207,15 @@ class _CustomerRequestDetailScreenState
               ),
               if (widget.request.body?.trim().isNotEmpty == true)
                 _detailRow('تفاصيل العميل', widget.request.body!),
+              if (widget.request.priceNote?.trim().isNotEmpty == true)
+                _detailRow('ملاحظة السعر', widget.request.priceNote!),
               if (widget.request.deliveryNote?.trim().isNotEmpty == true)
                 _detailRow('ملاحظة التسليم', widget.request.deliveryNote!),
+              if (widget.request.phone?.trim().isNotEmpty == true)
+                _detailRow('هاتف التواصل', widget.request.phone!),
               _detailRow('تاريخ الطلب', _dateLabel(widget.request.createdAt)),
+              if (widget.request.updatedAt != null)
+                _detailRow('آخر تحديث', _dateLabel(widget.request.updatedAt)),
             ],
           ),
         ),
@@ -230,6 +244,35 @@ class _CustomerRequestDetailScreenState
               ),
             ),
           ],
+        ),
+      );
+
+  Widget _customerActions() => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'ماذا تريد أن تفعل؟',
+                style: AssalTypography.title.copyWith(
+                  color: AssalColors.deepBrown,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              OutlinedButton.icon(
+                onPressed: widget.onMessageMerchant,
+                icon: const Icon(Icons.forum_outlined),
+                label: const Text('مراسلة التاجر'),
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              FilledButton.icon(
+                onPressed: widget.onOpenStore,
+                icon: const Icon(Icons.storefront_outlined),
+                label: const Text('فتح المتجر'),
+              ),
+            ],
+          ),
         ),
       );
 
