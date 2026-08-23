@@ -947,3 +947,7 @@
 ## TASK 061 — التصنيفات والأنواع في Admin
 
 جُردت `TaxonomyPanel` ومسارات `taxonomy/categories/upsertTaxonomy/upsertCategory` مع حالات loading/error/retry/empty والتعديل. كُشف خطر الإرسال المكرر في نموذجي الحفظ، فأضيفت حالتا `savingTaxonomy/savingCategory` وتعطيل الزر المقابل أثناء الطلب، مع بقاء العقود المصدرية والـaudit كما هي. نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 061 منع golden وسُجل GAP-035؛ لم تُجرَ كتابة Production ولم تتغير DB/API/RLS/permissions.
+
+## TASK 062 — التوصيل ونقاط الاستلام في Admin
+
+جُردت `LogisticsPanel` ومراجع طرق التوصيل والمناطق وإعدادات المتجر ومسارات الحفظ والحذف. كُشف أن فشل المراجع أو المتجر قد يترك واجهة فارغة وأن حذف السجل بلا guard، فأضيفت حالتا `error/storeError` مع retry وحالة `removingId`، مع بقاء التسلسل الهرمي للمناطق والعقود والصلاحيات كما هي. نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 062 منع golden وسُجل GAP-036؛ لم تُجرَ كتابة أو حذف Production ولم تتغير DB/API/RLS/permissions.

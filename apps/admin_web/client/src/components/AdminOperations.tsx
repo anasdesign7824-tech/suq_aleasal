@@ -116,8 +116,11 @@ export function LogisticsPanel({ stores }: { stores: LogisticsStore[] }) {
   const [deliveryOptions, setDeliveryOptions] = useState<DeliveryOption[]>([]);
   const [pickupLocations, setPickupLocations] = useState<PickupLocation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [loadingStore, setLoadingStore] = useState(false);
+  const [storeError, setStoreError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [deliveryForm, setDeliveryForm] = useState({ methodId: "", governorateId: "", districtId: "", fee: "", currency: "YER", days: "" });
   const [pickupForm, setPickupForm] = useState({ nameAr: "", address: "", phone: "", governorateId: "", districtId: "" });
 
@@ -130,28 +133,33 @@ export function LogisticsPanel({ stores }: { stores: LogisticsStore[] }) {
     void Promise.all([adminApi.deliveryMethods(), adminApi.regions()])
       .then(([methodResult, regionResult]) => {
         if (!active) return;
+        setError(null);
         setMethods(methodResult.items as LogisticsMethod[]);
         setRegions(regionResult.items as LogisticsRegion[]);
         setDeliveryForm((previous) => ({ ...previous, methodId: previous.methodId || (methodResult.items[0] as LogisticsMethod | undefined)?.id || "" }));
       })
-      .catch((error) => toast.error(error instanceof Error ? error.message : "تعذر قراءة مراجع التوصيل."))
+      .catch((error) => { const message = error instanceof Error ? error.message : "تعذر قراءة مراجع التوصيل."; setError(message); toast.error(message); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
 
   const loadStore = async () => {
     if (!storeId) {
+      setStoreError(null);
       setDeliveryOptions([]);
       setPickupLocations([]);
       return;
     }
+    setStoreError(null);
     setLoadingStore(true);
     try {
       const result = await adminApi.storeLogistics(storeId);
       setDeliveryOptions(result.deliveryOptions as DeliveryOption[]);
       setPickupLocations(result.pickupLocations as PickupLocation[]);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "تعذر قراءة إعدادات التوصيل.");
+      const message = error instanceof Error ? error.message : "تعذر قراءة إعدادات التوصيل.";
+      setStoreError(message);
+      toast.error(message);
     } finally {
       setLoadingStore(false);
     }
@@ -191,27 +199,32 @@ export function LogisticsPanel({ stores }: { stores: LogisticsStore[] }) {
   };
 
   const removeDelivery = async (id: string) => {
-    if (!window.confirm("حذف خيار التوصيل نهائيًا؟")) return;
+    if (removingId === id || !window.confirm("حذف خيار التوصيل نهائيًا؟")) return;
+    setRemovingId(id);
     try { await adminApi.deleteDeliveryOption(id); toast.success("تم حذف خيار التوصيل."); await loadStore(); }
     catch (error) { toast.error(error instanceof Error ? error.message : "تعذر حذف خيار التوصيل."); }
+    finally { setRemovingId(null); }
   };
 
   const removePickup = async (id: string) => {
-    if (!window.confirm("حذف نقطة الاستلام نهائيًا؟")) return;
+    if (removingId === id || !window.confirm("حذف نقطة الاستلام نهائيًا؟")) return;
+    setRemovingId(id);
     try { await adminApi.deletePickupLocation(id); toast.success("تم حذف نقطة الاستلام."); await loadStore(); }
     catch (error) { toast.error(error instanceof Error ? error.message : "تعذر حذف نقطة الاستلام."); }
+    finally { setRemovingId(null); }
   };
 
-  if (loading) return <section className="admin-card p-6"><PanelState loading error={null} empty={false} onRefresh={() => undefined} /></section>;
+  if (loading) return <section className="admin-card p-6"><PanelState loading error={null} empty={false} onRefresh={() => void loadStore()} /></section>;
+  if (error) return <section className="admin-card p-6"><PanelState loading={false} error={error} empty={false} onRefresh={() => window.location.reload()} /></section>;
 
   return <section className="space-y-6">
     <div className="admin-card p-6">
       <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="section-kicker">تشغيل المتجر</div><h2 className="mt-1 text-2xl font-bold text-[#342118]">التوصيل ونقاط الاستلام</h2><p className="mt-2 text-sm leading-7 text-[#806b5a]">تُحفظ الخيارات في الجداول المشتركة التي يقرأها تطبيق العميل، ولا تُخزّن كحقول نصية منفصلة داخل المنتج.</p></div><Truck className="size-7 text-[#9c5a00]" /></div>
       <label className="mt-6 block text-sm font-semibold text-[#4f2e1f]">المتجر<select value={storeId} onChange={(event) => setStoreId(event.target.value)} className={`${inputClass} mt-2 h-11 w-full px-3 text-sm font-normal`}><option value="">اختر متجرًا</option>{stores.map((store) => <option key={store.id} value={store.id}>{store.name_ar} — {store.status}</option>)}</select></label>
     </div>
-    {loadingStore ? <div className="admin-card"><PanelState loading error={null} empty={false} onRefresh={() => void loadStore()} /></div> : !storeId ? <div className="admin-card"><PanelState loading={false} error={null} empty onRefresh={() => undefined} /></div> : <div className="grid gap-6 xl:grid-cols-2">
-      <div className="admin-card p-6"><div className="flex items-center gap-2"><Truck className="size-5 text-[#9c5a00]" /><h3 className="font-bold text-[#4f2e1f]">خيارات التوصيل</h3></div><div className="mt-4 space-y-2">{deliveryOptions.length ? deliveryOptions.map((option) => <div key={option.id} className="flex items-start justify-between gap-3 rounded-2xl bg-[#fffaf3] p-3"><div><p className="font-semibold text-[#432a1e]">{methodName(option.delivery_method_id)}</p><p className="mt-1 text-xs text-[#806b5a]">النطاق: {regionName(regions, option.region_id)}{option.fee_amount !== null && option.fee_amount !== undefined ? ` — ${option.fee_amount} ${option.currency}` : " — الرسوم عند التواصل"}{option.estimated_days !== null && option.estimated_days !== undefined ? ` — ${option.estimated_days} يوم` : ""}</p></div><Button onClick={() => void removeDelivery(option.id)} variant="ghost" size="icon" className="text-red-800"><Trash2 className="size-4" /><span className="sr-only">حذف خيار التوصيل</span></Button></div>) : <p className="rounded-xl border border-dashed border-[#dfc6a9] p-4 text-sm text-[#806b5a]">لا توجد خيارات توصيل لهذا المتجر.</p>}</div><form onSubmit={saveDelivery} className="mt-5 space-y-3 border-t border-[#eee1d0] pt-5"><select required value={deliveryForm.methodId} onChange={(event) => setDeliveryForm({ ...deliveryForm, methodId: event.target.value })} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">اختر طريقة التوصيل</option>{methods.map((method) => <option key={method.id} value={method.id}>{method.name_ar}</option>)}</select><div className="grid gap-3 sm:grid-cols-2"><select value={deliveryForm.governorateId} onChange={(event) => setDeliveryForm({ ...deliveryForm, governorateId: event.target.value, districtId: "" })} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">كل المحافظات</option>{governorates.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select><select value={deliveryForm.districtId} onChange={(event) => setDeliveryForm({ ...deliveryForm, districtId: event.target.value })} disabled={!deliveryForm.governorateId} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">كل المديريات</option>{deliveryDistricts.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></div><div className="grid gap-3 sm:grid-cols-3"><Input type="number" min="0" step="0.01" value={deliveryForm.fee} onChange={(event) => setDeliveryForm({ ...deliveryForm, fee: event.target.value })} placeholder="الرسوم" className={inputClass} /><Input value={deliveryForm.currency} onChange={(event) => setDeliveryForm({ ...deliveryForm, currency: event.target.value })} placeholder="العملة" className={inputClass} /><Input type="number" min="0" step="1" value={deliveryForm.days} onChange={(event) => setDeliveryForm({ ...deliveryForm, days: event.target.value })} placeholder="المدة بالأيام" className={inputClass} /></div><Button disabled={saving} type="submit" className="w-full bg-[#4f2e1f] hover:bg-[#6b412a]"><Save className="ml-2 size-4" />حفظ خيار التوصيل</Button></form></div>
-      <div className="admin-card p-6"><div className="flex items-center gap-2"><MapPin className="size-5 text-[#9c5a00]" /><h3 className="font-bold text-[#4f2e1f]">نقاط الاستلام</h3></div><div className="mt-4 space-y-2">{pickupLocations.length ? pickupLocations.map((location) => <div key={location.id} className="flex items-start justify-between gap-3 rounded-2xl bg-[#fffaf3] p-3"><div><p className="font-semibold text-[#432a1e]">{location.name_ar}</p><p className="mt-1 text-xs text-[#806b5a]">{regionName(regions, location.region_id)}{location.address ? ` — ${location.address}` : ""}{location.phone ? ` — ${location.phone}` : ""}</p></div><Button onClick={() => void removePickup(location.id)} variant="ghost" size="icon" className="text-red-800"><Trash2 className="size-4" /><span className="sr-only">حذف نقطة الاستلام</span></Button></div>) : <p className="rounded-xl border border-dashed border-[#dfc6a9] p-4 text-sm text-[#806b5a]">لا توجد نقاط استلام لهذا المتجر.</p>}</div><form onSubmit={savePickup} className="mt-5 space-y-3 border-t border-[#eee1d0] pt-5"><Input required value={pickupForm.nameAr} onChange={(event) => setPickupForm({ ...pickupForm, nameAr: event.target.value })} placeholder="اسم نقطة الاستلام" className={inputClass} /><div className="grid gap-3 sm:grid-cols-2"><select value={pickupForm.governorateId} onChange={(event) => setPickupForm({ ...pickupForm, governorateId: event.target.value, districtId: "" })} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">اختر المحافظة</option>{governorates.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select><select value={pickupForm.districtId} onChange={(event) => setPickupForm({ ...pickupForm, districtId: event.target.value })} disabled={!pickupForm.governorateId} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">اختر المديرية</option>{pickupDistricts.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></div><Input value={pickupForm.address} onChange={(event) => setPickupForm({ ...pickupForm, address: event.target.value })} placeholder="العنوان التفصيلي" className={inputClass} /><Input value={pickupForm.phone} onChange={(event) => setPickupForm({ ...pickupForm, phone: event.target.value })} placeholder="رقم التواصل" className={inputClass} /><Button disabled={saving} type="submit" className="w-full bg-[#4f2e1f] hover:bg-[#6b412a]"><Save className="ml-2 size-4" />حفظ نقطة الاستلام</Button></form></div>
+    {loadingStore ? <div className="admin-card"><PanelState loading error={null} empty={false} onRefresh={() => void loadStore()} /></div> : storeError ? <div className="admin-card"><PanelState loading={false} error={storeError} empty={false} onRefresh={() => void loadStore()} /></div> : !storeId ? <div className="admin-card"><PanelState loading={false} error={null} empty onRefresh={() => undefined} /></div> : <div className="grid gap-6 xl:grid-cols-2">
+      <div className="admin-card p-6"><div className="flex items-center gap-2"><Truck className="size-5 text-[#9c5a00]" /><h3 className="font-bold text-[#4f2e1f]">خيارات التوصيل</h3></div><div className="mt-4 space-y-2">{deliveryOptions.length ? deliveryOptions.map((option) => <div key={option.id} className="flex items-start justify-between gap-3 rounded-2xl bg-[#fffaf3] p-3"><div><p className="font-semibold text-[#432a1e]">{methodName(option.delivery_method_id)}</p><p className="mt-1 text-xs text-[#806b5a]">النطاق: {regionName(regions, option.region_id)}{option.fee_amount !== null && option.fee_amount !== undefined ? ` — ${option.fee_amount} ${option.currency}` : " — الرسوم عند التواصل"}{option.estimated_days !== null && option.estimated_days !== undefined ? ` — ${option.estimated_days} يوم` : ""}</p></div><Button disabled={removingId === option.id} onClick={() => void removeDelivery(option.id)} variant="ghost" size="icon" className="text-red-800"><Trash2 className="size-4" /><span className="sr-only">حذف خيار التوصيل</span></Button></div>) : <p className="rounded-xl border border-dashed border-[#dfc6a9] p-4 text-sm text-[#806b5a]">لا توجد خيارات توصيل لهذا المتجر.</p>}</div><form onSubmit={saveDelivery} className="mt-5 space-y-3 border-t border-[#eee1d0] pt-5"><select required value={deliveryForm.methodId} onChange={(event) => setDeliveryForm({ ...deliveryForm, methodId: event.target.value })} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">اختر طريقة التوصيل</option>{methods.map((method) => <option key={method.id} value={method.id}>{method.name_ar}</option>)}</select><div className="grid gap-3 sm:grid-cols-2"><select value={deliveryForm.governorateId} onChange={(event) => setDeliveryForm({ ...deliveryForm, governorateId: event.target.value, districtId: "" })} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">كل المحافظات</option>{governorates.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select><select value={deliveryForm.districtId} onChange={(event) => setDeliveryForm({ ...deliveryForm, districtId: event.target.value })} disabled={!deliveryForm.governorateId} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">كل المديريات</option>{deliveryDistricts.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></div><div className="grid gap-3 sm:grid-cols-3"><Input type="number" min="0" step="0.01" value={deliveryForm.fee} onChange={(event) => setDeliveryForm({ ...deliveryForm, fee: event.target.value })} placeholder="الرسوم" className={inputClass} /><Input value={deliveryForm.currency} onChange={(event) => setDeliveryForm({ ...deliveryForm, currency: event.target.value })} placeholder="العملة" className={inputClass} /><Input type="number" min="0" step="1" value={deliveryForm.days} onChange={(event) => setDeliveryForm({ ...deliveryForm, days: event.target.value })} placeholder="المدة بالأيام" className={inputClass} /></div><Button disabled={saving} type="submit" className="w-full bg-[#4f2e1f] hover:bg-[#6b412a]"><Save className="ml-2 size-4" />حفظ خيار التوصيل</Button></form></div>
+      <div className="admin-card p-6"><div className="flex items-center gap-2"><MapPin className="size-5 text-[#9c5a00]" /><h3 className="font-bold text-[#4f2e1f]">نقاط الاستلام</h3></div><div className="mt-4 space-y-2">{pickupLocations.length ? pickupLocations.map((location) => <div key={location.id} className="flex items-start justify-between gap-3 rounded-2xl bg-[#fffaf3] p-3"><div><p className="font-semibold text-[#432a1e]">{location.name_ar}</p><p className="mt-1 text-xs text-[#806b5a]">{regionName(regions, location.region_id)}{location.address ? ` — ${location.address}` : ""}{location.phone ? ` — ${location.phone}` : ""}</p></div><Button disabled={removingId === location.id} onClick={() => void removePickup(location.id)} variant="ghost" size="icon" className="text-red-800"><Trash2 className="size-4" /><span className="sr-only">حذف نقطة الاستلام</span></Button></div>) : <p className="rounded-xl border border-dashed border-[#dfc6a9] p-4 text-sm text-[#806b5a]">لا توجد نقاط استلام لهذا المتجر.</p>}</div><form onSubmit={savePickup} className="mt-5 space-y-3 border-t border-[#eee1d0] pt-5"><Input required value={pickupForm.nameAr} onChange={(event) => setPickupForm({ ...pickupForm, nameAr: event.target.value })} placeholder="اسم نقطة الاستلام" className={inputClass} /><div className="grid gap-3 sm:grid-cols-2"><select value={pickupForm.governorateId} onChange={(event) => setPickupForm({ ...pickupForm, governorateId: event.target.value, districtId: "" })} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">اختر المحافظة</option>{governorates.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select><select value={pickupForm.districtId} onChange={(event) => setPickupForm({ ...pickupForm, districtId: event.target.value })} disabled={!pickupForm.governorateId} className={`${inputClass} h-10 w-full px-3 text-sm`}><option value="">اختر المديرية</option>{pickupDistricts.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></div><Input value={pickupForm.address} onChange={(event) => setPickupForm({ ...pickupForm, address: event.target.value })} placeholder="العنوان التفصيلي" className={inputClass} /><Input value={pickupForm.phone} onChange={(event) => setPickupForm({ ...pickupForm, phone: event.target.value })} placeholder="رقم التواصل" className={inputClass} /><Button disabled={saving} type="submit" className="w-full bg-[#4f2e1f] hover:bg-[#6b412a]"><Save className="ml-2 size-4" />حفظ نقطة الاستلام</Button></form></div>
     </div>}
   </section>;
 }

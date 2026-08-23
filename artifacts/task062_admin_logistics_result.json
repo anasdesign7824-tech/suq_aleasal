@@ -1,0 +1,16 @@
+{
+  "task": "062",
+  "scope": "admin logistics and pickup locations",
+  "sourceAssets": {"markdown": false, "png": false, "expectedPngDimensions": "1600x1000"},
+  "changedFiles": ["apps/admin_web/client/src/components/AdminOperations.tsx"],
+  "changes": [
+    "reference loading now records an error state instead of only showing a toast",
+    "selected-store loading now records an independent storeError state with retry",
+    "delivery and pickup delete actions have a per-record busy guard",
+    "existing save guard and cascading governorate/district selectors remain source-backed"
+  ],
+  "verifiedStates": ["reference loading/error", "store loading/error/retry", "no store", "empty delivery", "empty pickup", "cascading regions", "save guard", "delete confirmation and guard"],
+  "tests": {"pnpm test": "PASS — 8 files", "pnpm check": "PASS", "pnpm build": "PASS"},
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
