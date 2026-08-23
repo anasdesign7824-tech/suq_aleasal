@@ -38,10 +38,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('حفظ وإرسال الطلب'));
+    await tester.tap(find.text('إرسال الطلب'));
     await tester.pumpAndSettle();
 
-    expect(find.text('طلب تواصل مع متجر العسل'), findsOneWidget);
+    expect(find.text('اسأل عن التوفر'), findsOneWidget);
     expect(find.text('تعذر حفظ الطلب من الخادم'), findsOneWidget);
   });
 }

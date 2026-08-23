@@ -23,10 +23,14 @@ class ProductDetailScreen extends StatefulWidget {
     required this.repository,
     required this.productId,
     this.initialProduct,
+    this.merchantMode = false,
+    this.onEdit,
   });
   final AssalRepository repository;
   final String productId;
   final AssalProductSummary? initialProduct;
+  final bool merchantMode;
+  final Future<void> Function()? onEdit;
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
@@ -252,6 +256,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 label: const Text('اسأل عن التوفر'),
               ),
             ),
+            if (widget.merchantMode && widget.onEdit != null) ...[
+              const SizedBox(height: AssalSpacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: widget.onEdit,
+                  icon: const Icon(Icons.edit_outlined),
+                  label: const Text('تعديل المنتج'),
+                ),
+              ),
+            ],
           ],
         ),
       ),

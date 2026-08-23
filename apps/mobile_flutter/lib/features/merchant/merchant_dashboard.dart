@@ -852,6 +852,11 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
                 repository: widget.repository,
                 productId: product.id,
                 initialProduct: product,
+                merchantMode: true,
+                onEdit: () => _openProductEditor(
+                  product.storeId,
+                  product: product,
+                ),
               ),
             )),
           ),
