@@ -1,0 +1,33 @@
+{
+  "task": "057",
+  "scope": "admin merchant applications",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "changedFiles": [
+    "apps/admin_web/client/src/components/AdminMerchantApplications.tsx"
+  ],
+  "changes": [
+    "review action now has a per-application reviewing state",
+    "approve/reject/request-more-information actions require confirmation",
+    "review buttons are disabled while the selected decision is being saved",
+    "existing review endpoint and callback refresh remain unchanged"
+  ],
+  "verifiedStates": [
+    "applications loading/error/empty/refresh",
+    "application image fallback",
+    "approved state",
+    "review note",
+    "approve/reject/needs_more_info confirmation",
+    "review error and retry through refresh"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
