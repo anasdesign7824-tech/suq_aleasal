@@ -875,3 +875,11 @@
 - **الاختبارات:** نجحت اختبارات TASK 045 الوظيفية الثلاثة، ونجح `merchant_product_editable_suggestions_test.dart` كـregression، ونجح static analysis للملف والاختبار.
 - **golden:** صُغّر المرجع حتميًا عبر Pillow إلى 360×780. فشل golden بنسبة 100.00% (`280800px`)، وactual renderer أظهر الحروف العربية كمربعات مع اختلاف القالب/renderer عن المرجع. لم يُعتمد actual كـbaseline ولم تُسجل مطابقة بصرية.
 - **الحدود:** لا تغيير في DB/API/RLS/permissions، ولا ادعاء قبول بصري أو تشغيل جهاز/إنتاج.
+
+## TASK 046 — محرر المنتج: السعر والتوفر
+
+تمت قراءة عقد `package/assalkom-ux-final/explanations/046_product_editor_sales.md` ومعاينة المرجع `screens/046_product_editor_sales.png` بأبعاد 1440×3120. قُسّم المرجع إلى ثلاث بلاطات رأسية بترتيب القراءة، وسُجلت الملاحظات في `/home/ubuntu/work/task046_visual_notes.md`.
+
+في جرد المصدر، بقيت حدود البيانات عند `AssalProductDraft.metadata` ومساري `createMerchantProduct` و`updateMerchantProduct` القائمين؛ لذلك نُقلت حقول السعر والعملة إلى تبويب «البيع والتوصيل» مع إبقاء حالة التوفر وخيارات التوصيل ونقاط الاستلام ضمن الحقول المعتمدة، دون إضافة عقد أو API أو DB أو RLS أو صلاحيات.
+
+نجحت اختبارات TASK 046 الوظيفية الثلاثة، ونجح regression `merchant_product_editor_dropdown_test.dart` بعد تحديث توقعه لعدد الحقول المرئية الناتج عن الفصل، كما نجح `merchant_product_editable_suggestions_test.dart` واختبارا TASK 044 وTASK 045 القريبان وظيفيًا، ونجح static analysis للملفات المعدلة. فشل golden بنسبة 100.00% (`280800px`) بعد التصغير الحتمي للمرجع إلى 360×780؛ لم يُعتمد actual كـbaseline ولم تُسجل مطابقة بصرية. لا تغيير في DB/API/RLS/permissions.

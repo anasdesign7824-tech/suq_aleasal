@@ -21,7 +21,7 @@ void main() {
     await tester.tap(find.text('الجودة والمصدر'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(Autocomplete<String>), findsAtLeastNWidgets(4));
+    expect(find.byType(Autocomplete<String>), findsAtLeastNWidgets(3));
     expect(find.text('وصف المصدر المحلي (اختياري)'), findsNothing);
 
     final editorScroll = find

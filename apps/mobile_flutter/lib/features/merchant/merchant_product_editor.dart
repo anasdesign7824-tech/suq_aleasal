@@ -740,36 +740,6 @@ class _MerchantProductEditorScreenState
           Row(
             children: [
               Expanded(
-                child: _field(
-                  priceController,
-                  'السعر',
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  validator: (value) {
-                    final price = double.tryParse(value?.trim() ?? '');
-                    return price == null || price < 0
-                        ? 'اكتب سعرًا صحيحًا.'
-                        : null;
-                  },
-                ),
-              ),
-              const SizedBox(width: AssalSpacing.sm),
-              SizedBox(
-                width: 132,
-                child: _choiceField(
-                  currencyController,
-                  'العملة',
-                  const ['YER', 'SAR', 'USD'],
-                  hint: 'اختر أو اكتب الرمز',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AssalSpacing.md),
-          Row(
-            children: [
-              Expanded(
                 child: _choiceField(
                   weightController,
                   'الوزن أو الحجم',
@@ -1061,6 +1031,36 @@ class _MerchantProductEditorScreenState
   Widget _salesTab() => ListView(
         padding: const EdgeInsets.only(top: AssalSpacing.lg),
         children: [
+          Row(
+            children: [
+              Expanded(
+                child: _field(
+                  priceController,
+                  'السعر',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  validator: (value) {
+                    final price = double.tryParse(value?.trim() ?? '');
+                    return price == null || price < 0
+                        ? 'اكتب سعرًا صحيحًا.'
+                        : null;
+                  },
+                ),
+              ),
+              const SizedBox(width: AssalSpacing.sm),
+              SizedBox(
+                width: 132,
+                child: _choiceField(
+                  currencyController,
+                  'العملة',
+                  const ['YER', 'SAR', 'USD'],
+                  hint: 'اختر أو اكتب الرمز',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AssalSpacing.md),
           _choiceField(
             availabilityController,
             'حالة التوفر',
