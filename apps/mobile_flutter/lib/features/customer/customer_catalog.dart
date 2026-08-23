@@ -1258,12 +1258,32 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     if (contactBusy) return;
     final session = await requireUserSession(context, widget.repository);
     if (session == null || !mounted || session.user == null) return;
+    final firstMessage = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => NewConversationSheet(store: store),
+    );
+    if (!mounted || firstMessage == null || firstMessage.trim().isEmpty) return;
     setState(() => contactBusy = true);
     try {
       final result = await widget.repository
           .createConversation(session.user!.id, store.id);
       if (!mounted) return;
       if (result is AssalData<AssalConversationSummary>) {
+        final sent = await widget.repository.sendMessage(
+          session.user!.id,
+          AssalMessageDraft(
+            conversationId: result.value.id,
+            body: firstMessage.trim(),
+          ),
+        );
+        if (!mounted) return;
+        if (sent is AssalError<AssalMessageSummary>) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(sent.messageAr)),
+          );
+        }
         await Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => ConversationScreen(
             repository: widget.repository,

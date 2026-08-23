@@ -1807,6 +1807,128 @@ class NotificationsScreen extends StatelessWidget {
   }
 }
 
+class NewConversationSheet extends StatefulWidget {
+  const NewConversationSheet({
+    super.key,
+    required this.store,
+  });
+
+  final AssalStoreSummary store;
+
+  @override
+  State<NewConversationSheet> createState() => _NewConversationSheetState();
+}
+
+class _NewConversationSheetState extends State<NewConversationSheet> {
+  final controller = TextEditingController();
+  String? validationMessage;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void _startConversation() {
+    final message = controller.text.trim();
+    if (message.isEmpty) {
+      setState(() => validationMessage = 'اكتب رسالتك الأولى للمتجر.');
+      return;
+    }
+    Navigator.of(context).pop(message);
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: EdgeInsets.only(
+          left: AssalSpacing.lg,
+          right: AssalSpacing.lg,
+          top: AssalSpacing.lg,
+          bottom: MediaQuery.viewInsetsOf(context).bottom + AssalSpacing.lg,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.forum_outlined,
+                    color: AssalColors.primaryDark,
+                  ),
+                  const SizedBox(width: AssalSpacing.sm),
+                  const Expanded(
+                    child: Text(
+                      'مراسلة التاجر',
+                      style: AssalTypography.heading3,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: 'إلغاء',
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Card(
+                child: ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: AssalColors.honeyLight,
+                    child: Icon(
+                      Icons.storefront_outlined,
+                      color: AssalColors.primaryDark,
+                    ),
+                  ),
+                  title: Text(widget.store.nameAr),
+                  subtitle: const Text('ابدأ محادثة جديدة مع المتجر'),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                minLines: 3,
+                maxLines: 5,
+                textInputAction: TextInputAction.newline,
+                onChanged: (_) {
+                  if (validationMessage != null) {
+                    setState(() => validationMessage = null);
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'أول رسالة',
+                  hintText: 'اكتب استفسارك أو طلبك للمتجر',
+                  prefixIcon: const Icon(Icons.edit_note_rounded),
+                  errorText: validationMessage,
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('إلغاء'),
+                    ),
+                  ),
+                  const SizedBox(width: AssalSpacing.sm),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _startConversation,
+                      icon: const Icon(Icons.forum_outlined),
+                      label: const Text('بدء المحادثة'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
 class ConversationScreen extends StatefulWidget {
   const ConversationScreen(
       {super.key, required this.repository, required this.conversation});
