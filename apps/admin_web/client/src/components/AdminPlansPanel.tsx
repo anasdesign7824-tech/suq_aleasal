@@ -85,9 +85,11 @@ export function AdminPlansPanel() {
   const [selectedPlanId, setSelectedPlanId] = useState("");
   const [manualNote, setManualNote] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const refresh = async () => {
     setLoading(true);
+    setError(null);
     try {
       const [planResult, campaignResult, paymentResult, subscriptionResult, designResult, transferResult, userResult] = await Promise.all([
         adminApi.subscriptionPlans(), adminApi.subscriptionCampaigns(), adminApi.paymentRequests({ page: 1, pageSize: 50 }), adminApi.subscriptions({ page: 1, pageSize: 50 }), adminApi.designRequests({ page: 1, pageSize: 50 }), adminApi.localTransferSettings(), adminApi.users(),
@@ -104,7 +106,7 @@ export function AdminPlansPanel() {
       setDesignRequests(designResult.items as DesignRequest[]);
       setUsers(userResult.items as MerchantUser[]);
       if (transferResult.item) setTransfer(transferResult.item as TransferSettings);
-    } catch (error) { toast.error(error instanceof Error ? error.message : "تعذر قراءة إعدادات الخطط."); } finally { setLoading(false); }
+    } catch (error) { const message = error instanceof Error ? error.message : "تعذر قراءة إعدادات الخطط."; setError(message); toast.error(message); } finally { setLoading(false); }
   };
 
   useEffect(() => { void refresh(); }, []);
@@ -160,6 +162,7 @@ export function AdminPlansPanel() {
   };
 
   return <div className="space-y-6">
+    {error && <section role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800"><span>{error}</span><Button onClick={() => void refresh()} disabled={loading} variant="outline" className="border-red-200 text-red-800"><RefreshCw className="ml-2 size-4" />إعادة المحاولة</Button></section>}
     <section className="rounded-[28px] border border-[#eadcc9] bg-[#5b3623] p-6 text-white shadow-[0_20px_55px_rgba(79,46,31,.14)]"><div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div><p className="text-xs font-bold tracking-[.16em] text-[#ffe4b0]">الخطط والحملة</p><h2 className="mt-2 text-2xl font-black">تفعيل المزايا من مصدر Production</h2><p className="mt-2 max-w-2xl text-sm leading-7 text-[#f8e6cb]">السعر النهائي يعاد حسابه في الخادم، وتأكيد الحوالة وحده ينشئ الاشتراك الفعال ويرسل إشعارًا للتاجر.</p></div><Button onClick={() => void refresh()} disabled={loading} className="bg-[#f39c12] text-[#4f2e1f] hover:bg-[#ffb340]"><RefreshCw className={`ml-2 size-4 ${loading ? "animate-spin" : ""}`} />تحديث كل الطلبات</Button></div></section>
     <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">{plans.map((plan) => <PlanCard key={plan.id} plan={plan} launchDiscount={planDiscount(plan.code)} onRefresh={() => void refresh()} />)}</section>
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,.75fr)]"><div className="admin-card p-6"><div className="flex items-start justify-between gap-3"><div><p className="section-kicker">إدارة الخصم</p><h3 className="mt-1 text-xl font-bold text-[#342118]">حملة افتتاح التطبيق</h3></div><Badge variant="outline" className={campaign?.is_active ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-slate-300 bg-slate-50 text-slate-700"}>{campaign?.is_active ? "نشطة" : "متوقفة"}</Badge></div><div className="mt-5 grid gap-3 sm:grid-cols-3"><label className="text-sm font-semibold text-[#5f4636]">العادية<input value={discountStandard} onChange={(event) => setDiscountStandard(event.target.value)} type="number" min="0" max="100" className="mt-2 h-11 w-full rounded-xl border border-[#eadcc9] bg-white px-3" /></label><label className="text-sm font-semibold text-[#5f4636]">الاحترافية والذهبية<input value={discountProfessional} onChange={(event) => setDiscountProfessional(event.target.value)} type="number" min="0" max="100" className="mt-2 h-11 w-full rounded-xl border border-[#eadcc9] bg-white px-3" /></label><label className="text-sm font-semibold text-[#5f4636]">التوثيق<input value={discountVerification} onChange={(event) => setDiscountVerification(event.target.value)} type="number" min="0" max="100" className="mt-2 h-11 w-full rounded-xl border border-[#eadcc9] bg-white px-3" /></label></div><div className="mt-4 flex flex-wrap gap-3"><Button onClick={() => void saveCampaign()} className="bg-[#4f2e1f] hover:bg-[#6b412a]">حفظ قواعد الخصم</Button><Button onClick={() => void toggleCampaign()} variant="outline" className="border-[#cda36d] text-[#76502e]">{campaign?.is_active ? "إيقاف الخصم" : "تفعيل الخصم"}</Button></div><p className="mt-4 text-xs leading-6 text-[#806b5a]">لا تتغير الطلبات التي دُفعت أو فُعّلت عند إيقاف الحملة. الخصم السنوي مضمّن في سعر السنة، ولا يُراكم خصمًا آخر.</p></div><div className="admin-card p-6"><div className="flex items-center gap-2 text-[#9c5a00]"><WalletCards className="size-5" /><h3 className="text-lg font-bold text-[#342118]">الدفع المتاح</h3></div><p className="mt-3 text-sm leading-7 text-[#806b5a]">الحوالة المحلية فقط. خيار البطاقة مصمم ومجمّد خادميًا، ولا توجد حقول بطاقة أو بيانات حساسة في هذا المسار.</p><div className="mt-4 rounded-2xl bg-[#fff7e9] p-4 text-sm text-[#6f4b2d]">{transfer.is_active ? `الحساب النشط: ${transfer.bank_name ?? "غير محدد"}` : "لم تُفعّل بيانات الحوالة بعد."}</div></div></section>

@@ -1,0 +1,33 @@
+{
+  "task": "059",
+  "scope": "admin plans campaign and local transfer",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "changedFiles": [
+    "apps/admin_web/client/src/components/AdminPlansPanel.tsx"
+  ],
+  "changes": [
+    "refresh failures now have persistent error state and an Arabic retry action",
+    "the panel no longer relies only on a toast while showing empty data after a failed aggregate load",
+    "existing plan, campaign, payment, subscription, design request, transfer, and merchant-user contracts remain unchanged"
+  ],
+  "verifiedStates": [
+    "aggregate loading and error/retry",
+    "plan cards and server-derived discount display",
+    "campaign active/inactive and discount fields",
+    "local transfer settings",
+    "payment proof and reconcile actions",
+    "manual subscription activation",
+    "subscription and design request states"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
