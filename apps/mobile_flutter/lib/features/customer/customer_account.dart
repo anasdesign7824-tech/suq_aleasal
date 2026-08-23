@@ -1445,14 +1445,16 @@ class _RequestsScreenState extends State<RequestsScreen> {
                                                 builder: (_) =>
                                                     StoreProfileScreen(
                                                   repository: widget.repository,
-                                                  storeId: visibleRequests[index]
-                                                      .storeId,
+                                                  storeId:
+                                                      visibleRequests[index]
+                                                          .storeId,
                                                 ),
                                               ),
                                             );
                                           },
                                           onMessageMerchant: () async {
-                                            final session = await widget.repository
+                                            final session = await widget
+                                                .repository
                                                 .getSession();
                                             if (!context.mounted) return;
                                             if (session.isUnavailable) {
@@ -1481,27 +1483,27 @@ class _RequestsScreenState extends State<RequestsScreen> {
                                                 );
                                               return;
                                             }
-                                            final result = await widget.repository
+                                            final result = await widget
+                                                .repository
                                                 .createConversation(
                                               session.user!.id,
                                               visibleRequests[index].storeId,
                                             );
                                             if (!context.mounted) return;
-                                            if (result is
-                                                AssalData<
-                                                    AssalConversationSummary>) {
+                                            if (result is AssalData<
+                                                AssalConversationSummary>) {
                                               await Navigator.of(context).push(
                                                 MaterialPageRoute(
                                                   builder: (_) =>
                                                       ConversationScreen(
-                                                    repository: widget.repository,
+                                                    repository:
+                                                        widget.repository,
                                                     conversation: result.value,
                                                   ),
                                                 ),
                                               );
-                                            } else if (result is
-                                                AssalError<
-                                                    AssalConversationSummary>) {
+                                            } else if (result is AssalError<
+                                                AssalConversationSummary>) {
                                               ScaffoldMessenger.of(context)
                                                 ..hideCurrentSnackBar()
                                                 ..showSnackBar(
@@ -1817,13 +1819,16 @@ class ConversationScreen extends StatefulWidget {
 
 class _ConversationScreenState extends State<ConversationScreen> {
   final controller = TextEditingController();
-  late Future<AssalLoadState<List<AssalMessageSummary>>> future;
+  late Future<AssalSession> sessionFuture;
+  late Future<AssalLoadState<List<AssalMessageSummary>>> messagesFuture;
   bool _isSending = false;
+  String? _sendStatus;
 
   @override
   void initState() {
     super.initState();
-    future = widget.repository.listMessages(widget.conversation.id);
+    sessionFuture = widget.repository.getSession();
+    messagesFuture = widget.repository.listMessages(widget.conversation.id);
   }
 
   @override
@@ -1832,66 +1837,237 @@ class _ConversationScreenState extends State<ConversationScreen> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AssalAppBar(title: widget.conversation.storeName),
-      body: Column(children: [
-        Expanded(
-          child: FutureBuilder<AssalLoadState<List<AssalMessageSummary>>>(
-            future: future,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
-              return AssalStateView<List<AssalMessageSummary>>(
-                state: snapshot.data!,
-                builder: (messages) => ListView(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
-                  children: messages
-                      .map<Widget>((message) => AssalMessageBubble(
-                            message: message,
-                          ))
-                      .toList(),
+  void _retryMessages() {
+    if (!mounted) return;
+    setState(() {
+      messagesFuture = widget.repository.listMessages(widget.conversation.id);
+    });
+  }
+
+  void _reloadSession() {
+    if (!mounted) return;
+    setState(() {
+      sessionFuture = widget.repository.getSession();
+    });
+  }
+
+  Future<void> _login() async {
+    final authenticated = await openAuth(context, widget.repository);
+    if (!mounted || !authenticated) return;
+    _reloadSession();
+  }
+
+  Widget _conversationHeader(AssalSession session) => Card(
+        margin: const EdgeInsets.fromLTRB(
+          AssalSpacing.lg,
+          AssalSpacing.lg,
+          AssalSpacing.lg,
+          AssalSpacing.sm,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.md),
+          child: Row(
+            children: [
+              const CircleAvatar(
+                backgroundColor: AssalColors.honeyLight,
+                child: Icon(
+                  Icons.storefront_outlined,
+                  color: AssalColors.primaryDark,
                 ),
-              );
-            },
+              ),
+              const SizedBox(width: AssalSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.conversation.storeName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AssalTypography.title,
+                    ),
+                    const SizedBox(height: AssalSpacing.xs),
+                    Row(
+                      children: [
+                        Icon(
+                          session.isAuthenticated
+                              ? Icons.circle
+                              : Icons.info_outline,
+                          size: 10,
+                          color: session.isAuthenticated
+                              ? AssalColors.success
+                              : AssalColors.textMuted,
+                        ),
+                        const SizedBox(width: AssalSpacing.xs),
+                        Text(
+                          session.isAuthenticated
+                              ? 'متصل الآن'
+                              : 'يلزم تسجيل الدخول للإرسال',
+                          style: AssalTypography.caption.copyWith(
+                            color: session.isAuthenticated
+                                ? AssalColors.success
+                                : AssalColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AssalSpacing.sm),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Expanded(
+      );
+
+  Widget _messages(AssalSession session) =>
+      FutureBuilder<AssalLoadState<List<AssalMessageSummary>>>(
+        future: messagesFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const AssalGlassLoading();
+          return AssalStateView<List<AssalMessageSummary>>(
+            state: snapshot.data!,
+            emptyMessageAr: 'لا توجد رسائل بعد. ابدأ المحادثة برسالة جديدة.',
+            onRetry: _retryMessages,
+            builder: (messages) => ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AssalSpacing.lg,
+                AssalSpacing.sm,
+                AssalSpacing.lg,
+                AssalSpacing.lg,
+              ),
+              children: [
+                if (session.isAuthenticated && session.user != null)
+                  ...messages.map<Widget>(
+                    (message) => AssalMessageBubble(message: message),
+                  ),
+              ],
+            ),
+          );
+        },
+      );
+
+  Widget _composer(AssalSession session) {
+    final canSend = session.isAuthenticated && session.user != null;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AssalSpacing.sm,
+          AssalSpacing.xs,
+          AssalSpacing.sm,
+          AssalSpacing.sm,
+        ),
+        child: Column(
+          children: [
+            if (_sendStatus != null)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AssalSpacing.xs),
+                  child: Text(
+                    _sendStatus!,
+                    style: AssalTypography.caption.copyWith(
+                      color: AssalColors.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
                   child: TextField(
-                      controller: controller,
-                      maxLines: 3,
-                      minLines: 1,
-                      decoration:
-                          const InputDecoration(hintText: 'اكتب رسالتك'))),
-              IconButton(
-                  onPressed: _isSending ? null : _send,
+                    controller: controller,
+                    enabled: canSend && !_isSending,
+                    maxLines: 3,
+                    minLines: 1,
+                    textInputAction: TextInputAction.newline,
+                    decoration: const InputDecoration(
+                      labelText: 'اكتب رسالتك',
+                      prefixIcon: Icon(Icons.chat_bubble_outline_rounded),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: canSend && !_isSending ? _send : _login,
                   icon: _isSending
                       ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.send_rounded),
-                  tooltip: 'إرسال'),
-            ]),
-          ),
+                      : Icon(
+                          canSend ? Icons.send_rounded : Icons.login_rounded),
+                  tooltip: canSend ? 'إرسال' : 'تسجيل الدخول',
+                ),
+              ],
+            ),
+          ],
         ),
-      ]),
+      ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AssalAppBar(title: widget.conversation.storeName),
+        body: FutureBuilder<AssalSession>(
+          future: sessionFuture,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const AssalGlassLoading();
+            final session = snapshot.data!;
+            if (session.isUnavailable) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ?? 'تعذر تحميل البيانات الآن.',
+                onRetry: _reloadSession,
+              );
+            }
+            return Column(
+              children: [
+                _conversationHeader(session),
+                Expanded(child: _messages(session)),
+                if (!session.isAuthenticated || session.user == null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AssalSpacing.xs),
+                    child: TextButton.icon(
+                      onPressed: _login,
+                      icon: const Icon(Icons.login_rounded),
+                      label: const Text('تسجيل الدخول للرد'),
+                    ),
+                  ),
+                _composer(session),
+              ],
+            );
+          },
+        ),
+      );
 
   Future<void> _send() async {
     final body = controller.text.trim();
     if (body.isEmpty || _isSending) return;
-    setState(() => _isSending = true);
+    setState(() {
+      _isSending = true;
+      _sendStatus = 'جارٍ إرسال الرسالة...';
+    });
     try {
-      final session = await widget.repository.getSession();
+      var session = await widget.repository.getSession();
+      if (session.isUnavailable) {
+        if (mounted) {
+          setState(() => _sendStatus =
+              session.errorMessageAr ?? 'تعذر تحميل البيانات الآن.');
+        }
+        return;
+      }
       if (!session.isAuthenticated || session.user == null) {
-        if (mounted) await openAuth(context, widget.repository);
+        if (!mounted) return;
+        final authenticated = await openAuth(context, widget.repository);
+        if (!mounted || !authenticated) return;
+        session = await widget.repository.getSession();
+      }
+      if (!session.isAuthenticated || session.user == null) {
+        if (mounted) {
+          setState(() => _sendStatus = 'سجّل الدخول لإرسال الرسالة.');
+        }
         return;
       }
       final result = await widget.repository.sendMessage(
@@ -1899,19 +2075,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
         AssalMessageDraft(conversationId: widget.conversation.id, body: body),
       );
       if (!mounted) return;
-      if (result is AssalData) {
+      if (result is AssalData<AssalMessageSummary>) {
         controller.clear();
-        setState(() =>
-            future = widget.repository.listMessages(widget.conversation.id));
+        setState(() {
+          _sendStatus = 'تم إرسال الرسالة.';
+          messagesFuture =
+              widget.repository.listMessages(widget.conversation.id);
+          sessionFuture = Future<AssalSession>.value(session);
+        });
       } else if (result is AssalError<AssalMessageSummary>) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result.messageAr),
-            action: result.retryable
-                ? SnackBarAction(label: 'إعادة المحاولة', onPressed: _send)
-                : null,
-          ),
-        );
+        setState(() => _sendStatus = result.messageAr);
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -1934,8 +2107,7 @@ class MessagesScreen extends StatefulWidget {
 
 class _MessagesScreenState extends State<MessagesScreen> {
   late Future<AssalSession> sessionFuture;
-  Future<AssalLoadState<List<AssalConversationSummary>>>?
-      conversationsFuture;
+  Future<AssalLoadState<List<AssalConversationSummary>>>? conversationsFuture;
   final searchController = TextEditingController();
   String searchQuery = '';
 
@@ -2000,7 +2172,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
     final query = searchQuery.toLowerCase();
     return items
         .where(
-          (item) => item.storeName.toLowerCase().contains(query) ||
+          (item) =>
+              item.storeName.toLowerCase().contains(query) ||
               item.lastMessage.toLowerCase().contains(query),
         )
         .toList(growable: false);
@@ -2068,8 +2241,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           AssalSpacing.lg,
         ),
         itemCount: visibleItems.length,
-        separatorBuilder: (_, __) =>
-            const SizedBox(height: AssalSpacing.sm),
+        separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
         itemBuilder: (_, index) {
           final item = visibleItems[index];
           return AssalConversationCard(
@@ -2089,8 +2261,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Widget _conversations(AssalSession session) {
-    final future = conversationsFuture ??= widget.repository
-        .listConversations(session.user!.id);
+    final future = conversationsFuture ??=
+        widget.repository.listConversations(session.user!.id);
     return FutureBuilder<AssalLoadState<List<AssalConversationSummary>>>(
       future: future,
       builder: (context, snapshot) {
@@ -2103,9 +2275,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
           return AssalMessageCard(
             icon: Icons.sync_problem_outlined,
             message: state.messageAr,
-            onRetry: state.retryable
-                ? () => _retryConversations(session)
-                : null,
+            onRetry:
+                state.retryable ? () => _retryConversations(session) : null,
           );
         }
         if (state is AssalEmpty<List<AssalConversationSummary>>) {
@@ -2136,9 +2307,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: widget.showAppBar
-            ? const AssalAppBar(title: 'الرسائل')
-            : null,
+        appBar: widget.showAppBar ? const AssalAppBar(title: 'الرسائل') : null,
         body: FutureBuilder<AssalSession>(
           future: sessionFuture,
           builder: (context, snapshot) {
@@ -2147,8 +2316,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             if (session.isUnavailable) {
               return AssalMessageCard(
                 icon: Icons.sync_problem_outlined,
-                message: session.errorMessageAr ??
-                    'تعذر تحميل البيانات الآن.',
+                message: session.errorMessageAr ?? 'تعذر تحميل البيانات الآن.',
                 onRetry: _reload,
               );
             }
