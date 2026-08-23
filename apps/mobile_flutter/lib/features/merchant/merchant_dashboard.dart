@@ -32,6 +32,10 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
   late Future<AssalLoadState<List<AssalCommentSummary>>> commentsFuture;
   int managementView = 0;
   bool imageBusy = false;
+  final catalogSearchController = TextEditingController();
+  String catalogQuery = '';
+  ProductStatus? catalogStatus;
+  String catalogSort = 'source';
 
   @override
   void initState() {
@@ -44,6 +48,12 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
     productsFuture = _loadProducts();
     requestsFuture = _loadRequests();
     commentsFuture = _loadComments();
+  }
+
+  @override
+  void dispose() {
+    catalogSearchController.dispose();
+    super.dispose();
   }
 
   Future<AssalLoadState<AssalMerchantWorkspaceSummary?>>
@@ -381,6 +391,90 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
     );
   }
 
+  String _productStatusLabel(ProductStatus status) => switch (status) {
+        ProductStatus.draft => 'مسودة',
+        ProductStatus.pending => 'معلق',
+        ProductStatus.active => 'منشور',
+        ProductStatus.paused => 'متوقف مؤقتًا',
+        ProductStatus.rejected => 'مرفوض',
+      };
+
+  List<AssalProductSummary> _catalogProducts(
+    List<AssalProductSummary> products,
+  ) {
+    final query = catalogQuery.trim().toLowerCase();
+    final filtered = products.where((product) {
+      final matchesQuery = query.isEmpty ||
+          product.nameAr.toLowerCase().contains(query) ||
+          product.id.toLowerCase().contains(query);
+      final matchesStatus =
+          catalogStatus == null || product.status == catalogStatus;
+      return matchesQuery && matchesStatus;
+    }).toList();
+    switch (catalogSort) {
+      case 'views':
+        filtered.sort((a, b) => b.viewsCount.compareTo(a.viewsCount));
+      case 'likes':
+        filtered.sort((a, b) => b.likesCount.compareTo(a.likesCount));
+      case 'name':
+        filtered.sort((a, b) => a.nameAr.compareTo(b.nameAr));
+    }
+    return filtered;
+  }
+
+  Widget _catalogFilters() => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            controller: catalogSearchController,
+            onChanged: (value) => setState(() => catalogQuery = value),
+            decoration: const InputDecoration(
+              labelText: 'بحث المنتجات',
+              hintText: 'اكتب اسم المنتج أو رقمه',
+              prefixIcon: Icon(Icons.search_outlined),
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ChoiceChip(
+                  label: const Text('كل الحالات'),
+                  selected: catalogStatus == null,
+                  onSelected: (_) => setState(() => catalogStatus = null),
+                ),
+                for (final status in ProductStatus.values) ...[
+                  const SizedBox(width: AssalSpacing.xs),
+                  ChoiceChip(
+                    label: Text(_productStatusLabel(status)),
+                    selected: catalogStatus == status,
+                    onSelected: (_) => setState(() => catalogStatus = status),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.sm),
+          DropdownButtonFormField<String>(
+            initialValue: catalogSort,
+            decoration: const InputDecoration(
+              labelText: 'ترتيب المنتجات',
+              prefixIcon: Icon(Icons.sort_outlined),
+            ),
+            items: const [
+              DropdownMenuItem(value: 'source', child: Text('الترتيب الأساسي')),
+              DropdownMenuItem(value: 'views', child: Text('الأكثر مشاهدة')),
+              DropdownMenuItem(value: 'likes', child: Text('الأكثر إعجابًا')),
+              DropdownMenuItem(value: 'name', child: Text('الاسم')),
+            ],
+            onChanged: (value) {
+              if (value != null) setState(() => catalogSort = value);
+            },
+          ),
+        ],
+      );
+
   Widget _products(AssalMerchantWorkspaceSummary workspace) =>
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture,
@@ -397,6 +491,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           final products = state is AssalData<List<AssalProductSummary>>
               ? state.value
               : const <AssalProductSummary>[];
+          final visibleProducts = _catalogProducts(products);
           return ListView(
             padding: const EdgeInsets.all(AssalSpacing.lg),
             children: [
@@ -409,14 +504,21 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
                 ),
               ),
               const SizedBox(height: AssalSpacing.md),
+              _catalogFilters(),
+              const SizedBox(height: AssalSpacing.md),
               if (products.isEmpty)
                 const AssalMessageCard(
                   icon: Icons.inventory_2_outlined,
                   message:
                       'لا توجد منتجات بعد. أضف أول منتج؛ سيبقى معلقًا حتى تفعيل المتجر.',
                 )
+              else if (visibleProducts.isEmpty)
+                const AssalMessageCard(
+                  icon: Icons.search_off_outlined,
+                  message: 'لا توجد منتجات مطابقة للبحث أو الحالة المحددة.',
+                )
               else
-                ...products.map(_productTile),
+                ...visibleProducts.map(_productTile),
             ],
           );
         },
