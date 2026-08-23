@@ -506,6 +506,8 @@ class _DesignRequestScreenState extends State<DesignRequestScreen> {
   late final TextEditingController descriptionController;
   late final TextEditingController brandNameController;
   late final TextEditingController colorsController;
+  late final TextEditingController scopeController;
+  final formKey = GlobalKey<FormState>();
   bool submitting = false;
 
   @override
@@ -515,6 +517,7 @@ class _DesignRequestScreenState extends State<DesignRequestScreen> {
     descriptionController = TextEditingController();
     brandNameController = TextEditingController();
     colorsController = TextEditingController();
+    scopeController = TextEditingController();
   }
 
   @override
@@ -523,85 +526,124 @@ class _DesignRequestScreenState extends State<DesignRequestScreen> {
     descriptionController.dispose();
     brandNameController.dispose();
     colorsController.dispose();
+    scopeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: const AssalAppBar(title: 'طلب تصميم إضافي'),
-        body: ListView(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
-          children: [
-            const AssalPremiumBadge(label: 'خدمة تصميم ضمن الخطة'),
-            const SizedBox(height: AssalSpacing.md),
-            const Text(
-              'اكتب تفاصيل الهوية أو تصميم المنتج المطلوب، وسيصل الطلب للمراجعة والتنفيذ.',
-              style: AssalTypography.bodyLarge,
-            ),
-            const SizedBox(height: AssalSpacing.lg),
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(
-                labelText: 'عنوان الطلب',
-                prefixIcon: Icon(Icons.title_outlined),
+        body: Form(
+          key: formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            children: [
+              const AssalPremiumBadge(label: 'خدمة تصميم ضمن الخطة'),
+              const SizedBox(height: AssalSpacing.md),
+              const Text(
+                'اكتب تفاصيل الهوية أو تصميم المنتج المطلوب، وسيصل الطلب للمراجعة والتنفيذ.',
+                style: AssalTypography.bodyLarge,
               ),
-            ),
-            const SizedBox(height: AssalSpacing.md),
-            TextField(
-              controller: descriptionController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'تفاصيل التصميم',
-                hintText: 'صف الشعار أو العبوة أو الهوية المطلوبة',
-                prefixIcon: Icon(Icons.description_outlined),
+              const SizedBox(height: AssalSpacing.lg),
+              TextFormField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'عنوان الطلب',
+                  prefixIcon: Icon(Icons.title_outlined),
+                ),
+                validator: (value) => value == null || value.trim().length < 2
+                    ? 'أدخل عنوانًا واضحًا للطلب'
+                    : null,
               ),
-            ),
-            const SizedBox(height: AssalSpacing.md),
-            TextField(
-              controller: brandNameController,
-              decoration: const InputDecoration(
-                labelText: 'اسم العلامة التجارية (اختياري)',
-                prefixIcon: Icon(Icons.business_outlined),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                controller: descriptionController,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'وصف المطلوب',
+                  hintText: 'صف الشعار أو العبوة أو الهوية المطلوبة',
+                  prefixIcon: Icon(Icons.description_outlined),
+                ),
+                validator: (value) => value == null || value.trim().length < 10
+                    ? 'اكتب وصفًا لا يقل عن عشرة أحرف'
+                    : null,
               ),
-            ),
-            const SizedBox(height: AssalSpacing.md),
-            TextField(
-              controller: colorsController,
-              decoration: const InputDecoration(
-                labelText: 'الألوان المفضلة (اختياري)',
-                hintText: 'مثال: ذهبي، كريمي، بني',
-                prefixIcon: Icon(Icons.palette_outlined),
+              const SizedBox(height: AssalSpacing.md),
+              TextField(
+                controller: brandNameController,
+                decoration: const InputDecoration(
+                  labelText: 'اسم العلامة التجارية (اختياري)',
+                  prefixIcon: Icon(Icons.business_outlined),
+                ),
               ),
-            ),
-            const SizedBox(height: AssalSpacing.xl),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: submitting ? null : _submit,
-                icon: submitting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send_outlined),
-                label: Text(
-                    submitting ? 'جارٍ إرسال الطلب...' : 'إرسال طلب التصميم'),
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                controller: colorsController,
+                decoration: const InputDecoration(
+                  labelText: 'الألوان المفضلة (اختياري)',
+                  hintText: 'مثال: ذهبي، كريمي، بني',
+                  prefixIcon: Icon(Icons.palette_outlined),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: AssalSpacing.md),
+              TextFormField(
+                controller: scopeController,
+                decoration: const InputDecoration(
+                  labelText: 'نطاق التصميم (اختياري)',
+                  hintText: 'مثال: شعار، عبوة، هوية متجر أو منتج',
+                  prefixIcon: Icon(Icons.category_outlined),
+                ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              ListTile(
+                leading: const Icon(Icons.attach_file_outlined),
+                title: const Text('رفع مرجع أو ملف'),
+                subtitle: const Text(
+                  'رفع مراجع التصميم غير متاح بعقد مستقل حاليًا',
+                ),
+                trailing: const Icon(Icons.lock_outline),
+                onTap: submitting
+                    ? null
+                    : () => ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'رفع مرجع أو ملف غير متاح حاليًا ضمن عقد التطبيق.',
+                            ),
+                          ),
+                        ),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              const AssalMessageCard(
+                icon: Icons.history_outlined,
+                message:
+                    'الطلبات السابقة ستظهر عند توفر عقد قراءة سجل طلبات التصميم.',
+              ),
+              const SizedBox(height: AssalSpacing.xl),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: submitting ? null : _submit,
+                  icon: submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send_outlined),
+                  label: Text(
+                    submitting ? 'جارٍ إرسال الطلب...' : 'إرسال طلب التصميم',
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
 
   Future<void> _submit() async {
+    if (!(formKey.currentState?.validate() ?? false)) return;
     final title = titleController.text.trim();
     final description = descriptionController.text.trim();
-    if (title.length < 2 || description.length < 10) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('أدخل عنوانًا واضحًا وتفاصيل لا تقل عن عشرة أحرف.'),
-      ));
-      return;
-    }
     final session = await widget.repository.getSession();
     if (!mounted) return;
     if (session.isUnavailable) {
@@ -631,10 +673,14 @@ class _DesignRequestScreenState extends State<DesignRequestScreen> {
             .map((value) => value.trim())
             .where((value) => value.isNotEmpty)
             .toList(growable: false),
+        productScope: scopeController.text.trim().isEmpty
+            ? const <String, Object?>{}
+            : <String, Object?>{'scope': scopeController.text.trim()},
       ),
     );
     if (!mounted) return;
     setState(() => submitting = false);
+
     if (result is AssalData<AssalDesignRequest>) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('تم إرسال طلب التصميم، وسيظهر لك بعد مراجعته.'),
