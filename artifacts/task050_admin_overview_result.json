@@ -1,0 +1,31 @@
+{
+  "task": "050",
+  "scope": "admin overview",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "change": {
+    "file": "apps/admin_web/client/src/pages/Home.tsx",
+    "details": [
+      "overview error now renders ErrorState with refresh instead of the green live-source banner and metric cards",
+      "overview export button is disabled during loading, without data, or when overview has an error",
+      "no repository, database, API, RLS, or permission change"
+    ]
+  },
+  "verifiedStates": [
+    "overview loading",
+    "overview error and retry",
+    "overview data",
+    "overview export guarded",
+    "requests and products source states remain intact"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
