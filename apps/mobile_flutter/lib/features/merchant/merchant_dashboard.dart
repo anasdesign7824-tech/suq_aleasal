@@ -543,6 +543,14 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
                   _managementChoice(1, 'الإحصاءات'),
                   const SizedBox(width: AssalSpacing.sm),
                   _managementChoice(2, 'التعليقات'),
+                  const SizedBox(width: AssalSpacing.sm),
+                  _managementChoice(3, 'حالة المنتج'),
+                  const SizedBox(width: AssalSpacing.sm),
+                  _managementChoice(4, 'المشاهدات'),
+                  const SizedBox(width: AssalSpacing.sm),
+                  _managementChoice(5, 'الإعجابات'),
+                  const SizedBox(width: AssalSpacing.sm),
+                  _managementChoice(6, 'التقييمات'),
                 ],
               ),
             ),
@@ -551,7 +559,11 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             child: switch (managementView) {
               0 => _drafts(workspace),
               1 => _statistics(workspace),
-              _ => _comments(),
+              2 => _comments(),
+              3 => _statistics(workspace, focus: 'status'),
+              4 => _statistics(workspace, focus: 'views'),
+              5 => _statistics(workspace, focus: 'likes'),
+              _ => _statistics(workspace, focus: 'ratings'),
             },
           ),
         ],
@@ -571,7 +583,10 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           final state = snapshot.data!;
           if (state is AssalError<List<AssalProductSummary>>) {
             return AssalMessageCard(
-                icon: Icons.pending_actions_outlined, message: state.messageAr);
+              icon: Icons.pending_actions_outlined,
+              message: state.messageAr,
+              onRetry: () => setState(_refresh),
+            );
           }
           final products = state is AssalData<List<AssalProductSummary>>
               ? state.value
@@ -730,7 +745,10 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         },
       );
 
-  Widget _statistics(AssalMerchantWorkspaceSummary workspace) =>
+  Widget _statistics(
+    AssalMerchantWorkspaceSummary workspace, {
+    String? focus,
+  }) =>
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture,
         builder: (context, snapshot) {
@@ -777,11 +795,18 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
                           spacing: AssalSpacing.lg,
                           runSpacing: AssalSpacing.xs,
                           children: [
-                            Text('المشاهدات: ${product.viewsCount}'),
-                            Text('الإعجابات: ${product.likesCount}'),
-                            Text(
-                                'التقييم: ${product.ratingAverage.toStringAsFixed(1)}'),
-                            Text('المراجعات: ${product.reviewCount}'),
+                            if (focus == null || focus == 'status')
+                              Text(
+                                  'حالة المنتج: ${_productStatusLabel(product.status)}'),
+                            if (focus == null || focus == 'views')
+                              Text('المشاهدات: ${product.viewsCount}'),
+                            if (focus == null || focus == 'likes')
+                              Text('الإعجابات: ${product.likesCount}'),
+                            if (focus == null || focus == 'ratings') ...[
+                              Text(
+                                  'التقييم: ${product.ratingAverage.toStringAsFixed(1)}'),
+                              Text('المراجعات: ${product.reviewCount}'),
+                            ],
                           ],
                         ),
                       ],
