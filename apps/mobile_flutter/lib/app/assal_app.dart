@@ -53,36 +53,128 @@ class AssalApp extends StatelessWidget {
 }
 
 class AssalStartupErrorScreen extends StatelessWidget {
-  const AssalStartupErrorScreen({super.key, required this.messageAr});
+  const AssalStartupErrorScreen({
+    super.key,
+    required this.messageAr,
+    this.onRetry,
+  });
   final String messageAr;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: const AssalAppBar(title: 'تعذر تشغيل عسلكم', showBrand: false),
-        body: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Card(
+        backgroundColor: AssalColors.cream,
+        appBar: const AssalAppBar(title: 'خطأ بدء التشغيل'),
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.md,
+              AssalSpacing.lg,
+              AssalSpacing.x4l,
+            ),
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AssalSpacing.md,
+                      vertical: AssalSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AssalColors.error.withValues(alpha: .10),
+                      borderRadius: BorderRadius.circular(AssalRadius.pill),
+                    ),
+                    child: Text(
+                      'غير متصل',
+                      style: AssalTypography.bodySmall.copyWith(
+                        color: AssalColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('تحديث'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AssalSpacing.lg),
+              Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    const Icon(Icons.cloud_off_outlined, size: 52),
-                    const SizedBox(height: 16),
-                    const Text('إعدادات التشغيل غير مكتملة',
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 12),
-                    Text(messageAr, textAlign: TextAlign.center),
-                    const SizedBox(height: 16),
-                    const Text(
-                        'لا تم إدخالك إلى Demo تلقائيًا حتى لا تختلط بيانات الاختبار ببيئة الإنتاج.',
-                        textAlign: TextAlign.center),
-                  ]),
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text(
+                        'تعذر تشغيل التطبيق',
+                        style: AssalTypography.heading2.copyWith(
+                          color: AssalColors.deepBrown,
+                        ),
+                      ),
+                      const SizedBox(height: AssalSpacing.sm),
+                      Text(
+                        messageAr,
+                        style: AssalTypography.body.copyWith(
+                          color: AssalColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: AssalSpacing.lg),
+                      DecoratedBox(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: <Color>[
+                              AssalColors.primaryLight,
+                              AssalColors.primaryDark,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(AssalRadius.medium),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AssalSpacing.x2l,
+                          ),
+                          child: Text(
+                            'عسلكم',
+                            textAlign: TextAlign.center,
+                            style: AssalTypography.heading1.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: AssalSpacing.md),
+              const Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: <Widget>[
+                  Chip(
+                    avatar: Icon(Icons.error_outline, size: 18),
+                    label: Text('تعذر تشغيل التطبيق'),
+                  ),
+                  Chip(
+                    avatar: Icon(Icons.translate_rounded, size: 18),
+                    label: Text('شرح الخطأ بالعربية'),
+                  ),
+                ],
+              ),
+              if (onRetry != null) ...<Widget>[
+                const SizedBox(height: AssalSpacing.lg),
+                FilledButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('إعادة المحاولة'),
+                ),
+              ],
+            ],
           ),
         ),
       );
