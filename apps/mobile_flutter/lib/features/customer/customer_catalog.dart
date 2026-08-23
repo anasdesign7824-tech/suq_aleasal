@@ -1541,9 +1541,11 @@ class _RequestSheetState extends State<RequestSheet> {
   final bodyController = TextEditingController(
       text: 'أرغب في معرفة تفاصيل المنتج والتوفر الحالي.');
   final phoneController = TextEditingController();
+  final priceNoteController = TextEditingController();
   final deliveryNoteController = TextEditingController();
   int quantity = 1;
   HandoffOption option = HandoffOption.contact;
+  String contactChannel = 'in_app';
   String? selectedDeliveryOption;
   String? selectedPickupLocation;
   bool saving = false;
@@ -1552,6 +1554,7 @@ class _RequestSheetState extends State<RequestSheet> {
   void dispose() {
     bodyController.dispose();
     phoneController.dispose();
+    priceNoteController.dispose();
     deliveryNoteController.dispose();
     super.dispose();
   }
@@ -1569,11 +1572,52 @@ class _RequestSheetState extends State<RequestSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('طلب تواصل مع ${widget.store.nameAr}',
-                  style: AssalTypography.heading2
-                      .copyWith(color: AssalColors.deepBrown)),
-              const SizedBox(height: AssalSpacing.sm),
-              Text(widget.product.nameAr, style: AssalTypography.subtitle),
+              Text(
+                'اسأل عن التوفر',
+                style: AssalTypography.heading2
+                    .copyWith(color: AssalColors.deepBrown),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 76,
+                    height: 76,
+                    child: AssalImageTile(
+                      imageUrl: widget.product.primaryImageUrl ??
+                          (widget.product.imageUrls.isNotEmpty
+                              ? widget.product.imageUrls.first
+                              : null),
+                      height: 76,
+                      icon: Icons.inventory_2_outlined,
+                    ),
+                  ),
+                  const SizedBox(width: AssalSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.product.nameAr,
+                          style: AssalTypography.subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: AssalSpacing.xs),
+                        Text(widget.store.nameAr),
+                        if (widget.store.regionNameAr != null)
+                          Text(
+                            widget.store.regionNameAr!,
+                            style: AssalTypography.bodySmall.copyWith(
+                              color: AssalColors.textMuted,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: AssalSpacing.lg),
               TextField(
                   controller: bodyController,
@@ -1588,10 +1632,17 @@ class _RequestSheetState extends State<RequestSheet> {
                       labelText: 'رقم للتواصل (اختياري)')),
               const SizedBox(height: AssalSpacing.md),
               TextField(
+                  controller: priceNoteController,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                      labelText: 'السعر أو ملاحظة السعر (اختياري)',
+                      hintText: 'مثال: هل يتوفر سعر الجملة؟')),
+              const SizedBox(height: AssalSpacing.md),
+              TextField(
                   controller: deliveryNoteController,
                   maxLines: 2,
                   decoration: const InputDecoration(
-                      labelText: 'ملاحظات التسليم (اختياري)',
+                      labelText: 'ملاحظات التوصيل (اختياري)',
                       hintText: 'مثال: التواصل قبل الوصول')),
               const SizedBox(height: AssalSpacing.md),
               DropdownButtonFormField<HandoffOption>(
@@ -1636,6 +1687,31 @@ class _RequestSheetState extends State<RequestSheet> {
                         setState(() => selectedPickupLocation = value)),
               ],
               const SizedBox(height: AssalSpacing.md),
+              const Text(
+                'طريقة التواصل المفضلة',
+                style: AssalTypography.subtitle,
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: _contactChannels()
+                    .entries
+                    .map(
+                      (entry) => ChoiceChip(
+                        selected: contactChannel == entry.key,
+                        label: Text(entry.value),
+                        avatar: Icon(_contactChannelIcon(entry.key), size: 16),
+                        onSelected: saving
+                            ? null
+                            : (_) => setState(
+                                  () => contactChannel = entry.key,
+                                ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: AssalSpacing.md),
               Row(children: [
                 const Text('الكمية'),
                 IconButton(
@@ -1649,18 +1725,56 @@ class _RequestSheetState extends State<RequestSheet> {
                     icon: const Icon(Icons.add_circle_outline)),
               ]),
               const SizedBox(height: AssalSpacing.lg),
-              SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed:
+                          saving ? null : () => Navigator.of(context).pop(),
+                      child: const Text('إلغاء'),
+                    ),
+                  ),
+                  const SizedBox(width: AssalSpacing.md),
+                  Expanded(
+                    child: FilledButton(
                       onPressed: saving ? null : _submit,
                       child: saving
                           ? const AssalGlassLoading(
                               height: 44, label: 'جارٍ الإرسال...')
-                          : const Text('حفظ وإرسال الطلب'))),
+                          : const Text('إرسال الطلب'),
+                    ),
+                  ),
+                ],
+              ),
             ]),
       ),
     );
   }
+
+  Map<String, String> _contactChannels() {
+    final channels = <String, String>{'in_app': 'داخل عسلكم'};
+    if (widget.store.contactPhone?.trim().isNotEmpty ?? false) {
+      channels['phone'] = 'الهاتف';
+    }
+    if (widget.store.contactWhatsapp?.trim().isNotEmpty ?? false) {
+      channels['whatsapp'] = 'واتساب';
+    }
+    if (widget.store.contactTelegram?.trim().isNotEmpty ?? false) {
+      channels['telegram'] = 'تلغرام';
+    }
+    if (widget.store.socialLinks['website']?.trim().isNotEmpty ?? false) {
+      channels['website'] = 'الموقع';
+    }
+    return channels;
+  }
+
+  IconData _contactChannelIcon(String channel) => switch (channel) {
+        'phone' => Icons.phone_outlined,
+        'whatsapp' => Icons.chat_outlined,
+        'telegram' => Icons.send_outlined,
+        'website' => Icons.location_on_outlined,
+        _ => Icons.hive_outlined,
+      };
 
   Future<void> _submit() async {
     final body = bodyController.text.trim();
@@ -1708,12 +1822,20 @@ class _RequestSheetState extends State<RequestSheet> {
             deliveryNote: deliveryNoteController.text.trim().isEmpty
                 ? null
                 : deliveryNoteController.text.trim(),
-            handoffDetails: handoffDetails));
+            contactChannel: contactChannel,
+            priceNote: priceNoteController.text.trim().isEmpty
+                ? null
+                : priceNoteController.text.trim(),
+            handoffDetails: {
+              ...handoffDetails,
+              'contact_channel': contactChannel,
+            }));
     if (!mounted) return;
     setState(() => saving = false);
     if (result is AssalData<AssalRequestSummary>) {
+      final messenger = ScaffoldMessenger.maybeOf(context);
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger?.showSnackBar(
         const SnackBar(content: Text('تم حفظ الطلب ويمكنك متابعته من ملفك.')),
       );
     } else if (result is AssalError<AssalRequestSummary>) {
