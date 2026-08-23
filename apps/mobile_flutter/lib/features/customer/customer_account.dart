@@ -1919,7 +1919,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 }
 
-class MessagesScreen extends StatelessWidget {
+class MessagesScreen extends StatefulWidget {
   const MessagesScreen({
     super.key,
     required this.repository,
@@ -1929,55 +1929,242 @@ class MessagesScreen extends StatelessWidget {
   final bool showAppBar;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: showAppBar ? const AssalAppBar(title: 'المراسلات') : null,
-      body: FutureBuilder<AssalSession>(
-        future: repository.getSession(),
-        builder: (context, sessionSnapshot) {
-          if (sessionSnapshot.connectionState != ConnectionState.done) {
-            return const AssalGlassLoading();
-          }
-          final session = sessionSnapshot.data ?? AssalSession.guest;
-          if (!session.isAuthenticated) {
-            return Center(
-                child: FilledButton(
-                    onPressed: () => openAuth(context, repository),
-                    child: const Text('تسجيل الدخول لعرض المراسلات')));
-          }
-          return FutureBuilder<AssalLoadState<List<AssalConversationSummary>>>(
-            future: repository.listConversations(session.user!.id),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
-              return AssalStateView<List<AssalConversationSummary>>(
-                state: snapshot.data!,
-                builder: (items) => ListView.separated(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: AssalSpacing.sm),
-                  itemBuilder: (_, index) {
-                    final item = items[index];
-                    return AssalConversationCard(
-                      conversation: item,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ConversationScreen(
-                            repository: repository,
-                            conversation: item,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+  State<MessagesScreen> createState() => _MessagesScreenState();
+}
+
+class _MessagesScreenState extends State<MessagesScreen> {
+  late Future<AssalSession> sessionFuture;
+  Future<AssalLoadState<List<AssalConversationSummary>>>?
+      conversationsFuture;
+  final searchController = TextEditingController();
+  String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    sessionFuture = widget.repository.getSession();
+    searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    searchController
+      ..removeListener(_onSearchChanged)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final nextQuery = searchController.text.trim();
+    if (nextQuery == searchQuery || !mounted) return;
+    setState(() => searchQuery = nextQuery);
+  }
+
+  void _reload() {
+    if (!mounted) return;
+    setState(() {
+      sessionFuture = widget.repository.getSession();
+      conversationsFuture = null;
+    });
+  }
+
+  void _retryConversations(AssalSession session) {
+    if (!mounted || session.user == null) return;
+    setState(() {
+      conversationsFuture =
+          widget.repository.listConversations(session.user!.id);
+    });
+  }
+
+  Future<void> _login() async {
+    final authenticated = await openAuth(context, widget.repository);
+    if (!mounted || !authenticated) return;
+    setState(() {
+      sessionFuture = widget.repository.getSession();
+      conversationsFuture = null;
+    });
+  }
+
+  Future<void> _exploreStores() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => StoresScreen(repository: widget.repository),
+      ),
+    );
+  }
+
+  List<AssalConversationSummary> _filteredItems(
+    List<AssalConversationSummary> items,
+  ) {
+    if (searchQuery.isEmpty) return items;
+    final query = searchQuery.toLowerCase();
+    return items
+        .where(
+          (item) => item.storeName.toLowerCase().contains(query) ||
+              item.lastMessage.toLowerCase().contains(query),
+        )
+        .toList(growable: false);
+  }
+
+  Widget _searchField() => TextField(
+        controller: searchController,
+        textInputAction: TextInputAction.search,
+        decoration: const InputDecoration(
+          labelText: 'البحث في المحادثات',
+          prefixIcon: Icon(Icons.search_rounded),
+          suffixIcon: Icon(Icons.forum_outlined),
+        ),
+      );
+
+  Widget _emptyState({required bool filtered}) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                filtered ? Icons.search_off_rounded : Icons.forum_outlined,
+                size: 42,
+                color: AssalColors.textMuted,
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Text(
+                filtered
+                    ? 'لا توجد محادثات تطابق بحثك.'
+                    : 'لا توجد محادثات بعد.',
+                textAlign: TextAlign.center,
+                style: AssalTypography.body.copyWith(
+                  color: AssalColors.textSecondary,
                 ),
-              );
-            },
+              ),
+              if (!filtered) ...[
+                const SizedBox(height: AssalSpacing.md),
+                OutlinedButton.icon(
+                  onPressed: _exploreStores,
+                  icon: const Icon(Icons.storefront_outlined),
+                  label: const Text('استكشف المتاجر'),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+
+  Widget _conversationList(
+    AssalSession session,
+    List<AssalConversationSummary> items,
+  ) {
+    final visibleItems = _filteredItems(items);
+    if (visibleItems.isEmpty) {
+      return _emptyState(filtered: searchQuery.isNotEmpty);
+    }
+    return RefreshIndicator(
+      onRefresh: () async => _retryConversations(session),
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(
+          AssalSpacing.lg,
+          AssalSpacing.sm,
+          AssalSpacing.lg,
+          AssalSpacing.lg,
+        ),
+        itemCount: visibleItems.length,
+        separatorBuilder: (_, __) =>
+            const SizedBox(height: AssalSpacing.sm),
+        itemBuilder: (_, index) {
+          final item = visibleItems[index];
+          return AssalConversationCard(
+            conversation: item,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ConversationScreen(
+                  repository: widget.repository,
+                  conversation: item,
+                ),
+              ),
+            ),
           );
         },
       ),
     );
   }
+
+  Widget _conversations(AssalSession session) {
+    final future = conversationsFuture ??= widget.repository
+        .listConversations(session.user!.id);
+    return FutureBuilder<AssalLoadState<List<AssalConversationSummary>>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const AssalGlassLoading();
+        final state = snapshot.data!;
+        if (state is AssalLoading<List<AssalConversationSummary>>) {
+          return const AssalGlassLoading();
+        }
+        if (state is AssalError<List<AssalConversationSummary>>) {
+          return AssalMessageCard(
+            icon: Icons.sync_problem_outlined,
+            message: state.messageAr,
+            onRetry: state.retryable
+                ? () => _retryConversations(session)
+                : null,
+          );
+        }
+        if (state is AssalEmpty<List<AssalConversationSummary>>) {
+          return _emptyState(filtered: false);
+        }
+        final items = state is AssalData<List<AssalConversationSummary>>
+            ? state.value
+            : const <AssalConversationSummary>[];
+        return _conversationList(session, items);
+      },
+    );
+  }
+
+  Widget _authenticatedBody(AssalSession session) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+              AssalSpacing.sm,
+            ),
+            child: _searchField(),
+          ),
+          Expanded(child: _conversations(session)),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: widget.showAppBar
+            ? const AssalAppBar(title: 'الرسائل')
+            : null,
+        body: FutureBuilder<AssalSession>(
+          future: sessionFuture,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const AssalGlassLoading();
+            final session = snapshot.data!;
+            if (session.isUnavailable) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ??
+                    'تعذر تحميل البيانات الآن.',
+                onRetry: _reload,
+              );
+            }
+            if (!session.isAuthenticated || session.user == null) {
+              return Center(
+                child: FilledButton.icon(
+                  onPressed: _login,
+                  icon: const Icon(Icons.login_rounded),
+                  label: const Text('تسجيل الدخول لعرض الرسائل'),
+                ),
+              );
+            }
+            return _authenticatedBody(session);
+          },
+        ),
+      );
 }
 
 class SettingsScreen extends StatefulWidget {

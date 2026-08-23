@@ -545,6 +545,15 @@ class AssalNotificationCard extends StatelessWidget {
   }
 }
 
+String _conversationDateLabel(DateTime value) {
+  final local = value.toLocal();
+  final day = local.day.toString().padLeft(2, '0');
+  final month = local.month.toString().padLeft(2, '0');
+  final hour = local.hour.toString().padLeft(2, '0');
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '$day/$month · $hour:$minute';
+}
+
 class AssalConversationCard extends StatelessWidget {
   const AssalConversationCard({
     super.key,
@@ -566,7 +575,28 @@ class AssalConversationCard extends StatelessWidget {
               color: AssalColors.primaryDark,
             ),
           ),
-          title: Text(conversation.storeName),
+          title: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  conversation.storeName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: AssalSpacing.sm),
+              Flexible(
+                child: Text(
+                  _conversationDateLabel(conversation.updatedAt),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AssalTypography.caption.copyWith(
+                    color: AssalColors.textMuted,
+                  ),
+                ),
+              ),
+            ],
+          ),
           subtitle: Text(
             conversation.lastMessage,
             maxLines: 2,
