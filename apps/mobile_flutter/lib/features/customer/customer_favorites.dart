@@ -26,11 +26,15 @@ class _FavoritesScreenState extends State<FavoritesScreen>
   Future<AssalLoadState<List<AssalProductSummary>>>? productsFuture;
   Future<AssalLoadState<List<AssalStoreSummary>>>? storesFuture;
   Future<AssalLoadState<List<AssalTaxonomy>>>? taxonomiesFuture;
+  late Future<AssalSession> sessionFuture;
+  final Set<String> removingFavoriteIds = <String>{};
+  final Set<String> removingFollowedStoreIds = <String>{};
   String? _loadedUserId;
 
   @override
   void initState() {
     super.initState();
+    sessionFuture = widget.repository.getSession();
     tabs = TabController(
       length: 3,
       initialIndex: widget.initialTab.clamp(0, 2),
@@ -53,7 +57,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
 
   @override
   Widget build(BuildContext context) => FutureBuilder<AssalSession>(
-        future: widget.repository.getSession(),
+        future: sessionFuture,
         builder: (context, sessionSnapshot) {
           if (sessionSnapshot.connectionState != ConnectionState.done) {
             return const Scaffold(body: AssalGlassLoading());
@@ -65,7 +69,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
               body: AssalMessageCard(
                 icon: Icons.sync_problem_outlined,
                 message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
-                onRetry: () => setState(() {}),
+                onRetry: _retrySession,
               ),
             );
           }
@@ -74,7 +78,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
               appBar: const AssalAppBar(title: 'المحفوظات'),
               body: Center(
                 child: FilledButton(
-                  onPressed: () => openAuth(context, widget.repository),
+                  onPressed: _login,
                   child: const Text('تسجيل الدخول لعرض محفوظاتك'),
                 ),
               ),
@@ -100,38 +104,134 @@ class _FavoritesScreenState extends State<FavoritesScreen>
         },
       );
 
+  Future<void> _login() async {
+    final authenticated = await openAuth(context, widget.repository);
+    if (!mounted || !authenticated) return;
+    setState(() {
+      sessionFuture = widget.repository.getSession();
+      _loadedUserId = null;
+    });
+  }
+
+  void _retrySession() {
+    if (!mounted) return;
+    setState(() {
+      sessionFuture = widget.repository.getSession();
+      _loadedUserId = null;
+    });
+  }
+
   Future<void> _removeFavorite(String productId) async {
     final userId = _loadedUserId;
-    if (userId == null) return;
-    final result = await widget.repository.toggleFavorite(userId, productId);
-    if (!mounted) return;
-    if (result is AssalData<bool>) {
-      setState(() => _load(userId));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تمت إزالة المنتج من المحفوظات.')),
-      );
-    } else if (result is AssalError<bool>) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.messageAr)),
-      );
+    if (userId == null || removingFavoriteIds.contains(productId)) return;
+    setState(() => removingFavoriteIds.add(productId));
+    try {
+      final result = await widget.repository.toggleFavorite(userId, productId);
+      if (!mounted) return;
+      if (result is AssalData<bool>) {
+        setState(() => _load(userId));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تمت إزالة المنتج من المحفوظات.')),
+        );
+      } else if (result is AssalError<bool>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.messageAr)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => removingFavoriteIds.remove(productId));
     }
   }
 
   Future<void> _removeFollow(String storeId) async {
     final userId = _loadedUserId;
-    if (userId == null) return;
-    final result = await widget.repository.toggleFollow(userId, storeId);
-    if (!mounted) return;
-    if (result is AssalData<bool>) {
-      setState(() => _load(userId));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تمت إزالة المتجر من المتابعات.')),
+    if (userId == null || removingFollowedStoreIds.contains(storeId)) return;
+    setState(() => removingFollowedStoreIds.add(storeId));
+    try {
+      final result = await widget.repository.toggleFollow(userId, storeId);
+      if (!mounted) return;
+      if (result is AssalData<bool>) {
+        setState(() => _load(userId));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تمت إزالة المتجر من المتابعات.')),
+        );
+      } else if (result is AssalError<bool>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.messageAr)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => removingFollowedStoreIds.remove(storeId));
+    }
+  }
+
+  Future<void> _exploreProducts() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SearchScreen(repository: widget.repository),
+      ),
+    );
+  }
+
+  Widget _emptyState(String message, {VoidCallback? onAction}) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AssalSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.bookmark_border_rounded,
+                size: 42,
+                color: AssalColors.textMuted,
+              ),
+              const SizedBox(height: AssalSpacing.sm),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: AssalTypography.body.copyWith(
+                  color: AssalColors.textSecondary,
+                ),
+              ),
+              if (onAction != null) ...[
+                const SizedBox(height: AssalSpacing.md),
+                OutlinedButton.icon(
+                  onPressed: onAction,
+                  icon: const Icon(Icons.search_rounded),
+                  label: const Text('استكشف المنتجات'),
+                ),
+              ],
+            ],
+          ),
+        ),
       );
-    } else if (result is AssalError<bool>) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result.messageAr)),
+
+  Widget _listState<T>({
+    required AssalLoadState<List<T>> state,
+    required Widget Function(List<T>) builder,
+    required String emptyMessage,
+    VoidCallback? onEmptyAction,
+    required VoidCallback onRetry,
+  }) {
+    if (state is AssalLoading<List<T>>) {
+      return const AssalGlassLoading();
+    }
+    if (state is AssalError<List<T>>) {
+      return AssalMessageCard(
+        icon: Icons.sync_problem_outlined,
+        message: state.messageAr,
+        onRetry: state.retryable ? onRetry : null,
       );
     }
+    if (state is AssalEmpty<List<T>>) {
+      return _emptyState(emptyMessage, onAction: onEmptyAction);
+    }
+    if (state is AssalData<List<T>>) {
+      if (state.value.isEmpty) {
+        return _emptyState(emptyMessage, onAction: onEmptyAction);
+      }
+      return builder(state.value);
+    }
+    return const AssalGlassLoading();
   }
 
   Widget _products() =>
@@ -139,16 +239,18 @@ class _FavoritesScreenState extends State<FavoritesScreen>
         future: productsFuture!,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
-          return AssalStateView<List<AssalProductSummary>>(
+          return _listState<AssalProductSummary>(
             state: snapshot.data!,
             onRetry: () => setState(() => _load(_loadedUserId!)),
+            emptyMessage: 'لم تحفظ شيئًا بعد.',
+            onEmptyAction: _exploreProducts,
             builder: (items) => GridView.builder(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 220,
+                  maxCrossAxisExtent: 360,
                   crossAxisSpacing: AssalSpacing.md,
                   mainAxisSpacing: AssalSpacing.md,
-                  childAspectRatio: .68),
+                  childAspectRatio: .58),
               itemCount: items.length,
               itemBuilder: (_, index) => ProductCard(
                 product: items[index],
@@ -159,6 +261,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                   ),
                 )),
                 onFavorite: () => _removeFavorite(items[index].id),
+                favorite: true,
               ),
             ),
           );
@@ -198,9 +301,11 @@ class _FavoritesScreenState extends State<FavoritesScreen>
         future: storesFuture!,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
-          return AssalStateView<List<AssalStoreSummary>>(
+          return _listState<AssalStoreSummary>(
             state: snapshot.data!,
             onRetry: () => setState(() => _load(_loadedUserId!)),
+            emptyMessage: 'لم تحفظ أي متجر بعد.',
+            onEmptyAction: _exploreProducts,
             builder: (items) => ListView.separated(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,

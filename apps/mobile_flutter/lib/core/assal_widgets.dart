@@ -226,7 +226,6 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
             ],
           ),
         ),
-
       ),
     );
   }
@@ -378,7 +377,6 @@ class SectionHeader extends StatelessWidget {
             TextButton(onPressed: onAction, child: Text(actionLabel!)),
         ],
       );
-
 }
 
 class AssalPremiumBadge extends StatelessWidget {
@@ -435,7 +433,8 @@ class AssalRoleBadge extends StatelessWidget {
         decoration: BoxDecoration(
           color: AssalColors.honeyLight,
           borderRadius: BorderRadius.circular(AssalRadius.pill),
-          border: Border.all(color: AssalColors.primaryDark.withValues(alpha: .2)),
+          border:
+              Border.all(color: AssalColors.primaryDark.withValues(alpha: .2)),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -480,7 +479,8 @@ class AssalActionTile extends StatelessWidget {
           trailing: trailing ??
               (onTap == null
                   ? null
-                  : const Icon(Icons.chevron_left, color: AssalColors.textMuted)),
+                  : const Icon(Icons.chevron_left,
+                      color: AssalColors.textMuted)),
         ),
       );
 }
@@ -534,9 +534,8 @@ class AssalNotificationCard extends StatelessWidget {
               ? const TextStyle(fontWeight: FontWeight.w700)
               : null,
         ),
-        subtitle: notification.bodyAr == null
-            ? null
-            : Text(notification.bodyAr!),
+        subtitle:
+            notification.bodyAr == null ? null : Text(notification.bodyAr!),
         trailing: notification.readAt == null
             ? const AssalRoleBadge(label: 'جديد')
             : null,
@@ -891,7 +890,8 @@ class AssalImagePickerTile extends StatelessWidget {
     final hasImage = bytes != null ||
         (imageUrl != null && imageUrl!.trim().startsWith('http'));
     final image = bytes != null
-        ? Image.memory(bytes!, fit: BoxFit.cover, width: tileWidth, height: tileHeight)
+        ? Image.memory(bytes!,
+            fit: BoxFit.cover, width: tileWidth, height: tileHeight)
         : hasImage
             ? Image.network(
                 imageUrl!,
@@ -908,11 +908,11 @@ class AssalImagePickerTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AssalRadius.medium),
         child: Material(
           color: AssalColors.honeyLight,
-            child: InkWell(
-              onTap: onPick,
-              child: SizedBox(
-                width: tileWidth,
-                height: tileHeight,
+          child: InkWell(
+            onTap: onPick,
+            child: SizedBox(
+              width: tileWidth,
+              height: tileHeight,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -956,12 +956,12 @@ class AssalImagePickerTile extends StatelessWidget {
                       top: AssalSpacing.xs,
                       child: IconButton.filledTonal(
                         padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 28,
-                        minHeight: 28,
-                      ),
-                      visualDensity: VisualDensity.compact,
-                      tooltip: 'إزالة الصورة',
+                        constraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        tooltip: 'إزالة الصورة',
                         onPressed: onClear,
                         icon: const Icon(Icons.delete_outline, size: 16),
                       ),
@@ -1044,7 +1044,7 @@ class AssalImageTile extends StatelessWidget {
             : _fallback(),
       );
   Widget _fallback() => Center(
-      child: Icon(
+          child: Icon(
         icon,
         size: height.isFinite ? height * .38 : 42,
         color: AssalColors.primaryDark,
@@ -1076,11 +1076,13 @@ class ProductCard extends StatelessWidget {
     required this.onTap,
     this.onFavorite,
     this.store,
+    this.favorite = false,
   });
   final AssalProductSummary product;
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
   final AssalStoreSummary? store;
+  final bool favorite;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -1135,8 +1137,12 @@ class ProductCard extends StatelessWidget {
                         left: AssalSpacing.sm,
                         child: IconButton.filledTonal(
                           onPressed: onFavorite,
-                          icon: const Icon(Icons.favorite_border_rounded),
-                          tooltip: 'حفظ المنتج',
+                          icon: Icon(
+                            favorite
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                          ),
+                          tooltip: favorite ? 'إزالة الحفظ' : 'حفظ المنتج',
                         ),
                       ),
                   ],
@@ -1356,12 +1362,13 @@ class StoreCard extends StatelessWidget {
                                 logoUrl != null && logoUrl.startsWith('http')
                                     ? NetworkImage(logoUrl)
                                     : null,
-                            child: logoUrl == null || !logoUrl.startsWith('http')
-                                ? const Icon(
-                                    Icons.storefront_outlined,
-                                    color: AssalColors.primaryDark,
-                                  )
-                                : null,
+                            child:
+                                logoUrl == null || !logoUrl.startsWith('http')
+                                    ? const Icon(
+                                        Icons.storefront_outlined,
+                                        color: AssalColors.primaryDark,
+                                      )
+                                    : null,
                           ),
                           const SizedBox(width: AssalSpacing.sm),
                           Expanded(
@@ -1527,7 +1534,8 @@ class AssalStoreHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logoUrl = store.logoUrl ?? store.avatarUrl;
-    final displayedFollowersCount = followersCountOverride ?? store.followersCount;
+    final displayedFollowersCount =
+        followersCountOverride ?? store.followersCount;
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -1693,7 +1701,8 @@ class AssalStoreHeaderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AssalSpacing.sm),
                 Text(
-                  store.description ?? 'متجر متخصص في المنتجات النحلية اليمنية.',
+                  store.description ??
+                      'متجر متخصص في المنتجات النحلية اليمنية.',
                   textAlign: TextAlign.center,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -1789,8 +1798,8 @@ class InfoChip extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AssalTypography.caption
-                .copyWith(color: AssalColors.secondary),
+            style:
+                AssalTypography.caption.copyWith(color: AssalColors.secondary),
           ),
         )
       ]));
