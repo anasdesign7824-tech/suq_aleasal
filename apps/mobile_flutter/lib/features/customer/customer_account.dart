@@ -746,7 +746,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         icon: Icons.settings_outlined,
         title: 'الإعدادات',
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => const SettingsScreen(),
+          builder: (_) => SettingsScreen(repository: repository),
         )),
       ),
       const SizedBox(height: AssalSpacing.sm),
@@ -2711,72 +2711,355 @@ class _MessagesScreenState extends State<MessagesScreen> {
 }
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, required this.repository});
+
+  final AssalRepository repository;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool notificationsEnabled = true;
+  late Future<AssalSession> sessionFuture;
+  bool showNamePublic = true;
+  bool showPhotoPublic = true;
+  bool followersEnabled = true;
+  bool notifyOrders = true;
+  bool notifyMessages = true;
+  bool notifyInteractions = true;
+  bool saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    sessionFuture = widget.repository.getSession();
+  }
+
+  void _retry() {
+    final refreshed = widget.repository.getSession();
+    setState(() {
+      sessionFuture = refreshed;
+    });
+  }
+
+  void _saveSessionSettings() {
+    if (saving) return;
+    setState(() => saving = true);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'تم حفظ تفضيلات هذه الجلسة. لا يوجد عقد مزامنة دائم لهذه الإعدادات حاليًا.',
+        ),
+      ),
+    );
+    setState(() => saving = false);
+  }
+
+  Future<void> _signOut() async {
+    if (saving) return;
+    setState(() => saving = true);
+    final result = await widget.repository.signOut();
+    if (!mounted) return;
+    setState(() => saving = false);
+    if (result is AssalData<void>) {
+      Navigator.of(context).pop(true);
+    } else if (result is AssalError<void>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    if (saving) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('حذف الحساب؟'),
+        content: const Text(
+          'سيتم حذف حسابك وبياناته المرتبطة نهائيًا. لا يمكن التراجع عن هذا الإجراء.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('إلغاء'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('حذف الحساب'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => saving = true);
+    final result = await widget.repository.deleteAccount();
+    if (!mounted) return;
+    setState(() => saving = false);
+    if (result is AssalData<void>) {
+      Navigator.of(context).pop(true);
+    } else if (result is AssalError<void>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
+  void _openNotifications() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NotificationsScreen(repository: widget.repository),
+      ),
+    );
+  }
+
+  void _openProfileEditor(AssalUserProfile profile) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ProfileEditorScreen(
+          repository: widget.repository,
+          profile: profile,
+        ),
+      ),
+    );
+  }
+
+  Widget _switchTile({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) =>
+      SwitchListTile.adaptive(
+        value: value,
+        onChanged: saving ? null : onChanged,
+        title: Text(title),
+        subtitle: Text(subtitle),
+        secondary: Icon(icon),
+      );
+
+  Widget _accountSection(AssalUserProfile profile) => Card(
+        child: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('الحساب'),
+              subtitle: Text(profile.nameAr),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: saving ? null : () => _openProfileEditor(profile),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.email_outlined),
+              title: const Text('البريد الإلكتروني'),
+              subtitle: Text(profile.email ?? 'غير مضاف'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.phone_outlined),
+              title: const Text('الهاتف'),
+              subtitle: Text(profile.phone ?? 'غير مضاف'),
+            ),
+          ],
+        ),
+      );
+
+  Widget _privacySection() => Card(
+        child: Column(
+          children: [
+            _switchTile(
+              title: 'إظهار الاسم العام',
+              subtitle: 'عرض اسمك عند التفاعل مع الآخرين',
+              icon: Icons.badge_outlined,
+              value: showNamePublic,
+              onChanged: (value) => setState(() => showNamePublic = value),
+            ),
+            _switchTile(
+              title: 'إظهار الصورة العامة',
+              subtitle: 'عرض صورتك في المسارات التي تسمح بها الصلاحية',
+              icon: Icons.account_circle_outlined,
+              value: showPhotoPublic,
+              onChanged: (value) => setState(() => showPhotoPublic = value),
+            ),
+            _switchTile(
+              title: 'إعدادات المتابعين',
+              subtitle: 'السماح بمتابعة الحساب في هذه الجلسة',
+              icon: Icons.people_outline,
+              value: followersEnabled,
+              onChanged: (value) => setState(() => followersEnabled = value),
+            ),
+          ],
+        ),
+      );
+
+  Widget _notificationSection() => Card(
+        child: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.notifications_outlined),
+              title: const Text('الإشعارات'),
+              subtitle: const Text('عرض الإشعارات المصدرية وإدارتها'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: saving ? null : _openNotifications,
+            ),
+            const Divider(height: 1),
+            _switchTile(
+              title: 'إشعارات الطلبات',
+              subtitle: 'تنبيه عند تحديث حالة طلبك',
+              icon: Icons.assignment_outlined,
+              value: notifyOrders,
+              onChanged: (value) => setState(() => notifyOrders = value),
+            ),
+            _switchTile(
+              title: 'إشعارات الرسائل',
+              subtitle: 'تنبيه عند وصول رسالة جديدة',
+              icon: Icons.forum_outlined,
+              value: notifyMessages,
+              onChanged: (value) => setState(() => notifyMessages = value),
+            ),
+            _switchTile(
+              title: 'إشعارات التفاعل',
+              subtitle: 'تنبيه عند حفظ تعليقك أو التفاعل معه',
+              icon: Icons.favorite_border,
+              value: notifyInteractions,
+              onChanged: (value) => setState(() => notifyInteractions = value),
+            ),
+          ],
+        ),
+      );
+
+  Widget _securitySection() => Card(
+        child: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('الأمان'),
+              subtitle: const Text('تسجيل الدخول والتحقق بالبريد الإلكتروني'),
+              onTap: () => showDialog<void>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('الأمان'),
+                  content: const Text(
+                    'يستخدم الحساب التحقق بالبريد الإلكتروني وفق الجلسة الحالية. لا توجد إعدادات كلمة مرور إضافية في هذا المسار.',
+                  ),
+                  actions: [
+                    FilledButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('حسنًا'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.logout_outlined),
+              title: const Text('تسجيل الخروج'),
+              onTap: saving ? null : _signOut,
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_forever_outlined),
+              title: const Text('حذف الحساب'),
+              onTap: saving ? null : _deleteAccount,
+            ),
+          ],
+        ),
+      );
+
+  Widget _authenticatedBody(AssalUserProfile profile) => ListView(
+        padding: const EdgeInsets.all(AssalSpacing.lg),
+        children: [
+          _accountSection(profile),
+          const SizedBox(height: AssalSpacing.md),
+          const SectionHeader(title: 'الخصوصية'),
+          _privacySection(),
+          const SizedBox(height: AssalSpacing.md),
+          const SectionHeader(title: 'الإشعارات'),
+          _notificationSection(),
+          const SizedBox(height: AssalSpacing.md),
+          const SectionHeader(title: 'الأمان'),
+          _securitySection(),
+          const SizedBox(height: AssalSpacing.md),
+          Card(
+            child: Column(
+              children: [
+                const ListTile(
+                  leading: Icon(Icons.language_outlined),
+                  title: Text('اللغة'),
+                  subtitle: Text('العربية — RTL (اللغة الأساسية)'),
+                ),
+                const Divider(height: 1),
+                const ListTile(
+                  leading: Icon(Icons.palette_outlined),
+                  title: Text('المظهر'),
+                  subtitle: Text('هوية عسلكم الفاتحة'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('عن عسلكم'),
+                  subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'),
+                  onTap: () => showAboutDialog(
+                    context: context,
+                    applicationName: 'عسلكم',
+                    applicationVersion: 'Customer App',
+                    children: const [
+                      Text(
+                          'اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AssalSpacing.lg),
+          FilledButton.icon(
+            onPressed: saving ? null : _saveSessionSettings,
+            icon: saving
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save_outlined),
+            label: const Text('حفظ الإعدادات'),
+          ),
+        ],
+      );
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: const AssalAppBar(title: 'الإعدادات'),
-        body:
-            ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
-          Card(
-              child: Column(children: [
-            SwitchListTile(
-                value: notificationsEnabled,
-                onChanged: (value) {
-                  setState(() => notificationsEnabled = value);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(value
-                          ? 'تم تفعيل الإشعارات في هذه الجلسة.'
-                          : 'تم إيقاف الإشعارات في هذه الجلسة.')));
-                },
-                title: const Text('الإشعارات'),
-                subtitle: const Text('تفضيل محفوظ في Demo Mode للجلسة الحالية'),
-                secondary: const Icon(Icons.notifications_outlined)),
-            const ListTile(
-                leading: Icon(Icons.language),
-                title: Text('اللغة'),
-                subtitle: Text('العربية — RTL (اللغة الأساسية)')),
-            const ListTile(
-                leading: Icon(Icons.palette_outlined),
-                title: Text('المظهر'),
-                subtitle: Text(
-                    'هوية عسلكم الفاتحة — تخصيص السمات يحتاج إعداد الإنتاج')),
-            ListTile(
-                leading: const Icon(Icons.lock_outline),
-                title: const Text('الخصوصية والأمان'),
-                subtitle: const Text('صلاحيات الحساب وبيانات التواصل'),
-                onTap: () => showDialog<void>(
-                    context: context,
-                    builder: (dialogContext) => AlertDialog(
-                            title: const Text('الخصوصية والأمان'),
-                            content: const Text(
-                                'في Demo لا تُرسل بياناتك إلى خادم. في Production ستُفرض الصلاحيات من Auth وRLS.'),
-                            actions: [
-                              FilledButton(
-                                  onPressed: () => Navigator.pop(dialogContext),
-                                  child: const Text('حسنًا'))
-                            ]))),
-            ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text('عن عسلكم'),
-                subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'),
-                onTap: () => showAboutDialog(
-                        context: context,
-                        applicationName: 'عسلكم',
-                        applicationVersion: 'Customer App',
-                        children: [
-                          const Text(
-                              'اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.')
-                        ]))
-          ])),
-        ]),
+        body: FutureBuilder<AssalSession>(
+          future: sessionFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const AssalGlassLoading();
+            }
+            if (snapshot.hasError) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: 'تعذر تحميل البيانات الآن.',
+                onRetry: _retry,
+              );
+            }
+            final session = snapshot.data ?? AssalSession.guest;
+            if (session.isUnavailable) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+                onRetry: _retry,
+              );
+            }
+            if (!session.isAuthenticated || session.user == null) {
+              return Center(
+                child: FilledButton(
+                  onPressed: () => openAuth(context, widget.repository),
+                  child: const Text('تسجيل الدخول لإدارة الإعدادات'),
+                ),
+              );
+            }
+            return _authenticatedBody(session.user!);
+          },
+        ),
       );
 }
 

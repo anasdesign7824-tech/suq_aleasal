@@ -68,8 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
         .listProducts(query: const AssalProductQuery(sort: AssalSort.popular));
     newProductsFuture = widget.repository
         .listProducts(query: const AssalProductQuery(sort: AssalSort.newest));
-    verifiedProductsFuture = widget.repository.listProducts(
-        query: const AssalProductQuery(sort: AssalSort.rating));
+    verifiedProductsFuture = widget.repository
+        .listProducts(query: const AssalProductQuery(sort: AssalSort.rating));
     personalizedFuture = _buildPersonalizedFeed();
     initialContentFuture = Future.wait<Object?>(<Future<Object?>>[
       featuredFuture,
@@ -361,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   sliver: SliverToBoxAdapter(
                     child: _ProductRail(
                       repository: widget.repository,
-                            title: 'الأعلى تقييمًا',
+                      title: 'الأعلى تقييمًا',
                       future: verifiedProductsFuture!,
                       verifiedOnly: false,
                       onRetry: _refresh,
@@ -645,7 +645,8 @@ class _Header extends StatelessWidget {
                     IconButton(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(
-                            builder: (_) => const SettingsScreen()),
+                            builder: (_) =>
+                                SettingsScreen(repository: repository)),
                       ),
                       icon: const Icon(Icons.settings_outlined,
                           color: Colors.white),
@@ -1185,34 +1186,35 @@ class _CategoryTile extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(AssalRadius.large),
-      child: InkWell(
-        onTap: onTap,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(AssalRadius.large),
-        child: Container(
-          width: 122,
-          padding: const EdgeInsets.all(AssalSpacing.sm),
-          decoration: BoxDecoration(
-              color: AssalColors.surface,
-              border: Border.all(color: AssalColors.border),
-              borderRadius: BorderRadius.circular(AssalRadius.large)),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(
-              _taxonomyIcon(item.nameAr),
-              color: AssalColors.primaryDark,
-            ),
-            const SizedBox(height: AssalSpacing.xs),
-            Text(item.nameAr,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: AssalTypography.caption
-                    .copyWith(color: AssalColors.deepBrown))
-          ]),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AssalRadius.large),
+          child: Container(
+            width: 122,
+            padding: const EdgeInsets.all(AssalSpacing.sm),
+            decoration: BoxDecoration(
+                color: AssalColors.surface,
+                border: Border.all(color: AssalColors.border),
+                borderRadius: BorderRadius.circular(AssalRadius.large)),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(
+                _taxonomyIcon(item.nameAr),
+                color: AssalColors.primaryDark,
+              ),
+              const SizedBox(height: AssalSpacing.xs),
+              Text(item.nameAr,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: AssalTypography.caption
+                      .copyWith(color: AssalColors.deepBrown))
+            ]),
+          ),
         ),
-      ),
-    );
+      );
 }
 
 class _ProductRail extends StatelessWidget {
@@ -1270,7 +1272,7 @@ class _ProductRail extends StatelessWidget {
                     width: 168,
                     child: ProductCard(
                       product: products[index],
-                              onTap: () => Navigator.of(context).push(
+                      onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => ProductDetailScreen(
                             repository: repository,
@@ -1338,8 +1340,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       final matchesQuery = query.isEmpty ||
           category.nameAr.toLowerCase().contains(query) ||
           (category.description ?? '').toLowerCase().contains(query);
-      final matchesType = selectedType == null ||
-          category.productType == selectedType;
+      final matchesType =
+          selectedType == null || category.productType == selectedType;
       return matchesQuery && matchesType;
     }).toList(growable: false);
   }
@@ -1489,6 +1491,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 }
+
 IconData _taxonomyIcon(String nameAr, [ProductType? type]) {
   final name = nameAr.trim();
   if (name.contains('شمع')) return Icons.hexagon_outlined;
@@ -2127,7 +2130,9 @@ class _SearchScreenState extends State<SearchScreen> {
     if (!mounted) return;
     if (reference == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تعذر تحميل مرجع المحافظات والمديريات. حاول مرة أخرى.')),
+        const SnackBar(
+            content:
+                Text('تعذر تحميل مرجع المحافظات والمديريات. حاول مرة أخرى.')),
       );
       return;
     }
@@ -2248,367 +2253,417 @@ class _SearchScreenState extends State<SearchScreen> {
     bool? apply;
     try {
       apply = await showModalBottomSheet<bool>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      backgroundColor: AssalColors.cream,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AssalRadius.extraLarge)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      builder: (sheetContext) => StatefulBuilder(
-          builder: (context, setModalState) => Padding(
-                padding: EdgeInsets.only(
-                    left: AssalSpacing.xl,
-                    right: AssalSpacing.xl,
-                    top: AssalSpacing.xl,
-                    bottom: MediaQuery.viewInsetsOf(context).bottom +
-                        AssalSpacing.xl),
-                child: SingleChildScrollView(
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.pop(sheetContext, false),
-                            icon: const Icon(Icons.close),
-                            tooltip: 'إغلاق',
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('الفلاتر', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
-                                Text('تصفية النتائج', style: AssalTypography.bodySmall.copyWith(color: AssalColors.textSecondary)),
-                              ],
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        backgroundColor: AssalColors.cream,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AssalRadius.extraLarge)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        builder: (sheetContext) => StatefulBuilder(
+            builder: (context, setModalState) => Padding(
+                  padding: EdgeInsets.only(
+                      left: AssalSpacing.xl,
+                      right: AssalSpacing.xl,
+                      top: AssalSpacing.xl,
+                      bottom: MediaQuery.viewInsetsOf(context).bottom +
+                          AssalSpacing.xl),
+                  child: SingleChildScrollView(
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () =>
+                                  Navigator.pop(sheetContext, false),
+                              icon: const Icon(Icons.close),
+                              tooltip: 'إغلاق',
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AssalSpacing.md),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.location_on_outlined, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('الموقع', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftRegion,
-                          decoration:
-                              const InputDecoration(labelText: 'المحافظة'),
-                          items: regionItems,
-                          onChanged: (value) => setModalState(() {
-                                draftRegion = value ?? '';
-                                draftProvince = '';
-                              })),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftProvince,
-                          decoration:
-                              const InputDecoration(labelText: 'المديرية'),
-                          items: [
-                            const DropdownMenuItem<String>(
-                                value: '', child: Text('كل المديريات')),
-                            ...reference.districtsFor(draftRegion)
-                                .map((district) => DropdownMenuItem<String>(
-                                    value: district.code ?? district.id,
-                                    child: Text(district.nameAr)))
-                          ],
-                          onChanged: draftRegion.isEmpty
-                              ? null
-                              : (value) => setModalState(
-                                  () => draftProvince = value ?? '')),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.grid_view_outlined, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('التصنيف', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftCategory,
-                          decoration: const InputDecoration(labelText: 'القسم'),
-                          items: categoryItems,
-                          onChanged: (value) => setModalState(() {
-                                draftCategory = value ?? '';
-                                draftSubcategory = '';
-                              })),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftSubcategory,
-                          decoration: const InputDecoration(
-                              labelText: 'التصنيف الفرعي'),
-                          items: subcategoryItemsFor(draftCategory),
-                          onChanged: (value) => setModalState(
-                              () => draftSubcategory = value ?? '')),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.inventory_2_outlined, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('نوع المنتج', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      DropdownButtonFormField<ProductType?>(
-                          isExpanded: true,
-                          initialValue: draftType,
-                          decoration:
-                              const InputDecoration(labelText: 'نوع المنتج'),
-                          items: typeItems,
-                          onChanged: (value) =>
-                              setModalState(() => draftType = value)),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.workspace_premium_outlined, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('الجودة', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      DropdownButtonFormField<int?>(
-                          isExpanded: true,
-                          initialValue: draftGrade,
-                          decoration:
-                              const InputDecoration(labelText: 'درجة الجودة'),
-                          items: gradeItems,
-                          onChanged: (value) =>
-                              setModalState(() => draftGrade = value)),
-                      SwitchListTile(
-                          value: draftVerified,
-                          onChanged: (value) =>
-                              setModalState(() => draftVerified = value),
-                          title: const Text('المتاجر الموثقة فقط')),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftOrigin,
-                          decoration: const InputDecoration(
-                              labelText: 'بلد/منطقة الأصل'),
-                          items: originItems,
-                          onChanged: (value) =>
-                              setModalState(() => draftOrigin = value ?? '')),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftProcessing,
-                          decoration: const InputDecoration(
-                              labelText: 'طريقة المعالجة'),
-                          items: processingItems,
-                          onChanged: (value) => setModalState(
-                              () => draftProcessing = value ?? '')),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftPackaging,
-                          decoration:
-                              const InputDecoration(labelText: 'التعبئة'),
-                          items: packagingItems,
-                          onChanged: (value) => setModalState(
-                              () => draftPackaging = value ?? '')),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.check_circle_outline, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('حالة التوفر', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftAvailability,
-                          decoration:
-                              const InputDecoration(labelText: 'التوفر'),
-                          items: availabilityItems,
-                          onChanged: (value) => setModalState(
-                              () => draftAvailability = value ?? '')),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.storefront_outlined, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('المتجر', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          initialValue: draftStore,
-                          decoration: const InputDecoration(labelText: 'المتجر'),
-                          items: storeItems,
-                          onChanged: (value) => setModalState(() => draftStore = value ?? '')),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.sell_outlined, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('السعر', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.inventory_outlined, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('الوزن أو الحجم', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      const InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'الوزن أو الحجم',
-                          prefixIcon: Icon(Icons.scale_outlined),
-                        ),
-                        child: Text('كل الأوزان والأحجام', style: AssalTypography.body),
-                      ),
-                      Text(
-                          'نطاق السعر: ${draftPriceRange.start.toStringAsFixed(0)} – ${draftPriceRange.end.toStringAsFixed(0)} ريال',
-                          style: AssalTypography.bodyLarge
-                              .copyWith(color: AssalColors.textSecondary)),
-                      RangeSlider(
-                        min: priceMin,
-                        max: priceMax,
-                        divisions: 100,
-                        values: draftPriceRange,
-                        labels: RangeLabels(
-                          draftPriceRange.start.toStringAsFixed(0),
-                          draftPriceRange.end.toStringAsFixed(0),
-                        ),
-                        onChanged: (value) =>
-                            setModalState(() => draftPriceRange = value),
-                      ),
-                      const InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'عملة السعر',
-                          prefixIcon: Icon(Icons.payments_outlined),
-                        ),
-                        child: Text('ريال يمني', style: AssalTypography.body),
-                      ),
-                      const SizedBox(height: AssalSpacing.sm),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.star_outline, color: AssalColors.primaryDark),
-                            const SizedBox(width: AssalSpacing.sm),
-                            Text('التقييم', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
-                          ],
-                        ),
-                      ),
-                      Text(
-                          'أدنى تقييم: ${draftMinRatingValue.toStringAsFixed(1)} من ${dataMaxRating.toStringAsFixed(1)}',
-                          style: AssalTypography.bodyLarge
-                              .copyWith(color: AssalColors.textSecondary)),
-                      Slider(
-                        min: 0,
-                        max: dataMaxRating,
-                        divisions: 10,
-                        value: draftMinRatingValue,
-                        label: draftMinRatingValue.toStringAsFixed(1),
-                        onChanged: (value) =>
-                            setModalState(() => draftMinRatingValue = value),
-                      ),
-                      const SizedBox(height: AssalSpacing.md),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.pop(sheetContext, false),
-                              child: const Text('إلغاء'),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('الفلاتر',
+                                      style: AssalTypography.heading2.copyWith(
+                                          color: AssalColors.deepBrown)),
+                                  Text('تصفية النتائج',
+                                      style: AssalTypography.bodySmall.copyWith(
+                                          color: AssalColors.textSecondary)),
+                                ],
+                              ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: AssalSpacing.md),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('الموقع',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
                           ),
-                          const SizedBox(width: AssalSpacing.sm),
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () => setModalState(() {
-                                draftRegion = '';
-                                draftProvince = '';
-                                draftCategory = '';
-                                draftSubcategory = '';
-                                draftStore = '';
-                                draftGrade = null;
-                                draftType = null;
-                                draftVerified = false;
-                                draftOrigin = '';
-                                draftProcessing = '';
-                                draftPackaging = '';
-                                draftAvailability = '';
-                                draftPriceRange = RangeValues(priceMin, priceMax);
-                                draftMinRatingValue = 0;
-                              }),
-                              child: const Text('مسح الكل'),
+                        ),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftRegion,
+                            decoration:
+                                const InputDecoration(labelText: 'المحافظة'),
+                            items: regionItems,
+                            onChanged: (value) => setModalState(() {
+                                  draftRegion = value ?? '';
+                                  draftProvince = '';
+                                })),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftProvince,
+                            decoration:
+                                const InputDecoration(labelText: 'المديرية'),
+                            items: [
+                              const DropdownMenuItem<String>(
+                                  value: '', child: Text('كل المديريات')),
+                              ...reference.districtsFor(draftRegion).map(
+                                  (district) => DropdownMenuItem<String>(
+                                      value: district.code ?? district.id,
+                                      child: Text(district.nameAr)))
+                            ],
+                            onChanged: draftRegion.isEmpty
+                                ? null
+                                : (value) => setModalState(
+                                    () => draftProvince = value ?? '')),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.grid_view_outlined,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('التصنيف',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftCategory,
+                            decoration:
+                                const InputDecoration(labelText: 'القسم'),
+                            items: categoryItems,
+                            onChanged: (value) => setModalState(() {
+                                  draftCategory = value ?? '';
+                                  draftSubcategory = '';
+                                })),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftSubcategory,
+                            decoration: const InputDecoration(
+                                labelText: 'التصنيف الفرعي'),
+                            items: subcategoryItemsFor(draftCategory),
+                            onChanged: (value) => setModalState(
+                                () => draftSubcategory = value ?? '')),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.inventory_2_outlined,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('نوع المنتج',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        DropdownButtonFormField<ProductType?>(
+                            isExpanded: true,
+                            initialValue: draftType,
+                            decoration:
+                                const InputDecoration(labelText: 'نوع المنتج'),
+                            items: typeItems,
+                            onChanged: (value) =>
+                                setModalState(() => draftType = value)),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.workspace_premium_outlined,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('الجودة',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        DropdownButtonFormField<int?>(
+                            isExpanded: true,
+                            initialValue: draftGrade,
+                            decoration:
+                                const InputDecoration(labelText: 'درجة الجودة'),
+                            items: gradeItems,
+                            onChanged: (value) =>
+                                setModalState(() => draftGrade = value)),
+                        SwitchListTile(
+                            value: draftVerified,
+                            onChanged: (value) =>
+                                setModalState(() => draftVerified = value),
+                            title: const Text('المتاجر الموثقة فقط')),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftOrigin,
+                            decoration: const InputDecoration(
+                                labelText: 'بلد/منطقة الأصل'),
+                            items: originItems,
+                            onChanged: (value) =>
+                                setModalState(() => draftOrigin = value ?? '')),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftProcessing,
+                            decoration: const InputDecoration(
+                                labelText: 'طريقة المعالجة'),
+                            items: processingItems,
+                            onChanged: (value) => setModalState(
+                                () => draftProcessing = value ?? '')),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftPackaging,
+                            decoration:
+                                const InputDecoration(labelText: 'التعبئة'),
+                            items: packagingItems,
+                            onChanged: (value) => setModalState(
+                                () => draftPackaging = value ?? '')),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.check_circle_outline,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('حالة التوفر',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftAvailability,
+                            decoration:
+                                const InputDecoration(labelText: 'التوفر'),
+                            items: availabilityItems,
+                            onChanged: (value) => setModalState(
+                                () => draftAvailability = value ?? '')),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.storefront_outlined,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('المتجر',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: draftStore,
+                            decoration:
+                                const InputDecoration(labelText: 'المتجر'),
+                            items: storeItems,
+                            onChanged: (value) =>
+                                setModalState(() => draftStore = value ?? '')),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.sell_outlined,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('السعر',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.inventory_outlined,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('الوزن أو الحجم',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        const InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'الوزن أو الحجم',
+                            prefixIcon: Icon(Icons.scale_outlined),
+                          ),
+                          child: Text('كل الأوزان والأحجام',
+                              style: AssalTypography.body),
+                        ),
+                        Text(
+                            'نطاق السعر: ${draftPriceRange.start.toStringAsFixed(0)} – ${draftPriceRange.end.toStringAsFixed(0)} ريال',
+                            style: AssalTypography.bodyLarge
+                                .copyWith(color: AssalColors.textSecondary)),
+                        RangeSlider(
+                          min: priceMin,
+                          max: priceMax,
+                          divisions: 100,
+                          values: draftPriceRange,
+                          labels: RangeLabels(
+                            draftPriceRange.start.toStringAsFixed(0),
+                            draftPriceRange.end.toStringAsFixed(0),
+                          ),
+                          onChanged: (value) =>
+                              setModalState(() => draftPriceRange = value),
+                        ),
+                        const InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'عملة السعر',
+                            prefixIcon: Icon(Icons.payments_outlined),
+                          ),
+                          child: Text('ريال يمني', style: AssalTypography.body),
+                        ),
+                        const SizedBox(height: AssalSpacing.sm),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.star_outline,
+                                  color: AssalColors.primaryDark),
+                              const SizedBox(width: AssalSpacing.sm),
+                              Text('التقييم',
+                                  style: AssalTypography.title
+                                      .copyWith(color: AssalColors.deepBrown)),
+                            ],
+                          ),
+                        ),
+                        Text(
+                            'أدنى تقييم: ${draftMinRatingValue.toStringAsFixed(1)} من ${dataMaxRating.toStringAsFixed(1)}',
+                            style: AssalTypography.bodyLarge
+                                .copyWith(color: AssalColors.textSecondary)),
+                        Slider(
+                          min: 0,
+                          max: dataMaxRating,
+                          divisions: 10,
+                          value: draftMinRatingValue,
+                          label: draftMinRatingValue.toStringAsFixed(1),
+                          onChanged: (value) =>
+                              setModalState(() => draftMinRatingValue = value),
+                        ),
+                        const SizedBox(height: AssalSpacing.md),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () =>
+                                    Navigator.pop(sheetContext, false),
+                                child: const Text('إلغاء'),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: AssalSpacing.sm),
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () {
-                                regionId = draftRegion.trim().isEmpty
-                                    ? null
-                                    : draftRegion.trim();
-                                provinceId = draftProvince.trim().isEmpty
-                                    ? null
-                                    : draftProvince.trim();
-                                categoryId = draftCategory.trim().isEmpty
-                                    ? null
-                                    : draftCategory.trim();
-                                subcategoryId = draftSubcategory.trim().isEmpty
-                                    ? null
-                                    : draftSubcategory.trim();
-                                storeId = draftStore.trim().isEmpty
-                                    ? null
-                                    : draftStore.trim();
-                                gradeLevel = draftGrade;
-                                productType = draftType;
-                                verifiedOnly = draftVerified;
-                                originCountry = draftOrigin.trim().isEmpty
-                                    ? null
-                                    : draftOrigin.trim();
-                                processingMethod =
-                                    draftProcessing.trim().isEmpty
-                                        ? null
-                                        : draftProcessing.trim();
-                                packaging = draftPackaging.trim().isEmpty
-                                    ? null
-                                    : draftPackaging.trim();
-                                availability = draftAvailability.trim().isEmpty
-                                    ? null
-                                    : draftAvailability.trim();
-                                minRating = draftMinRatingValue <= 0
-                                    ? null
-                                    : draftMinRatingValue;
-                                minPrice = draftPriceRange.start <= priceMin
-                                    ? null
-                                    : draftPriceRange.start;
-                                maxPrice = draftPriceRange.end >= priceMax
-                                    ? null
-                                    : draftPriceRange.end;
-                                Navigator.pop(sheetContext, true);
-                              },
-                              child: const Text('تطبيق الفلاتر'),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => setModalState(() {
+                                  draftRegion = '';
+                                  draftProvince = '';
+                                  draftCategory = '';
+                                  draftSubcategory = '';
+                                  draftStore = '';
+                                  draftGrade = null;
+                                  draftType = null;
+                                  draftVerified = false;
+                                  draftOrigin = '';
+                                  draftProcessing = '';
+                                  draftPackaging = '';
+                                  draftAvailability = '';
+                                  draftPriceRange =
+                                      RangeValues(priceMin, priceMax);
+                                  draftMinRatingValue = 0;
+                                }),
+                                child: const Text('مسح الكل'),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ])),
-              )),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: () {
+                                  regionId = draftRegion.trim().isEmpty
+                                      ? null
+                                      : draftRegion.trim();
+                                  provinceId = draftProvince.trim().isEmpty
+                                      ? null
+                                      : draftProvince.trim();
+                                  categoryId = draftCategory.trim().isEmpty
+                                      ? null
+                                      : draftCategory.trim();
+                                  subcategoryId =
+                                      draftSubcategory.trim().isEmpty
+                                          ? null
+                                          : draftSubcategory.trim();
+                                  storeId = draftStore.trim().isEmpty
+                                      ? null
+                                      : draftStore.trim();
+                                  gradeLevel = draftGrade;
+                                  productType = draftType;
+                                  verifiedOnly = draftVerified;
+                                  originCountry = draftOrigin.trim().isEmpty
+                                      ? null
+                                      : draftOrigin.trim();
+                                  processingMethod =
+                                      draftProcessing.trim().isEmpty
+                                          ? null
+                                          : draftProcessing.trim();
+                                  packaging = draftPackaging.trim().isEmpty
+                                      ? null
+                                      : draftPackaging.trim();
+                                  availability =
+                                      draftAvailability.trim().isEmpty
+                                          ? null
+                                          : draftAvailability.trim();
+                                  minRating = draftMinRatingValue <= 0
+                                      ? null
+                                      : draftMinRatingValue;
+                                  minPrice = draftPriceRange.start <= priceMin
+                                      ? null
+                                      : draftPriceRange.start;
+                                  maxPrice = draftPriceRange.end >= priceMax
+                                      ? null
+                                      : draftPriceRange.end;
+                                  Navigator.pop(sheetContext, true);
+                                },
+                                child: const Text('تطبيق الفلاتر'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ])),
+                )),
       );
       if (apply == true && mounted) _applySearch();
     } catch (_) {
@@ -2687,11 +2742,9 @@ class _StoresScreenState extends State<StoresScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('مصدر المتاجر'),
-        content: Text(
-          widget.repository.mode == AssalDataSourceMode.production
-              ? 'البيانات مرتبطة بالمصدر الإنتاجي الحالي.'
-              : 'البيانات المعروضة من وضع العرض المحلي للاختبار.'
-        ),
+        content: Text(widget.repository.mode == AssalDataSourceMode.production
+            ? 'البيانات مرتبطة بالمصدر الإنتاجي الحالي.'
+            : 'البيانات المعروضة من وضع العرض المحلي للاختبار.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -2721,7 +2774,8 @@ class _StoresScreenState extends State<StoresScreen> {
       context: context,
       showDragHandle: true,
       builder: (sheetContext) => StatefulBuilder(
-        builder: (context, setSheetState) => FutureBuilder<YemenLocationReference?>(
+        builder: (context, setSheetState) =>
+            FutureBuilder<YemenLocationReference?>(
           future: locationsFuture,
           builder: (context, snapshot) {
             final locations = snapshot.data;
@@ -2743,7 +2797,8 @@ class _StoresScreenState extends State<StoresScreen> {
                   if (locations != null)
                     DropdownButtonFormField<String?>(
                       initialValue: draftRegion,
-                      decoration: const InputDecoration(labelText: 'اختيار المنطقة'),
+                      decoration:
+                          const InputDecoration(labelText: 'اختيار المنطقة'),
                       items: [
                         const DropdownMenuItem<String?>(
                           value: null,
@@ -2756,7 +2811,8 @@ class _StoresScreenState extends State<StoresScreen> {
                           ),
                         ),
                       ],
-                      onChanged: (value) => setSheetState(() => draftRegion = value),
+                      onChanged: (value) =>
+                          setSheetState(() => draftRegion = value),
                     )
                   else
                     const ListTile(
@@ -2838,9 +2894,8 @@ class _StoresScreenState extends State<StoresScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: widget.showAppBar
-          ? const AssalAppBar(title: 'قائمة المتاجر')
-          : null,
+      appBar:
+          widget.showAppBar ? const AssalAppBar(title: 'قائمة المتاجر') : null,
       body: RefreshIndicator(
         onRefresh: _reload,
         child: ListView(
@@ -2910,20 +2965,23 @@ class _StoresScreenState extends State<StoresScreen> {
                     FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
                       future: storesFuture,
                       builder: (context, snapshot) {
-                        if (snapshot.data is AssalData<List<AssalStoreSummary>> &&
-                            (snapshot.data! as AssalData<List<AssalStoreSummary>>)
+                        if (snapshot.data
+                                is AssalData<List<AssalStoreSummary>> &&
+                            (snapshot.data!
+                                    as AssalData<List<AssalStoreSummary>>)
                                 .value
                                 .isNotEmpty) {
-                          final store =
-                              (snapshot.data! as AssalData<List<AssalStoreSummary>>)
-                                  .value
-                                  .first;
+                          final store = (snapshot.data!
+                                  as AssalData<List<AssalStoreSummary>>)
+                              .value
+                              .first;
                           return Container(
                             constraints: const BoxConstraints(minHeight: 112),
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(AssalSpacing.lg),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(AssalRadius.large),
+                              borderRadius:
+                                  BorderRadius.circular(AssalRadius.large),
                               gradient: const LinearGradient(
                                 colors: [
                                   AssalColors.success,
