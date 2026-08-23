@@ -975,7 +975,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   String? districtId;
   String? logoUrl;
   String? coverUrl;
-  late final Future<AssalLoadState<List<AssalRegion>>> regionsFuture;
+  late Future<AssalLoadState<List<AssalRegion>>> regionsFuture;
   final galleryUrls = <String>[];
   final selectedDeliveryCodes = <String>{};
   final pickupLocations = <String>[];
@@ -1013,6 +1013,29 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     regionsFuture = widget.repository.listRegions();
   }
 
+  bool get _canEdit => widget.workspace.canEdit;
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  bool _requireEditPermission() {
+    if (_canEdit) return true;
+    _showMessage('لا تملك صلاحية تعديل بيانات هذا المتجر.');
+    return false;
+  }
+
+  void _reloadRegions() {
+    final nextRegions = widget.repository.listRegions();
+    if (!mounted) return;
+    setState(() {
+      regionsFuture = nextRegions;
+    });
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -1033,6 +1056,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   }
 
   Future<void> _pickBrandImage({required bool cover}) async {
+    if (!_requireEditPermission()) return;
     final session = await widget.repository.getSession();
     if (!mounted) return;
     if (session.isUnavailable) {
@@ -1079,6 +1103,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   }
 
   Future<void> _pickGalleryImage() async {
+    if (!_requireEditPermission()) return;
     final session = await widget.repository.getSession();
     if (!mounted) return;
     if (session.isUnavailable) {
@@ -1152,6 +1177,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   }
 
   void _addPickupLocation() {
+    if (!_canEdit || saving) return;
     final value = pickupController.text.trim();
     if (value.isEmpty) return;
     if (pickupLocations.contains(value)) {
@@ -1167,6 +1193,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
   }
 
   Future<void> _save() async {
+    if (!_requireEditPermission()) return;
     if (nameController.text.trim().length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('أدخل اسم متجر لا يقل عن حرفين.')),
@@ -1231,7 +1258,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
         const SnackBar(
             content: Text('تم حفظ بيانات المتجر والتواصل والتسليم.')),
       );
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
     } else if (channelsResult is AssalError<AssalStoreSummary>) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(channelsResult.messageAr)));
@@ -1256,6 +1283,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               TextField(
                 key: const ValueKey('merchant-whatsapp-url'),
                 controller: whatsappController,
+                enabled: _canEdit && !saving,
                 keyboardType: TextInputType.url,
                 autocorrect: false,
                 decoration: const InputDecoration(
@@ -1267,6 +1295,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               const SizedBox(height: AssalSpacing.sm),
               TextField(
                 controller: telegramController,
+                enabled: _canEdit && !saving,
                 keyboardType: TextInputType.url,
                 autocorrect: false,
                 decoration: const InputDecoration(
@@ -1278,6 +1307,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               const SizedBox(height: AssalSpacing.sm),
               TextField(
                 controller: websiteController,
+                enabled: _canEdit && !saving,
                 keyboardType: TextInputType.url,
                 autocorrect: false,
                 decoration: const InputDecoration(
@@ -1310,7 +1340,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               const SizedBox(height: AssalSpacing.sm),
               TextField(
                 controller: pickupController,
-                enabled: !saving,
+                enabled: _canEdit && !saving,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _addPickupLocation(),
                 decoration: InputDecoration(
@@ -1319,7 +1349,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                   prefixIcon: const Icon(Icons.location_on_outlined),
                   suffixIcon: IconButton(
                     tooltip: 'إضافة نقطة الاستلام',
-                    onPressed: saving ? null : _addPickupLocation,
+                    onPressed: !_canEdit || saving ? null : _addPickupLocation,
                     icon: const Icon(Icons.add_circle_outline),
                   ),
                 ),
@@ -1359,10 +1389,10 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               icon: Icons.photo_size_select_actual_outlined,
               imageUrl: coverUrl,
               bytes: null,
-              onPick: saving || uploading
+              onPick: !_canEdit || saving || uploading
                   ? null
                   : () => _pickBrandImage(cover: true),
-              onClear: saving || uploading || coverUrl == null
+              onClear: !_canEdit || saving || uploading || coverUrl == null
                   ? null
                   : () => setState(() => coverUrl = null),
               height: 160,
@@ -1373,10 +1403,10 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               icon: Icons.storefront_outlined,
               imageUrl: logoUrl,
               bytes: null,
-              onPick: saving || uploading
+              onPick: !_canEdit || saving || uploading
                   ? null
                   : () => _pickBrandImage(cover: false),
-              onClear: saving || uploading || logoUrl == null
+              onClear: !_canEdit || saving || uploading || logoUrl == null
                   ? null
                   : () => setState(() => logoUrl = null),
               height: 150,
@@ -1384,6 +1414,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
             const SizedBox(height: AssalSpacing.lg),
             TextField(
               controller: nameController,
+              enabled: _canEdit && !saving,
               decoration: const InputDecoration(
                 labelText: 'اسم المتجر',
                 prefixIcon: Icon(Icons.storefront_outlined),
@@ -1392,6 +1423,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
             const SizedBox(height: AssalSpacing.md),
             TextField(
               controller: descriptionController,
+              enabled: _canEdit && !saving,
               maxLines: 4,
               decoration: const InputDecoration(
                 labelText: 'وصف المتجر',
@@ -1401,6 +1433,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
             const SizedBox(height: AssalSpacing.md),
             TextField(
               controller: phoneController,
+              enabled: _canEdit && !saving,
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
                 labelText: 'رقم التواصل',
@@ -1408,10 +1441,36 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               ),
             ),
             const SizedBox(height: AssalSpacing.md),
+            if (widget.workspace.store.yearsExperience > 0 ||
+                widget.workspace.store.specialties.isNotEmpty)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.workspace_premium_outlined,
+                      color: AssalColors.primaryDark),
+                  title: const Text('الخبرة والتخصصات'),
+                  subtitle: Text(
+                    '${widget.workspace.store.yearsExperience} سنوات خبرة'
+                    '${widget.workspace.store.specialties.isEmpty ? '' : ' · ${widget.workspace.store.specialties.join('، ')}'}',
+                  ),
+                ),
+              ),
+            if (widget.workspace.store.yearsExperience > 0 ||
+                widget.workspace.store.specialties.isNotEmpty)
+              const SizedBox(height: AssalSpacing.md),
             FutureBuilder<AssalLoadState<List<AssalRegion>>>(
               future: regionsFuture,
               builder: (context, snapshot) {
-                final state = snapshot.data;
+                if (!snapshot.hasData) {
+                  return const AssalGlassLoading(height: 120);
+                }
+                final state = snapshot.data!;
+                if (state is AssalError<List<AssalRegion>>) {
+                  return AssalMessageCard(
+                    icon: Icons.location_off_outlined,
+                    message: state.messageAr,
+                    onRetry: _reloadRegions,
+                  );
+                }
                 final regions = state is AssalData<List<AssalRegion>>
                     ? state.value
                     : const <AssalRegion>[];
@@ -1455,7 +1514,7 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                             ),
                           )
                           .toList(growable: false),
-                      onChanged: saving
+                      onChanged: !_canEdit || saving
                           ? null
                           : (value) => setState(() {
                                 governorateId = value;
@@ -1482,12 +1541,13 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                             ),
                           )
                           .toList(growable: false),
-                      onChanged: saving || selectedGovernorateId == null
-                          ? null
-                          : (value) => setState(() {
-                                districtId = value;
-                                regionId = value ?? selectedGovernorateId;
-                              }),
+                      onChanged:
+                          !_canEdit || saving || selectedGovernorateId == null
+                              ? null
+                              : (value) => setState(() {
+                                    districtId = value;
+                                    regionId = value ?? selectedGovernorateId;
+                                  }),
                       hint: const Text(
                           'اختر المديرية أو اتركها على مستوى المحافظة'),
                     ),
@@ -1507,6 +1567,12 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
               ),
             ),
             const SizedBox(height: AssalSpacing.md),
+            const AssalMessageCard(
+              icon: Icons.photo_library_outlined,
+              message:
+                  'إضافة صور المعرض مدعومة. حذف صورة محفوظة يحتاج عقد حذف مستقل غير متاح حاليًا.',
+            ),
+            const SizedBox(height: AssalSpacing.md),
             Wrap(
               spacing: AssalSpacing.sm,
               runSpacing: AssalSpacing.sm,
@@ -1522,17 +1588,24 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                 AssalImagePickerTile(
                   size: 112,
                   label: 'إضافة صورة للمعرض',
-                  onPick: saving || uploading ? null : _pickGalleryImage,
+                  onPick: !_canEdit || saving || uploading
+                      ? null
+                      : _pickGalleryImage,
                   icon: Icons.add_a_photo_outlined,
                 ),
               ],
             ),
             const SizedBox(height: AssalSpacing.lg),
+            if (!_canEdit)
+              const AssalMessageCard(
+                icon: Icons.lock_outline,
+                message: 'هذه المساحة للعرض فقط؛ لا تملك صلاحية تعديلها.',
+              ),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 key: const ValueKey('merchant-store-save'),
-                onPressed: saving || uploading ? null : _save,
+                onPressed: !_canEdit || saving || uploading ? null : _save,
                 icon: saving
                     ? const SizedBox(
                         width: 18,
