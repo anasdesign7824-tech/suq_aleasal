@@ -140,11 +140,15 @@ export function ProductCreationPanel({ onCreated, stores }: { onCreated: () => v
   const [regions, setRegions] = useState<RegionOption[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [loadingReferences, setLoadingReferences] = useState(true);
+  const [referenceError, setReferenceError] = useState<string | null>(null);
+  const [referenceRequestKey, setReferenceRequestKey] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let active = true;
+    setLoadingReferences(true);
+    setReferenceError(null);
     void Promise.all([adminApi.taxonomy(), adminApi.regions()])
       .then(([taxonomyResult, regionResult]) => {
         if (!active) return;
@@ -152,7 +156,7 @@ export function ProductCreationPanel({ onCreated, stores }: { onCreated: () => v
         setRegions(regionResult.items as RegionOption[]);
       })
       .catch((error) => {
-        if (active) toast.error(error instanceof Error ? error.message : "تعذر قراءة المراجع.");
+        if (active) setReferenceError(error instanceof Error ? error.message : "تعذر قراءة المراجع.");
       })
       .finally(() => {
         if (active) setLoadingReferences(false);
@@ -160,7 +164,9 @@ export function ProductCreationPanel({ onCreated, stores }: { onCreated: () => v
     return () => {
       active = false;
     };
-  }, []);
+  }, [referenceRequestKey]);
+
+  const retryReferences = () => setReferenceRequestKey((key) => key + 1);
 
   const update = <K extends keyof ProductForm>(key: K, value: ProductForm[K]) => {
     setForm((previous) => ({ ...previous, [key]: value }));
@@ -252,9 +258,10 @@ export function ProductCreationPanel({ onCreated, stores }: { onCreated: () => v
         </div>
       </div>
       <form onSubmit={create} className="space-y-6 p-6">
+        {referenceError && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><span>{referenceError}</span><Button type="button" variant="outline" onClick={retryReferences} className="border-red-200 text-red-800">إعادة المحاولة</Button></div>}
         <div className="grid gap-4 md:grid-cols-2">
           <label className="text-sm font-semibold text-[#4f2e1f]">المتجر<select value={form.storeId} onChange={(event) => update("storeId", event.target.value)} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">اختر متجرًا معتمدًا</option>{availableStores.map((store) => <option key={store.id} value={store.id}>{store.name_ar} — {store.status}</option>)}</select></label>
-          <label className="text-sm font-semibold text-[#4f2e1f]">التصنيف<select value={form.taxonomyId} onChange={(event) => update("taxonomyId", event.target.value)} disabled={loadingReferences} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">اختر تصنيف العسل</option>{taxonomy.map((item) => <option key={item.id} value={item.id}>{item.name_ar}{item.code ? ` — ${item.code}` : ""}</option>)}</select></label>
+          <label className="text-sm font-semibold text-[#4f2e1f]">التصنيف<select value={form.taxonomyId} onChange={(event) => update("taxonomyId", event.target.value)} disabled={loadingReferences || !!referenceError} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">اختر تصنيف العسل</option>{taxonomy.map((item) => <option key={item.id} value={item.id}>{item.name_ar}{item.code ? ` — ${item.code}` : ""}</option>)}</select></label>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <Input required value={form.nameAr} onChange={(event) => update("nameAr", event.target.value)} placeholder="اسم المنتج بالعربية" className={inputClass} />
@@ -270,7 +277,7 @@ export function ProductCreationPanel({ onCreated, stores }: { onCreated: () => v
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Input value={form.weightLabel} onChange={(event) => update("weightLabel", event.target.value)} placeholder="الوزن أو الحجم" className={inputClass} />
           <Input value={form.originCountry} onChange={(event) => update("originCountry", event.target.value)} placeholder="بلد المصدر" className={inputClass} />
-          <label className="text-sm font-semibold text-[#4f2e1f]">محافظة الإنتاج<select value={form.governorateId} onChange={(event) => chooseGovernorate(event.target.value)} disabled={loadingReferences} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">اختر المحافظة</option>{governorates.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></label>
+          <label className="text-sm font-semibold text-[#4f2e1f]">محافظة الإنتاج<select value={form.governorateId} onChange={(event) => chooseGovernorate(event.target.value)} disabled={loadingReferences || !!referenceError} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">اختر المحافظة</option>{governorates.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></label>
           <label className="text-sm font-semibold text-[#4f2e1f]">مديرية الإنتاج<select value={form.districtId} onChange={(event) => chooseDistrict(event.target.value)} disabled={loadingReferences || !form.governorateId} className={`${inputClass} mt-2 h-10 w-full px-3 text-sm font-normal`}><option value="">كل مديريات المحافظة</option>{districts.map((region) => <option key={region.id} value={region.id}>{region.name_ar}</option>)}</select></label>
         </div>
         <div className="grid gap-4 md:grid-cols-3">

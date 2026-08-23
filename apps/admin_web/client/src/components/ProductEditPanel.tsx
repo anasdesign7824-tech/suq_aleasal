@@ -53,6 +53,8 @@ export function ProductEditPanel({
   onClose: () => void;
 }) {
   const [taxonomy, setTaxonomy] = useState<TaxonomyOption[]>([]);
+  const [taxonomyError, setTaxonomyError] = useState<string | null>(null);
+  const [taxonomyRequestKey, setTaxonomyRequestKey] = useState(0);
   const [nameAr, setNameAr] = useState(product.name_ar);
   const [nameEn, setNameEn] = useState(product.name_en ?? "");
   const [description, setDescription] = useState(product.description ?? "");
@@ -70,11 +72,16 @@ export function ProductEditPanel({
 
   useEffect(() => {
     let active = true;
+    setTaxonomyError(null);
     void adminApi.taxonomy().then((result) => {
       if (active) setTaxonomy(result.items as TaxonomyOption[]);
-    }).catch((error) => toast.error(error instanceof Error ? error.message : "تعذر قراءة التصنيفات."));
+    }).catch((error) => {
+      if (active) setTaxonomyError(error instanceof Error ? error.message : "تعذر قراءة التصنيفات.");
+    });
     return () => { active = false; };
-  }, []);
+  }, [taxonomyRequestKey]);
+
+  const retryTaxonomy = () => setTaxonomyRequestKey((key) => key + 1);
 
   const uploadImages = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -137,7 +144,8 @@ export function ProductEditPanel({
 
   return <div className="space-y-5 text-right">
     <div className="flex items-start justify-between gap-3"><div><p className="section-kicker">تعديل المنتج</p><h3 className="mt-1 text-xl font-bold text-[#3f281d]">{product.name_ar}</h3><p className="mt-1 text-xs text-[#806b5a]" dir="ltr">{product.id}</p></div><Button onClick={onClose} variant="ghost" size="icon" aria-label="إغلاق"><X className="size-5" /></Button></div>
-    <div className="grid gap-3 rounded-2xl border border-[#eadcc9] p-4 md:grid-cols-2"><Input value={nameAr} onChange={(event) => setNameAr(event.target.value)} placeholder="اسم المنتج بالعربية" /><Input value={nameEn} onChange={(event) => setNameEn(event.target.value)} placeholder="اسم المنتج بالإنجليزية" /><textarea value={description} onChange={(event) => setDescription(event.target.value)} className="min-h-24 rounded-xl border border-[#eadcc9] bg-white p-3 text-sm md:col-span-2" placeholder="الوصف" /><select value={taxonomyId} onChange={(event) => setTaxonomyId(event.target.value)} className="h-10 rounded-xl border border-[#eadcc9] bg-white px-3 text-sm"><option value="">بدون تصنيف</option>{taxonomy.map((item) => <option key={item.id} value={item.id}>{item.name_ar}{item.code ? ` — ${item.code}` : ""}</option>)}</select><select value={status} onChange={(event) => setStatus(event.target.value)} className="h-10 rounded-xl border border-[#eadcc9] bg-white px-3 text-sm">{statuses.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><Input value={productType} onChange={(event) => setProductType(event.target.value)} placeholder="نوع المنتج" /><Input value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} type="number" min="0" placeholder="درجة الجودة" /><Input value={price} onChange={(event) => setPrice(event.target.value)} type="number" min="0" step="0.01" placeholder="السعر" /><Input value={currencyCode} onChange={(event) => setCurrencyCode(event.target.value)} placeholder="العملة" /></div>
+    {taxonomyError && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><span>{taxonomyError}</span><Button type="button" variant="outline" onClick={retryTaxonomy} className="border-red-200 text-red-800">إعادة المحاولة</Button></div>}
+    <div className="grid gap-3 rounded-2xl border border-[#eadcc9] p-4 md:grid-cols-2"><Input value={nameAr} onChange={(event) => setNameAr(event.target.value)} placeholder="اسم المنتج بالعربية" /><Input value={nameEn} onChange={(event) => setNameEn(event.target.value)} placeholder="اسم المنتج بالإنجليزية" /><textarea value={description} onChange={(event) => setDescription(event.target.value)} className="min-h-24 rounded-xl border border-[#eadcc9] bg-white p-3 text-sm md:col-span-2" placeholder="الوصف" /><select value={taxonomyId} onChange={(event) => setTaxonomyId(event.target.value)} disabled={!!taxonomyError} className="h-10 rounded-xl border border-[#eadcc9] bg-white px-3 text-sm"><option value="">بدون تصنيف</option>{taxonomy.map((item) => <option key={item.id} value={item.id}>{item.name_ar}{item.code ? ` — ${item.code}` : ""}</option>)}</select><select value={status} onChange={(event) => setStatus(event.target.value)} className="h-10 rounded-xl border border-[#eadcc9] bg-white px-3 text-sm">{statuses.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><Input value={productType} onChange={(event) => setProductType(event.target.value)} placeholder="نوع المنتج" /><Input value={gradeLevel} onChange={(event) => setGradeLevel(event.target.value)} type="number" min="0" placeholder="درجة الجودة" /><Input value={price} onChange={(event) => setPrice(event.target.value)} type="number" min="0" step="0.01" placeholder="السعر" /><Input value={currencyCode} onChange={(event) => setCurrencyCode(event.target.value)} placeholder="العملة" /></div>
     <div className="rounded-2xl border border-[#eadcc9] p-4"><div className="flex items-center justify-between gap-3"><p className="font-bold text-[#4f2e1f]">صور المنتج</p><label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#d5ae76] px-3 py-2 text-xs font-semibold text-[#76502e]"><ImagePlus className="size-4" />{uploading ? "جاري الرفع…" : "إضافة صور"}<input type="file" accept="image/*" multiple className="hidden" disabled={uploading} onChange={(event) => void uploadImages(event.target.files)} /></label></div>{imageUrls.length === 0 ? <p className="mt-3 text-xs text-[#806b5a]">لا توجد صور محفوظة.</p> : <div className="mt-3 grid grid-cols-3 gap-2">{imageUrls.map((url, index) => <div className="relative overflow-hidden rounded-xl border border-[#eadcc9]" key={`${url}-${index}`}><img src={url} alt="صورة المنتج" className="h-24 w-full object-cover" /><Button type="button" onClick={() => { setImageUrls((previous) => previous.filter((_, itemIndex) => itemIndex !== index)); setImagesChanged(true); }} variant="destructive" size="icon" className="absolute left-1 top-1 size-7"><Trash2 className="size-3.5" /></Button></div>)}</div>}</div>
     <div className="rounded-2xl border border-[#eadcc9] p-4"><p className="font-bold text-[#4f2e1f]">البيانات الإضافية (metadata)</p><p className="mt-1 text-xs leading-6 text-[#806b5a]">يُحفظ الكائن كما هو مع دمج السعر والعملة. لا تضع أسرارًا أو مفاتيح هنا.</p><textarea value={metadataText} onChange={(event) => setMetadataText(event.target.value)} dir="ltr" className="mt-3 min-h-48 w-full rounded-xl border border-[#eadcc9] bg-white p-3 font-mono text-xs" /></div>
     <Button disabled={saving || uploading} onClick={() => void save()} className="w-full bg-[#4f2e1f] hover:bg-[#6b412a]"><Save className="ml-2 size-4" />{saving ? "جاري الحفظ…" : "حفظ التعديلات"}</Button>

@@ -1,0 +1,33 @@
+{
+  "task": "051",
+  "scope": "admin catalog",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "changedFiles": [
+    "apps/admin_web/client/src/components/ProductCreationPanel.tsx",
+    "apps/admin_web/client/src/components/ProductEditPanel.tsx"
+  ],
+  "changes": [
+    "reference loading errors are retained in UI instead of toast-only loss",
+    "creation panel exposes an Arabic retry action and disables reference selects while references fail",
+    "edit panel exposes an Arabic taxonomy retry action and disables taxonomy selection while taxonomy fails",
+    "existing real create/update/upload/delete API paths remain unchanged"
+  ],
+  "verifiedStates": [
+    "catalog list loading/error/empty and refresh",
+    "product creation validation and source-backed submit",
+    "product edit validation and source-backed submit",
+    "taxonomy and region reference error/retry",
+    "image upload validation and source-backed upload"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
