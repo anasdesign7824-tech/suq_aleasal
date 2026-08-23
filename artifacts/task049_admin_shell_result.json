@@ -1,0 +1,39 @@
+{
+  "task": "049",
+  "scope": "admin shell and navigation",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "navigationItemCount": 15,
+  "navigationGroups": [
+    "التشغيل",
+    "دورة التاجر",
+    "المحتوى والمرجع",
+    "الحوكمة",
+    "الحسابات والتحليل"
+  ],
+  "responsiveSurfaces": [
+    "fixed desktop aside",
+    "mobile right-side sheet"
+  ],
+  "verifiedSourceMarkers": [
+    "data-testid=admin-navigation",
+    "data-nav-item-count=ADMIN_NAVIGATION_ITEM_COUNT",
+    "overflow-y-auto",
+    "overscroll-contain",
+    "setActiveView",
+    "SheetContent side=right"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "limitations": [
+    "visual golden not run because the contract PNG and Markdown are absent",
+    "runtime browser screenshot not claimed from the isolated browser"
+  ],
+  "dbApiRlsPermissionsChanged": false
+}
