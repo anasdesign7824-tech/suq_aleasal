@@ -1,0 +1,35 @@
+{
+  "task": "060",
+  "scope": "admin live banners",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "changedFiles": [
+    "apps/admin_web/client/src/components/AdminOperations.tsx"
+  ],
+  "changes": [
+    "publish and delete actions now have a per-banner busy guard",
+    "publish/stop-publish now requires explicit confirmation",
+    "banner upload validates PNG, JPEG, and WebP MIME types before reading and sending the file",
+    "existing schedule validation, create-draft, image preview, API, and audit paths remain unchanged"
+  ],
+  "verifiedStates": [
+    "banner list loading/error/empty/retry",
+    "draft creation",
+    "image upload and preview",
+    "schedule start/end validation",
+    "publish and stop-publish confirmation",
+    "delete confirmation",
+    "per-banner busy state",
+    "safe image fallback"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
