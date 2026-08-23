@@ -1029,7 +1029,14 @@ String formatAssalPrice(double? price, String currencyCode) {
     'USD' => 'دولار أمريكي',
     _ => currencyCode,
   };
-  return '${price.toStringAsFixed(0)} $currency';
+  final raw = price.toStringAsFixed(0);
+  final sign = raw.startsWith('-') ? '-' : '';
+  final digits = sign.isEmpty ? raw : raw.substring(1);
+  final formatted = digits.replaceAllMapped(
+    RegExp(r'(?<=\d)(?=(\d{3})+(?!\d))'),
+    (_) => ',',
+  );
+  return '$sign$formatted $currency';
 }
 
 class ProductCard extends StatelessWidget {
@@ -1038,10 +1045,13 @@ class ProductCard extends StatelessWidget {
     required this.product,
     required this.onTap,
     this.onFavorite,
+    this.store,
   });
   final AssalProductSummary product;
   final VoidCallback onTap;
   final VoidCallback? onFavorite;
+  final AssalStoreSummary? store;
+
   @override
   Widget build(BuildContext context) => Semantics(
         button: true,
@@ -1050,77 +1060,190 @@ class ProductCard extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Stack(children: [
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: AssalImageTile(
-                    imageUrl: product.primaryImageUrl,
-                    height: 138,
-                    expand: true,
-                  ),
-                ),
-                if (onFavorite != null)
-                  Positioned(
-                      top: AssalSpacing.sm,
-                      left: AssalSpacing.sm,
-                      child: IconButton.filledTonal(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: AssalImageTile(
+                        imageUrl: product.primaryImageUrl,
+                        expand: true,
+                      ),
+                    ),
+                    if (product.availability.trim().isNotEmpty)
+                      Positioned(
+                        top: AssalSpacing.sm,
+                        right: AssalSpacing.sm,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: AssalColors.success.withValues(alpha: .16),
+                            borderRadius:
+                                BorderRadius.circular(AssalRadius.pill),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AssalSpacing.sm,
+                              vertical: AssalSpacing.xs,
+                            ),
+                            child: Text(
+                              product.availability,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AssalTypography.caption.copyWith(
+                                color: AssalColors.secondary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (onFavorite != null)
+                      Positioned(
+                        top: AssalSpacing.sm,
+                        left: AssalSpacing.sm,
+                        child: IconButton.filledTonal(
                           onPressed: onFavorite,
-                          icon: const Icon(Icons.bookmark_border),
-                          tooltip: 'حفظ المنتج')),
-              ]),
-              Padding(
-                padding: const EdgeInsets.all(AssalSpacing.md),
-                child: Column(
+                          icon: const Icon(Icons.favorite_border_rounded),
+                          tooltip: 'حفظ المنتج',
+                        ),
+                      ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(AssalSpacing.md),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(product.nameAr,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AssalTypography.title
-                              .copyWith(color: AssalColors.deepBrown)),
+                      if (product.subcategoryNameAr != null ||
+                          product.categoryNameAr != null)
+                        InfoChip(
+                          label: product.subcategoryNameAr ??
+                              product.categoryNameAr!,
+                          icon: Icons.local_florist_outlined,
+                        ),
                       const SizedBox(height: AssalSpacing.xs),
                       Text(
-                          product.subcategoryNameAr ??
-                              product.categoryNameAr ??
-                              'منتج نحلي يمني',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AssalTypography.bodySmall
-                              .copyWith(color: AssalColors.textSecondary)),
+                        product.nameAr,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AssalTypography.title
+                            .copyWith(color: AssalColors.deepBrown),
+                      ),
                       const SizedBox(height: AssalSpacing.xs),
-                      Text(
-                          formatAssalPrice(product.price, product.currencyCode),
-                          style: AssalTypography.bodySmall.copyWith(
-                              color: AssalColors.primaryDark,
-                              fontWeight: FontWeight.w700)),
-                      const SizedBox(height: AssalSpacing.xs),
-                      Row(children: [
-                        RatingStars(rating: product.ratingAverage),
-                        const SizedBox(width: AssalSpacing.xs),
-                        Text('(${product.reviewCount})',
-                            style: AssalTypography.caption
-                                .copyWith(color: AssalColors.textMuted)),
-                        const Spacer(),
-                        if (product.availability.isNotEmpty)
+                      Row(
+                        children: [
+                          RatingStars(rating: product.ratingAverage),
+                          const SizedBox(width: AssalSpacing.xs),
+                          Text(
+                            product.ratingAverage.toStringAsFixed(1),
+                            style: AssalTypography.bodySmall.copyWith(
+                              color: AssalColors.deepBrown,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(width: AssalSpacing.xs),
                           Flexible(
-                              child: Text(product.availability,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AssalTypography.caption.copyWith(
-                                      color: AssalColors.textSecondary)))
-                      ]),
+                            child: Text(
+                              '${product.reviewCount} تقييم',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AssalTypography.caption.copyWith(
+                                color: AssalColors.textMuted,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: AssalSpacing.sm),
-                      Row(children: [
-                        if (product.gradeLevel != null)
-                          InfoChip(label: 'درجة ${product.gradeLevel}'),
-                        const Spacer(),
-                        const Icon(Icons.arrow_back_rounded,
-                            size: 18, color: AssalColors.primaryDark),
-                      ]),
-                    ]),
-              ),
-            ]),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              formatAssalPrice(
+                                product.price,
+                                product.currencyCode,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AssalTypography.bodySmall.copyWith(
+                                color: AssalColors.primaryDark,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          if (product.weightLabel != null)
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                start: AssalSpacing.xs,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.scale_outlined,
+                                    size: 16,
+                                    color: AssalColors.textMuted,
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    product.weightLabel!,
+                                    style: AssalTypography.caption.copyWith(
+                                      color: AssalColors.textMuted,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (store != null) ...[
+                        const SizedBox(height: AssalSpacing.sm),
+                        const Divider(height: 1),
+                        const SizedBox(height: AssalSpacing.sm),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    store!.nameAr,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AssalTypography.bodySmall.copyWith(
+                                      color: AssalColors.deepBrown,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  if (store!.regionNameAr != null)
+                                    Text(
+                                      store!.regionNameAr!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AssalTypography.caption.copyWith(
+                                        color: AssalColors.textMuted,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            if (store!.isVerified)
+                              const Icon(
+                                Icons.verified_rounded,
+                                size: 20,
+                                color: AssalColors.secondary,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
