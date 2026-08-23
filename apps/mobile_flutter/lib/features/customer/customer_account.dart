@@ -11,6 +11,7 @@ import '../../core/assal_widgets.dart';
 
 import 'customer_core.dart';
 import 'customer_favorites.dart';
+import 'customer_discovery.dart';
 import 'customer_request_detail.dart';
 import 'customer_support.dart';
 import '../merchant/merchant_dashboard.dart';
@@ -1258,83 +1259,405 @@ class _ProfileStats extends StatelessWidget {
       ]);
 }
 
-class RequestsScreen extends StatelessWidget {
+class RequestsScreen extends StatefulWidget {
   const RequestsScreen({super.key, required this.repository});
   final AssalRepository repository;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const AssalAppBar(title: 'طلباتي'),
-      body: FutureBuilder<AssalSession>(
-        future: repository.getSession(),
-        builder: (context, sessionSnapshot) {
-          if (sessionSnapshot.connectionState != ConnectionState.done) {
-            return const AssalGlassLoading();
-          }
-          final session = sessionSnapshot.data ?? AssalSession.guest;
-          if (session.isUnavailable) {
-            return AssalMessageCard(
-              icon: Icons.sync_problem_outlined,
-              message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
-            );
-          }
-          if (!session.isAuthenticated || session.user == null) {
-            return Center(
+  State<RequestsScreen> createState() => _RequestsScreenState();
+}
+
+class _RequestsScreenState extends State<RequestsScreen> {
+  late Future<AssalSession> sessionFuture;
+  Future<AssalLoadState<List<AssalRequestSummary>>>? requestsFuture;
+  RequestStatus? selectedStatus;
+
+  @override
+  void initState() {
+    super.initState();
+    sessionFuture = widget.repository.getSession();
+  }
+
+  void _retrySession() {
+    setState(() {
+      sessionFuture = widget.repository.getSession();
+      requestsFuture = null;
+    });
+  }
+
+  void _retryRequests(String userId) {
+    setState(() {
+      requestsFuture = widget.repository.listRequests(userId);
+    });
+  }
+
+  String _statusLabel(RequestStatus status) => switch (status) {
+        RequestStatus.open => 'جديد',
+        RequestStatus.inProgress => 'قيد الرد',
+        RequestStatus.answered => 'تم الرد',
+        RequestStatus.closed || RequestStatus.cancelled => 'مغلقة',
+      };
+
+  Color _statusColor(RequestStatus status) => switch (status) {
+        RequestStatus.open => AssalColors.success,
+        RequestStatus.inProgress => AssalColors.primaryDark,
+        RequestStatus.answered => AssalColors.success,
+        RequestStatus.closed ||
+        RequestStatus.cancelled =>
+          AssalColors.textMuted,
+      };
+
+  List<AssalRequestSummary> _filterRequests(
+    List<AssalRequestSummary> requests,
+  ) {
+    final status = selectedStatus;
+    if (status == null) return requests;
+    if (status == RequestStatus.closed) {
+      return requests
+          .where((request) =>
+              request.status == RequestStatus.closed ||
+              request.status == RequestStatus.cancelled)
+          .toList(growable: false);
+    }
+    return requests
+        .where((request) => request.status == status)
+        .toList(growable: false);
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: const AssalAppBar(title: 'طلباتي'),
+        body: FutureBuilder<AssalSession>(
+          future: sessionFuture,
+          builder: (context, sessionSnapshot) {
+            if (sessionSnapshot.connectionState != ConnectionState.done) {
+              return const AssalGlassLoading();
+            }
+            final session = sessionSnapshot.data ?? AssalSession.guest;
+            if (session.isUnavailable) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+                onRetry: _retrySession,
+              );
+            }
+            if (!session.isAuthenticated || session.user == null) {
+              return Center(
                 child: FilledButton(
-                    onPressed: () => openAuth(context, repository),
-                    child: const Text('تسجيل الدخول لمتابعة الطلبات')));
-          }
-          return FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
-            future: repository.listRequests(session.user!.id),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
-              return AssalStateView<List<AssalRequestSummary>>(
-                state: snapshot.data!,
-                builder: (requests) => ListView.separated(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
-                  itemCount: requests.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: AssalSpacing.sm),
-                  itemBuilder: (_, index) {
-                    final request = requests[index];
-                    return Card(
-                      child: ListTile(
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => CustomerRequestDetailScreen(
-                              repository: repository,
-                              request: request,
-                              merchantMode: false,
+                  onPressed: () => openAuth(context, widget.repository),
+                  child: const Text('تسجيل الدخول لمتابعة الطلبات'),
+                ),
+              );
+            }
+            final userId = session.user!.id;
+            requestsFuture ??= widget.repository.listRequests(userId);
+            return FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
+              future: requestsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return AssalMessageCard(
+                    icon: Icons.wifi_off_outlined,
+                    message:
+                        'تعذر تحميل الطلبات الآن. تحقق من الاتصال ثم أعد المحاولة.',
+                    onRetry: () => _retryRequests(userId),
+                  );
+                }
+                if (!snapshot.hasData) return const AssalGlassLoading();
+                final state = snapshot.data!;
+                final filters = _RequestStatusFilters(
+                  selectedStatus: selectedStatus,
+                  labelFor: _statusLabel,
+                  onSelected: (status) => setState(() {
+                    selectedStatus = status;
+                  }),
+                );
+                if (state is AssalData<List<AssalRequestSummary>> &&
+                    state.value.isEmpty) {
+                  return Column(
+                    children: [
+                      filters,
+                      Expanded(
+                        child: _RequestsEmptyState(
+                          filtered: false,
+                          onRetry: () => _retryRequests(userId),
+                          onExplore: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => SearchScreen(
+                                repository: widget.repository,
+                              ),
                             ),
                           ),
                         ),
-                        leading: const CircleAvatar(
-                            backgroundColor: AssalColors.honeyLight,
-                            child: Icon(Icons.assignment_outlined,
-                                color: AssalColors.primaryDark)),
-                        title: Text(
-                          request.productName ?? request.subject,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          '${request.storeName ?? 'متجر عسلكم'} · ${request.status.labelAr}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: const Icon(Icons.chevron_left),
                       ),
+                    ],
+                  );
+                }
+                return AssalStateView<List<AssalRequestSummary>>(
+                  state: state,
+                  onRetry: () => _retryRequests(userId),
+                  builder: (requests) {
+                    final visibleRequests = _filterRequests(requests);
+                    return Column(
+                      children: [
+                        filters,
+                        Expanded(
+                          child: visibleRequests.isEmpty
+                              ? _RequestsEmptyState(
+                                  filtered: requests.isNotEmpty,
+                                  onRetry: () => _retryRequests(userId),
+                                  onExplore: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => SearchScreen(
+                                        repository: widget.repository,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : ListView.separated(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    AssalSpacing.lg,
+                                    AssalSpacing.sm,
+                                    AssalSpacing.lg,
+                                    AssalSpacing.lg,
+                                  ),
+                                  itemCount: visibleRequests.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: AssalSpacing.sm),
+                                  itemBuilder: (_, index) => _RequestCard(
+                                    request: visibleRequests[index],
+                                    statusLabel: _statusLabel(
+                                      visibleRequests[index].status,
+                                    ),
+                                    statusColor: _statusColor(
+                                      visibleRequests[index].status,
+                                    ),
+                                    onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            CustomerRequestDetailScreen(
+                                          repository: widget.repository,
+                                          request: visibleRequests[index],
+                                          merchantMode: false,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
                     );
                   },
+                );
+              },
+            );
+          },
+        ),
+      );
+}
+
+class _RequestStatusFilters extends StatelessWidget {
+  const _RequestStatusFilters({
+    required this.selectedStatus,
+    required this.labelFor,
+    required this.onSelected,
+  });
+
+  final RequestStatus? selectedStatus;
+  final String Function(RequestStatus) labelFor;
+  final ValueChanged<RequestStatus?> onSelected;
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.fromLTRB(
+          AssalSpacing.lg,
+          AssalSpacing.md,
+          AssalSpacing.lg,
+          AssalSpacing.sm,
+        ),
+        child: Row(
+          children: [
+            ChoiceChip(
+              label: const Text('الكل'),
+              selected: selectedStatus == null,
+              onSelected: (_) => onSelected(null),
+            ),
+            ...[
+              RequestStatus.open,
+              RequestStatus.inProgress,
+              RequestStatus.answered,
+              RequestStatus.closed,
+            ].map(
+              (status) => Padding(
+                padding:
+                    const EdgeInsetsDirectional.only(start: AssalSpacing.sm),
+                child: ChoiceChip(
+                  label: Text(labelFor(status)),
+                  selected: selectedStatus == status,
+                  onSelected: (_) => onSelected(status),
                 ),
-              );
-            },
-          );
-        },
-      ),
-    );
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _RequestCard extends StatelessWidget {
+  const _RequestCard({
+    required this.request,
+    required this.statusLabel,
+    required this.statusColor,
+    required this.onTap,
+  });
+
+  final AssalRequestSummary request;
+  final String statusLabel;
+  final Color statusColor;
+  final VoidCallback onTap;
+
+  String _dateLabel(DateTime? date) {
+    if (date == null) return 'التاريخ غير متاح';
+    return '${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}';
   }
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AssalRadius.medium),
+          child: Padding(
+            padding: const EdgeInsets.all(AssalSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AssalSpacing.sm,
+                              vertical: AssalSpacing.xs,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(alpha: .12),
+                              borderRadius: BorderRadius.circular(
+                                AssalRadius.small,
+                              ),
+                            ),
+                            child: Text(
+                              statusLabel,
+                              style: AssalTypography.caption.copyWith(
+                                color: statusColor,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AssalSpacing.sm),
+                          Text(
+                            request.productName ?? request.subject,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AssalTypography.subtitle,
+                          ),
+                          const SizedBox(height: AssalSpacing.xs),
+                          Text(request.storeName ?? 'متجر عسلكم'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AssalSpacing.md),
+                    const SizedBox(
+                      width: 76,
+                      height: 76,
+                      child: AssalImageTile(
+                        imageUrl: null,
+                        height: 76,
+                        icon: Icons.inventory_2_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(height: AssalSpacing.lg),
+                Wrap(
+                  spacing: AssalSpacing.lg,
+                  runSpacing: AssalSpacing.sm,
+                  children: [
+                    InfoChip(
+                      icon: Icons.scale_outlined,
+                      label: 'الكمية: ${request.quantity ?? 'غير محددة'}',
+                    ),
+                    InfoChip(
+                      icon: Icons.calendar_today_outlined,
+                      label: 'التاريخ: ${_dateLabel(request.createdAt)}',
+                    ),
+                  ],
+                ),
+                if (request.body != null &&
+                    request.body!.trim().isNotEmpty) ...[
+                  const SizedBox(height: AssalSpacing.sm),
+                  Text(
+                    request.body!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AssalTypography.bodySmall.copyWith(
+                      color: AssalColors.textMuted,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: AssalSpacing.sm),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: onTap,
+                    icon: const Icon(Icons.chevron_left),
+                    label: const Text('التفاصيل'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+class _RequestsEmptyState extends StatelessWidget {
+  const _RequestsEmptyState({
+    required this.filtered,
+    required this.onRetry,
+    required this.onExplore,
+  });
+
+  final bool filtered;
+  final VoidCallback onRetry;
+  final VoidCallback onExplore;
+
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+        padding: const EdgeInsets.all(AssalSpacing.lg),
+        child: Column(
+          children: [
+            AssalMessageCard(
+              icon: Icons.forum_outlined,
+              message: filtered
+                  ? 'لا توجد طلبات بهذه الحالة.'
+                  : 'لا توجد طلبات تواصل بعد.',
+              onRetry: onRetry,
+            ),
+            if (!filtered) ...[
+              const SizedBox(height: AssalSpacing.sm),
+              OutlinedButton.icon(
+                onPressed: onExplore,
+                icon: const Icon(Icons.shopping_bag_outlined),
+                label: const Text('استكشف المنتجات'),
+              ),
+            ],
+          ],
+        ),
+      );
 }
 
 class NotificationsScreen extends StatelessWidget {
