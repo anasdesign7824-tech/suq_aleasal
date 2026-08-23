@@ -3079,13 +3079,19 @@ class _MerchantWorkspaceSetupScreenState
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
   final locationController = TextEditingController();
+  final experienceController = TextEditingController();
+  final specialtiesController = TextEditingController();
   final descriptionController = TextEditingController();
+
   Uint8List? logoBytes;
   Uint8List? coverBytes;
   String? logoUrl;
   String? coverUrl;
+  AssalSession? session;
+  String? loadError;
   bool loading = true;
   bool opening = false;
+  bool savingDraft = false;
   bool uploading = false;
 
   @override
@@ -3099,31 +3105,64 @@ class _MerchantWorkspaceSetupScreenState
     nameController.dispose();
     phoneController.dispose();
     locationController.dispose();
+    experienceController.dispose();
+    specialtiesController.dispose();
     descriptionController.dispose();
+
     super.dispose();
   }
 
+  void _retryLoad() {
+    setState(() {
+      loading = true;
+      loadError = null;
+    });
+    _restoreDraft();
+  }
+
   Future<void> _restoreDraft() async {
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) {
-      if (mounted) setState(() => loading = false);
-      return;
+    try {
+      final currentSession = await widget.repository.getSession();
+      if (!mounted) return;
+      session = currentSession;
+      if (currentSession.isUnavailable) {
+        setState(() {
+          loadError =
+              currentSession.errorMessageAr ?? 'تعذر تحميل بيانات المتجر الآن.';
+          loading = false;
+        });
+        return;
+      }
+      if (!currentSession.isAuthenticated || currentSession.user == null) {
+        setState(() => loading = false);
+        return;
+      }
+      final result = await widget.repository.loadMerchantApplicationDraft(
+        currentSession.user!.id,
+      );
+      if (!mounted) return;
+      if (result is AssalData<AssalMerchantApplicationDraft?> &&
+          result.value != null) {
+        final draft = result.value!;
+        nameController.text = draft.displayName;
+        phoneController.text = draft.phone;
+        locationController.text = draft.location;
+        experienceController.text = draft.experience;
+        specialtiesController.text = draft.specialties;
+        descriptionController.text = draft.storeDescription ?? '';
+        logoUrl = draft.logoUrl;
+        coverUrl = draft.coverUrl;
+      } else if (result is AssalError<AssalMerchantApplicationDraft?>) {
+        loadError = result.messageAr;
+      }
+      setState(() => loading = false);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        loadError = 'تعذر تحميل بيانات المتجر الآن.';
+        loading = false;
+      });
     }
-    final result = await widget.repository.loadMerchantApplicationDraft(
-      session.user!.id,
-    );
-    if (!mounted) return;
-    if (result is AssalData<AssalMerchantApplicationDraft?> &&
-        result.value != null) {
-      final draft = result.value!;
-      nameController.text = draft.displayName;
-      phoneController.text = draft.phone;
-      locationController.text = draft.location;
-      descriptionController.text = draft.storeDescription ?? draft.experience;
-      logoUrl = draft.logoUrl;
-      coverUrl = draft.coverUrl;
-    }
-    setState(() => loading = false);
   }
 
   String _extension(XFile file) {
@@ -3178,15 +3217,33 @@ class _MerchantWorkspaceSetupScreenState
   }
 
   Future<void> _openWorkspace() async {
-    if (!(formKey.currentState?.validate() ?? false)) return;
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) {
-      if (mounted) await openAuth(context, widget.repository);
+    if (opening || uploading || !(formKey.currentState?.validate() ?? false)) {
       return;
     }
-    setState(() => opening = true);
+
+    final currentSession = await widget.repository.getSession();
+    if (!mounted) return;
+    if (currentSession.isUnavailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            currentSession.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+          ),
+        ),
+      );
+      return;
+    }
+    if (!currentSession.isAuthenticated || currentSession.user == null) {
+      await openAuth(context, widget.repository);
+      return;
+    }
+    setState(() {
+      session = currentSession;
+      opening = true;
+    });
+
     final result = await widget.repository.openMerchantWorkspace(
-      session.user!.id,
+      currentSession.user!.id,
       AssalMerchantWorkspaceDraft(
         businessName: nameController.text.trim(),
         description: descriptionController.text.trim().isEmpty
@@ -3220,16 +3277,35 @@ class _MerchantWorkspaceSetupScreenState
   }
 
   Future<void> _saveDraft() async {
-    final session = await widget.repository.getSession();
-    if (!session.isAuthenticated || session.user == null) return;
+    if (savingDraft || opening || uploading) return;
+    final currentSession = await widget.repository.getSession();
+    if (!mounted) return;
+    if (currentSession.isUnavailable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            currentSession.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+          ),
+        ),
+      );
+      return;
+    }
+    if (!currentSession.isAuthenticated || currentSession.user == null) {
+      await openAuth(context, widget.repository);
+      return;
+    }
+    setState(() {
+      session = currentSession;
+      savingDraft = true;
+    });
     final result = await widget.repository.saveMerchantApplicationDraft(
-      session.user!.id,
+      currentSession.user!.id,
       AssalMerchantApplicationDraft(
         displayName: nameController.text.trim(),
         phone: phoneController.text.trim(),
-        experience: descriptionController.text.trim(),
+        experience: experienceController.text.trim(),
         location: locationController.text.trim(),
-        specialties: 'منتجات نحلية يمنية',
+        specialties: specialtiesController.text.trim(),
         storeDescription: descriptionController.text.trim().isEmpty
             ? null
             : descriptionController.text.trim(),
@@ -3238,13 +3314,16 @@ class _MerchantWorkspaceSetupScreenState
       ),
     );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(result is AssalData<void>
-          ? 'تم حفظ البيانات مؤقتًا.'
-          : result is AssalError<void>
-              ? result.messageAr
-              : 'تعذر حفظ البيانات.'),
-    ));
+    setState(() => savingDraft = false);
+    if (result is AssalData<void>) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم حفظ بيانات المتجر مؤقتًا.')),
+      );
+      await _restoreDraft();
+    } else if (result is AssalError<void>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
   }
 
   @override
@@ -3253,6 +3332,30 @@ class _MerchantWorkspaceSetupScreenState
       return const Scaffold(
         appBar: AssalAppBar(title: 'فتح مساحة المتجر'),
         body: AssalGlassLoading(),
+      );
+    }
+    if (loadError != null) {
+      return Scaffold(
+        appBar: const AssalAppBar(title: 'فتح مساحة المتجر'),
+        body: AssalMessageCard(
+          icon: Icons.sync_problem_outlined,
+          message: loadError!,
+          onRetry: _retryLoad,
+        ),
+      );
+    }
+    final currentSession = session;
+    if (currentSession == null ||
+        !currentSession.isAuthenticated ||
+        currentSession.user == null) {
+      return Scaffold(
+        appBar: const AssalAppBar(title: 'فتح مساحة المتجر'),
+        body: Center(
+          child: FilledButton(
+            onPressed: () => openAuth(context, widget.repository),
+            child: const Text('تسجيل الدخول لفتح متجرك'),
+          ),
+        ),
       );
     }
     return Scaffold(
@@ -3349,16 +3452,37 @@ class _MerchantWorkspaceSetupScreenState
             ),
             const SizedBox(height: AssalSpacing.md),
             TextFormField(
+              controller: experienceController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'الخبرة (اختياري)',
+                hintText: 'اذكر خبرتك في منتجات العسل أو التجارة',
+                prefixIcon: Icon(Icons.workspace_premium_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextFormField(
+              controller: specialtiesController,
+              decoration: const InputDecoration(
+                labelText: 'التخصصات (اختياري)',
+                hintText: 'مثال: عسل سدر، عسل سمرة، شمع العسل',
+                prefixIcon: Icon(Icons.category_outlined),
+              ),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextFormField(
               controller: descriptionController,
               maxLines: 4,
               decoration: const InputDecoration(
-                labelText: 'نبذة عن المتجر (اختياري)',
+                labelText: 'وصف المتجر (اختياري)',
+                hintText: 'اكتب نبذة موجزة تساعد العملاء على معرفة متجرك',
                 prefixIcon: Icon(Icons.notes_outlined),
               ),
             ),
             const SizedBox(height: AssalSpacing.lg),
             OutlinedButton.icon(
-              onPressed: opening ? null : _saveDraft,
+              onPressed:
+                  opening || savingDraft || uploading ? null : _saveDraft,
               icon: const Icon(Icons.save_outlined),
               label: const Text('حفظ البيانات مؤقتًا'),
             ),
@@ -3366,7 +3490,8 @@ class _MerchantWorkspaceSetupScreenState
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: opening || uploading ? null : _openWorkspace,
+                onPressed:
+                    opening || savingDraft || uploading ? null : _openWorkspace,
                 icon: opening
                     ? const SizedBox(
                         width: 18,
