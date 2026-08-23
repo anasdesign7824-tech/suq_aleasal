@@ -907,3 +907,7 @@
 ## TASK 051 — إدارة كتالوج Admin
 
 جُردت قائمة الكتالوج ومحررا الإنشاء والتعديل ومسارات `taxonomy/regions/upload/create/update/delete` الحالية. ثبت أن أخطاء قراءة المراجع في الإنشاء والتعديل تُفقد في toast فقط، فتمت إضافة حالات `referenceError` و`taxonomyError` مع retry عربي وتعطيل الاختيارات المعتمدة على المصدر حتى عودته، دون تغيير عقد الحفظ أو الرفع أو الصور أو DB/API/RLS/permissions. نجحت 8 ملفات اختبار و`pnpm check` و`pnpm build`، بينما غياب أصول TASK 051 منع golden وسُجل GAP-025.
+
+## TASK 052 — إنشاء منتج في Admin
+
+جُرد `ProductCreationPanel` مع `admin-api.ts` و`admin-data.ts`: الحقول المصدرية، validation للاسم/المتجر/التصنيف/السعر، بناء metadata، رفع الصور المحدود، وإنشاء مسودة عبر `product.write` مع إدخال الصور وسجل التدقيق. لم تُنفذ كتابة Production، ولم يتغير عقد أو API أو DB أو RLS أو صلاحية؛ نجحت اختبارات Admin الثمانية و`pnpm check` و`pnpm build`. غياب `052_admin_product_create.md/.png` منع المقارنة البصرية وسُجل GAP-026 دون اختراع baseline.

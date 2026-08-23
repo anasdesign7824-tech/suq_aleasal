@@ -1,0 +1,31 @@
+{
+  "task": "052",
+  "scope": "admin product creation",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "sourcePath": [
+    "apps/admin_web/client/src/components/ProductCreationPanel.tsx",
+    "apps/admin_web/client/src/lib/admin-api.ts",
+    "apps/admin_web/server/index.ts",
+    "apps/admin_web/server/admin-data.ts"
+  ],
+  "verifiedContract": [
+    "required store, taxonomy, and Arabic name validation",
+    "source-backed taxonomy and region selectors",
+    "metadata normalization and list fields",
+    "bounded image validation and Storage upload",
+    "createProduct writes draft with product images and audit boundary",
+    "permission boundary product.write remains server-side"
+  ],
+  "changes": [],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
