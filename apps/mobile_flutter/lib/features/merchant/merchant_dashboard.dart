@@ -144,16 +144,18 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               return AssalMessageCard(
                 icon: Icons.storefront_outlined,
                 message: state.messageAr,
+                onRetry: () => setState(_refresh),
               );
             }
             final workspace = state is AssalData<AssalMerchantWorkspaceSummary?>
                 ? state.value
                 : null;
             if (workspace == null) {
-              return const AssalMessageCard(
+              return AssalMessageCard(
                 icon: Icons.storefront_outlined,
                 message:
                     'لم تُفتح مساحة متجر لهذا الحساب بعد. ابدأ من شاشة «كن تاجرًا».',
+                onRetry: () => setState(_refresh),
               );
             }
             return _content(workspace);
@@ -175,7 +177,9 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
     if (imageBusy) return;
     final session = await widget.repository.getSession();
     if (!mounted) return;
-    if (session.isUnavailable || !session.isAuthenticated || session.user == null) {
+    if (session.isUnavailable ||
+        !session.isAuthenticated ||
+        session.user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -242,8 +246,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
   Widget _content(AssalMerchantWorkspaceSummary workspace) {
     final store = workspace.store;
     return DefaultTabController(
-            length: 4,
-
+      length: 4,
       child: Column(
         children: [
           Padding(
@@ -318,13 +321,14 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         const SizedBox(height: AssalSpacing.sm),
         Text(
           workspace.canPublish
-              ? 'متجرك مفعّل. يمكنك إدارة بياناته ومنتجاته وتفاعل العملاء.'
+              ? 'يمكنك إدارة بياناته ومنتجاته وتفاعل العملاء حسب الصلاحية الحالية.'
               : 'أكمل البيانات وأضف المنتجات. ستظل مخفية عن العملاء حتى تفعيل الإدارة.',
           style:
               AssalTypography.body.copyWith(color: AssalColors.textSecondary),
         ),
         const SizedBox(height: AssalSpacing.lg),
-        _infoCard(Icons.storefront_outlined, 'حالة المتجر', store.status.labelAr),
+        _infoCard(
+            Icons.storefront_outlined, 'حالة المتجر', store.status.labelAr),
         _infoCard(Icons.location_on_outlined, 'الموقع',
             store.regionNameAr ?? 'لم يُحدد بعد'),
         _infoCard(
@@ -340,40 +344,39 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
               'ستستخدم المعاينة نفس مكونات عرض العميل. الإعداد هنا لا ينشر البيانات قبل التفعيل.',
         ),
         const SizedBox(height: AssalSpacing.md),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => MerchantStoreEditorScreen(
-                      repository: widget.repository,
-                      workspace: workspace,
-                    ),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => MerchantStoreEditorScreen(
+                    repository: widget.repository,
+                    workspace: workspace,
                   ),
-                );
-                if (mounted) setState(_refresh);
-              },
-              icon: const Icon(Icons.edit_outlined),
-              label: const Text('تعديل بيانات المتجر والصور'),
+                ),
+              );
+              if (mounted) setState(_refresh);
+            },
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('تعديل بيانات المتجر والصور'),
+          ),
+        ),
+        const SizedBox(height: AssalSpacing.sm),
+        AssalActionTile(
+          icon: Icons.support_agent_outlined,
+          title: 'المساعدة والدعم وطلب التصميم',
+          subtitle: workspace.designRequestsRemaining > 0
+              ? 'المتبقي من طلبات التصميم: ${workspace.designRequestsRemaining}'
+              : 'الدعم متاح، وخدمة التصميم تتبع الخطة الفعالة',
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => SupportCenterScreen(
+              repository: widget.repository,
+              storeId: store.id,
+              designRequestsRemaining: workspace.designRequestsRemaining,
             ),
-          ),
-
-          const SizedBox(height: AssalSpacing.sm),
-          AssalActionTile(
-            icon: Icons.support_agent_outlined,
-            title: 'المساعدة والدعم وطلب التصميم',
-            subtitle: workspace.designRequestsRemaining > 0
-                ? 'المتبقي من طلبات التصميم: ${workspace.designRequestsRemaining}'
-                : 'الدعم متاح، وخدمة التصميم تتبع الخطة الفعالة',
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => SupportCenterScreen(
-                repository: widget.repository,
-                storeId: store.id,
-                designRequestsRemaining: workspace.designRequestsRemaining,
-              ),
-            )),
-          ),
+          )),
+        ),
       ],
     );
   }
@@ -388,6 +391,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             return AssalMessageCard(
               icon: Icons.inventory_2_outlined,
               message: state.messageAr,
+              onRetry: () => setState(_refresh),
             );
           }
           final products = state is AssalData<List<AssalProductSummary>>
@@ -418,8 +422,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         },
       );
 
-  Widget _management(AssalMerchantWorkspaceSummary workspace) =>
-      Column(
+  Widget _management(AssalMerchantWorkspaceSummary workspace) => Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -493,7 +496,10 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           final state = snapshot.data!;
           if (state is AssalError<List<AssalCommentSummary>>) {
             return AssalMessageCard(
-                icon: Icons.forum_outlined, message: state.messageAr);
+              icon: Icons.forum_outlined,
+              message: state.messageAr,
+              onRetry: () => setState(_refresh),
+            );
           }
           final comments = state is AssalData<List<AssalCommentSummary>>
               ? state.value
@@ -536,7 +542,10 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           final state = snapshot.data!;
           if (state is AssalError<List<AssalRequestSummary>>) {
             return AssalMessageCard(
-                icon: Icons.assignment_outlined, message: state.messageAr);
+              icon: Icons.assignment_outlined,
+              message: state.messageAr,
+              onRetry: () => setState(_refresh),
+            );
           }
           final requests = state is AssalData<List<AssalRequestSummary>>
               ? state.value
@@ -599,6 +608,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             return AssalMessageCard(
               icon: Icons.analytics_outlined,
               message: state.messageAr,
+              onRetry: () => setState(_refresh),
             );
           }
           final products = state is AssalData<List<AssalProductSummary>>
@@ -637,7 +647,8 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
                           children: [
                             Text('المشاهدات: ${product.viewsCount}'),
                             Text('الإعجابات: ${product.likesCount}'),
-                            Text('التقييم: ${product.ratingAverage.toStringAsFixed(1)}'),
+                            Text(
+                                'التقييم: ${product.ratingAverage.toStringAsFixed(1)}'),
                             Text('المراجعات: ${product.reviewCount}'),
                           ],
                         ),
@@ -756,7 +767,9 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
     if (!mounted) return;
     if (session.isUnavailable) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
+        SnackBar(
+            content:
+                Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
       );
       return;
     }
@@ -775,7 +788,6 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           .showSnackBar(SnackBar(content: Text(state.messageAr)));
     }
   }
-
 }
 
 class MerchantStoreEditorScreen extends StatefulWidget {
@@ -868,7 +880,9 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     if (!mounted) return;
     if (session.isUnavailable) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
+        SnackBar(
+            content:
+                Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
       );
       return;
     }
@@ -912,7 +926,9 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     if (!mounted) return;
     if (session.isUnavailable) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
+        SnackBar(
+            content:
+                Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
       );
       return;
     }
@@ -1006,7 +1022,9 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     if (!mounted) return;
     if (session.isUnavailable) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
+        SnackBar(
+            content:
+                Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
       );
       return;
     }
@@ -1053,7 +1071,8 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
     setState(() => saving = false);
     if (channelsResult is AssalData<AssalStoreSummary>) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ بيانات المتجر والتواصل والتسليم.')),
+        const SnackBar(
+            content: Text('تم حفظ بيانات المتجر والتواصل والتسليم.')),
       );
       Navigator.of(context).pop();
     } else if (channelsResult is AssalError<AssalStoreSummary>) {
@@ -1247,7 +1266,8 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                   }
                 }
                 final selectedGovernorateId = governorateId ??
-                    selectedRegion?.parentRegionId ?? selectedRegion?.id;
+                    selectedRegion?.parentRegionId ??
+                    selectedRegion?.id;
                 final selectedDistrictId = districtId ??
                     (selectedRegion?.parentRegionId == null
                         ? null
@@ -1256,13 +1276,14 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                     .where((item) => item.parentRegionId == null)
                     .toList(growable: false);
                 final districts = regions
-                    .where((item) => item.parentRegionId == selectedGovernorateId)
+                    .where(
+                        (item) => item.parentRegionId == selectedGovernorateId)
                     .toList(growable: false);
                 return Column(
                   children: [
                     DropdownButtonFormField<String>(
-                      initialValue: governorates.any(
-                              (item) => item.id == selectedGovernorateId)
+                      initialValue: governorates
+                              .any((item) => item.id == selectedGovernorateId)
                           ? selectedGovernorateId
                           : null,
                       decoration: const InputDecoration(
@@ -1288,10 +1309,10 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                     ),
                     const SizedBox(height: AssalSpacing.md),
                     DropdownButtonFormField<String>(
-                      initialValue: districts.any(
-                              (item) => item.id == selectedDistrictId)
-                          ? selectedDistrictId
-                          : null,
+                      initialValue:
+                          districts.any((item) => item.id == selectedDistrictId)
+                              ? selectedDistrictId
+                              : null,
                       decoration: const InputDecoration(
                         labelText: 'مديرية المتجر',
                         prefixIcon: Icon(Icons.map_outlined),
@@ -1310,7 +1331,8 @@ class _MerchantStoreEditorScreenState extends State<MerchantStoreEditorScreen> {
                                 districtId = value;
                                 regionId = value ?? selectedGovernorateId;
                               }),
-                      hint: const Text('اختر المديرية أو اتركها على مستوى المحافظة'),
+                      hint: const Text(
+                          'اختر المديرية أو اتركها على مستوى المحافظة'),
                     ),
                   ],
                 );
