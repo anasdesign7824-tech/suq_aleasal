@@ -75,7 +75,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
 
     expect(find.text('رمز الدخول'), findsOneWidget);
-    expect(find.text('أرسلنا رمز الدخول إلى'), findsOneWidget);
+    expect(find.text('أرسلنا رمز التحقق إلى البريد المدخل'), findsOneWidget);
     expect(find.text('رمز التحقق (6–9 أرقام)'), findsOneWidget);
 
     Navigator.of(tester.element(find.byType(AlertDialog))).pop();
