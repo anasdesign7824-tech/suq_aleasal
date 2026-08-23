@@ -1129,6 +1129,12 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
             if (store.regionNameAr != null)
               _storeInfoRow(
                   Icons.location_on_outlined, 'المنطقة', store.regionNameAr!),
+            if (store.yearsExperience > 0)
+              _storeInfoRow(
+                Icons.workspace_premium_outlined,
+                'سنوات الخبرة',
+                '${store.yearsExperience} سنة',
+              ),
             if (store.specialties.isEmpty)
               const AssalMessageCard(
                 icon: Icons.info_outline,
@@ -1156,6 +1162,36 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                     .toList(),
               ),
             ],
+            const SizedBox(height: AssalSpacing.lg),
+            const SectionHeader(title: 'طرق التوصيل'),
+            if (store.deliveryOptions.isEmpty)
+              const AssalMessageCard(
+                icon: Icons.local_shipping_outlined,
+                message: 'لم يحدد المتجر طرق التوصيل بعد.',
+              )
+            else
+              ...store.deliveryOptions.map(
+                (item) => _storeInfoRow(
+                  Icons.local_shipping_outlined,
+                  'التوصيل',
+                  item,
+                ),
+              ),
+            const SizedBox(height: AssalSpacing.lg),
+            const SectionHeader(title: 'نقاط الاستلام'),
+            if (store.pickupLocations.isEmpty)
+              const AssalMessageCard(
+                icon: Icons.location_on_outlined,
+                message: 'لم يحدد المتجر نقاط الاستلام بعد.',
+              )
+            else
+              ...store.pickupLocations.map(
+                (item) => _storeInfoRow(
+                  Icons.location_on_outlined,
+                  'نقطة الاستلام',
+                  item,
+                ),
+              ),
           ],
         ),
       );
