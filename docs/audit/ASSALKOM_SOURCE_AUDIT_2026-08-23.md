@@ -919,3 +919,7 @@
 ## TASK 054 — إدارة المتاجر في Admin
 
 جُردت `StoresPanel` ومسارات `adminApi.stores` و`moderateStore` و`deleteStore`. القائمة توفر حالات loading/error/empty/retry، fallback آمنًا للصور، تفاصيل Sheet، وأفعالًا مشروطة بالحالة مع confirmation؛ ويترجم الخادم approve/reject/suspend/reactivate إلى صلاحية وRPC `admin_moderate_store` وسجل تدقيق وإشعار/مزامنة من payload القائم. لم تُخلط حالة فتح المتجر مع توثيق Pro، ونجحت اختبارات Admin الثمانية و`pnpm check` و`pnpm build`؛ غياب أصول TASK 054 منع golden وسُجل GAP-028.
+
+## TASK 055 — تفاصيل المتجر في Admin
+
+جُردت تفاصيل `selectedStore` داخل Sheet وعقد `StoreRow`. عولج خطر صورة الغلاف/الشعار المكسورة بإعادة استخدام `AdminSafeImage`، وأضيفت معرّفات المتجر والتاجر والمنطقة والحالة والاعتماد من المصدر الموجود. لم يُخترع هاتف أو endpoint لأن الهاتف غير موجود في العقد الحالي؛ نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 055 منع golden وسُجل GAP-029، دون تغيير DB/API/RLS/permissions.

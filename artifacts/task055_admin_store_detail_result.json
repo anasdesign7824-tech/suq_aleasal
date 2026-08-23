@@ -1,0 +1,31 @@
+{
+  "task": "055",
+  "scope": "admin store detail",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "changedFiles": [
+    "apps/admin_web/client/src/pages/Home.tsx"
+  ],
+  "changes": [
+    "store detail now uses AdminSafeImage for cover and logo fallbacks",
+    "store detail surfaces status, approval, store id, merchant id, region id, and the honest phone contract limitation",
+    "existing details sheet and moderation callbacks remain unchanged"
+  ],
+  "verifiedStates": [
+    "store details sheet open/close",
+    "cover absent or broken fallback",
+    "logo absent or broken fallback",
+    "source identifiers and status",
+    "existing list moderation states"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
