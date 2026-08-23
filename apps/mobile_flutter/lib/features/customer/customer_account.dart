@@ -1823,75 +1823,241 @@ class _RequestsEmptyState extends StatelessWidget {
       );
 }
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key, required this.repository});
   final AssalRepository repository;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const AssalAppBar(title: 'الإشعارات'),
-      body: FutureBuilder<AssalSession>(
-        future: repository.getSession(),
-        builder: (context, sessionSnapshot) {
-          if (sessionSnapshot.connectionState != ConnectionState.done) {
-            return const AssalGlassLoading();
-          }
-          final session = sessionSnapshot.data ?? AssalSession.guest;
-          if (session.isUnavailable) {
-            return AssalMessageCard(
-              icon: Icons.sync_problem_outlined,
-              message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
-            );
-          }
-          if (!session.isAuthenticated || session.user == null) {
-            return Center(
-                child: FilledButton(
-                    onPressed: () => openAuth(context, repository),
-                    child: const Text('تسجيل الدخول لعرض إشعاراتك')));
-          }
-          return FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(
-            future: repository.listNotifications(session.user!.id),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
-              return AssalStateView<List<AssalNotificationSummary>>(
-                state: snapshot.data!,
-                builder: (items) => ListView.separated(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
-                  itemCount: items.length,
-                  separatorBuilder: (_, __) => const Divider(),
-                  itemBuilder: (_, index) {
-                    final item = items[index];
-                    return AssalNotificationCard(
-                      notification: item,
-                      onTap: () async {
-                        final result = await repository.markNotificationRead(
-                          session.user!.id,
-                          item.id,
-                        );
-                        if (!context.mounted) return;
-                        if (result is AssalData<bool>) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('تم تعليم الإشعار كمقروء.'),
-                            ),
-                          );
-                        } else if (result is AssalError<bool>) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(result.messageAr)),
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  late Future<AssalSession> sessionFuture;
+  Future<AssalLoadState<List<AssalNotificationSummary>>>? notificationsFuture;
+  bool markingAll = false;
+  final Set<String> markingIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    sessionFuture = widget.repository.getSession();
+  }
+
+  void _retrySession() {
+    setState(() {
+      sessionFuture = widget.repository.getSession();
+      notificationsFuture = null;
+    });
+  }
+
+  Future<AssalLoadState<List<AssalNotificationSummary>>> _notificationsFor(
+    String userId,
+  ) =>
+      notificationsFuture ??= widget.repository.listNotifications(userId);
+
+  void _openHome() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => HomeScreen(
+          repository: widget.repository,
+          onOpenSearch: () {},
+          onOpenNotifications: () {},
+        ),
       ),
     );
   }
+
+  Future<void> _markRead(String userId, AssalNotificationSummary item) async {
+    if (item.readAt != null || markingIds.contains(item.id) || markingAll) {
+      return;
+    }
+
+    setState(() => markingIds.add(item.id));
+    final result =
+        await widget.repository.markNotificationRead(userId, item.id);
+    if (!mounted) return;
+    setState(() => markingIds.remove(item.id));
+    if (result is AssalData<bool>) {
+      final refreshed = widget.repository.listNotifications(userId);
+      setState(() {
+        notificationsFuture = refreshed;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم تعليم الإشعار كمقروء.')),
+      );
+    } else if (result is AssalError<bool>) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(result.messageAr)));
+    }
+  }
+
+  Future<void> _markAllRead(
+    String userId,
+    List<AssalNotificationSummary> items,
+  ) async {
+    if (markingAll) return;
+    final unread = items.where((item) => item.readAt == null).toList();
+    if (unread.isEmpty) return;
+    setState(() => markingAll = true);
+    AssalError<bool>? failure;
+    for (final item in unread) {
+      final result =
+          await widget.repository.markNotificationRead(userId, item.id);
+      if (result is AssalError<bool>) {
+        failure = result;
+        break;
+      }
+    }
+    if (!mounted) return;
+    final refreshed = widget.repository.listNotifications(userId);
+    setState(() {
+      markingAll = false;
+      notificationsFuture = refreshed;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(failure?.messageAr ?? 'تم تحديد الإشعارات كمقروءة.'),
+      ),
+    );
+  }
+
+  Widget _emptyNotifications() => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const AssalMessageCard(
+            icon: Icons.notifications_none_outlined,
+            message: 'لا توجد إشعارات جديدة الآن.',
+          ),
+          TextButton.icon(
+            onPressed: _openHome,
+            icon: const Icon(Icons.explore_outlined),
+            label: const Text('استكشف السوق'),
+          ),
+        ],
+      );
+
+  Widget _buildNotifications(
+    BuildContext context,
+    String userId,
+    AssalLoadState<List<AssalNotificationSummary>> state,
+  ) {
+    return switch (state) {
+      AssalLoading<List<AssalNotificationSummary>>() =>
+        const AssalGlassLoading(),
+      AssalError<List<AssalNotificationSummary>>(
+        :final messageAr,
+        :final kind,
+        :final retryable,
+      ) =>
+        AssalMessageCard(
+          icon: kind == AssalErrorKind.network
+              ? Icons.wifi_off_outlined
+              : Icons.error_outline,
+          message: messageAr,
+          onRetry: retryable ? _retrySession : null,
+        ),
+      AssalEmpty<List<AssalNotificationSummary>>() => _emptyNotifications(),
+      AssalData<List<AssalNotificationSummary>>(:final value) => value.isEmpty
+          ? _emptyNotifications()
+          : _notificationList(userId, value),
+    };
+  }
+
+  Widget _notificationList(
+    String userId,
+    List<AssalNotificationSummary> items,
+  ) {
+    final unreadCount = items.where((item) => item.readAt == null).length;
+    return ListView.separated(
+      padding: const EdgeInsets.all(AssalSpacing.lg),
+      itemCount: items.length + (unreadCount > 0 ? 1 : 0),
+      separatorBuilder: (_, __) => const Divider(),
+      itemBuilder: (_, index) {
+        if (unreadCount > 0 && index == 0) {
+          return Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              onPressed: markingAll ? null : () => _markAllRead(userId, items),
+              icon: markingAll
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.done_all_outlined),
+              label: Text(
+                markingAll ? 'جارٍ التحديث...' : 'تحديد الكل كمقروء',
+              ),
+            ),
+          );
+        }
+        final item = items[index - (unreadCount > 0 ? 1 : 0)];
+        return AssalNotificationCard(
+          notification: item,
+          onTap:
+              item.readAt != null || markingAll || markingIds.contains(item.id)
+                  ? null
+                  : () => _markRead(userId, item),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: const AssalAppBar(title: 'الإشعارات'),
+        body: FutureBuilder<AssalSession>(
+          future: sessionFuture,
+          builder: (context, sessionSnapshot) {
+            if (sessionSnapshot.connectionState != ConnectionState.done) {
+              return const AssalGlassLoading();
+            }
+            if (sessionSnapshot.hasError) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: 'تعذر تحميل البيانات الآن.',
+                onRetry: _retrySession,
+              );
+            }
+            final session = sessionSnapshot.data ?? AssalSession.guest;
+            if (session.isUnavailable) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+                onRetry: _retrySession,
+              );
+            }
+            if (!session.isAuthenticated || session.user == null) {
+              return Center(
+                child: FilledButton(
+                  onPressed: () => openAuth(context, widget.repository),
+                  child: const Text('تسجيل الدخول لعرض إشعاراتك'),
+                ),
+              );
+            }
+            return FutureBuilder<
+                AssalLoadState<List<AssalNotificationSummary>>>(
+              future: _notificationsFor(session.user!.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return AssalMessageCard(
+                    icon: Icons.wifi_off_outlined,
+                    message: 'تعذر تحميل البيانات الآن.',
+                    onRetry: _retrySession,
+                  );
+                }
+                if (!snapshot.hasData) return const AssalGlassLoading();
+                return _buildNotifications(
+                  context,
+                  session.user!.id,
+                  snapshot.data!,
+                );
+              },
+            );
+          },
+        ),
+      );
 }
 
 class NewConversationSheet extends StatefulWidget {
