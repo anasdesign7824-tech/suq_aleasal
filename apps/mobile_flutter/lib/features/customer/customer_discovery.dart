@@ -1288,7 +1288,7 @@ class _ProductRail extends StatelessWidget {
       ]);
 }
 
-class CategoriesScreen extends StatelessWidget {
+class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({
     super.key,
     required this.repository,
@@ -1298,68 +1298,197 @@ class CategoriesScreen extends StatelessWidget {
   final bool showAppBar;
 
   @override
+  State<CategoriesScreen> createState() => _CategoriesScreenState();
+}
+
+class _CategoriesScreenState extends State<CategoriesScreen> {
+  late Future<AssalLoadState<List<AssalCategorySummary>>> categoriesFuture;
+  String searchQuery = '';
+  ProductType? selectedType;
+
+  @override
+  void initState() {
+    super.initState();
+    categoriesFuture = widget.repository.listCategories();
+  }
+
+  Future<void> _reload() async {
+    final future = widget.repository.listCategories();
+    setState(() {
+      categoriesFuture = future;
+    });
+    await future;
+  }
+
+  void _retry() => unawaited(_reload());
+
+  String _typeLabel(ProductType type) => switch (type) {
+        ProductType.honey => 'العسل',
+        ProductType.wax => 'الشمع',
+        ProductType.mix => 'الخلطات',
+        ProductType.raw => 'المنتجات الخام',
+        ProductType.gift => 'الهدايا والعبوات',
+      };
+
+  List<AssalCategorySummary> _filtered(
+    List<AssalCategorySummary> categories,
+  ) {
+    final query = searchQuery.trim().toLowerCase();
+    return categories.where((category) {
+      final matchesQuery = query.isEmpty ||
+          category.nameAr.toLowerCase().contains(query) ||
+          (category.description ?? '').toLowerCase().contains(query);
+      final matchesType = selectedType == null ||
+          category.productType == selectedType;
+      return matchesQuery && matchesType;
+    }).toList(growable: false);
+  }
+
+  Widget _categoryList(List<AssalCategorySummary> categories) {
+    final filtered = _filtered(categories);
+    if (filtered.isEmpty) {
+      return const AssalMessageCard(
+        icon: Icons.search_off_outlined,
+        message: 'لا توجد تصنيفات مطابقة. جرّب كلمة أخرى أو غيّر النوع.',
+      );
+    }
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(
+        AssalSpacing.lg,
+        AssalSpacing.sm,
+        AssalSpacing.lg,
+        AssalSpacing.xl,
+      ),
+      itemCount: filtered.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
+      itemBuilder: (_, index) {
+        final category = filtered[index];
+        final description = category.description?.trim();
+        final subtitle = <String>[
+          if (description != null &&
+              description.isNotEmpty &&
+              !description.contains('Master'))
+            description,
+          '${category.productCount} منتج متاح',
+        ].join('\n');
+        return Card(
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AssalColors.honeyLight,
+              child: Icon(
+                _taxonomyIcon(category.nameAr, category.productType),
+                color: AssalColors.primaryDark,
+              ),
+            ),
+            title: Text(category.nameAr),
+            subtitle: Text(subtitle),
+            isThreeLine: subtitle.contains('\n'),
+            trailing: const Icon(Icons.chevron_left),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => SearchScreen(
+                  repository: widget.repository,
+                  initialCategoryId: category.id,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: showAppBar ? const AssalAppBar(title: 'التصنيفات') : null,
-      body: FutureBuilder<AssalLoadState<List<AssalCategorySummary>>>(
-        future: repository.listCategories(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const AssalMessageCard(
-              icon: Icons.wifi_off_outlined,
-              message: 'تعذر تحميل الأقسام الآن.',
-            );
-          }
-          if (!snapshot.hasData) return const AssalGlassLoading();
-          return AssalStateView<List<AssalCategorySummary>>(
-            state: snapshot.data!,
-            builder: (categories) => ListView.separated(
-              padding: const EdgeInsets.all(AssalSpacing.lg),
-              itemCount: categories.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(height: AssalSpacing.sm),
-              itemBuilder: (_, index) {
-                final category = categories[index];
-                final description = category.description?.trim();
-                final subtitle = <String>[
-                  if (description != null &&
-                      description.isNotEmpty &&
-                      !description.contains('Master'))
-                    description,
-                  '${category.productCount} منتج متاح',
-                ].join('\n');
-                return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: AssalColors.honeyLight,
-                      child: Icon(
-                        _taxonomyIcon(category.nameAr, category.productType),
-                        color: AssalColors.primaryDark,
-                      ),
-                    ),
-                    title: Text(category.nameAr),
-                    subtitle: Text(subtitle),
-                    isThreeLine: subtitle.contains('\n'),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => SearchScreen(
-                          repository: repository,
-                          initialCategoryId: category.id,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+      appBar: widget.showAppBar
+          ? const AssalAppBar(title: 'التصنيفات والأنواع')
+          : null,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.md,
+              AssalSpacing.lg,
+              AssalSpacing.sm,
             ),
-          );
-        },
+            child: TextField(
+              onChanged: (value) => setState(() => searchQuery = value),
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: 'البحث في التصنيفات',
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 48,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+              children: [
+                FilterChip(
+                  selected: selectedType == null,
+                  label: const Text('التصنيفات'),
+                  onSelected: (_) => setState(() => selectedType = null),
+                ),
+                const SizedBox(width: AssalSpacing.sm),
+                ...ProductType.values.expand(
+                  (type) => <Widget>[
+                    FilterChip(
+                      selected: selectedType == type,
+                      label: Text(_typeLabel(type)),
+                      onSelected: (_) => setState(() => selectedType = type),
+                    ),
+                    const SizedBox(width: AssalSpacing.sm),
+                  ],
+                ),
+                ActionChip(
+                  avatar: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('تحديث'),
+                  onPressed: _retry,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _reload,
+              child: FutureBuilder<AssalLoadState<List<AssalCategorySummary>>>(
+                future: categoriesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        AssalMessageCard(
+                          icon: Icons.wifi_off_outlined,
+                          message: 'تعذر تحميل البيانات الآن.',
+                          onRetry: _retry,
+                        ),
+                      ],
+                    );
+                  }
+                  if (!snapshot.hasData) {
+                    return const AssalGlassLoading();
+                  }
+                  return AssalStateView<List<AssalCategorySummary>>(
+                    state: snapshot.data!,
+                    onRetry: _retry,
+                    emptyMessageAr:
+                        'لا توجد تصنيفات متاحة الآن. جرّب التحديث مرة أخرى.',
+                    builder: _categoryList,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
 IconData _taxonomyIcon(String nameAr, [ProductType? type]) {
   final name = nameAr.trim();
   if (name.contains('شمع')) return Icons.hexagon_outlined;
