@@ -36,6 +36,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
   String catalogQuery = '';
   ProductStatus? catalogStatus;
   String catalogSort = 'source';
+  RequestStatus? requestStatusFilter;
 
   @override
   void initState() {
@@ -636,6 +637,27 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         },
       );
 
+  Widget _requestFilters() => SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            ChoiceChip(
+              label: const Text('كل الطلبات'),
+              selected: requestStatusFilter == null,
+              onSelected: (_) => setState(() => requestStatusFilter = null),
+            ),
+            for (final status in RequestStatus.values) ...[
+              const SizedBox(width: AssalSpacing.xs),
+              ChoiceChip(
+                label: Text(status.labelAr),
+                selected: requestStatusFilter == status,
+                onSelected: (_) => setState(() => requestStatusFilter = status),
+              ),
+            ],
+          ],
+        ),
+      );
+
   Widget _requests() =>
       FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
         future: requestsFuture,
@@ -652,19 +674,27 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           final requests = state is AssalData<List<AssalRequestSummary>>
               ? state.value
               : const <AssalRequestSummary>[];
-          if (requests.isEmpty) {
-            return const AssalMessageCard(
-              icon: Icons.assignment_outlined,
-              message: 'لا توجد طلبات تواصل لهذا المتجر بعد.',
-            );
-          }
+          final visibleRequests = requestStatusFilter == null
+              ? requests
+              : requests
+                  .where((request) => request.status == requestStatusFilter)
+                  .toList(growable: false);
           return ListView.separated(
             padding: const EdgeInsets.all(AssalSpacing.lg),
-            itemCount: requests.length,
+            itemCount: visibleRequests.isEmpty ? 2 : visibleRequests.length + 1,
             separatorBuilder: (_, __) =>
                 const SizedBox(height: AssalSpacing.sm),
             itemBuilder: (_, index) {
-              final request = requests[index];
+              if (index == 0) return _requestFilters();
+              if (visibleRequests.isEmpty) {
+                return AssalMessageCard(
+                  icon: Icons.assignment_outlined,
+                  message: requests.isEmpty
+                      ? 'لا توجد طلبات تواصل لهذا المتجر بعد.'
+                      : 'لا توجد طلبات بهذه الحالة حاليًا.',
+                );
+              }
+              final request = visibleRequests[index - 1];
               return Card(
                 child: ListTile(
                   onTap: () async {
