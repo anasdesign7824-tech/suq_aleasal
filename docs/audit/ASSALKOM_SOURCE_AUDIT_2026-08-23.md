@@ -866,3 +866,12 @@
 ## قرار العمل الحالي
 
 أُغلقت TASK 044 وظيفيًا مع حجب بصري موثق، والخطوة التالية هي قراءة PNG وMarkdown للمهمة 045 وحدها ثم تدقيق محرر المنتج للمصدر والجودة.
+
+## TASK 045 — محرر المنتج: المصدر والجودة
+
+- **العقد والمرجع:** تمت قراءة `package/assalkom-ux-final/explanations/045_product_editor_quality.md` ومعاينة `screens/045_product_editor_quality.png` بأبعاد 1440×3120. قُسّم المرجع إلى ثلاث بلاطات رأسية، وسُجلت الملاحظات في `/home/ubuntu/work/task045_visual_notes.md`.
+- **جرد المصدر:** يستخدم المحرر `listRegions()` و`AssalRegion.parentRegionId` للمحافظة/المديرية، وحقول `AssalProductSummary` و`AssalProductDraft.metadata` القائمة للمصدر والجودة والتواريخ والمكونات والشهادات، مع مساري `createMerchantProduct` و`updateMerchantProduct` الحاليين.
+- **التعديل المحدود:** أضيفت حالات تحميل/خطأ/فراغ مع retry لمصدر المناطق، وأعيدت القراءة عبر Future جديد، مع fallback لاسم المنطقة الموجود في read model. بقيت بوابة الحفظ والإلغاء والعقود دون تغيير.
+- **الاختبارات:** نجحت اختبارات TASK 045 الوظيفية الثلاثة، ونجح `merchant_product_editable_suggestions_test.dart` كـregression، ونجح static analysis للملف والاختبار.
+- **golden:** صُغّر المرجع حتميًا عبر Pillow إلى 360×780. فشل golden بنسبة 100.00% (`280800px`)، وactual renderer أظهر الحروف العربية كمربعات مع اختلاف القالب/renderer عن المرجع. لم يُعتمد actual كـbaseline ولم تُسجل مطابقة بصرية.
+- **الحدود:** لا تغيير في DB/API/RLS/permissions، ولا ادعاء قبول بصري أو تشغيل جهاز/إنتاج.

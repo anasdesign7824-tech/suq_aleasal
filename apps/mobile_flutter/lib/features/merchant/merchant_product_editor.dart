@@ -37,7 +37,7 @@ class _MerchantProductEditorScreenState
     extends State<MerchantProductEditorScreen> {
   final formKey = GlobalKey<FormState>();
   late Future<AssalLoadState<List<AssalTaxonomy>>> taxonomyFuture;
-  late final Future<AssalLoadState<List<AssalRegion>>> regionsFuture;
+  late Future<AssalLoadState<List<AssalRegion>>> regionsFuture;
 
   late final TextEditingController nameArController;
   late final TextEditingController nameEnController;
@@ -145,6 +145,14 @@ class _MerchantProductEditorScreenState
     if (!mounted) return;
     setState(() {
       taxonomyFuture = future;
+    });
+  }
+
+  Future<void> _reloadRegions() async {
+    final future = widget.repository.listRegions();
+    if (!mounted) return;
+    setState(() {
+      regionsFuture = future;
     });
   }
 
@@ -814,13 +822,38 @@ class _MerchantProductEditorScreenState
           FutureBuilder<AssalLoadState<List<AssalRegion>>>(
             future: regionsFuture,
             builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !snapshot.hasData) {
+                return const AssalGlassLoading(
+                  height: 104,
+                  label: 'جارٍ تحميل المناطق...',
+                );
+              }
               final state = snapshot.data;
+              if (state is AssalError<List<AssalRegion>>) {
+                return AssalMessageCard(
+                  icon: Icons.location_off_outlined,
+                  message: 'تعذر تحميل المناطق الآن. ${state.messageAr}',
+                  onRetry: saving ? null : _reloadRegions,
+                );
+              }
               final values = state is AssalData<List<AssalRegion>>
                   ? state.value
                   : const <AssalRegion>[];
+              if (values.isEmpty) {
+                return AssalMessageCard(
+                  icon: Icons.location_off_outlined,
+                  message: state is AssalEmpty<List<AssalRegion>>
+                      ? state.messageAr
+                      : 'لا توجد مناطق متاحة من المصدر الآن.',
+                  onRetry: saving ? null : _reloadRegions,
+                );
+              }
               AssalRegion? selectedRegion;
               for (final item in values) {
-                if (item.id == regionId) {
+                if (item.id == regionId ||
+                    (regionId == null &&
+                        item.nameAr == widget.product?.regionNameAr)) {
                   selectedRegion = item;
                   break;
                 }
