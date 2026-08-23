@@ -15,14 +15,21 @@ class AssalBrandMark extends StatelessWidget {
     this.showName = false,
     this.framed = false,
     this.nameColor,
+    this.assetPath,
   });
   final double size;
   final bool showName;
   final bool framed;
   final Color? nameColor;
+  final String? assetPath;
 
   @override
   Widget build(BuildContext context) {
+    final Widget logo = SvgPicture.asset(
+      assetPath ?? AssalAssets.logoInternal,
+      width: size,
+      height: size,
+    );
     final mark = framed
         ? Container(
             width: size,
@@ -35,13 +42,9 @@ class AssalBrandMark extends StatelessWidget {
               border:
                   Border.all(color: AssalColors.cream.withValues(alpha: .9)),
             ),
-            child: SvgPicture.asset(AssalAssets.logoInternal),
+            child: logo,
           )
-        : SvgPicture.asset(
-            AssalAssets.logoInternal,
-            width: size,
-            height: size,
-          );
+        : logo;
 
     return Semantics(
       label: 'عسلكم',

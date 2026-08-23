@@ -8,6 +8,7 @@ import '../core/assal_widgets.dart';
 import '../core/supabase_realtime_sync.dart';
 import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
+import 'assal_startup.dart';
 
 class AssalApp extends StatelessWidget {
   const AssalApp({super.key, this.repository, this.startupError, this.realtimeSync});
@@ -42,8 +43,12 @@ class AssalApp extends StatelessWidget {
                 ? const AssalStartupErrorScreen(
                     messageAr:
                         'لم يتم تزويد التطبيق بمصدر بيانات Production صالح.')
-                : AssalHomeShell(
-                    repository: repository!, realtimeSync: realtimeSync),
+                : AssalStartupGate(
+                    child: AssalHomeShell(
+                      repository: repository!,
+                      realtimeSync: realtimeSync,
+                    ),
+                  ),
       );
 }
 
