@@ -612,18 +612,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
   AssalRepository get repository => widget.repository;
   bool imageBusy = false;
   AssalUserProfile? profileOverride;
+  late Future<AssalSession> sessionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    sessionFuture = repository.getSession();
+  }
+
+  void _reloadSession() {
+    if (!mounted) return;
+    setState(() {
+      sessionFuture = repository.getSession();
+      profileOverride = null;
+    });
+  }
+
+  Future<void> _login() async {
+    final authenticated = await openAuth(context, repository);
+    if (!mounted || !authenticated) return;
+    _reloadSession();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: widget.showAppBar ? const AssalAppBar(title: 'حسابي') : null,
       body: FutureBuilder<AssalSession>(
-        future: repository.getSession(),
+        future: sessionFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
             return const AssalGlassLoading();
           }
           final session = snapshot.data ?? AssalSession.guest;
+          if (session.isUnavailable) {
+            return Padding(
+              padding: const EdgeInsets.all(AssalSpacing.lg),
+              child: AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+                onRetry: _reloadSession,
+              ),
+            );
+          }
           return ListView(
               padding: const EdgeInsets.fromLTRB(
                 AssalSpacing.lg,
@@ -654,27 +685,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _accountActions(BuildContext context, AssalSession session) {
-    final actions = <Widget>[
-      if (session.isAuthenticated) ...[
-        const SectionHeader(title: 'نشاطك'),
-        const SizedBox(height: AssalSpacing.xs),
-      ],
+    final activity = <Widget>[
       AssalActionTile(
         icon: Icons.bookmarks_outlined,
-        title: 'المحفوظات والمتاجر المتابَعة',
+        title: 'المحفوظات',
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => FavoritesScreen(repository: repository),
         )),
       ),
-      const SizedBox(height: AssalSpacing.sm),
+      AssalActionTile(
+        icon: Icons.people_outline,
+        title: 'المتابعات',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) =>
+              FavoritesScreen(repository: repository, initialTab: 1),
+        )),
+      ),
+      AssalActionTile(
+        icon: Icons.assignment_outlined,
+        title: 'طلباتي',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => RequestsScreen(repository: repository),
+        )),
+      ),
       AssalActionTile(
         icon: Icons.forum_outlined,
-        title: 'المراسلات',
+        title: 'الرسائل',
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => MessagesScreen(repository: repository),
         )),
       ),
-      const SizedBox(height: AssalSpacing.sm),
       AssalActionTile(
         icon: Icons.notifications_outlined,
         title: 'الإشعارات',
@@ -682,12 +722,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (_) => NotificationsScreen(repository: repository),
         )),
       ),
+    ];
+    final actions = <Widget>[
       if (session.isAuthenticated) ...[
+        const SectionHeader(title: 'نشاطك'),
+        const SizedBox(height: AssalSpacing.xs),
+        Card(
+          child: Column(
+            children: [
+              for (var index = 0; index < activity.length; index++) ...[
+                activity[index],
+                if (index < activity.length - 1)
+                  const Divider(height: 1, indent: AssalSpacing.lg),
+              ],
+            ],
+          ),
+        ),
         const SizedBox(height: AssalSpacing.lg),
         const SectionHeader(title: 'الحساب والمساعدة'),
         const SizedBox(height: AssalSpacing.xs),
       ],
-      const SizedBox(height: AssalSpacing.sm),
       AssalActionTile(
         icon: Icons.settings_outlined,
         title: 'الإعدادات',
@@ -697,9 +751,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       const SizedBox(height: AssalSpacing.sm),
       AssalActionTile(
+        icon: Icons.help_outline,
+        title: 'المساعدة',
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => SupportCenterScreen(repository: repository),
+        )),
+      ),
+      const SizedBox(height: AssalSpacing.sm),
+      AssalActionTile(
         icon: Icons.support_agent_outlined,
-        title: 'المساعدة والدعم',
-        subtitle: 'أسئلة شائعة ودعم فني وطلبات التصميم',
+        title: 'الدعم الفني',
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => SupportCenterScreen(repository: repository),
         )),
@@ -730,10 +791,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'),
           const SizedBox(height: AssalSpacing.lg),
           FilledButton(
-              onPressed: () async {
-                final authenticated = await openAuth(context, repository);
-                if (mounted && authenticated) setState(() {});
-              },
+              onPressed: _login,
               child: const Text('تسجيل الدخول أو إنشاء حساب')),
         ]),
       ),
@@ -798,8 +856,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             final result = await repository.signOut();
             if (context.mounted) {
               if (result is AssalData<void>) {
-                setState(() {});
+                _reloadSession();
               }
+
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(result is AssalError<void>
                       ? result.messageAr
