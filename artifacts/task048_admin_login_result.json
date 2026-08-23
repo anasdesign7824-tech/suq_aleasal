@@ -1,0 +1,50 @@
+﻿[
+    {
+        "name":  "health",
+        "method":  "GET",
+        "path":  "/api/health",
+        "status":  200,
+        "body":  "{\"ok\":true,\"service\":\"assalkom-admin-local\",\"source\":\"supabase-production\"}",
+        "setCookie":  ""
+    },
+    {
+        "name":  "session_without_cookie",
+        "method":  "GET",
+        "path":  "/api/admin/auth/session",
+        "status":  401,
+        "body":  "",
+        "setCookie":  ""
+    },
+    {
+        "name":  "login_empty_body",
+        "method":  "POST",
+        "path":  "/api/admin/auth/login",
+        "status":  400,
+        "body":  "",
+        "setCookie":  ""
+    },
+    {
+        "name":  "login_invalid_credentials",
+        "method":  "POST",
+        "path":  "/api/admin/auth/login",
+        "status":  401,
+        "body":  "",
+        "setCookie":  ""
+    },
+    {
+        "name":  "password_without_cookie",
+        "method":  "POST",
+        "path":  "/api/admin/auth/password",
+        "status":  401,
+        "body":  "",
+        "setCookie":  ""
+    },
+    {
+        "name":  "logout_without_cookie",
+        "method":  "POST",
+        "path":  "/api/admin/auth/logout",
+        "status":  200,
+        "body":  "{\"ok\":true}",
+        "setCookie":  "assalkom_admin_access=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax,assalkom_admin_refresh=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax"
+    }
+]
