@@ -248,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   sliver: SliverToBoxAdapter(
                       child: SectionHeader(
                           title: 'استكشف حسب التصنيف',
-                          actionLabel: 'كل التصنيفات',
+                          actionLabel: 'عرض الكل',
                           onAction: widget.onOpenSearch))),
               SliverToBoxAdapter(
                   child: SizedBox(
@@ -361,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   sliver: SliverToBoxAdapter(
                     child: _ProductRail(
                       repository: widget.repository,
-                            title: 'منتجات الأعلى تقييمًا',
+                            title: 'الأعلى تقييمًا',
                       future: verifiedProductsFuture!,
                       verifiedOnly: false,
                       onRetry: _refresh,
@@ -390,8 +390,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm),
                     sliver: SliverToBoxAdapter(
                         child: SectionHeader(
-                            title: 'متاجر موثوقة',
-                            actionLabel: 'عرض المتاجر',
+                            title: 'متاجر عسلكم',
+                            actionLabel: 'عرض الكل',
                             onAction: _openStores))),
                 SliverPadding(
                     padding: const EdgeInsets.fromLTRB(
@@ -748,7 +748,7 @@ class _Header extends StatelessWidget {
                     const Icon(Icons.search, color: AssalColors.deepBrown),
                 suffixIcon: const Icon(Icons.tune_rounded,
                     color: AssalColors.deepBrown),
-                hintText: 'ابحث عن سدر، سمر، شمع أو هدية',
+                hintText: 'ابحث عن عسل أو متجر',
                 hintStyle: AssalTypography.bodySmall.copyWith(
                   color: AssalColors.textMuted,
                 ),
@@ -1164,15 +1164,15 @@ class _HeroBanner extends StatelessWidget {
         Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('الثقة تبدأ من المصدر',
+          Text('طبيعة أصيلة .. عسل أصيل',
               style:
                   AssalTypography.heading2.copyWith(color: AssalColors.cream)),
           const SizedBox(height: AssalSpacing.sm),
-          Text(                                'اعرف النوع والمنطقة قبل أن تتواصل.',
+          Text('اكتشف أفضل أنواع العسل اليمني الطبيعي من النحل إلى مائدتك',
               style: AssalTypography.body.copyWith(color: AssalColors.cream)),
           const SizedBox(height: AssalSpacing.md),
           FilledButton.tonal(
-              onPressed: onExplore, child: const Text('ابدأ الاكتشاف'))
+              onPressed: onExplore, child: const Text('اكتشف الآن'))
         ])),
         const Icon(Icons.local_florist_rounded,
             size: 74, color: AssalColors.primaryLight)
@@ -1184,10 +1184,13 @@ class _CategoryTile extends StatelessWidget {
   final AssalTaxonomy item;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => InkWell(
-      onTap: onTap,
+  Widget build(BuildContext context) => Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(AssalRadius.large),
-      child: Container(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AssalRadius.large),
+        child: Container(
           width: 122,
           padding: const EdgeInsets.all(AssalSpacing.sm),
           decoration: BoxDecoration(
@@ -1206,7 +1209,10 @@ class _CategoryTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AssalTypography.caption
                     .copyWith(color: AssalColors.deepBrown))
-          ])));
+          ]),
+        ),
+      ),
+    );
 }
 
 class _ProductRail extends StatelessWidget {
@@ -1240,7 +1246,7 @@ class _ProductRail extends StatelessWidget {
         ),
         const SizedBox(height: AssalSpacing.sm),
         SizedBox(
-          height: 340,
+          height: 400,
           child: FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
             future: future,
             builder: (context, snapshot) {
