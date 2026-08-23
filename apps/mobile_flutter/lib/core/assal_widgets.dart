@@ -1257,71 +1257,215 @@ class StoreCard extends StatelessWidget {
     this.onAction,
     this.actionIcon = Icons.remove_circle_outline,
     this.actionTooltip = 'إزالة المتابعة',
+    this.productCount,
   });
   final AssalStoreSummary store;
   final VoidCallback onTap;
   final VoidCallback? onAction;
   final IconData actionIcon;
   final String actionTooltip;
+  final int? productCount;
+
   @override
   Widget build(BuildContext context) {
     final logoUrl = store.logoUrl ?? store.avatarUrl;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
+    return Semantics(
+      button: true,
+      label: store.nameAr,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
           onTap: onTap,
-          child: Padding(
-              padding: const EdgeInsets.all(AssalSpacing.lg),
-              child: Row(children: [
-                CircleAvatar(
-                    radius: 30,
-                    backgroundColor: AssalColors.honeyLight,
-                    backgroundImage: logoUrl != null && logoUrl.startsWith('http')
-                        ? NetworkImage(logoUrl)
-                        : null,
-                    child: logoUrl == null || !logoUrl.startsWith('http')
-                        ? const Icon(Icons.storefront_outlined,
-                            color: AssalColors.primaryDark, size: 28)
-                        : null),
-                  const SizedBox(width: AssalSpacing.md),
-                  Expanded(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        Row(children: [
-                          Expanded(
-                              child: Text(store.nameAr,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AssalTypography.title
-                                      .copyWith(color: AssalColors.deepBrown))),
-
-                        ]),
-                        const SizedBox(height: AssalSpacing.xs),
-                        Text(store.regionNameAr ?? 'منصة عسلكم',
-                            style: AssalTypography.bodySmall
-                                .copyWith(color: AssalColors.textSecondary)),
-                        const SizedBox(height: AssalSpacing.xs),
-                        Row(children: [
-                          RatingStars(rating: store.ratingAverage),
-                          const SizedBox(width: AssalSpacing.sm),
-                          Text('${store.followersCount} متابع',
-                              style: AssalTypography.caption
-                                  .copyWith(color: AssalColors.textMuted))
-                        ]),
-                      ])),
-                  if (onAction != null)
-                    IconButton(
-                      onPressed: onAction,
-                      tooltip: actionTooltip,
-                      icon: Icon(actionIcon, color: AssalColors.primaryDark),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AspectRatio(
+                aspectRatio: 4 / 5,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    AssalImageTile(
+                      imageUrl: store.coverUrl,
+                      expand: true,
+                      height: double.infinity,
+                      icon: Icons.landscape_outlined,
                     ),
-                  const Icon(Icons.chevron_left, color: AssalColors.textMuted),
-                ]),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            AssalColors.deepBrown.withValues(alpha: .68),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (onAction != null)
+                      Positioned(
+                        top: AssalSpacing.sm,
+                        left: AssalSpacing.sm,
+                        child: IconButton.filledTonal(
+                          onPressed: onAction,
+                          tooltip: actionTooltip,
+                          icon: Icon(actionIcon),
+                        ),
+                      ),
+                    Positioned(
+                      left: AssalSpacing.md,
+                      right: AssalSpacing.md,
+                      bottom: AssalSpacing.md,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: AssalColors.cream,
+                            backgroundImage:
+                                logoUrl != null && logoUrl.startsWith('http')
+                                    ? NetworkImage(logoUrl)
+                                    : null,
+                            child: logoUrl == null || !logoUrl.startsWith('http')
+                                ? const Icon(
+                                    Icons.storefront_outlined,
+                                    color: AssalColors.primaryDark,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: AssalSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              store.nameAr,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AssalTypography.title.copyWith(
+                                color: AssalColors.cream,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AssalSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 18,
+                          color: AssalColors.textMuted,
+                        ),
+                        const SizedBox(width: AssalSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            store.regionNameAr ?? 'منصة عسلكم',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AssalTypography.bodySmall.copyWith(
+                              color: AssalColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AssalSpacing.md),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _StoreStat(
+                            value: _formatStoreCount(store.followersCount),
+                            label: 'متابع',
+                          ),
+                        ),
+                        Expanded(
+                          child: _StoreStat(
+                            value: store.ratingAverage.toStringAsFixed(1),
+                            label: 'تقييم',
+                            icon: Icons.star_rounded,
+                          ),
+                        ),
+                        Expanded(
+                          child: _StoreStat(
+                            value: productCount?.toString() ?? '—',
+                            label: 'منتج',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AssalSpacing.md),
+                    OutlinedButton(
+                      onPressed: onTap,
+                      child: const Text('عرض المتجر'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StoreStat extends StatelessWidget {
+  const _StoreStat({
+    required this.value,
+    required this.label,
+    this.icon,
+  });
+  final String value;
+  final String label;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18, color: AssalColors.primaryDark),
+                const SizedBox(width: AssalSpacing.xs),
+              ],
+              Flexible(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AssalTypography.body.copyWith(
+                    color: AssalColors.deepBrown,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            label,
+            style: AssalTypography.caption.copyWith(
+              color: AssalColors.textMuted,
             ),
           ),
+        ],
       );
-  }
+}
+
+String _formatStoreCount(int value) {
+  if (value < 1000) return '$value';
+  final compact = value / 1000;
+  return compact == compact.roundToDouble()
+      ? '${compact.toStringAsFixed(0)}K'
+      : '${compact.toStringAsFixed(1)}K';
 }
 
 class AssalStoreHeaderCard extends StatelessWidget {
