@@ -1,0 +1,31 @@
+{
+  "task": "056",
+  "scope": "admin requests and reply detail",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "changedFiles": [
+    "apps/admin_web/client/src/pages/Home.tsx"
+  ],
+  "changes": [
+    "reply action now has an explicit replying state",
+    "reply submit is disabled while sending or when the body is empty",
+    "success refreshes requests and closes the detail; errors keep the detail available"
+  ],
+  "verifiedContract": [
+    "requests list loading/error/empty/refresh",
+    "request details sheet",
+    "source-backed answerRequest",
+    "answered status refresh",
+    "no duplicate submit"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
