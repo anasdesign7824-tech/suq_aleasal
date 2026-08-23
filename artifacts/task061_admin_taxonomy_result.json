@@ -1,0 +1,15 @@
+{
+  "task": "061",
+  "scope": "admin taxonomy and categories",
+  "sourceAssets": {"markdown": false, "png": false, "expectedPngDimensions": "1600x1000"},
+  "changedFiles": ["apps/admin_web/client/src/components/AdminOperations.tsx"],
+  "changes": [
+    "category and honey taxonomy forms now have independent saving guards",
+    "submit buttons disable while the corresponding upsert is in flight",
+    "existing error/retry and source-backed upsert paths remain unchanged"
+  ],
+  "verifiedStates": ["loading", "error/retry", "empty", "edit", "create", "duplicate-submit guard", "source-backed upsert"],
+  "tests": {"pnpm test": "PASS — 8 files", "pnpm check": "PASS", "pnpm build": "PASS"},
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}

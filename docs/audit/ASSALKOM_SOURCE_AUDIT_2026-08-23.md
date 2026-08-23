@@ -943,3 +943,7 @@
 ## TASK 060 — البنرات الحية في Admin
 
 جُردت `BannersPanel` ومسارات إنشاء المسودة والرفع والجدولة والنشر والإيقاف والحذف. كُشف غياب حارس لكل بانر وغياب تأكيد للنشر وتحقق MIME فعلي، فأضيفت `bannerBusyId` وتأكيد عربي للنشر/الإيقاف والتحقق من PNG/JPEG/WebP قبل الرفع، مع بقاء API والجدولة والصور الآمنة ومسار التدقيق كما هي. نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 060 منع golden وسُجل GAP-034؛ لم تُنشأ كتابة Production ولم تتغير DB/API/RLS/permissions.
+
+## TASK 061 — التصنيفات والأنواع في Admin
+
+جُردت `TaxonomyPanel` ومسارات `taxonomy/categories/upsertTaxonomy/upsertCategory` مع حالات loading/error/retry/empty والتعديل. كُشف خطر الإرسال المكرر في نموذجي الحفظ، فأضيفت حالتا `savingTaxonomy/savingCategory` وتعطيل الزر المقابل أثناء الطلب، مع بقاء العقود المصدرية والـaudit كما هي. نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 061 منع golden وسُجل GAP-035؛ لم تُجرَ كتابة Production ولم تتغير DB/API/RLS/permissions.
