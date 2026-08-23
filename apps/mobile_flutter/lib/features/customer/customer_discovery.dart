@@ -2642,11 +2642,13 @@ class StoresScreen extends StatefulWidget {
 }
 
 class _StoresScreenState extends State<StoresScreen> {
-  late final Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
+  late Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
   late final Future<YemenLocationReference?> locationsFuture;
   String searchQuery = '';
   String? regionId;
   bool verifiedOnly = false;
+  final FocusNode searchFocusNode = FocusNode();
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -2655,12 +2657,49 @@ class _StoresScreenState extends State<StoresScreen> {
     locationsFuture = _loadLocations();
   }
 
+  @override
+  void dispose() {
+    searchFocusNode.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
   Future<YemenLocationReference?> _loadLocations() async {
     try {
       return await YemenLocationReference.load();
     } on Object {
       return null;
     }
+  }
+
+  Future<void> _reload() async {
+    final future = widget.repository.listStores(regionId: regionId);
+    setState(() {
+      storesFuture = future;
+    });
+    await future;
+  }
+
+  void _retry() => unawaited(_reload());
+
+  void _showSourceDetails() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('مصدر المتاجر'),
+        content: Text(
+          widget.repository.mode == AssalDataSourceMode.production
+              ? 'البيانات مرتبطة بالمصدر الإنتاجي الحالي.'
+              : 'البيانات المعروضة من وضع العرض المحلي للاختبار.'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
   }
 
   List<AssalStoreSummary> _filtered(List<AssalStoreSummary> stores) {
@@ -2675,116 +2714,356 @@ class _StoresScreenState extends State<StoresScreen> {
     }).toList(growable: false);
   }
 
+  Future<void> _showStoreFilters() async {
+    var draftRegion = regionId;
+    var draftVerified = verifiedOnly;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => FutureBuilder<YemenLocationReference?>(
+          future: locationsFuture,
+          builder: (context, snapshot) {
+            final locations = snapshot.data;
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AssalSpacing.lg,
+                AssalSpacing.sm,
+                AssalSpacing.lg,
+                AssalSpacing.lg,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('الفلاتر', style: AssalTypography.title),
+                  const SizedBox(height: AssalSpacing.md),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const LinearProgressIndicator(value: 0),
+                  if (locations != null)
+                    DropdownButtonFormField<String?>(
+                      initialValue: draftRegion,
+                      decoration: const InputDecoration(labelText: 'اختيار المنطقة'),
+                      items: [
+                        const DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text('كل المحافظات'),
+                        ),
+                        ...locations.governorates.map(
+                          (region) => DropdownMenuItem<String?>(
+                            value: region.code ?? region.id,
+                            child: Text(region.nameAr),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) => setSheetState(() => draftRegion = value),
+                    )
+                  else
+                    const ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text('اختيار المنطقة'),
+                      subtitle: Text('مرجع المناطق غير متاح الآن.'),
+                    ),
+                  const SizedBox(height: AssalSpacing.sm),
+                  FilterChip(
+                    label: const Text('المتاجر الموثقة'),
+                    selected: draftVerified,
+                    onSelected: (value) =>
+                        setSheetState(() => draftVerified = value),
+                  ),
+                  const SizedBox(height: AssalSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(sheetContext).pop(),
+                          child: const Text('إلغاء'),
+                        ),
+                      ),
+                      const SizedBox(width: AssalSpacing.sm),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            setState(() {
+                              regionId = draftRegion;
+                              verifiedOnly = draftVerified;
+                              storesFuture = widget.repository.listStores(
+                                regionId: regionId,
+                              );
+                            });
+                            Navigator.of(sheetContext).pop();
+                          },
+                          child: const Text('حفظ'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showSortInfo() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('اختيار الترتيب'),
+        content: const Text(
+          'لا يتوفر ترتيب مستقل للمتاجر في عقد المصدر الحالي. تُعرض النتائج بالترتيب الذي يعيده المصدر الحقيقي.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('إغلاق'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _resetFilters() {
+    searchController.clear();
+    setState(() {
+      searchQuery = '';
+      regionId = null;
+      verifiedOnly = false;
+      storesFuture = widget.repository.listStores();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: widget.showAppBar ? const AssalAppBar(title: 'المتاجر') : null,
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AssalSpacing.lg,
-              AssalSpacing.md,
-              AssalSpacing.lg,
-              AssalSpacing.sm,
-            ),
-            child: TextField(
-              onChanged: (value) => setState(() => searchQuery = value),
-              decoration: const InputDecoration(
-                prefixIcon: Icon(Icons.search),
-                hintText: 'ابحث باسم المتجر أو المنطقة',
+      appBar: widget.showAppBar
+          ? const AssalAppBar(title: 'قائمة المتاجر')
+          : null,
+      body: RefreshIndicator(
+        onRefresh: _reload,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: AssalSpacing.xl),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AssalSpacing.lg,
+                AssalSpacing.md,
+                AssalSpacing.lg,
+                AssalSpacing.sm,
+              ),
+              child: TextField(
+                controller: searchController,
+                focusNode: searchFocusNode,
+                onChanged: (value) => setState(() => searchQuery = value),
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'بحث المتجر أو المنطقة',
+                ),
               ),
             ),
-          ),
-          FutureBuilder<YemenLocationReference?>(
-            future: locationsFuture,
-            builder: (context, snapshot) {
-              final locations = snapshot.data;
-              if (locations == null) return const SizedBox.shrink();
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
-                child: Row(
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AssalSpacing.md,
+                vertical: AssalSpacing.sm,
+              ),
+              decoration: BoxDecoration(
+                color: AssalColors.cream,
+                border: Border.all(color: AssalColors.border),
+              ),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'متصل',
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _reload,
+                    child: const Text('تحديث'),
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              margin: const EdgeInsets.all(AssalSpacing.lg),
+              child: Padding(
+                padding: const EdgeInsets.all(AssalSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String?>(
-                        initialValue: regionId,
-                        decoration:
-                            const InputDecoration(labelText: 'المحافظة'),
-                        items: [
-                          const DropdownMenuItem<String?>(
-                            value: null,
-                            child: Text('كل المحافظات'),
-                          ),
-                          ...locations.governorates.map(
-                            (region) => DropdownMenuItem<String?>(
-                              value: region.code ?? region.id,
-                              child: Text(region.nameAr),
-                            ),
-                          ),
-                        ],
-                        onChanged: (value) => setState(() => regionId = value),
+                    Text(
+                      'قائمة المتاجر',
+                      style: AssalTypography.heading2.copyWith(
+                        color: AssalColors.deepBrown,
                       ),
                     ),
-                    const SizedBox(width: AssalSpacing.sm),
-                    FilterChip(
-                      label: const Text('موثقة'),
-                      selected: verifiedOnly,
-                      onSelected: (value) =>
-                          setState(() => verifiedOnly = value),
+                    const SizedBox(height: AssalSpacing.xs),
+                    const Text(
+                      'اكتشف المتاجر المرتبطة بالمصدر الحقيقي في عسلكم.',
+                    ),
+                    const SizedBox(height: AssalSpacing.md),
+                    FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
+                      future: storesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.data is AssalData<List<AssalStoreSummary>> &&
+                            (snapshot.data! as AssalData<List<AssalStoreSummary>>)
+                                .value
+                                .isNotEmpty) {
+                          final store =
+                              (snapshot.data! as AssalData<List<AssalStoreSummary>>)
+                                  .value
+                                  .first;
+                          return Container(
+                            constraints: const BoxConstraints(minHeight: 112),
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(AssalSpacing.lg),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AssalRadius.large),
+                              gradient: const LinearGradient(
+                                colors: [
+                                  AssalColors.success,
+                                  AssalColors.primaryDark,
+                                ],
+                              ),
+                            ),
+                            child: Text(
+                              store.nameAr,
+                              textAlign: TextAlign.center,
+                              style: AssalTypography.title.copyWith(
+                                color: AssalColors.cream,
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
                     ),
                   ],
                 ),
-              );
-            },
-          ),
-          Expanded(
-            child: FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
+              ),
+            ),
+            SizedBox(
+              height: 48,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AssalSpacing.lg,
+                ),
+                child: Row(
+                  children: [
+                    ActionChip(
+                      label: const Text('المتاجر'),
+                      onPressed: _resetFilters,
+                    ),
+                    const SizedBox(width: AssalSpacing.sm),
+                    ActionChip(
+                      label: const Text('بحث المتجر'),
+                      onPressed: searchFocusNode.requestFocus,
+                    ),
+                    const SizedBox(width: AssalSpacing.sm),
+                    ActionChip(
+                      label: const Text('الفلاتر'),
+                      onPressed: _showStoreFilters,
+                    ),
+                    const SizedBox(width: AssalSpacing.sm),
+                    ActionChip(
+                      label: const Text('اختيار المنطقة'),
+                      onPressed: _showStoreFilters,
+                    ),
+                    const SizedBox(width: AssalSpacing.sm),
+                    ActionChip(
+                      label: const Text('اختيار الترتيب'),
+                      onPressed: _showSortInfo,
+                    ),
+                    const SizedBox(width: AssalSpacing.sm),
+                    ActionChip(
+                      label: const Text('عرض المتجر'),
+                      onPressed: () {
+                        final stores = _filtered(const []);
+                        if (stores.isNotEmpty) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('اختر متجرًا من القائمة لعرضه.'),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Card(
+              margin: const EdgeInsets.fromLTRB(
+                AssalSpacing.lg,
+                AssalSpacing.md,
+                AssalSpacing.lg,
+                AssalSpacing.sm,
+              ),
+              child: ListTile(
+                title: const Text('تحديث'),
+                subtitle: const Text('بيانات واضحة مرتبطة بالمصدر الحقيقي'),
+                trailing: OutlinedButton(
+                  onPressed: _showSourceDetails,
+                  child: const Text('فتح التفاصيل'),
+                ),
+              ),
+            ),
+            FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
               future: storesFuture,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return const AssalMessageCard(
+                  return AssalMessageCard(
                     icon: Icons.wifi_off_outlined,
-                    message: 'تعذر تحميل المتاجر الآن.',
+                    message: 'تعذر تحميل المتاجر الآن. حاول مرة أخرى.',
+                    onRetry: _retry,
                   );
                 }
                 if (!snapshot.hasData) return const AssalGlassLoading();
                 final state = snapshot.data!;
-                if (state is AssalData<List<AssalStoreSummary>>) {
-                  final stores = _filtered(state.value);
-                  if (stores.isEmpty) {
-                    return const AssalMessageCard(
-                      icon: Icons.store_mall_directory_outlined,
-                      message: 'لا توجد متاجر تطابق الفلاتر الحالية.',
-                    );
-                  }
-                  return ListView(
-                    padding: const EdgeInsets.all(AssalSpacing.lg),
-                    children: stores
-                        .map<Widget>(
-                          (store) => StoreCard(
-                            store: store,
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => StoreProfileScreen(
-                                  repository: widget.repository,
-                                  storeId: store.id,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  );
-                }
                 return AssalStateView<List<AssalStoreSummary>>(
                   state: state,
-                  builder: (_) => const SizedBox.shrink(),
+                  onRetry: _retry,
+                  builder: (stores) {
+                    final filtered = _filtered(stores);
+                    if (filtered.isEmpty) {
+                      return const AssalMessageCard(
+                        icon: Icons.store_mall_directory_outlined,
+                        message: 'لا توجد متاجر متاحة الآن.',
+                      );
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AssalSpacing.lg,
+                      ),
+                      child: Column(
+                        children: filtered
+                            .map(
+                              (store) => StoreCard(
+                                store: store,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => StoreProfileScreen(
+                                      repository: widget.repository,
+                                      storeId: store.id,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    );
+                  },
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
