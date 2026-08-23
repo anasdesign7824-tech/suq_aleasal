@@ -92,6 +92,8 @@ export function AdminStoreVerificationPanel() {
   const [state, setState] = useState<LoadState>({ items: [], loading: true, error: null });
   const [selected, setSelected] = useState<VerificationRow | null>(null);
   const [selectedDetail, setSelectedDetail] = useState<{ request: VerificationRow; documents: VerificationDocument[] } | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [paymentReference, setPaymentReference] = useState("");
   const [busy, setBusy] = useState(false);
@@ -111,13 +113,17 @@ export function AdminStoreVerificationPanel() {
   const openDetails = async (row: VerificationRow) => {
     setSelected(row);
     setSelectedDetail(null);
+    setDetailError(null);
+    setDetailLoading(true);
     setNote(row.review_note ?? "");
     setPaymentReference(row.payment_reference ?? "");
     try {
       const details = await adminApi.storeVerificationRequest(row.id);
       setSelectedDetail({ request: details.request as VerificationRow, documents: details.documents as VerificationDocument[] });
     } catch (error) {
-      setState((previous) => ({ ...previous, error: error instanceof Error ? error.message : "تعذر قراءة مستندات الطلب." }));
+      setDetailError(error instanceof Error ? error.message : "تعذر قراءة مستندات الطلب.");
+    } finally {
+      setDetailLoading(false);
     }
   };
 
@@ -203,6 +209,8 @@ export function AdminStoreVerificationPanel() {
       {selected && <div className="admin-card space-y-5 p-6">
         <div className="flex flex-col gap-3 border-b border-[#eee1d0] pb-5 sm:flex-row sm:items-start sm:justify-between"><div className="flex items-start gap-3"><div className="size-16 shrink-0 overflow-hidden rounded-2xl bg-[#fff0d6]"><AdminSafeImage src={selected.store?.logo_url ?? selected.store?.cover_url} alt={selected.store?.name_ar ?? 'المتجر'} /></div><div><div className="flex items-center gap-2">{statusBadge(selected.status)}<ShieldCheck className="size-5 text-[#9c5a00]" /></div><h3 className="mt-2 text-xl font-bold text-[#3f281d]">{selected.store?.name_ar ?? "تفاصيل طلب التوثيق"}</h3><p className="mt-1 text-sm text-[#806b5a]">المستخدم: {selected.merchant?.display_name ?? selected.merchant_id}</p></div></div><Button onClick={() => { setSelected(null); setSelectedDetail(null); }} variant="ghost" className="text-[#806b5a]">إغلاق</Button></div>
         <div className="grid gap-3 text-sm text-[#6f5b4c] sm:grid-cols-3"><div><span className="font-semibold">الدفع:</span> {paymentLabels[selected.payment_status] ?? selected.payment_status}</div><div><span className="font-semibold">التقديم:</span> {formatDate(selected.submitted_at)}</div><div><span className="font-semibold">المراجعة:</span> {formatDate(selected.reviewed_at)}</div></div>
+        {detailLoading && <div className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] px-4 py-3 text-sm text-[#806b5a]"><RefreshCw className="ml-2 inline size-4 animate-spin" />جارٍ قراءة مستندات الطلب…</div>}
+        {detailError && <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><span>{detailError}</span><Button type="button" variant="outline" onClick={() => void openDetails(selected)} className="border-red-200 text-red-800">إعادة المحاولة</Button></div>}
         <div className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4">
           <div className="text-sm font-bold text-[#4f2e1f]">تسوية رسوم Pro</div>
           <p className="mt-1 text-xs leading-6 text-[#806b5a]">لا تُعتبر الرسوم مدفوعة بمجرد إرسال المرجع. هذه الأزرار تسجل قرار الإدارة فقط، ولا تنفذ عملية مالية خارجية.</p>
@@ -214,7 +222,7 @@ export function AdminStoreVerificationPanel() {
             <Button disabled={busy} onClick={() => void reconcilePayment("refunded")} variant="outline" className="border-red-300 text-red-900">تسجيل رد الرسوم</Button>
           </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">{(selectedDetail?.documents ?? selected.documents).map((document) => <div key={document.id} className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4"><div className="flex items-center gap-3"><FileText className="size-5 text-[#9c5a00]" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#4f2e1f]">{documentLabels[document.document_type] ?? document.document_type}</p><p className="truncate text-xs text-[#806b5a]">{document.file_name} · {document.review_status}</p></div></div>{document.signed_url && <a className="mt-3 inline-block text-xs font-bold text-[#8b5a2b] underline" href={document.signed_url} target="_blank" rel="noreferrer">فتح المستند في نافذة آمنة</a>}</div>)}</div>
+        {!detailLoading && !detailError && <div className="grid gap-3 sm:grid-cols-2">{(selectedDetail?.documents ?? selected.documents).map((document) => <div key={document.id} className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4"><div className="flex items-center gap-3"><FileText className="size-5 text-[#9c5a00]" /><div className="min-w-0"><p className="truncate text-sm font-bold text-[#4f2e1f]">{documentLabels[document.document_type] ?? document.document_type}</p><p className="truncate text-xs text-[#806b5a]">{document.file_name} · {document.review_status}</p></div></div>{document.signed_url && <a className="mt-3 inline-block text-xs font-bold text-[#8b5a2b] underline" href={document.signed_url} target="_blank" rel="noreferrer">فتح المستند في نافذة آمنة</a>}</div>)}</div>}
         <label className="block text-sm font-semibold text-[#4f2e1f]">ملاحظة القرار<textarea value={note} onChange={(event) => setNote(event.target.value)} rows={3} className="mt-2 w-full rounded-2xl border border-[#eadcc9] bg-white p-3 text-sm outline-none focus:border-[#c77d1a]" placeholder="اكتب سبب القرار أو المعلومات المطلوبة" /></label>
         <div className="flex flex-wrap gap-2"><Button disabled={busy} onClick={() => void runAction("approve")} className="bg-emerald-700 hover:bg-emerald-800"><CheckCircle2 className="ml-2 size-4" />اعتماد التوثيق</Button><Button disabled={busy} onClick={() => void runAction("needs_more_info")} variant="outline" className="border-blue-200 text-blue-800">طلب استكمال</Button><Button disabled={busy} onClick={() => void runAction("reject")} variant="outline" className="border-red-200 text-red-800"><XCircle className="ml-2 size-4" />رفض</Button>{selected.status === "approved" && <><AdminPremiumBadge label="موثق Pro" /><Button disabled={busy} onClick={() => void runAction("revoke")} variant="outline" className="border-red-300 text-red-900">سحب الشارة</Button></>}</div>
       </div>}

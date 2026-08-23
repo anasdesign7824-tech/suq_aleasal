@@ -1,0 +1,32 @@
+{
+  "task": "058",
+  "scope": "admin store verification",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "changedFiles": [
+    "apps/admin_web/client/src/components/AdminStoreVerification.tsx"
+  ],
+  "changes": [
+    "verification document detail now exposes loading state",
+    "document detail failure is shown in an Arabic alert with a real retry action",
+    "list-level error is no longer overwritten by a detail read failure"
+  ],
+  "verifiedStates": [
+    "verification list loading/error/empty/refresh",
+    "selected request detail loading/error/retry",
+    "signed document links",
+    "payment reconciliation states",
+    "approve/reject/needs_more_info/revoke states",
+    "permission and audit boundaries"
+  ],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
