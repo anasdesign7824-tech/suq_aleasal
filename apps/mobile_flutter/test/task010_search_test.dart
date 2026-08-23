@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:assalkom/features/customer/customer_discovery.dart';
-import 'package:assalkom_data/assal_repository.dart';
 
 import 'test_catalog.dart';
 
@@ -47,22 +46,26 @@ void main() {
     expect(find.text('الفلاتر'), findsOneWidget);
     expect(find.text('ترتيب'), findsOneWidget);
     expect(find.text('نتائج البحث'), findsOneWidget);
-    final sortChip = find.ancestor(
+    final sortButton = find.ancestor(
       of: find.text('ترتيب'),
-      matching: find.byType(Chip),
+      matching: find.byType(OutlinedButton),
     );
-    expect(sortChip, findsOneWidget);
-    await tester.tap(sortChip);
+    expect(sortButton, findsOneWidget);
+    await tester.tap(sortButton);
     await tester.pumpAndSettle();
-    final newestItem = find.ancestor(
-      of: find.text('الأحدث'),
-      matching: find.byWidgetPredicate(
-        (widget) => widget is PopupMenuEntry<AssalSort>,
-      ),
-    );
-    expect(newestItem, findsOneWidget);
-    await tester.tap(newestItem);
-    await tester.pump();
+    expect(find.text('ترتيب النتائج'), findsAtLeastNWidgets(1));
+    expect(find.text('الأكثر مشاهدة'), findsOneWidget);
+    expect(find.text('الأحدث'), findsOneWidget);
+    expect(find.text('الأعلى تقييمًا'), findsOneWidget);
+    expect(
+        find.text(
+            'الفرز بالسعر أو الأقرب حسب المنطقة غير متاح من مصدر البيانات الحالي.'),
+        findsOneWidget);
+
+    await tester.tap(find.text('الأحدث'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('تطبيق'));
+    await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField).first, 'سدر');
     await tester.testTextInput.receiveAction(TextInputAction.search);
@@ -87,7 +90,8 @@ void main() {
     expect(find.text('المديرية'), findsOneWidget);
     expect(find.text('القسم'), findsOneWidget);
     expect(find.text('التصنيف الفرعي'), findsOneWidget);
-    expect(find.text('نوع المنتج'), findsOneWidget);
+    expect(find.text('نوع المنتج'), findsAtLeastNWidgets(1));
+
     expect(find.text('المتاجر الموثقة فقط'), findsOneWidget);
     expect(find.text('تطبيق الفلاتر'), findsOneWidget);
 

@@ -1553,6 +1553,129 @@ class _SearchScreenState extends State<SearchScreen> {
     ];
   }
 
+  String _sortLabel(AssalSort value) => switch (value) {
+        AssalSort.featured => 'ترتيب النتائج',
+        AssalSort.newest => 'الأحدث',
+        AssalSort.popular => 'الأكثر مشاهدة',
+        AssalSort.rating => 'الأعلى تقييمًا',
+      };
+
+  Future<void> _showSort() async {
+    var draftSort = sort;
+    final selected = await showModalBottomSheet<AssalSort>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      backgroundColor: AssalColors.cream,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AssalRadius.extraLarge),
+        ),
+      ),
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setModalState) => SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              AssalSpacing.lg,
+              AssalSpacing.sm,
+              AssalSpacing.lg,
+              AssalSpacing.lg,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      icon: const Icon(Icons.close),
+                      tooltip: 'إغلاق',
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ترتيب النتائج',
+                            style: AssalTypography.heading2.copyWith(
+                              color: AssalColors.deepBrown,
+                            ),
+                          ),
+                          Text(
+                            'اختر طريقة عرض المنتجات',
+                            style: AssalTypography.bodySmall.copyWith(
+                              color: AssalColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AssalSpacing.sm),
+                RadioListTile<AssalSort>(
+                  value: AssalSort.featured,
+                  // ignore: deprecated_member_use
+                  groupValue: draftSort,
+                  title: const Text('ترتيب النتائج'),
+                  subtitle: const Text('المنتجات المميزة أولًا'),
+                  // ignore: deprecated_member_use
+                  onChanged: (value) => setModalState(() => draftSort = value!),
+                ),
+                RadioListTile<AssalSort>(
+                  value: AssalSort.popular,
+                  // ignore: deprecated_member_use
+                  groupValue: draftSort,
+                  title: const Text('الأكثر مشاهدة'),
+                  // ignore: deprecated_member_use
+                  onChanged: (value) => setModalState(() => draftSort = value!),
+                ),
+                RadioListTile<AssalSort>(
+                  value: AssalSort.newest,
+                  // ignore: deprecated_member_use
+                  groupValue: draftSort,
+                  title: const Text('الأحدث'),
+                  // ignore: deprecated_member_use
+                  onChanged: (value) => setModalState(() => draftSort = value!),
+                ),
+                RadioListTile<AssalSort>(
+                  value: AssalSort.rating,
+                  // ignore: deprecated_member_use
+                  groupValue: draftSort,
+                  title: const Text('الأعلى تقييمًا'),
+                  // ignore: deprecated_member_use
+                  onChanged: (value) => setModalState(() => draftSort = value!),
+                ),
+                const Divider(),
+                const ListTile(
+                  enabled: false,
+                  leading: Icon(Icons.info_outline),
+                  title: Text('خيارات إضافية'),
+                  subtitle: Text(
+                    'الفرز بالسعر أو الأقرب حسب المنطقة غير متاح من مصدر البيانات الحالي.',
+                  ),
+                ),
+                const SizedBox(height: AssalSpacing.sm),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(sheetContext, draftSort),
+                    child: const Text('تطبيق'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (!mounted || selected == null || selected == sort) return;
+    setState(() {
+      sort = selected;
+      _search();
+    });
+  }
+
   void _applySearch() => setState(_search);
 
   int get _activeFilterCount {
@@ -1570,7 +1693,6 @@ class _SearchScreenState extends State<SearchScreen> {
     if (packaging != null) count++;
     if (availability != null) count++;
     if (minRating != null || minPrice != null || maxPrice != null) count++;
-    if (sort != AssalSort.featured) count++;
     return count;
   }
 
@@ -1746,23 +1868,18 @@ class _SearchScreenState extends State<SearchScreen> {
                         ? 'الفلاتر'
                         : 'الفلاتر ($_activeFilterCount)'))),
             const SizedBox(width: AssalSpacing.sm),
-            PopupMenuButton<AssalSort>(
-              initialValue: sort,
-              onSelected: (value) => setState(() {
-                sort = value;
-                _search();
-              }),
-              itemBuilder: (_) => const [
-                PopupMenuItem(
-                    value: AssalSort.featured, child: Text('المميزة أولًا')),
-                PopupMenuItem(value: AssalSort.newest, child: Text('الأحدث')),
-                PopupMenuItem(
-                    value: AssalSort.popular, child: Text('الأكثر شعبية')),
-                PopupMenuItem(
-                    value: AssalSort.rating, child: Text('الأعلى تقييمًا')),
-              ],
-              child: const Chip(
-                  avatar: Icon(Icons.sort, size: 18), label: Text('ترتيب')),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _showSort,
+                icon: const Icon(Icons.sort),
+                label: Text(
+                  sort == AssalSort.featured
+                      ? 'ترتيب'
+                      : 'ترتيب: ${_sortLabel(sort)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ),
           ]),
         ),
