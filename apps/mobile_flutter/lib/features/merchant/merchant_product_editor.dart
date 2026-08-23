@@ -36,7 +36,7 @@ class _PendingProductImage {
 class _MerchantProductEditorScreenState
     extends State<MerchantProductEditorScreen> {
   final formKey = GlobalKey<FormState>();
-  late final Future<AssalLoadState<List<AssalTaxonomy>>> taxonomyFuture;
+  late Future<AssalLoadState<List<AssalTaxonomy>>> taxonomyFuture;
   late final Future<AssalLoadState<List<AssalRegion>>> regionsFuture;
 
   late final TextEditingController nameArController;
@@ -140,6 +140,14 @@ class _MerchantProductEditorScreenState
     existingImageUrls.addAll(product?.imageUrls ?? const <String>[]);
   }
 
+  Future<void> _reloadTaxonomy() async {
+    final future = widget.repository.listTaxonomy();
+    if (!mounted) return;
+    setState(() {
+      taxonomyFuture = future;
+    });
+  }
+
   String _numberText(double? value) => value == null ? '' : '$value';
 
   String _dateText(DateTime? value) =>
@@ -155,9 +163,9 @@ class _MerchantProductEditorScreenState
       currencyController,
       weightController,
       originController,
-        provinceController,
-        gradeController,
-        identityController,
+      provinceController,
+      gradeController,
+      identityController,
       qualityController,
       processingMethodController,
       processingStatusController,
@@ -266,7 +274,8 @@ class _MerchantProductEditorScreenState
     if (!(formKey.currentState?.validate() ?? false)) return;
     if (existingImageUrls.isEmpty && pendingImages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('أضف صورة واحدة على الأقل قبل حفظ المنتج.')),
+        const SnackBar(
+            content: Text('أضف صورة واحدة على الأقل قبل حفظ المنتج.')),
       );
       return;
     }
@@ -274,7 +283,9 @@ class _MerchantProductEditorScreenState
     if (!mounted) return;
     if (session.isUnavailable) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
+        SnackBar(
+            content:
+                Text(session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.')),
       );
       return;
     }
@@ -626,10 +637,33 @@ class _MerchantProductEditorScreenState
           FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
             future: taxonomyFuture,
             builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting &&
+                  !snapshot.hasData) {
+                return const AssalGlassLoading(
+                  height: 104,
+                  label: 'جارٍ تحميل التصنيفات...',
+                );
+              }
               final state = snapshot.data;
+              if (state is AssalError<List<AssalTaxonomy>>) {
+                return AssalMessageCard(
+                  icon: Icons.cloud_off_outlined,
+                  message: 'تعذر تحميل التصنيفات الآن. ${state.messageAr}',
+                  onRetry: saving ? null : _reloadTaxonomy,
+                );
+              }
               final values = state is AssalData<List<AssalTaxonomy>>
                   ? state.value
                   : const <AssalTaxonomy>[];
+              if (values.isEmpty) {
+                return AssalMessageCard(
+                  icon: Icons.category_outlined,
+                  message: state is AssalEmpty<List<AssalTaxonomy>>
+                      ? state.messageAr
+                      : 'لا توجد تصنيفات متاحة من المصدر الآن.',
+                  onRetry: saving ? null : _reloadTaxonomy,
+                );
+              }
               return DropdownButtonFormField<String>(
                 initialValue: values.any((item) => item.id == taxonomyId)
                     ? taxonomyId
@@ -792,7 +826,8 @@ class _MerchantProductEditorScreenState
                 }
               }
               final selectedGovernorateId = governorateId ??
-                  selectedRegion?.parentRegionId ?? selectedRegion?.id;
+                  selectedRegion?.parentRegionId ??
+                  selectedRegion?.id;
               final selectedDistrictId = districtId ??
                   (selectedRegion?.parentRegionId == null
                       ? null
@@ -806,8 +841,8 @@ class _MerchantProductEditorScreenState
               return Column(
                 children: [
                   DropdownButtonFormField<String>(
-                    initialValue: governorates.any(
-                            (item) => item.id == selectedGovernorateId)
+                    initialValue: governorates
+                            .any((item) => item.id == selectedGovernorateId)
                         ? selectedGovernorateId
                         : null,
                     decoration: const InputDecoration(
@@ -839,10 +874,10 @@ class _MerchantProductEditorScreenState
                   ),
                   const SizedBox(height: AssalSpacing.md),
                   DropdownButtonFormField<String>(
-                    initialValue: districts.any(
-                            (item) => item.id == selectedDistrictId)
-                        ? selectedDistrictId
-                        : null,
+                    initialValue:
+                        districts.any((item) => item.id == selectedDistrictId)
+                            ? selectedDistrictId
+                            : null,
                     decoration: const InputDecoration(
                       labelText: 'مديرية الإنتاج',
                       prefixIcon: Icon(Icons.map_outlined),
@@ -867,7 +902,8 @@ class _MerchantProductEditorScreenState
                                 }
                               }
                             }),
-                    hint: const Text('اختر المديرية أو اتركها على مستوى المحافظة'),
+                    hint: const Text(
+                        'اختر المديرية أو اتركها على مستوى المحافظة'),
                   ),
                 ],
               );
@@ -884,7 +920,14 @@ class _MerchantProductEditorScreenState
           _choiceField(
             identityController,
             'هوية العسل أو السلالة',
-            const ['سدر', 'سمر', 'طلح', 'زهور برية', 'متعدد الأزهار', 'خلطة نحلية'],
+            const [
+              'سدر',
+              'سمر',
+              'طلح',
+              'زهور برية',
+              'متعدد الأزهار',
+              'خلطة نحلية'
+            ],
             icon: Icons.hive_outlined,
             hint: 'اختر الهوية أو السلالة',
           ),
@@ -960,7 +1003,12 @@ class _MerchantProductEditorScreenState
           _suggestedField(
             componentsController,
             'المكونات — افصل بينها بفاصلة',
-            const ['عسل نحل طبيعي', 'شمع النحل', 'غذاء ملكات النحل', 'حبوب لقاح'],
+            const [
+              'عسل نحل طبيعي',
+              'شمع النحل',
+              'غذاء ملكات النحل',
+              'حبوب لقاح'
+            ],
             icon: Icons.science_outlined,
             maxLines: 2,
             appendSuggestion: true,
@@ -1061,23 +1109,38 @@ class _MerchantProductEditorScreenState
                   top: false,
                   child: Padding(
                     padding: const EdgeInsets.all(AssalSpacing.lg),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: saving ? null : _save,
-                        icon: saving
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.save_outlined),
-                        label: Text(
-                          saving ? 'جارٍ حفظ المنتج...' : 'حفظ المنتج ومعاينته',
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: saving ? null : _save,
+                            icon: saving
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.save_outlined),
+                            label: Text(
+                              saving
+                                  ? 'جارٍ حفظ المنتج...'
+                                  : 'حفظ المنتج ومعاينته',
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: AssalSpacing.sm),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: saving
+                                ? null
+                                : () => Navigator.of(context).pop(false),
+                            icon: const Icon(Icons.close_outlined),
+                            label: const Text('إلغاء'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
