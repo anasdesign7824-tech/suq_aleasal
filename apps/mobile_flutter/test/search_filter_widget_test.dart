@@ -32,6 +32,7 @@ void main() {
     expect(find.text('المتاجر الموثقة فقط'), findsOneWidget);
     expect(find.text('تطبيق الفلاتر'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('المتاجر الموثقة فقط'));
     await tester.tap(find.text('المتاجر الموثقة فقط'));
     await tester.pump();
     await tester.ensureVisible(find.text('تطبيق الفلاتر'));

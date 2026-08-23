@@ -1409,6 +1409,7 @@ class _SearchScreenState extends State<SearchScreen> {
       TextEditingController(text: widget.initialQuery);
   String? categoryId;
   String? subcategoryId;
+  String? storeId;
   String? regionId;
   String? provinceId;
   int? gradeLevel;
@@ -1500,6 +1501,7 @@ class _SearchScreenState extends State<SearchScreen> {
         categoryId: categoryId,
         search: controller.text,
         subcategoryId: subcategoryId,
+        storeId: storeId,
         regionId: regionId,
         provinceId: provinceId,
         gradeLevel: gradeLevel,
@@ -1557,6 +1559,7 @@ class _SearchScreenState extends State<SearchScreen> {
     var count = 0;
     if (categoryId != null) count++;
     if (subcategoryId != null) count++;
+    if (storeId != null) count++;
     if (regionId != null) count++;
     if (provinceId != null) count++;
     if (gradeLevel != null) count++;
@@ -1584,6 +1587,13 @@ class _SearchScreenState extends State<SearchScreen> {
               label: Text('التصنيف: ${_subcategoryLabel(subcategoryId!)}'),
               onDeleted: () => setState(() {
                     subcategoryId = null;
+                    _search();
+                  })),
+        if (storeId != null)
+          InputChip(
+              label: const Text('المتجر المحدد'),
+              onDeleted: () => setState(() {
+                    storeId = null;
                     _search();
                   })),
         if (regionId != null)
@@ -1656,6 +1666,7 @@ class _SearchScreenState extends State<SearchScreen> {
     controller.clear();
     categoryId = null;
     subcategoryId = null;
+    storeId = null;
     regionId = null;
     provinceId = null;
     gradeLevel = null;
@@ -1878,6 +1889,7 @@ class _SearchScreenState extends State<SearchScreen> {
     var draftProvince = provinceId ?? '';
     var draftCategory = categoryId ?? '';
     var draftSubcategory = subcategoryId ?? '';
+    var draftStore = storeId ?? '';
     var draftGrade = gradeLevel;
     var draftType = productType;
     var draftVerified = verifiedOnly;
@@ -1939,6 +1951,21 @@ class _SearchScreenState extends State<SearchScreen> {
         .any((item) => item.value == draftSubcategory)) {
       draftSubcategory = '';
     }
+    final storesState = await storesFuture;
+    if (!mounted) return;
+    final storeItems = <DropdownMenuItem<String>>[
+      const DropdownMenuItem<String>(value: '', child: Text('كل المتاجر')),
+      if (storesState is AssalData<List<AssalStoreSummary>>)
+        ...storesState.value.map(
+          (store) => DropdownMenuItem<String>(
+            value: store.id,
+            child: Text(store.nameAr),
+          ),
+        ),
+    ];
+    if (!storeItems.any((item) => item.value == draftStore)) {
+      draftStore = '';
+    }
     final typeItems = <DropdownMenuItem<ProductType?>>[
       const DropdownMenuItem<ProductType?>(
           value: null, child: Text('كل الأنواع')),
@@ -1978,6 +2005,11 @@ class _SearchScreenState extends State<SearchScreen> {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
+      backgroundColor: AssalColors.cream,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AssalRadius.extraLarge)),
+      ),
+      clipBehavior: Clip.antiAlias,
       builder: (sheetContext) => StatefulBuilder(
           builder: (context, setModalState) => Padding(
                 padding: EdgeInsets.only(
@@ -1991,11 +2023,37 @@ class _SearchScreenState extends State<SearchScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      Text('تصفية النتائج',
-                          style: AssalTypography.heading2
-                              .copyWith(color: AssalColors.deepBrown)),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(sheetContext, false),
+                            icon: const Icon(Icons.close),
+                            tooltip: 'إغلاق',
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('الفلاتر', style: AssalTypography.heading2.copyWith(color: AssalColors.deepBrown)),
+                                Text('تصفية النتائج', style: AssalTypography.bodySmall.copyWith(color: AssalColors.textSecondary)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: AssalSpacing.md),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('الموقع', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftRegion,
                           decoration:
                               const InputDecoration(labelText: 'المحافظة'),
@@ -2005,6 +2063,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 draftProvince = '';
                               })),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftProvince,
                           decoration:
                               const InputDecoration(labelText: 'المديرية'),
@@ -2020,7 +2079,18 @@ class _SearchScreenState extends State<SearchScreen> {
                               ? null
                               : (value) => setModalState(
                                   () => draftProvince = value ?? '')),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.grid_view_outlined, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('التصنيف', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftCategory,
                           decoration: const InputDecoration(labelText: 'القسم'),
                           items: categoryItems,
@@ -2029,20 +2099,43 @@ class _SearchScreenState extends State<SearchScreen> {
                                 draftSubcategory = '';
                               })),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftSubcategory,
                           decoration: const InputDecoration(
                               labelText: 'التصنيف الفرعي'),
                           items: subcategoryItemsFor(draftCategory),
                           onChanged: (value) => setModalState(
                               () => draftSubcategory = value ?? '')),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.inventory_2_outlined, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('نوع المنتج', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
                       DropdownButtonFormField<ProductType?>(
+                          isExpanded: true,
                           initialValue: draftType,
                           decoration:
                               const InputDecoration(labelText: 'نوع المنتج'),
                           items: typeItems,
                           onChanged: (value) =>
                               setModalState(() => draftType = value)),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.workspace_premium_outlined, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('الجودة', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
                       DropdownButtonFormField<int?>(
+                          isExpanded: true,
                           initialValue: draftGrade,
                           decoration:
                               const InputDecoration(labelText: 'درجة الجودة'),
@@ -2055,6 +2148,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               setModalState(() => draftVerified = value),
                           title: const Text('المتاجر الموثقة فقط')),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftOrigin,
                           decoration: const InputDecoration(
                               labelText: 'بلد/منطقة الأصل'),
@@ -2062,6 +2156,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           onChanged: (value) =>
                               setModalState(() => draftOrigin = value ?? '')),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftProcessing,
                           decoration: const InputDecoration(
                               labelText: 'طريقة المعالجة'),
@@ -2069,19 +2164,74 @@ class _SearchScreenState extends State<SearchScreen> {
                           onChanged: (value) => setModalState(
                               () => draftProcessing = value ?? '')),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftPackaging,
                           decoration:
                               const InputDecoration(labelText: 'التعبئة'),
                           items: packagingItems,
                           onChanged: (value) => setModalState(
                               () => draftPackaging = value ?? '')),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle_outline, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('حالة التوفر', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
                       DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: draftAvailability,
                           decoration:
                               const InputDecoration(labelText: 'التوفر'),
                           items: availabilityItems,
                           onChanged: (value) => setModalState(
                               () => draftAvailability = value ?? '')),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.storefront_outlined, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('المتجر', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
+                      DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          initialValue: draftStore,
+                          decoration: const InputDecoration(labelText: 'المتجر'),
+                          items: storeItems,
+                          onChanged: (value) => setModalState(() => draftStore = value ?? '')),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.sell_outlined, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('السعر', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.inventory_outlined, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('الوزن أو الحجم', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
+                      const InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'الوزن أو الحجم',
+                          prefixIcon: Icon(Icons.scale_outlined),
+                        ),
+                        child: Text('كل الأوزان والأحجام', style: AssalTypography.body),
+                      ),
                       Text(
                           'نطاق السعر: ${draftPriceRange.start.toStringAsFixed(0)} – ${draftPriceRange.end.toStringAsFixed(0)} ريال',
                           style: AssalTypography.bodyLarge
@@ -2098,6 +2248,24 @@ class _SearchScreenState extends State<SearchScreen> {
                         onChanged: (value) =>
                             setModalState(() => draftPriceRange = value),
                       ),
+                      const InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'عملة السعر',
+                          prefixIcon: Icon(Icons.payments_outlined),
+                        ),
+                        child: Text('ريال يمني', style: AssalTypography.body),
+                      ),
+                      const SizedBox(height: AssalSpacing.sm),
+                      Padding(
+                        padding: const EdgeInsets.only(top: AssalSpacing.sm, bottom: AssalSpacing.xs),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.star_outline, color: AssalColors.primaryDark),
+                            const SizedBox(width: AssalSpacing.sm),
+                            Text('التقييم', style: AssalTypography.title.copyWith(color: AssalColors.deepBrown)),
+                          ],
+                        ),
+                      ),
                       Text(
                           'أدنى تقييم: ${draftMinRatingValue.toStringAsFixed(1)} من ${dataMaxRating.toStringAsFixed(1)}',
                           style: AssalTypography.bodyLarge
@@ -2112,9 +2280,39 @@ class _SearchScreenState extends State<SearchScreen> {
                             setModalState(() => draftMinRatingValue = value),
                       ),
                       const SizedBox(height: AssalSpacing.md),
-                      SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(sheetContext, false),
+                              child: const Text('إلغاء'),
+                            ),
+                          ),
+                          const SizedBox(width: AssalSpacing.sm),
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () => setModalState(() {
+                                draftRegion = '';
+                                draftProvince = '';
+                                draftCategory = '';
+                                draftSubcategory = '';
+                                draftStore = '';
+                                draftGrade = null;
+                                draftType = null;
+                                draftVerified = false;
+                                draftOrigin = '';
+                                draftProcessing = '';
+                                draftPackaging = '';
+                                draftAvailability = '';
+                                draftPriceRange = RangeValues(priceMin, priceMax);
+                                draftMinRatingValue = 0;
+                              }),
+                              child: const Text('مسح الكل'),
+                            ),
+                          ),
+                          const SizedBox(width: AssalSpacing.sm),
+                          Expanded(
+                            child: FilledButton(
                               onPressed: () {
                                 regionId = draftRegion.trim().isEmpty
                                     ? null
@@ -2128,6 +2326,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                 subcategoryId = draftSubcategory.trim().isEmpty
                                     ? null
                                     : draftSubcategory.trim();
+                                storeId = draftStore.trim().isEmpty
+                                    ? null
+                                    : draftStore.trim();
                                 gradeLevel = draftGrade;
                                 productType = draftType;
                                 verifiedOnly = draftVerified;
@@ -2155,7 +2356,11 @@ class _SearchScreenState extends State<SearchScreen> {
                                     : draftPriceRange.end;
                                 Navigator.pop(sheetContext, true);
                               },
-                              child: const Text('تطبيق الفلاتر'))),
+                              child: const Text('تطبيق الفلاتر'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ])),
               )),
       );
