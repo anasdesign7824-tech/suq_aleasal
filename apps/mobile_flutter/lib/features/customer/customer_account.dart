@@ -249,13 +249,23 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _showEmailOtpDialog({required bool loginMode}) async {
     var dialogEmail = emailController.text.trim();
+    final dialogEmailController = TextEditingController(text: dialogEmail);
     otpController.clear();
+    var editingEmail = false;
     var dialogLoading = false;
+
     var resendSeconds = 30;
     var countdownStarted = false;
     Timer? resendTimer;
     String? dialogError;
     String? dialogNotice;
+
+    String maskEmail(String email) {
+      final parts = email.split('@');
+      if (parts.length != 2 || parts.first.isEmpty) return email;
+      final visible = parts.first.characters.first;
+      return '$visible••••••••@${parts.last}';
+    }
 
     void startCountdown(void Function(void Function()) setDialogState) {
       resendTimer?.cancel();
@@ -293,27 +303,74 @@ class _AuthScreenState extends State<AuthScreen> {
                     const AssalBrandMark(size: 54, showName: false),
                     const SizedBox(height: AssalSpacing.sm),
                     Text(
-                        loginMode
-                            ? 'أرسلنا رمز الدخول إلى'
-                            : 'أرسلنا رمز التحقق إلى',
-                        textAlign: TextAlign.center,
-                        style: AssalTypography.body),
-                    const SizedBox(height: AssalSpacing.sm),
-                    TextField(
-                      keyboardType: TextInputType.emailAddress,
-                      textDirection: TextDirection.ltr,
+                      loginMode ? 'تحقق من بريدك' : 'تأكيد بريدك الإلكتروني',
                       textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        labelText: 'البريد الإلكتروني',
-                        helperText: 'يمكنك تعديل البريد قبل التحقق',
+                      style: AssalTypography.heading2.copyWith(
+                        color: AssalColors.deepBrown,
                       ),
-                      onChanged: (value) => setDialogState(() {
-                        dialogEmail = value;
-                        dialogError = null;
-                        dialogNotice = null;
-                      }),
+                    ),
+                    const SizedBox(height: AssalSpacing.xs),
+                    Text(
+                      loginMode
+                          ? 'أرسلنا رمز التحقق إلى البريد المدخل'
+                          : 'أرسلنا رمز التحقق إلى بريدك الإلكتروني',
+                      textAlign: TextAlign.center,
+                      style: AssalTypography.body.copyWith(
+                        color: AssalColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: AssalSpacing.md),
+                    if (editingEmail)
+                      TextField(
+                        controller: dialogEmailController,
+                        keyboardType: TextInputType.emailAddress,
+                        textDirection: TextDirection.ltr,
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                          labelText: 'البريد الإلكتروني',
+                          helperText: 'يمكنك تعديل البريد قبل التحقق',
+                        ),
+                        onChanged: (value) => setDialogState(() {
+                          dialogEmail = value;
+                          dialogError = null;
+                          dialogNotice = null;
+                        }),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AssalSpacing.md,
+                          vertical: AssalSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AssalColors.surfaceVariant,
+                          borderRadius: BorderRadius.circular(AssalRadius.pill),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Flexible(
+                              child: Text(
+                                maskEmail(dialogEmail),
+                                textDirection: TextDirection.ltr,
+                                overflow: TextOverflow.ellipsis,
+                                style: AssalTypography.body.copyWith(
+                                  color: AssalColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: dialogLoading
+                                  ? null
+                                  : () =>
+                                      setDialogState(() => editingEmail = true),
+                              icon: const Icon(Icons.edit_outlined, size: 18),
+                              label: const Text('تعديل البريد'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: AssalSpacing.lg),
                     TextField(
                       controller: otpController,
                       autofocus: true,
@@ -326,72 +383,79 @@ class _AuthScreenState extends State<AuthScreen> {
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.ltr,
                       style: AssalTypography.heading2.copyWith(
-                          color: AssalColors.deepBrown, letterSpacing: 5),
+                        color: AssalColors.deepBrown,
+                        letterSpacing: 5,
+                      ),
                       decoration: const InputDecoration(
-                          labelText: 'رمز التحقق (6–9 أرقام)', counterText: ''),
+                        labelText: 'رمز التحقق (6–9 أرقام)',
+                        helperText: 'أدخل الرمز المكوّن من 6 أرقام على الأقل',
+                        counterText: '',
+                      ),
                     ),
-                    Text(
-                      resendSeconds > 0
-                          ? 'يمكنك طلب رمز جديد بعد $resendSeconds ثانية'
-                          : 'يمكنك طلب رمز جديد الآن',
-                      textAlign: TextAlign.center,
-                      style: AssalTypography.caption
-                          .copyWith(color: AssalColors.textMuted),
+                    TextButton(
+                      onPressed: dialogLoading || resendSeconds > 0
+                          ? null
+                          : () async {
+                              final email = dialogEmail.trim();
+                              if (!email.contains('@')) {
+                                setDialogState(() => dialogError =
+                                    'أدخل بريدًا إلكترونيًا صالحًا.');
+                                return;
+                              }
+                              setDialogState(() {
+                                dialogLoading = true;
+                                dialogError = null;
+                                dialogNotice = null;
+                              });
+                              final result = loginMode
+                                  ? await widget.repository
+                                      .requestEmailOtp(email)
+                                  : await widget.repository
+                                      .resendEmailConfirmation(email);
+                              if (!mounted || !dialogContext.mounted) return;
+                              if (result is AssalData<void>) {
+                                setDialogState(() {
+                                  dialogLoading = false;
+                                  dialogNotice = loginMode
+                                      ? 'تم إرسال رمز دخول جديد. استخدم أحدث رمز فقط.'
+                                      : 'تم إرسال رمز تحقق جديد. استخدم أحدث رمز فقط.';
+                                });
+                                startCountdown(setDialogState);
+                              } else if (result is AssalError<void>) {
+                                setDialogState(() {
+                                  dialogLoading = false;
+                                  dialogError = result.messageAr;
+                                });
+                              }
+                            },
+                      child: Text(
+                        resendSeconds > 0
+                            ? 'إعادة إرسال الرمز 0:${resendSeconds.toString().padLeft(2, '0')}'
+                            : 'إعادة إرسال الرمز',
+                      ),
                     ),
                     if (dialogError != null) ...[
                       const SizedBox(height: AssalSpacing.sm),
-                      Text(dialogError!,
-                          textAlign: TextAlign.center,
-                          style: AssalTypography.caption
-                              .copyWith(color: AssalColors.error)),
+                      Text(
+                        dialogError!,
+                        textAlign: TextAlign.center,
+                        style: AssalTypography.caption
+                            .copyWith(color: AssalColors.error),
+                      ),
                     ],
                     if (dialogNotice != null) ...[
                       const SizedBox(height: AssalSpacing.sm),
-                      Text(dialogNotice!,
-                          textAlign: TextAlign.center,
-                          style: AssalTypography.caption
-                              .copyWith(color: AssalColors.success)),
+                      Text(
+                        dialogNotice!,
+                        textAlign: TextAlign.center,
+                        style: AssalTypography.caption
+                            .copyWith(color: AssalColors.success),
+                      ),
                     ],
                   ],
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: dialogLoading || resendSeconds > 0
-                      ? null
-                      : () async {
-                          final email = dialogEmail.trim();
-                          if (!email.contains('@')) {
-                            setDialogState(() =>
-                                dialogError = 'أدخل بريدًا إلكترونيًا صالحًا.');
-                            return;
-                          }
-                          setDialogState(() {
-                            dialogLoading = true;
-                            dialogError = null;
-                            dialogNotice = null;
-                          });
-                          final result = loginMode
-                              ? await widget.repository.requestEmailOtp(email)
-                              : await widget.repository
-                                  .resendEmailConfirmation(email);
-                          if (!mounted || !dialogContext.mounted) return;
-                          setDialogState(() {
-                            dialogLoading = false;
-                            if (result is AssalData<void>) {
-                              dialogNotice = loginMode
-                                  ? 'تم إرسال رمز دخول جديد. استخدم أحدث رمز فقط.'
-                                  : 'تم إرسال رمز تحقق جديد. استخدم أحدث رمز فقط.';
-                            } else if (result is AssalError<void>) {
-                              dialogError = result.messageAr;
-                            }
-                          });
-                          if (result is AssalData<void>) {
-                            startCountdown(setDialogState);
-                          }
-                        },
-                  child: const Text('إعادة إرسال الرمز'),
-                ),
                 FilledButton(
                   onPressed: dialogLoading
                       ? null
@@ -433,7 +497,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: dialogLoading
                       ? const AssalGlassLoading(
                           height: 44, label: 'جارٍ التحقق...')
-                      : Text(loginMode ? 'دخول بالرمز' : 'تحقق من الرمز'),
+                      : const Text('تحقق'),
                 ),
               ],
             ),
