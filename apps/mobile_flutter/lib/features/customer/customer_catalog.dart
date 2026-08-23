@@ -177,8 +177,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         },
       );
 
-  Widget _decisionCard(
-      AssalProductSummary product, AssalStoreSummary? store) {
+  Widget _decisionCard(AssalProductSummary product, AssalStoreSummary? store) {
     final deliveryOptions = product.deliveryOptions.isNotEmpty
         ? product.deliveryOptions
         : store?.deliveryOptions ?? const <String>[];
@@ -247,7 +246,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: store == null ? null : () => _request(product, store),
+                onPressed:
+                    store == null ? null : () => _request(product, store),
                 icon: const Icon(Icons.chat_bubble_outline),
                 label: const Text('اسأل عن التوفر'),
               ),
@@ -292,9 +292,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     left: AssalSpacing.md,
                     bottom: AssalSpacing.md,
                     child: IconButton.filledTonal(
-                      onPressed: favoriteBusy
-                          ? null
-                          : () => _toggleFavorite(product),
+                      onPressed:
+                          favoriteBusy ? null : () => _toggleFavorite(product),
                       tooltip: favorite ? 'إزالة الحفظ' : 'حفظ المنتج',
                       icon: Icon(
                         favorite ? Icons.favorite : Icons.favorite_border,
@@ -455,32 +454,37 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: likeBusy ? null : () async {
-                      final session =
-                          await requireUserSession(context, widget.repository);
-                      if (session == null || !mounted || session.user == null) {
-                        return;
-                      }
-                      setState(() => likeBusy = true);
-                      try {
-                        final result = await widget.repository
-                            .toggleLike(session.user!.id, product.id);
-                        if (result is AssalData<bool>) {
-                          setState(() {
-                            if (result.value != liked) {
-                              likeDelta += result.value ? 1 : -1;
+                    onPressed: likeBusy
+                        ? null
+                        : () async {
+                            final session = await requireUserSession(
+                                context, widget.repository);
+                            if (session == null ||
+                                !mounted ||
+                                session.user == null) {
+                              return;
                             }
-                            liked = result.value;
-                          });
-                        } else if (result is AssalError<bool> && mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(result.messageAr)),
-                          );
-                        }
-                      } finally {
-                        if (mounted) setState(() => likeBusy = false);
-                      }
-                    },
+                            setState(() => likeBusy = true);
+                            try {
+                              final result = await widget.repository
+                                  .toggleLike(session.user!.id, product.id);
+                              if (result is AssalData<bool>) {
+                                setState(() {
+                                  if (result.value != liked) {
+                                    likeDelta += result.value ? 1 : -1;
+                                  }
+                                  liked = result.value;
+                                });
+                              } else if (result is AssalError<bool> &&
+                                  mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(result.messageAr)),
+                                );
+                              }
+                            } finally {
+                              if (mounted) setState(() => likeBusy = false);
+                            }
+                          },
                     icon:
                         Icon(liked ? Icons.thumb_up : Icons.thumb_up_outlined),
                     label: Text(liked ? 'أعجبتني' : 'إعجاب'),
@@ -489,9 +493,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 const SizedBox(width: AssalSpacing.sm),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: favoriteBusy
-                        ? null
-                        : () => _toggleFavorite(product),
+                    onPressed:
+                        favoriteBusy ? null : () => _toggleFavorite(product),
                     icon:
                         Icon(favorite ? Icons.bookmark : Icons.bookmark_border),
                     label: Text(favorite ? 'محفوظ' : 'حفظ'),
@@ -778,6 +781,8 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   bool followBusy = false;
   bool followersBusy = false;
   bool contactBusy = false;
+  final Set<String> favoriteProductIds = <String>{};
+  final Set<String> favoriteProductBusyIds = <String>{};
 
   @override
   void initState() {
@@ -796,6 +801,55 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     setState(() {
       following = result.value.any((store) => store.id == widget.storeId);
     });
+  }
+
+  void _reloadStore() {
+    setState(() {
+      storeFuture = widget.repository.getStore(widget.storeId);
+    });
+  }
+
+  void _reloadProducts() {
+    setState(() {
+      productsFuture = widget.repository.listProducts(
+        query: AssalProductQuery(storeId: widget.storeId),
+      );
+    });
+  }
+
+  Future<void> _toggleProductFavorite(AssalProductSummary product) async {
+    if (favoriteProductBusyIds.contains(product.id)) return;
+    final session = await requireUserSession(context, widget.repository);
+    if (session == null || !mounted || session.user == null) return;
+    setState(() {
+      favoriteProductBusyIds.add(product.id);
+    });
+    try {
+      final result = await widget.repository.toggleFavorite(
+        session.user!.id,
+        product.id,
+      );
+      if (!mounted) return;
+      if (result is AssalData<bool>) {
+        setState(() {
+          if (result.value) {
+            favoriteProductIds.add(product.id);
+          } else {
+            favoriteProductIds.remove(product.id);
+          }
+        });
+      } else if (result is AssalError<bool>) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.messageAr)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          favoriteProductBusyIds.remove(product.id);
+        });
+      }
+    }
   }
 
   Future<void> _toggleFollow() async {
@@ -852,9 +906,8 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: CircleAvatar(
-                            backgroundImage: avatar != null
-                                ? NetworkImage(avatar)
-                                : null,
+                            backgroundImage:
+                                avatar != null ? NetworkImage(avatar) : null,
                             child: avatar == null
                                 ? const Icon(Icons.person_outline)
                                 : null,
@@ -890,14 +943,19 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         future: storeFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const AssalMessageCard(
-                icon: Icons.wifi_off_outlined,
-                message:
-                    'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.');
+            return AssalMessageCard(
+              icon: Icons.wifi_off_outlined,
+              message:
+                  'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.',
+              onRetry: _reloadStore,
+            );
           }
           if (!snapshot.hasData) return const AssalGlassLoading();
           return AssalStateView<AssalStoreSummary>(
-              state: snapshot.data!, builder: _content);
+            state: snapshot.data!,
+            onRetry: _reloadStore,
+            builder: _content,
+          );
         },
       ),
     );
@@ -957,45 +1015,76 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
         future: productsFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const AssalMessageCard(
+            return SingleChildScrollView(
+              child: AssalMessageCard(
                 icon: Icons.wifi_off_outlined,
                 message:
-                    'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.');
+                    'تعذر تحميل البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.',
+                onRetry: _reloadProducts,
+              ),
+            );
           }
           if (!snapshot.hasData) return const AssalGlassLoading();
+          final state = snapshot.data!;
+          if (state is AssalData<List<AssalProductSummary>> &&
+              state.value.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(AssalSpacing.lg),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    AssalMessageCard(
+                      icon: Icons.inventory_2_outlined,
+                      message: 'لا توجد منتجات منشورة في هذا المتجر بعد.',
+                      onRetry: _reloadProducts,
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      label: const Text('العودة إلى المتاجر'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          final hasProducts = state is AssalData<List<AssalProductSummary>> &&
+              state.value.isNotEmpty;
+          final stateView = AssalStateView<List<AssalProductSummary>>(
+            state: state,
+            onRetry: _reloadProducts,
+            builder: (products) => GridView.builder(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 220,
+                crossAxisSpacing: AssalSpacing.md,
+                mainAxisSpacing: AssalSpacing.md,
+                mainAxisExtent: 400,
+              ),
+              itemCount: products.length,
+              itemBuilder: (_, index) {
+                final product = products[index];
+                return ProductCard(
+                  product: product,
+                  onFavorite: favoriteProductBusyIds.contains(product.id)
+                      ? null
+                      : () => _toggleProductFavorite(product),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ProductDetailScreen(
+                        repository: widget.repository,
+                        productId: product.id,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
           return Padding(
             padding: const EdgeInsets.all(AssalSpacing.lg),
-            child: AssalStateView<List<AssalProductSummary>>(
-              state: snapshot.data!,
-              builder: (products) => products.isEmpty
-                  ? const AssalMessageCard(
-                      icon: Icons.inventory_2_outlined,
-                      message: 'لا توجد منتجات منشورة في هذا المتجر بعد.')
-                  : GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 220,
-                        crossAxisSpacing: AssalSpacing.md,
-                        mainAxisSpacing: AssalSpacing.md,
-                        mainAxisExtent: 400,
-                      ),
-                      itemCount: products.length,
-                      itemBuilder: (_, index) {
-                        final product = products[index];
-                        return ProductCard(
-                          product: product,
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ProductDetailScreen(
-                                repository: widget.repository,
-                                productId: product.id,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-            ),
+            child: hasProducts
+                ? stateView
+                : SingleChildScrollView(child: stateView),
           );
         },
       );
@@ -1074,70 +1163,70 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   Widget _contactTab(AssalStoreSummary store) {
     final socialLinks = _publicSocialLinks(store);
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(AssalSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SectionHeader(title: 'قنوات التواصل'),
-            if (socialLinks.isEmpty && store.contactPhone == null)
-              const AssalMessageCard(
-                icon: Icons.forum_outlined,
-                message: 'لم يضف المتجر قنوات تواصل بعد.',
-              )
-            else ...[
-              if (store.contactPhone != null)
-                ActionChip(
-                  avatar: const Icon(Icons.phone_outlined, size: 16),
-                  label: const Text('الهاتف'),
-                  onPressed: () => _openContact('phone', store.contactPhone!),
-                ),
-              if (socialLinks.isNotEmpty)
-                Wrap(
-                  spacing: AssalSpacing.sm,
-                  runSpacing: AssalSpacing.sm,
-                  children: socialLinks.entries
-                      .map((entry) => ActionChip(
-                            avatar: Icon(_socialIcon(entry.key), size: 16),
-                            label: Text(_socialLabel(entry.key)),
-                            onPressed: () =>
-                                _openContact(entry.key, entry.value),
-                          ))
-                      .toList(),
-                ),
-            ],
-            const SizedBox(height: AssalSpacing.lg),
-            const SectionHeader(title: 'التسليم والاستلام'),
-            if (store.deliveryOptions.isEmpty && store.pickupLocations.isEmpty)
-              const AssalMessageCard(
-                icon: Icons.local_shipping_outlined,
-                message: 'لم يحدد المتجر خيارات التسليم أو الاستلام بعد.',
-              )
-            else ...[
-              if (store.deliveryOptions.isNotEmpty)
-                _storeInfoRow(Icons.local_shipping_outlined, 'التوصيل',
-                    store.deliveryOptions.join('، ')),
-              if (store.pickupLocations.isNotEmpty)
-                _storeInfoRow(Icons.location_on_outlined, 'الاستلام',
-                    store.pickupLocations.join('، ')),
-            ],
-            const SizedBox(height: AssalSpacing.lg),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: contactBusy ? null : () => _openConversation(store),
-                icon: contactBusy
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.forum_outlined),
-                label: Text(contactBusy ? 'جارٍ فتح المراسلة...' : 'مراسلة التاجر'),
+      padding: const EdgeInsets.all(AssalSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: 'قنوات التواصل'),
+          if (socialLinks.isEmpty && store.contactPhone == null)
+            const AssalMessageCard(
+              icon: Icons.forum_outlined,
+              message: 'لم يضف المتجر قنوات تواصل بعد.',
+            )
+          else ...[
+            if (store.contactPhone != null)
+              ActionChip(
+                avatar: const Icon(Icons.phone_outlined, size: 16),
+                label: const Text('الهاتف'),
+                onPressed: () => _openContact('phone', store.contactPhone!),
               ),
-            ),
+            if (socialLinks.isNotEmpty)
+              Wrap(
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: socialLinks.entries
+                    .map((entry) => ActionChip(
+                          avatar: Icon(_socialIcon(entry.key), size: 16),
+                          label: Text(_socialLabel(entry.key)),
+                          onPressed: () => _openContact(entry.key, entry.value),
+                        ))
+                    .toList(),
+              ),
           ],
-        ),
-      );
+          const SizedBox(height: AssalSpacing.lg),
+          const SectionHeader(title: 'التسليم والاستلام'),
+          if (store.deliveryOptions.isEmpty && store.pickupLocations.isEmpty)
+            const AssalMessageCard(
+              icon: Icons.local_shipping_outlined,
+              message: 'لم يحدد المتجر خيارات التسليم أو الاستلام بعد.',
+            )
+          else ...[
+            if (store.deliveryOptions.isNotEmpty)
+              _storeInfoRow(Icons.local_shipping_outlined, 'التوصيل',
+                  store.deliveryOptions.join('، ')),
+            if (store.pickupLocations.isNotEmpty)
+              _storeInfoRow(Icons.location_on_outlined, 'الاستلام',
+                  store.pickupLocations.join('، ')),
+          ],
+          const SizedBox(height: AssalSpacing.lg),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: contactBusy ? null : () => _openConversation(store),
+              icon: contactBusy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.forum_outlined),
+              label:
+                  Text(contactBusy ? 'جارٍ فتح المراسلة...' : 'مراسلة التاجر'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Map<String, String> _publicSocialLinks(AssalStoreSummary store) {
@@ -1230,8 +1319,6 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       leading: Icon(icon, color: AssalColors.primaryDark),
       title: Text(label),
       subtitle: Text(value));
-
-
 }
 
 String _socialLabel(String key) => switch (key) {
