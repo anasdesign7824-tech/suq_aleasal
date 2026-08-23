@@ -915,3 +915,7 @@
 ## TASK 053 — تعديل منتج في Admin
 
 جُرد `ProductEditPanel` و`updateProduct` للتحقق من تعديل الهوية والوصف والتصنيف والنوع والجودة والسعر والعملة والحالة وmetadata والصور. تبين أن الحفظ يرسل قائمة الصور صراحة، فيستبدل الخادم صور `product_images` المرتبة ويسجل `product.update` مع صلاحية `product.write`؛ الإغلاق لا يحفظ و`onSaved` يحدّث الموجز والقائمة. نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 053 منع golden وسُجل GAP-027، دون write حي أو تغيير DB/API/RLS/permissions.
+
+## TASK 054 — إدارة المتاجر في Admin
+
+جُردت `StoresPanel` ومسارات `adminApi.stores` و`moderateStore` و`deleteStore`. القائمة توفر حالات loading/error/empty/retry، fallback آمنًا للصور، تفاصيل Sheet، وأفعالًا مشروطة بالحالة مع confirmation؛ ويترجم الخادم approve/reject/suspend/reactivate إلى صلاحية وRPC `admin_moderate_store` وسجل تدقيق وإشعار/مزامنة من payload القائم. لم تُخلط حالة فتح المتجر مع توثيق Pro، ونجحت اختبارات Admin الثمانية و`pnpm check` و`pnpm build`؛ غياب أصول TASK 054 منع golden وسُجل GAP-028.

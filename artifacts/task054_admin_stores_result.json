@@ -1,0 +1,32 @@
+{
+  "task": "054",
+  "scope": "admin stores list and moderation",
+  "sourceAssets": {
+    "markdown": false,
+    "png": false,
+    "expectedPngDimensions": "1600x1000"
+  },
+  "sourcePath": [
+    "apps/admin_web/client/src/pages/Home.tsx",
+    "apps/admin_web/client/src/lib/admin-api.ts",
+    "apps/admin_web/server/admin-data.ts"
+  ],
+  "verifiedActions": [
+    "store list loading/error/empty/refresh",
+    "store logo or cover safe fallback",
+    "details sheet",
+    "pending approve and reject",
+    "active suspend",
+    "rejected/suspended/paused reactivate",
+    "delete with confirmation",
+    "server permission and moderation RPC/audit boundary"
+  ],
+  "changes": [],
+  "tests": {
+    "pnpm test": "PASS — 8 files",
+    "pnpm check": "PASS",
+    "pnpm build": "PASS"
+  },
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
