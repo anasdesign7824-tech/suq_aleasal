@@ -880,56 +880,20 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     }
   }
 
-  Future<void> _showFollowers() async {
+  Future<void> _showFollowers(AssalStoreSummary store) async {
     if (followersBusy) return;
     setState(() => followersBusy = true);
     try {
-      final result = await widget.repository.listStoreFollowers(widget.storeId);
-      if (!mounted) return;
-      if (result is AssalData<AssalStoreFollowersPage>) {
-        final page = result.value;
-        await showDialog<void>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: const Text('متابعو المتجر'),
-            content: SizedBox(
-              width: 360,
-              child: page.items.isEmpty
-                  ? const Text('لا يوجد متابعون ظاهرون بعد.')
-                  : ListView.separated(
-                      shrinkWrap: true,
-                      itemCount: page.items.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (_, index) {
-                        final follower = page.items[index];
-                        final avatar = follower.avatarUrl;
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                avatar != null ? NetworkImage(avatar) : null,
-                            child: avatar == null
-                                ? const Icon(Icons.person_outline)
-                                : null,
-                          ),
-                          title: Text(follower.displayName),
-                        );
-                      },
-                    ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('إغلاق'),
-              ),
-            ],
-          ),
-        );
-      } else if (result is AssalError<AssalStoreFollowersPage>) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result.messageAr)),
-        );
-      }
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => _StoreFollowersSheet(
+          loadPage: () => widget.repository.listStoreFollowers(widget.storeId),
+          totalFallback: store.followersCount,
+        ),
+      );
     } finally {
       if (mounted) setState(() => followersBusy = false);
     }
@@ -1005,7 +969,7 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       isFollowing: following,
       followBusy: followBusy,
       onFollow: _toggleFollow,
-      onFollowersTap: followersBusy ? null : _showFollowers,
+      onFollowersTap: followersBusy ? null : () => _showFollowers(store),
       followersCountOverride: displayedFollowers < 0 ? 0 : displayedFollowers,
     );
   }
@@ -1358,6 +1322,197 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
       leading: Icon(icon, color: AssalColors.primaryDark),
       title: Text(label),
       subtitle: Text(value));
+}
+
+class _StoreFollowersSheet extends StatefulWidget {
+  const _StoreFollowersSheet({
+    required this.loadPage,
+    required this.totalFallback,
+  });
+
+  final Future<AssalLoadState<AssalStoreFollowersPage>> Function() loadPage;
+  final int totalFallback;
+
+  @override
+  State<_StoreFollowersSheet> createState() => _StoreFollowersSheetState();
+}
+
+class _StoreFollowersSheetState extends State<_StoreFollowersSheet> {
+  late Future<AssalLoadState<AssalStoreFollowersPage>> pageFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    pageFuture = widget.loadPage();
+  }
+
+  void _retry() {
+    setState(() {
+      pageFuture = widget.loadPage();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * .86,
+        ),
+        decoration: const BoxDecoration(
+          color: AssalColors.cream,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AssalRadius.large),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: AssalSpacing.sm),
+            Container(
+              width: 56,
+              height: 5,
+              decoration: BoxDecoration(
+                color: AssalColors.textMuted.withValues(alpha: .3),
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AssalSpacing.lg,
+                AssalSpacing.md,
+                AssalSpacing.sm,
+                AssalSpacing.md,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child:
+                        FutureBuilder<AssalLoadState<AssalStoreFollowersPage>>(
+                      future: pageFuture,
+                      builder: (context, snapshot) {
+                        final total =
+                            snapshot.data is AssalData<AssalStoreFollowersPage>
+                                ? (snapshot.data!
+                                        as AssalData<AssalStoreFollowersPage>)
+                                    .value
+                                    .total
+                                : widget.totalFallback;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            const Text(
+                              'متابعو المتجر',
+                              style: AssalTypography.heading2,
+                            ),
+                            Text(
+                              'إجمالي المتابعين: ${_formatCompactCount(total)}',
+                              style: AssalTypography.body.copyWith(
+                                color: AssalColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    tooltip: 'إغلاق',
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Flexible(
+              child: FutureBuilder<AssalLoadState<AssalStoreFollowersPage>>(
+                future: pageFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return SingleChildScrollView(
+                      child: AssalMessageCard(
+                        icon: Icons.wifi_off_outlined,
+                        message:
+                            'تعذر تحميل المتابعين الآن. تحقق من الاتصال ثم أعد المحاولة.',
+                        onRetry: _retry,
+                      ),
+                    );
+                  }
+                  if (!snapshot.hasData) return const AssalGlassLoading();
+                  return AssalStateView<AssalStoreFollowersPage>(
+                    state: snapshot.data!,
+                    onRetry: _retry,
+                    emptyMessageAr: 'لا يوجد متابعون ظاهرون بعد.',
+                    builder: (page) => page.items.isEmpty
+                        ? AssalMessageCard(
+                            icon: Icons.people_outline,
+                            message: 'لا يوجد متابعون ظاهرون بعد.',
+                            onRetry: _retry,
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.all(AssalSpacing.lg),
+                            itemCount: page.items.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: AssalSpacing.sm),
+                            itemBuilder: (_, index) {
+                              final follower = page.items[index];
+                              final avatar = follower.avatarUrl;
+                              return Card(
+                                margin: EdgeInsets.zero,
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: AssalSpacing.md,
+                                  ),
+                                  leading: CircleAvatar(
+                                    backgroundImage: avatar != null &&
+                                            avatar.startsWith('http')
+                                        ? NetworkImage(avatar)
+                                        : null,
+                                    child: avatar == null ||
+                                            !avatar.startsWith('http')
+                                        ? const Icon(Icons.person_outline)
+                                        : null,
+                                  ),
+                                  title: Text(follower.displayName),
+                                  subtitle: Text(
+                                    follower.followedAt == null
+                                        ? 'تاريخ المتابعة غير متاح'
+                                        : 'تاريخ المتابعة: ${_formatFollowerDate(follower.followedAt!)}',
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+String _formatCompactCount(int count) {
+  if (count < 1000) return '$count';
+  final value = count / 1000;
+  return '${value.toStringAsFixed(value >= 10 ? 0 : 1)}K';
+}
+
+String _formatFollowerDate(DateTime date) {
+  const months = <String>[
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
+  ];
+  return '${date.day} ${months[date.month - 1]} ${date.year}';
 }
 
 String _socialLabel(String key) => switch (key) {
