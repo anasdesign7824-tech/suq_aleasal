@@ -78,7 +78,9 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: AssalSpacing.x3l),
               Text(
-                registerMode ? 'ابدأ تجربتك مع عسلكم' : 'مرحبًا بك في عسلكم',
+                registerMode
+                    ? 'إنشاء وتأكيد كلمة المرور'
+                    : 'مرحبًا بك في عسلكم',
                 textAlign: TextAlign.center,
                 style: AssalTypography.heading1.copyWith(
                   color: AssalColors.deepBrown,
@@ -87,7 +89,7 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(height: AssalSpacing.sm),
               Text(
                 registerMode
-                    ? 'أنشئ حسابك للوصول إلى الحفظ والمتابعة والطلبات والمراسلة.'
+                    ? 'أنشئ كلمة مرورك. ستستخدمها لتأمين حسابك.'
                     : 'أدخل بريدك الإلكتروني للمتابعة',
                 textAlign: TextAlign.center,
                 style: AssalTypography.bodyLarge.copyWith(
@@ -97,12 +99,14 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(height: AssalSpacing.xl),
               if (registerMode) ...[
                 TextField(
+                    key: const ValueKey('auth-name'),
                     controller: nameController,
                     textInputAction: TextInputAction.next,
                     decoration: const InputDecoration(labelText: 'الاسم')),
                 const SizedBox(height: AssalSpacing.md)
               ],
               TextField(
+                  key: const ValueKey('auth-email'),
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: registerMode
@@ -116,6 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
               if (registerMode) ...[
                 const SizedBox(height: AssalSpacing.md),
                 TextField(
+                    key: const ValueKey('auth-password'),
                     controller: passwordController,
                     obscureText: true,
                     onChanged: (_) => setState(() {}),
@@ -141,6 +146,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 _PasswordStrength(value: passwordController.text),
                 const SizedBox(height: AssalSpacing.md),
                 TextField(
+                    key: const ValueKey('auth-password-confirm'),
                     controller: confirmPasswordController,
                     obscureText: true,
                     decoration:
@@ -157,7 +163,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               child: AssalGlassLoading(
                                   height: 44, label: 'جارٍ تجهيز الطلب...'))
                           : Text(registerMode
-                              ? 'إنشاء الحساب'
+                              ? 'حفظ ومتابعة'
                               : 'إرسال رمز التحقق'))),
               const SizedBox(height: AssalSpacing.sm),
               TextButton(
@@ -529,8 +535,13 @@ class _PasswordStrength extends StatelessWidget {
     ];
     final asciiOnly =
         value.isEmpty || RegExp(r'^[\x21-\x7E]+$').hasMatch(value);
+    final validChecks = checks.where((check) => check.valid).length;
     final strong = asciiOnly && checks.every((check) => check.valid);
-    final color = strong ? AssalColors.success : AssalColors.error;
+    final medium = asciiOnly && !strong && validChecks >= 2;
+    final color = strong
+        ? AssalColors.success
+        : (medium ? AssalColors.warning : AssalColors.error);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AssalSpacing.sm),
@@ -543,7 +554,9 @@ class _PasswordStrength extends StatelessWidget {
         Text(
             !asciiOnly && value.isNotEmpty
                 ? 'استخدم الحروف الإنجليزية والأرقام والرموز فقط'
-                : (strong ? 'كلمة المرور قوية' : 'كلمة المرور تحتاج إلى تقوية'),
+                : (strong
+                    ? 'كلمة المرور قوية'
+                    : (medium ? 'كلمة المرور متوسطة' : 'كلمة المرور ضعيفة')),
             style: AssalTypography.caption
                 .copyWith(color: color, fontWeight: FontWeight.w700)),
         const SizedBox(height: AssalSpacing.xs),
