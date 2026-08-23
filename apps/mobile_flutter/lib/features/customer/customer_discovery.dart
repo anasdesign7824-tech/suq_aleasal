@@ -1687,7 +1687,7 @@ class _SearchScreenState extends State<SearchScreen> {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
-              hintText: 'اكتب اسم المنتج أو المنطقة',
+              hintText: 'ابحث عن منتج أو متجر',
               suffixIcon: IconButton(
                   onPressed: () {
                     controller.clear();
@@ -1779,7 +1779,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 padding: const EdgeInsets.fromLTRB(
                     AssalSpacing.lg, 0, AssalSpacing.lg, AssalSpacing.xl),
                 children: [
-                  const SectionHeader(title: 'المنتجات'),
+                  const SectionHeader(title: 'نتائج البحث'),
                   FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
                     future: productsFuture,
                     builder: (context, snapshot) {
