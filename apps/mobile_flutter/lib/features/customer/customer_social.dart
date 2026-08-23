@@ -172,43 +172,67 @@ class _ReviewComposerDialogState extends State<_ReviewComposerDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('مراجعتك'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        backgroundColor: AssalColors.cream,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AssalRadius.large),
+        ),
+        title: Row(
           children: [
-            DropdownButtonFormField<int>(
-              initialValue: rating,
-              decoration: const InputDecoration(labelText: 'التقييم'),
-              items: [1, 2, 3, 4, 5]
-                  .map<DropdownMenuItem<int>>(
-                    (item) => DropdownMenuItem(
-                      value: item,
-                      child: Text('$item نجوم'),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => rating = value ?? 5),
-            ),
-            const SizedBox(height: AssalSpacing.sm),
-            TextField(
-              controller: body,
-              minLines: 2,
-              maxLines: 4,
-              textInputAction: TextInputAction.newline,
-              onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(
-                labelText: 'نص المراجعة',
-                hintText: 'شارك ما يفيد الآخرين',
+            const Icon(Icons.rate_review_outlined, color: AssalColors.primaryDark),
+            const SizedBox(width: AssalSpacing.sm),
+            Expanded(
+              child: Text(
+                'مراجعتك',
+                style: AssalTypography.heading3.copyWith(
+                  color: AssalColors.deepBrown,
+                ),
               ),
             ),
           ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('اختر تقييمك من 1 إلى 5 نجوم'),
+              const SizedBox(height: AssalSpacing.sm),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: AssalSpacing.sm,
+                runSpacing: AssalSpacing.sm,
+                children: [1, 2, 3, 4, 5]
+                    .map(
+                      (item) => ChoiceChip(
+                        label: Text('$item ★'),
+                        selected: rating == item,
+                        onSelected: (_) => setState(() => rating = item),
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: AssalSpacing.md),
+              TextField(
+                controller: body,
+                minLines: 3,
+                maxLines: 6,
+                textInputAction: TextInputAction.newline,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
+                  labelText: 'نص المراجعة',
+                  hintText: 'شارك ما يفيد الآخرين',
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('إلغاء'),
           ),
-          FilledButton(
+          FilledButton.icon(
             onPressed: body.text.trim().isEmpty
                 ? null
                 : () => Navigator.of(context).pop(
@@ -219,7 +243,8 @@ class _ReviewComposerDialogState extends State<_ReviewComposerDialog> {
                         body: body.text.trim(),
                       ),
                     ),
-            child: const Text('نشر'),
+            icon: const Icon(Icons.publish_outlined),
+            label: const Text('نشر'),
           ),
         ],
       );
