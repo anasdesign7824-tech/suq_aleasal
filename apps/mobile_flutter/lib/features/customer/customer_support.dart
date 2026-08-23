@@ -5,7 +5,7 @@ import 'package:assalkom_design/assal_tokens.dart';
 
 import '../../core/assal_widgets.dart';
 
-class SupportCenterScreen extends StatelessWidget {
+class SupportCenterScreen extends StatefulWidget {
   const SupportCenterScreen({
     super.key,
     required this.repository,
@@ -18,77 +18,43 @@ class SupportCenterScreen extends StatelessWidget {
   final int designRequestsRemaining;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: const AssalAppBar(title: 'المساعدة والدعم'),
-        body: ListView(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
-          children: [
-            const AssalBrandMark(showName: true),
-            const SizedBox(height: AssalSpacing.lg),
-            const SectionHeader(title: 'مركز المساعدة'),
-            const SizedBox(height: AssalSpacing.sm),
-            _faq(
-              'كيف أتابع المتجر أو أحفظ المنتج؟',
-              'افتح بطاقة المتجر أو المنتج واضغط زر المتابعة أو الحفظ. ستظهر العناصر في تبويبها المنفصل داخل المحفوظات والمتابعات.',
-            ),
-            _faq(
-              'متى يظهر المتجر أو المنتج للعملاء؟',
-              'يمكن للتاجر تجهيز متجره ومنتجاته مباشرة، لكن الظهور العام يتبع حالة التفعيل والمراجعة في لوحة الإدارة.',
-            ),
-            _faq(
-              'ماذا أفعل إذا لم تتزامن البيانات؟',
-              'استخدم زر إعادة المحاولة في الحالة الظاهرة، وتأكد من الاتصال. لا تُكرر العملية إذا كانت قيد الإرسال؛ ستظهر نتيجة النجاح أو الفشل بوضوح.',
-            ),
-            const SizedBox(height: AssalSpacing.lg),
-            const SectionHeader(title: 'التواصل مع الدعم'),
-            const SizedBox(height: AssalSpacing.sm),
-            AssalActionTile(
-              icon: Icons.support_agent_outlined,
-              title: 'الدعم الفني',
-              subtitle: 'تواصل مع فريق عسلكم عبر بريد الدعم الرسمي',
-              onTap: () => _showSupportContact(context),
-            ),
-            const SizedBox(height: AssalSpacing.sm),
-            AssalActionTile(
-              icon: Icons.help_outline,
-              title: 'المساعدة العامة',
-              subtitle: 'شرح مختصر للتصفح والمتابعة والشراء وإدارة المتجر',
-              onTap: () => _showHelpSummary(context),
-            ),
-            if (storeId != null) ...[
-              const SizedBox(height: AssalSpacing.lg),
-              const SectionHeader(title: 'خدمات الهوية والتصميم'),
-              const SizedBox(height: AssalSpacing.sm),
-              AssalActionTile(
-                icon: Icons.design_services_outlined,
-                title: 'طلب تصميم إضافي',
-                subtitle: designRequestsRemaining > 0
-                    ? 'متاح ضمن خطتك — المتبقي: $designRequestsRemaining'
-                    : 'هذه الميزة تحتاج إلى خطة تتضمن خدمة التصميم',
-                trailing: designRequestsRemaining > 0
-                    ? const AssalPremiumBadge(label: 'ميزة مدفوعة', compact: true)
-                    : const Icon(Icons.lock_outline),
-                onTap: designRequestsRemaining > 0
-                    ? () async {
-                        await Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => DesignRequestScreen(
-                            repository: repository,
-                            storeId: storeId!,
-                          ),
-                        ));
-                      }
-                    : () => _showUpgradeMessage(context),
-              ),
-            ],
-          ],
-        ),
-      );
+  State<SupportCenterScreen> createState() => _SupportCenterScreenState();
+}
+
+class _SupportCenterScreenState extends State<SupportCenterScreen> {
+  late Future<AssalSession> sessionFuture;
+  final formKey = GlobalKey<FormState>();
+  final subjectController = TextEditingController();
+  final detailsController = TextEditingController();
+  bool submitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    sessionFuture = widget.repository.getSession();
+  }
+
+  @override
+  void dispose() {
+    subjectController.dispose();
+    detailsController.dispose();
+    super.dispose();
+  }
+
+  void _retry() {
+    final refreshed = widget.repository.getSession();
+    setState(() {
+      sessionFuture = refreshed;
+    });
+  }
 
   Widget _faq(String title, String body) => Card(
         margin: const EdgeInsets.only(bottom: AssalSpacing.sm),
         child: ExpansionTile(
-          leading: const Icon(Icons.question_mark_outlined,
-              color: AssalColors.primaryDark),
+          leading: const Icon(
+            Icons.question_mark_outlined,
+            color: AssalColors.primaryDark,
+          ),
           title: Text(title),
           childrenPadding: const EdgeInsets.fromLTRB(
             AssalSpacing.lg,
@@ -142,10 +108,180 @@ class SupportCenterScreen extends StatelessWidget {
         ),
       );
 
-  void _showUpgradeMessage(BuildContext context) => ScaffoldMessenger.of(context)
-      .showSnackBar(const SnackBar(
+  void _showSupportContractLimit(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'إرسال تذكرة الدعم ورفع المرفقات غير متاحين بعد؛ استخدم بريد الدعم الرسمي حاليًا.',
+        ),
+      ),
+    );
+  }
+
+  void _showUpgradeMessage(BuildContext context) =>
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('خدمة التصميم الإضافية متاحة في الخطط التي تتضمنها.'),
       ));
+
+  Widget _authenticatedBody() => Form(
+        key: formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          children: [
+            const AssalBrandMark(showName: true),
+            const SizedBox(height: AssalSpacing.lg),
+            const SectionHeader(title: 'مركز المساعدة'),
+            const SizedBox(height: AssalSpacing.sm),
+            _faq(
+              'كيف أتابع المتجر أو أحفظ المنتج؟',
+              'افتح بطاقة المتجر أو المنتج واضغط زر المتابعة أو الحفظ. ستظهر العناصر في تبويبها المنفصل داخل المحفوظات والمتابعات.',
+            ),
+            _faq(
+              'متى يظهر المتجر أو المنتج للعملاء؟',
+              'يمكن للتاجر تجهيز متجره ومنتجاته مباشرة، لكن الظهور العام يتبع حالة التفعيل والمراجعة في لوحة الإدارة.',
+            ),
+            _faq(
+              'ماذا أفعل إذا لم تتزامن البيانات؟',
+              'استخدم زر إعادة المحاولة في الحالة الظاهرة، وتأكد من الاتصال. لا تُكرر العملية إذا كانت قيد الإرسال؛ ستظهر نتيجة النجاح أو الفشل بوضوح.',
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            const SectionHeader(title: 'إرسال طلب الدعم'),
+            const SizedBox(height: AssalSpacing.sm),
+            TextFormField(
+              controller: subjectController,
+              decoration: const InputDecoration(
+                labelText: 'موضوع الطلب',
+                prefixIcon: Icon(Icons.subject_outlined),
+              ),
+              validator: (value) => value == null || value.trim().isEmpty
+                  ? 'أدخل موضوع الطلب'
+                  : null,
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            TextFormField(
+              controller: detailsController,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                labelText: 'تفاصيل المشكلة',
+                hintText: 'اشرح المشكلة والخطوات التي سبقتها',
+                prefixIcon: Icon(Icons.description_outlined),
+              ),
+              validator: (value) => value == null || value.trim().length < 10
+                  ? 'اكتب تفاصيل لا تقل عن عشرة أحرف'
+                  : null,
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            ListTile(
+              leading: const Icon(Icons.attach_file_outlined),
+              title: const Text('إرفاق صورة أو مستند'),
+              subtitle:
+                  const Text('يتطلب عقد رفع مرفقات للدعم غير متاح حاليًا'),
+              trailing: const Icon(Icons.lock_outline),
+              onTap:
+                  submitting ? null : () => _showSupportContractLimit(context),
+            ),
+            const SizedBox(height: AssalSpacing.md),
+            FilledButton.icon(
+              onPressed: submitting ? null : _submitSupportRequest,
+              icon: const Icon(Icons.send_outlined),
+              label: const Text('إرسال طلب الدعم'),
+            ),
+            const SizedBox(height: AssalSpacing.lg),
+            const SectionHeader(title: 'طلبات الدعم السابقة'),
+            const AssalMessageCard(
+              icon: Icons.inbox_outlined,
+              message:
+                  'لا يمكن عرض طلبات الدعم السابقة قبل توفر عقد خدمة الدعم.',
+            ),
+            const SizedBox(height: AssalSpacing.sm),
+            AssalActionTile(
+              icon: Icons.support_agent_outlined,
+              title: 'التواصل مع الدعم الفني',
+              subtitle: 'استخدم بريد الدعم الرسمي حتى تتوفر خدمة التذاكر',
+              onTap: () => _showSupportContact(context),
+            ),
+            const SizedBox(height: AssalSpacing.sm),
+            AssalActionTile(
+              icon: Icons.help_outline,
+              title: 'المساعدة العامة',
+              subtitle: 'شرح مختصر للتصفح والمتابعة والطلبات وإدارة المتجر',
+              onTap: () => _showHelpSummary(context),
+            ),
+            if (widget.storeId != null) ...[
+              const SizedBox(height: AssalSpacing.lg),
+              const SectionHeader(title: 'خدمات الهوية والتصميم'),
+              const SizedBox(height: AssalSpacing.sm),
+              AssalActionTile(
+                icon: Icons.design_services_outlined,
+                title: 'طلب تصميم إضافي',
+                subtitle: widget.designRequestsRemaining > 0
+                    ? 'متاح ضمن خطتك — المتبقي: ${widget.designRequestsRemaining}'
+                    : 'هذه الميزة تحتاج إلى خطة تتضمن خدمة التصميم',
+                trailing: widget.designRequestsRemaining > 0
+                    ? const AssalPremiumBadge(
+                        label: 'ميزة مدفوعة',
+                        compact: true,
+                      )
+                    : const Icon(Icons.lock_outline),
+                onTap: widget.designRequestsRemaining > 0
+                    ? () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => DesignRequestScreen(
+                            repository: widget.repository,
+                            storeId: widget.storeId!,
+                          ),
+                        ))
+                    : () => _showUpgradeMessage(context),
+              ),
+            ],
+          ],
+        ),
+      );
+
+  void _submitSupportRequest() {
+    if (!(formKey.currentState?.validate() ?? false)) return;
+    _showSupportContractLimit(context);
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: const AssalAppBar(title: 'الدعم الفني'),
+        body: FutureBuilder<AssalSession>(
+          future: sessionFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const AssalGlassLoading();
+            }
+            if (snapshot.hasError) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: 'تعذر تحميل البيانات الآن.',
+                onRetry: _retry,
+              );
+            }
+            final session = snapshot.data ?? AssalSession.guest;
+            if (session.isUnavailable) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+                onRetry: _retry,
+              );
+            }
+            if (!session.isAuthenticated || session.user == null) {
+              return Center(
+                child: FilledButton(
+                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('افتح تسجيل الدخول من صفحة الحساب أولًا.'),
+                    ),
+                  ),
+                  child: const Text('تسجيل الدخول للتواصل مع الدعم'),
+                ),
+              );
+            }
+            return _authenticatedBody();
+          },
+        ),
+      );
 }
 
 class DesignRequestScreen extends StatefulWidget {
@@ -246,7 +382,8 @@ class _DesignRequestScreenState extends State<DesignRequestScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.send_outlined),
-                label: Text(submitting ? 'جارٍ إرسال الطلب...' : 'إرسال طلب التصميم'),
+                label: Text(
+                    submitting ? 'جارٍ إرسال الطلب...' : 'إرسال طلب التصميم'),
               ),
             ),
           ],
