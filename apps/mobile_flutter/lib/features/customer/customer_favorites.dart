@@ -8,14 +8,20 @@ import 'customer_core.dart';
 import 'customer_discovery.dart';
 
 class FavoritesScreen extends StatefulWidget {
-  const FavoritesScreen({super.key, required this.repository});
+  const FavoritesScreen({
+    super.key,
+    required this.repository,
+    this.initialTab = 0,
+  });
   final AssalRepository repository;
+  final int initialTab;
 
   @override
   State<FavoritesScreen> createState() => _FavoritesScreenState();
 }
 
-class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProviderStateMixin {
+class _FavoritesScreenState extends State<FavoritesScreen>
+    with SingleTickerProviderStateMixin {
   late final TabController tabs;
   Future<AssalLoadState<List<AssalProductSummary>>>? productsFuture;
   Future<AssalLoadState<List<AssalStoreSummary>>>? storesFuture;
@@ -25,7 +31,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    tabs = TabController(length: 3, vsync: this);
+    tabs = TabController(
+      length: 3,
+      initialIndex: widget.initialTab.clamp(0, 2),
+      vsync: this,
+    );
   }
 
   void _load(String userId) {
@@ -83,7 +93,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
                 ],
               ),
             ),
-            body: TabBarView(controller: tabs, children: [_products(), _stores(), _taxonomies()]),
+            body: TabBarView(
+                controller: tabs,
+                children: [_products(), _stores(), _taxonomies()]),
           );
         },
       );
@@ -122,7 +134,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
     }
   }
 
-  Widget _products() => FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+  Widget _products() =>
+      FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture!,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const AssalGlassLoading();
@@ -131,7 +144,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
             onRetry: () => setState(() => _load(_loadedUserId!)),
             builder: (items) => GridView.builder(
               padding: const EdgeInsets.all(AssalSpacing.lg),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 220, crossAxisSpacing: AssalSpacing.md, mainAxisSpacing: AssalSpacing.md, childAspectRatio: .68),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 220,
+                  crossAxisSpacing: AssalSpacing.md,
+                  mainAxisSpacing: AssalSpacing.md,
+                  childAspectRatio: .68),
               itemCount: items.length,
               itemBuilder: (_, index) => ProductCard(
                 product: items[index],
@@ -158,11 +175,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
             builder: (items) => ListView.separated(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
+              separatorBuilder: (_, __) =>
+                  const SizedBox(height: AssalSpacing.sm),
               itemBuilder: (_, index) => AssalActionTile(
                 icon: _favoriteTaxonomyIcon(items[index].nameAr),
                 title: items[index].nameAr,
-                subtitle: items[index].description ?? 'تصنيف مرتبط بمنتجاتك المحفوظة',
+                subtitle:
+                    items[index].description ?? 'تصنيف مرتبط بمنتجاتك المحفوظة',
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => SearchScreen(
                     repository: widget.repository,
@@ -185,7 +204,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
             builder: (items) => ListView.separated(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
+              separatorBuilder: (_, __) =>
+                  const SizedBox(height: AssalSpacing.sm),
               itemBuilder: (_, index) => StoreCard(
                 store: items[index],
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
@@ -201,7 +221,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
         },
       );
 }
-
 
 IconData _favoriteTaxonomyIcon(String name) {
   if (name.contains('شمع')) return Icons.hexagon_outlined;

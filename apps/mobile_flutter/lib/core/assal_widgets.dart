@@ -199,9 +199,9 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
       child: SizedBox(
         height: height,
         width: double.infinity,
-        child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.md),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
               RotationTransition(
                 turns: _controller,
@@ -212,15 +212,21 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
                 ),
               ),
               const SizedBox(width: AssalSpacing.xs),
-              Text(
-                widget.label,
-                style: AssalTypography.bodySmall.copyWith(
-                  color: AssalColors.textSecondary,
+              Expanded(
+                child: Text(
+                  widget.label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: AssalTypography.bodySmall.copyWith(
+                    color: AssalColors.textSecondary,
+                  ),
                 ),
               ),
             ],
           ),
         ),
+
       ),
     );
   }
@@ -356,14 +362,23 @@ class SectionHeader extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
   @override
-  Widget build(BuildContext context) =>
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(title,
-            style: AssalTypography.heading3
-                .copyWith(color: AssalColors.deepBrown)),
-        if (actionLabel != null)
-          TextButton(onPressed: onAction, child: Text(actionLabel!)),
-      ]);
+  Widget build(BuildContext context) => Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AssalTypography.heading3
+                  .copyWith(color: AssalColors.deepBrown),
+            ),
+          ),
+          if (actionLabel != null)
+            TextButton(onPressed: onAction, child: Text(actionLabel!)),
+        ],
+      );
+
 }
 
 class AssalPremiumBadge extends StatelessWidget {

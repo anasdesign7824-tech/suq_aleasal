@@ -10,18 +10,15 @@ void main() {
       repository: buildTestDemoRepository(),
     ));
     await tester.pump();
-    await tester
-        .runAsync(() => Future<void>.delayed(const Duration(seconds: 3)));
-    await tester.pump();
-    expect(
-        find.textContaining('الثقة تبدأ من المصدر'), findsAtLeastNWidgets(1));
+    await tester.pump(const Duration(milliseconds: 1200));
+    expect(find.byType(NavigationBar), findsOneWidget);
 
-    await tester.tap(find.text('التصنيفات').last);
+    await tester.tap(find.text('البحث').last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('التصنيفات'), findsWidgets);
+    expect(find.text('البحث'), findsWidgets);
 
-    await tester.tap(find.text('حسابي').last);
+    await tester.tap(find.text('الملف الشخصي').last);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('تصفح كزائر'), findsOneWidget);

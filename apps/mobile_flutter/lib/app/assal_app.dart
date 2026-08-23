@@ -11,7 +11,8 @@ import 'assal_theme.dart';
 import 'assal_startup.dart';
 
 class AssalApp extends StatelessWidget {
-  const AssalApp({super.key, this.repository, this.startupError, this.realtimeSync});
+  const AssalApp(
+      {super.key, this.repository, this.startupError, this.realtimeSync});
   final AssalRepository? repository;
   final String? startupError;
   final SupabaseRealtimeSync? realtimeSync;
@@ -191,12 +192,25 @@ class AssalHomeShell extends StatefulWidget {
 
 class _AssalHomeShellState extends State<AssalHomeShell> {
   late final AssalRepository repository;
+  late final List<Widget> pages;
   int selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     repository = widget.repository;
+    pages = [
+      HomeScreen(
+        repository: repository,
+        onOpenSearch: _openSearch,
+        onOpenNotifications: _openNotifications,
+      ),
+      SearchScreen(repository: repository),
+      FavoritesScreen(repository: repository, initialTab: 0),
+      FavoritesScreen(repository: repository, initialTab: 1),
+      ProfileScreen(repository: repository, showAppBar: false),
+      NotificationsScreen(repository: repository),
+    ];
     widget.realtimeSync?.start(() {
       if (mounted) setState(() {});
     });
@@ -210,44 +224,39 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      HomeScreen(
-        repository: repository,
-        onOpenSearch: _openSearch,
-        onOpenNotifications: _openNotifications,
-      ),
-      StoresScreen(repository: repository, showAppBar: false),
-      CategoriesScreen(repository: repository, showAppBar: false),
-      MessagesScreen(repository: repository, showAppBar: false),
-      ProfileScreen(repository: repository, showAppBar: false),
-    ];
     const destinations = [
       NavigationDestination(
-        icon: Icon(Icons.explore_outlined),
-        selectedIcon: Icon(Icons.explore),
-        label: 'اكتشف',
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: 'الرئيسية',
       ),
       NavigationDestination(
-        icon: Icon(Icons.storefront_outlined),
-        selectedIcon: Icon(Icons.storefront),
-        label: 'المتاجر',
+        icon: Icon(Icons.search_outlined),
+        selectedIcon: Icon(Icons.search),
+        label: 'البحث',
       ),
       NavigationDestination(
-        icon: Icon(Icons.category_outlined),
-        selectedIcon: Icon(Icons.category),
-        label: 'التصنيفات',
+        icon: Icon(Icons.bookmark_border),
+        selectedIcon: Icon(Icons.bookmark),
+        label: 'المحفوظات',
       ),
       NavigationDestination(
-        icon: Icon(Icons.forum_outlined),
-        selectedIcon: Icon(Icons.forum),
-        label: 'المراسلات',
+        icon: Icon(Icons.person_add_alt_1_outlined),
+        selectedIcon: Icon(Icons.person_add_alt_1),
+        label: 'المتابعات',
       ),
       NavigationDestination(
         icon: Icon(Icons.person_outline),
         selectedIcon: Icon(Icons.person),
-        label: 'حسابي',
+        label: 'الملف الشخصي',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.notifications_none),
+        selectedIcon: Icon(Icons.notifications),
+        label: 'الإشعارات',
       ),
     ];
+
     return LayoutBuilder(builder: (context, constraints) {
       final wide = constraints.maxWidth >= 900;
       final content = SafeArea(
@@ -259,48 +268,52 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         ),
       );
       final pageTitle = switch (selectedIndex) {
-        1 => 'المتاجر',
-        2 => 'التصنيفات',
-        3 => 'المراسلات',
-        4 => 'حسابي',
-        _ => 'عسلكم',
+        1 => 'البحث',
+        2 => 'المحفوظات',
+        3 => 'المتابعات',
+        4 => 'الملف الشخصي',
+        5 => 'الإشعارات',
+        _ => 'الرئيسية',
       };
+      final pageOwnsAppBar = <int>{1, 2, 3, 5}.contains(selectedIndex);
+
       // Desktop keeps its own framed column; mobile uses the single outer
       // Scaffold below so an AppBar is never mounted twice.
-      final wideContent = selectedIndex == 0
+      final wideContent = selectedIndex == 0 || pageOwnsAppBar
           ? content
           : Scaffold(
               backgroundColor: AssalColors.cream,
               appBar: AssalAppBar(title: pageTitle),
               body: content,
             );
+
       if (wide) {
         return Scaffold(
             backgroundColor: AssalColors.cream,
             body: Row(children: [
-          DecoratedBox(
-            decoration: const BoxDecoration(gradient: assalDarkGradient),
-            child: NavigationRail(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) =>
-                  setState(() => selectedIndex = index),
-              labelType: NavigationRailLabelType.all,
-              destinations: destinations
-                  .map((item) => NavigationRailDestination(
-                      icon: item.icon,
-                      selectedIcon: item.selectedIcon ?? item.icon,
-                      label: Text(item.label)))
-                  .toList()),
-          ),
-          Expanded(child: wideContent)
-        ]));
+              DecoratedBox(
+                decoration: const BoxDecoration(gradient: assalDarkGradient),
+                child: NavigationRail(
+                    selectedIndex: selectedIndex,
+                    onDestinationSelected: (index) =>
+                        setState(() => selectedIndex = index),
+                    labelType: NavigationRailLabelType.all,
+                    destinations: destinations
+                        .map((item) => NavigationRailDestination(
+                            icon: item.icon,
+                            selectedIcon: item.selectedIcon ?? item.icon,
+                            label: Text(item.label)))
+                        .toList()),
+              ),
+              Expanded(child: wideContent)
+            ]));
       }
       return Scaffold(
           backgroundColor: AssalColors.cream,
           // Keep the scrollable page above the navigation bar. Extending the
           // body here made the profile actions look clipped at the bottom.
           extendBody: false,
-          appBar: selectedIndex == 0
+          appBar: selectedIndex == 0 || pageOwnsAppBar
               ? null
               : AssalAppBar(title: pageTitle),
           body: content,
