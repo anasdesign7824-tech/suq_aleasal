@@ -181,7 +181,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 onPressed: loading
                     ? null
                     : () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => SupportCenterScreen(
+                          builder: (_) => HelpScreen(
                             repository: widget.repository,
                           ),
                         )),
@@ -754,7 +754,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         icon: Icons.help_outline,
         title: 'المساعدة',
         onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => SupportCenterScreen(repository: repository),
+          builder: (_) => HelpScreen(repository: repository),
         )),
       ),
       const SizedBox(height: AssalSpacing.sm),

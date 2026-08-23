@@ -5,6 +5,209 @@ import 'package:assalkom_design/assal_tokens.dart';
 
 import '../../core/assal_widgets.dart';
 
+class HelpScreen extends StatefulWidget {
+  const HelpScreen({super.key, required this.repository});
+
+  final AssalRepository repository;
+
+  @override
+  State<HelpScreen> createState() => _HelpScreenState();
+}
+
+class _HelpScreenState extends State<HelpScreen> {
+  late Future<AssalSession> sessionFuture;
+  final searchController = TextEditingController();
+  String query = '';
+
+  static const topics = <_HelpTopic>[
+    _HelpTopic(
+      category: 'الحساب والدخول',
+      question: 'كيف أنشئ حسابًا أو أسجل الدخول؟',
+      answer:
+          'استخدم البريد الإلكتروني من صفحة الدخول. الحساب الجديد يطلب كلمة مرور وتأكيد البريد، والحساب القائم يتابع عبر رمز التحقق.',
+    ),
+    _HelpTopic(
+      category: 'المتاجر والمنتجات',
+      question: 'كيف أبحث عن متجر أو منتج؟',
+      answer:
+          'استخدم حقل البحث من الصفحة الرئيسية أو افتح قائمة المتاجر والتصنيفات، ثم طبّق الفلاتر المتاحة من المصدر.',
+    ),
+    _HelpTopic(
+      category: 'الطلبات والمراسلات',
+      question: 'كيف أرسل طلبًا أو أتواصل مع التاجر؟',
+      answer:
+          'افتح تفاصيل المنتج أو المتجر، ثم استخدم سؤال التوفر أو المراسلة. ستظهر النتيجة في الطلبات أو الرسائل عند نجاح الحفظ.',
+    ),
+    _HelpTopic(
+      category: 'الصور والرفع',
+      question: 'كيف أرفع صورة للمتجر أو الملف الشخصي؟',
+      answer:
+          'اضغط زر الصورة الصغير داخل بطاقة الصورة واختر من المعرض. لا تُرسل الصورة إلا عبر عملية رفع مرتبطة بالحساب والصلاحية.',
+    ),
+    _HelpTopic(
+      category: 'الخصوصية',
+      question: 'كيف أتحكم في بياناتي؟',
+      answer:
+          'افتح الإعدادات لإدارة بيانات الحساب وتفضيلات العرض المتاحة. تظل الصلاحيات النهائية مفروضة من الجلسة والمصدر.',
+    ),
+    _HelpTopic(
+      category: 'التواصل مع الدعم',
+      question: 'ماذا أفعل إذا واجهت مشكلة؟',
+      answer:
+          'استخدم إعادة المحاولة عند ظهور خطأ اتصال، ولا تكرر الطلب أثناء الحفظ. للتواصل المباشر استخدم مركز الدعم وبريد عسلكم الرسمي.',
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    sessionFuture = widget.repository.getSession();
+    searchController.addListener(() {
+      final next = searchController.text.trim();
+      if (next != query && mounted) setState(() => query = next);
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void _retry() {
+    final refreshed = widget.repository.getSession();
+    setState(() {
+      sessionFuture = refreshed;
+    });
+  }
+
+  void _openSupport() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SupportCenterScreen(repository: widget.repository),
+      ),
+    );
+  }
+
+  Widget _content() {
+    final normalized = query.toLowerCase();
+    final filtered = topics
+        .where(
+          (topic) =>
+              normalized.isEmpty ||
+              topic.category.toLowerCase().contains(normalized) ||
+              topic.question.toLowerCase().contains(normalized) ||
+              topic.answer.toLowerCase().contains(normalized),
+        )
+        .toList(growable: false);
+    return ListView(
+      padding: const EdgeInsets.all(AssalSpacing.lg),
+      children: [
+        const AssalBrandMark(showName: true),
+        const SizedBox(height: AssalSpacing.lg),
+        const Text(
+          'ابحث في الأسئلة',
+          style: AssalTypography.heading2,
+        ),
+        const SizedBox(height: AssalSpacing.sm),
+        TextField(
+          controller: searchController,
+          decoration: const InputDecoration(
+            labelText: 'البحث في الأسئلة',
+            hintText: 'اكتب كلمة مثل: الحساب أو الطلبات',
+            prefixIcon: Icon(Icons.search_outlined),
+            suffixIcon: Icon(Icons.tune_outlined),
+          ),
+        ),
+        const SizedBox(height: AssalSpacing.lg),
+        if (filtered.isEmpty)
+          const AssalMessageCard(
+            icon: Icons.search_off_outlined,
+            message: 'لا توجد أسئلة مطابقة. جرّب كلمة أخرى أو تواصل مع الدعم.',
+          )
+        else
+          for (final topic in filtered)
+            Card(
+              margin: const EdgeInsets.only(bottom: AssalSpacing.sm),
+              child: ExpansionTile(
+                leading: const Icon(
+                  Icons.help_outline_rounded,
+                  color: AssalColors.primaryDark,
+                ),
+                title: Text(topic.question),
+                subtitle: Text(topic.category),
+                childrenPadding: const EdgeInsets.fromLTRB(
+                  AssalSpacing.lg,
+                  0,
+                  AssalSpacing.lg,
+                  AssalSpacing.lg,
+                ),
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      topic.answer,
+                      style: AssalTypography.body.copyWith(
+                        color: AssalColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        const SizedBox(height: AssalSpacing.md),
+        AssalActionTile(
+          icon: Icons.support_agent_outlined,
+          title: 'التواصل مع الدعم',
+          subtitle: 'افتح مركز الدعم أو استخدم بريد عسلكم الرسمي',
+          onTap: _openSupport,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: const AssalAppBar(title: 'المساعدة'),
+        body: FutureBuilder<AssalSession>(
+          future: sessionFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const AssalGlassLoading();
+            }
+            if (snapshot.hasError) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: 'تعذر تحميل البيانات الآن.',
+                onRetry: _retry,
+              );
+            }
+            final session = snapshot.data ?? AssalSession.guest;
+            if (session.isUnavailable) {
+              return AssalMessageCard(
+                icon: Icons.sync_problem_outlined,
+                message: session.errorMessageAr ?? 'تعذر مزامنة الحساب الآن.',
+                onRetry: _retry,
+              );
+            }
+            return _content();
+          },
+        ),
+      );
+}
+
+class _HelpTopic {
+  const _HelpTopic({
+    required this.category,
+    required this.question,
+    required this.answer,
+  });
+
+  final String category;
+  final String question;
+  final String answer;
+}
+
 class SupportCenterScreen extends StatefulWidget {
   const SupportCenterScreen({
     super.key,
