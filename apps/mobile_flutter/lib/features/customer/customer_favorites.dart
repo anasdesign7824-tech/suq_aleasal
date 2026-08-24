@@ -297,6 +297,11 @@ class _FavoritesScreenState extends State<FavoritesScreen>
           return AssalStateView<List<AssalTaxonomy>>(
             state: snapshot.data!,
             onRetry: () => setState(() => _load(_loadedUserId!)),
+            emptyMessageAr:
+                'لا توجد تصنيفات مرتبطة بالمحفوظات بعد. احفظ منتجًا لاقتراح تصنيفاته.',
+            emptyActionLabel: 'استكشف المنتجات',
+            onEmptyAction: _exploreProducts,
+            emptyIcon: Icons.category_outlined,
             builder: (items) => ListView.separated(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,

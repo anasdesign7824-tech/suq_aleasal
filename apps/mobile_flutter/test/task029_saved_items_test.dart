@@ -90,7 +90,7 @@ void main() {
     expect(find.text('استكشف المنتجات'), findsOneWidget);
     await tester.tap(find.text('استكشف المنتجات'));
     await tester.pumpAndSettle();
-    expect(find.text('البحث عن منتجات'), findsOneWidget);
+    expect(find.text('ابحث عن منتج أو متجر'), findsOneWidget);
   });
 
   testWidgets('TASK 029 retries a saved products source error', (tester) async {
@@ -208,6 +208,18 @@ class _FavoritesRepository implements AssalRepository {
   @override
   Future<AssalLoadState<AssalStoreSummary>> getStore(String storeId) async =>
       const AssalData(_store);
+
+  @override
+  Future<AssalLoadState<List<AssalTaxonomy>>> listTaxonomy() async =>
+      const AssalData(<AssalTaxonomy>[]);
+
+  @override
+  Future<AssalLoadState<List<AssalCategorySummary>>> listCategories() async =>
+      const AssalData(<AssalCategorySummary>[]);
+
+  @override
+  Future<AssalLoadState<List<String>>> listPopularSearches() async =>
+      const AssalData(<String>[]);
 
   @override
   Future<AssalLoadState<List<AssalProductSummary>>> listProducts({
