@@ -1052,3 +1052,10 @@
 أثبت التدقيق البرمجي فجوة حقيقية في `ProductionRepository`: مسار `_readList` كان يلتقط مجموعة محدودة من نصوص الشبكة بحساسية حالة الأحرف، فلا يصنف رسالة عامة مثل `network unavailable` كخطأ شبكي قابل لإعادة المحاولة. كما كان `AssalAuthGateway.currentIdentity()` خارج حارس استثناء، مما قد ينتج Future فاشلًا بدل `AssalSession.unavailable`.
 
 أضيف `_isNetworkError` موحد لمساري القراءة والكتابة، وحُرس استعلام الهوية مع مسح cache الجلسة عند الفشل. نجحت اختبارات TASK 076، وregression TASK 095 للفشل الشبكي العابر، واختبارات data layer لفصل الجلسة غير المتاحة عن الضيف ورفض factory غير المهيأ. لا تغيير DB/API/RLS/permissions ولا إثبات لاتصال Production الحي أو المزامنة متعددة الأجهزة، ولم تُحدّث goldens.
+
+
+## نتيجة تنفيذ TASK 077
+
+المراجع `screens/077_state_session_expired.png` و`explanations/077_state_session_expired.md` مفقودة من checkout. كما أن عقد `AssalSession` الحالي يعرّف حالتي `guest` و`unavailable` فقط، ولا يعرّف حالة `expired` أو code مستقلًا؛ لذلك لم يُخترع عقد جديد.
+
+أثبت اختبار TASK 077 أن `AssalSession.unavailable` لا يتحول إلى بوابة تسجيل دخول صامتة، بل يعرض رسالة المزامنة وزر retry، وأن retry يعيد جلسة مصادقًا عليها ويكمل تحميل المحفوظات. نجح `flutter analyze` وregression data layer لفصل unavailable عن guest وregression بوابة الجلسة من TASK 029. يبقى السيناريو الصريح لانتهاء الجلسة غير معرّف تعاقديًا، كما يبقى القبول البصري وrefresh token/OTP الحي والمزامنة متعددة الأجهزة خارج الإثبات، ولم تُحدّث goldens.
