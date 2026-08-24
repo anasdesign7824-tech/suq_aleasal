@@ -1,0 +1,16 @@
+{
+  "task": "067",
+  "scope": "admin operational analytics",
+  "sourceAssets": {"markdown": false, "png": false, "expectedPngDimensions": "1600x1000"},
+  "changedFiles": ["apps/admin_web/client/src/components/AdminPeople.tsx"],
+  "changes": [
+    "refresh action is disabled during an analytics request",
+    "read errors now expose a visible Arabic retry action",
+    "null analytics responses no longer render an undefined last-read label or empty metric shell",
+    "production-derived counts and generatedAt remain source-backed"
+  ],
+  "verifiedStates": ["loading", "error/retry", "null response", "operational counts", "generated timestamp", "no estimated values"],
+  "tests": {"pnpm test": "PASS — 8 files", "pnpm check": "PASS", "pnpm build": "PASS"},
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
