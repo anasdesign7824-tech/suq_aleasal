@@ -3099,17 +3099,26 @@ class _StoresScreenState extends State<StoresScreen> {
                 }
                 if (!snapshot.hasData) return const AssalGlassLoading();
                 final state = snapshot.data!;
-                return AssalStateView<List<AssalStoreSummary>>(
+                                return AssalStateView<List<AssalStoreSummary>>(
                   state: state,
                   onRetry: _retry,
+                  emptyMessageAr:
+                      'لا توجد متاجر منشورة الآن. جرّب تحديث القائمة أو مسح الفلاتر.',
+                  emptyActionLabel: 'مسح البحث والفلاتر',
+                  onEmptyAction: _resetFilters,
+                  emptyIcon: Icons.store_mall_directory_outlined,
                   builder: (stores) {
                     final filtered = _filtered(stores);
                     if (filtered.isEmpty) {
-                      return const AssalMessageCard(
+                      return AssalMessageCard(
                         icon: Icons.store_mall_directory_outlined,
-                        message: 'لا توجد متاجر متاحة الآن.',
+                        message:
+                            'لا توجد متاجر مطابقة للبحث أو الفلاتر الحالية.',
+                        actionLabel: 'مسح البحث والفلاتر',
+                        onAction: _resetFilters,
                       );
                     }
+
                     return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AssalSpacing.lg,

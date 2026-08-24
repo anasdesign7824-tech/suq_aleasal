@@ -42,7 +42,10 @@ void main() {
 
     await tester.enterText(find.byType(TextField), 'غير موجود');
     await tester.pump();
-    expect(find.text('لا توجد متاجر متاحة الآن.'), findsOneWidget);
+    expect(
+      find.text('لا توجد متاجر مطابقة للبحث أو الفلاتر الحالية.'),
+      findsOneWidget,
+    );
 
     await tester.enterText(find.byType(TextField), '');
     await tester.pump();
