@@ -1459,7 +1459,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
                     selectedStatus = status;
                   }),
                 );
-                if (state is AssalData<List<AssalRequestSummary>> &&
+                                if (state is AssalData<List<AssalRequestSummary>> &&
                     state.value.isEmpty) {
                   return Column(
                     children: [
@@ -1480,6 +1480,27 @@ class _RequestsScreenState extends State<RequestsScreen> {
                     ],
                   );
                 }
+                if (state is AssalEmpty<List<AssalRequestSummary>>) {
+                  return Column(
+                    children: [
+                      filters,
+                      Expanded(
+                        child: _RequestsEmptyState(
+                          filtered: false,
+                          onRetry: () => _retryRequests(userId),
+                          onExplore: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => SearchScreen(
+                                repository: widget.repository,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
                 return AssalStateView<List<AssalRequestSummary>>(
                   state: state,
                   onRetry: () => _retryRequests(userId),
