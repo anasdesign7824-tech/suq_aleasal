@@ -1,0 +1,16 @@
+{
+  "task": "064",
+  "scope": "admin audit log",
+  "sourceAssets": {"markdown": false, "png": false, "expectedPngDimensions": "1600x1000"},
+  "changedFiles": ["apps/admin_web/client/src/components/AdminGovernance.tsx"],
+  "changes": [
+    "audit log refresh control now has an accessible label",
+    "read errors now expose an explicit Arabic retry action",
+    "visible entries now include available entity and actor identifiers",
+    "existing source-backed auditLabels and timestamp formatting remain unchanged"
+  ],
+  "verifiedStates": ["loading", "error/retry", "empty", "action/entity labels", "entity id", "actor id", "timestamp"],
+  "tests": {"pnpm test": "PASS — 8 files", "pnpm check": "PASS", "pnpm build": "PASS"},
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
