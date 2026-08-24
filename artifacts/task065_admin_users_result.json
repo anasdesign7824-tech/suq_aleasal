@@ -1,0 +1,15 @@
+{
+  "task": "065",
+  "scope": "admin users directory",
+  "sourceAssets": {"markdown": false, "png": false, "expectedPngDimensions": "1600x1000"},
+  "changedFiles": ["apps/admin_web/client/src/components/AdminPeople.tsx"],
+  "changes": [
+    "search and refresh actions are disabled while a user query is in flight",
+    "user list errors now expose an explicit Arabic retry action",
+    "existing pagination, deletion confirmation, per-user deletion guard, and source-backed fields remain unchanged"
+  ],
+  "verifiedStates": ["loading", "error/retry", "empty", "search", "pagination", "safe image fallback", "delete confirmation", "delete busy guard", "source-backed telemetry limits"],
+  "tests": {"pnpm test": "PASS — 8 files", "pnpm check": "PASS", "pnpm build": "PASS"},
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
