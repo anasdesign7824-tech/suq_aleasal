@@ -1007,3 +1007,12 @@
 أثبت التدقيق أن `RequestsScreen` كان يملك حالة مخصصة عند `AssalData([])`، لكنه كان يعيد `AssalStateView` العامة عند `AssalEmpty` المصدرية؛ بذلك قد تختفي مرشحات الحالة وCTA الاستكشاف رغم أن المصدر يعلن فراغًا صالحًا. أضيف فرع `AssalEmpty<List<AssalRequestSummary>>` يعرض مرشح الحالة و`_RequestsEmptyState` نفسه، مع retry يعيد `listRequests(userId)` وفتح `SearchScreen` الحقيقي. بقيت حدود الضيف و`AssalSession.unavailable` كما هي، دون تغيير DB/API/RLS/permissions.
 
 سُجل مستخدم Demo قبل اختبار الشاشة، ونجح اختبار TASK 071 في إثبات ظهور رسالة الفراغ و«استكشف المنتجات» واختفاء بوابة تسجيل الدخول. نجح `flutter analyze --no-pub`، ونجحت regressions الوظيفية في TASK 024 وTASK 025. فشلت goldens المعروفة فقط في حزمة regression الأوسع؛ لم تُحدّث ولم تُعتبر فشلًا وظيفيًا.
+
+
+## نتيجة تنفيذ TASK 072
+
+المراجع `screens/072_state_empty_messages.png` و`explanations/072_state_empty_messages.md` مفقودة من checkout، فبقي القبول البصري محجوبًا ولم يُصنع baseline بديل.
+
+أثبت الجرد أن `MessagesScreen` يعالج فراغ قائمة المحادثات عبر رسالة «لا توجد محادثات بعد.» وزر «استكشف المتاجر» المرتبط بـ`StoresScreen`، وأن `ConversationScreen` يعالج فراغ سجل الرسائل عبر `AssalStateView` برسالة عربية مخصصة ويترك محرر الرسالة متاحًا للجلسة المصادق عليها. لم تثبت فجوة سلوكية تبرر تعديل الإنتاج؛ أضيف اختبار مستقل لمصدري `AssalEmpty` في القائمة والسجل، مع إبقاء `listConversations` و`listMessages` و`sendMessage` المصدرية وحدود الجلسة كما هي.
+
+نجح اختبار TASK 072 الجديد واختبارا regression الوظيفيان من TASK 026، كما نجح `flutter analyze --no-pub`. لا يثبت ذلك مزامنة Production أو القبول عبر أجهزة متعددة، ولم تُحدّث goldens.
