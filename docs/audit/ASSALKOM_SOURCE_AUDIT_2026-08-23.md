@@ -1043,3 +1043,12 @@
 أثبت الجرد أن `FavoritesScreen` يستخدم `_listState` المشترك لتبويب المتاجر المتابَعة، ويحوّل `AssalEmpty` والقائمة الفارغة إلى رسالة «لا تتابع متاجر بعد.» وزر «اكتشف المتاجر» المرتبط بـ`StoresScreen` الحقيقي عبر `_discoverStores`. بقيت إزالة المتابعة وretry وبوابة الجلسة المصدرية، ولم يثبت نقص سلوكي يستحق تعديل الإنتاج.
 
 نجح اختبار TASK 075 واختبارات regression الوظيفية من TASK 030 وTASK 029، كما نجح `flutter analyze --no-pub`. لا يثبت ذلك مزامنة المتابعات في Production أو القبول عبر أجهزة متعددة، ولم تُحدّث goldens.
+
+
+## نتيجة تنفيذ TASK 076
+
+المراجع `screens/076_state_connection_error.png` و`explanations/076_state_connection_error.md` مفقودة من checkout، فبقي القبول البصري محجوبًا ولم يُصنع baseline بديل.
+
+أثبت التدقيق البرمجي فجوة حقيقية في `ProductionRepository`: مسار `_readList` كان يلتقط مجموعة محدودة من نصوص الشبكة بحساسية حالة الأحرف، فلا يصنف رسالة عامة مثل `network unavailable` كخطأ شبكي قابل لإعادة المحاولة. كما كان `AssalAuthGateway.currentIdentity()` خارج حارس استثناء، مما قد ينتج Future فاشلًا بدل `AssalSession.unavailable`.
+
+أضيف `_isNetworkError` موحد لمساري القراءة والكتابة، وحُرس استعلام الهوية مع مسح cache الجلسة عند الفشل. نجحت اختبارات TASK 076، وregression TASK 095 للفشل الشبكي العابر، واختبارات data layer لفصل الجلسة غير المتاحة عن الضيف ورفض factory غير المهيأ. لا تغيير DB/API/RLS/permissions ولا إثبات لاتصال Production الحي أو المزامنة متعددة الأجهزة، ولم تُحدّث goldens.

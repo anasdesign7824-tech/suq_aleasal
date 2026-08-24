@@ -28,15 +28,24 @@ class ProductionRepository implements AssalRepository {
       ? AssalEmpty<List<T>>(emptyMessage)
       : AssalData<List<T>>(values);
 
-  AssalErrorKind _errorKind(String raw) {
+  bool _isNetworkError(String raw) {
     final value = raw.toLowerCase();
-    if (value.contains('timeout') ||
+    return value.contains('timeout') ||
         value.contains('socketexception') ||
         value.contains('failed host lookup') ||
         value.contains('connection reset') ||
-        value.contains('network')) {
+        value.contains('connection refused') ||
+        value.contains('connection closed') ||
+        value.contains('host lookup') ||
+        value.contains('network');
+  }
+
+  AssalErrorKind _errorKind(String raw) {
+    final value = raw.toLowerCase();
+    if (_isNetworkError(value)) {
       return AssalErrorKind.network;
     }
+
     if (value.contains('42501') ||
         value.contains('permission') ||
         value.contains('jwt') ||
@@ -112,11 +121,8 @@ class ProductionRepository implements AssalRepository {
           raw.contains('permission') ||
           raw.contains('JWT') ||
           raw.contains('row-level security');
-      final isNetwork =
-          raw.contains('SocketException') ||
-          raw.contains('Failed host lookup') ||
-          raw.contains('Connection reset') ||
-          raw.contains('network');
+      final isNetwork = _isNetworkError(raw);
+
       final code = isSchema
           ? 'schema_mismatch'
           : (isAuth
@@ -180,10 +186,8 @@ class ProductionRepository implements AssalRepository {
           raw.contains('PGRST204') ||
           raw.contains('column') ||
           raw.contains('relation');
-      final isNetwork =
-          raw.contains('SocketException') ||
-          raw.contains('Failed host lookup') ||
-          raw.contains('Connection reset');
+      final isNetwork = _isNetworkError(raw);
+
       final code = isSchema
           ? 'schema_mismatch'
           : (isNetwork ? 'network' : 'data_read_failed');
@@ -213,22 +217,44 @@ class ProductionRepository implements AssalRepository {
     final started = DateTime.now();
     final auth = _authGateway;
     if (auth == null) {
-      developer.log('session_guest auth_gateway_missing elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      developer.log(
+        'session_guest auth_gateway_missing elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
+        name: 'assalkom.production',
+      );
       return AssalSession.guest;
     }
-    final identity = await auth.currentIdentity();
+    AssalAuthIdentity? identity;
+    try {
+      identity = await auth.currentIdentity();
+    } on Object catch (error) {
+      developer.log(
+        'session_identity_failed kind=${_errorKind(error.toString()).name}',
+        name: 'assalkom.production',
+      );
+      _clearSessionCache();
+      return AssalSession.unavailable;
+    }
     if (identity == null) {
       _clearSessionCache();
-      developer.log('session_guest identity_missing elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      developer.log(
+        'session_guest identity_missing elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
+        name: 'assalkom.production',
+      );
       return AssalSession.guest;
     }
     if (_cachedIdentityId == identity.id && _cachedSession != null) {
-      developer.log('session_cache_hit identity=${identity.id} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      developer.log(
+        'session_cache_hit identity=${identity.id} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
+        name: 'assalkom.production',
+      );
       return _cachedSession!;
     }
     final inFlight = _sessionHydration;
     if (inFlight != null && _cachedIdentityId == identity.id) {
-      developer.log('session_inflight_reuse identity=${identity.id} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      developer.log(
+        'session_inflight_reuse identity=${identity.id} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
+        name: 'assalkom.production',
+      );
       return inFlight;
     }
     final hydration = _sessionForIdentity(identity);
@@ -237,7 +263,10 @@ class ProductionRepository implements AssalRepository {
     try {
       final session = await hydration;
       _cachedSession = session;
-      developer.log('session_hydrated identity=${identity.id} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}', name: 'assalkom.production');
+      developer.log(
+        'session_hydrated identity=${identity.id} elapsed_ms=${DateTime.now().difference(started).inMilliseconds}',
+        name: 'assalkom.production',
+      );
       return session;
     } on Object {
       developer.log(
@@ -580,8 +609,7 @@ class ProductionRepository implements AssalRepository {
       );
       final newestDates = <String, DateTime>{
         for (final row in rows)
-          if (row['id'] is String)
-            row['id'] as String: _productDate(row),
+          if (row['id'] is String) row['id'] as String: _productDate(row),
       };
       var values = rows
           .map(AssalProductSummary.fromJson)
@@ -650,11 +678,13 @@ class ProductionRepository implements AssalRepository {
         case AssalSort.newest:
           values = [...values]
             ..sort((a, b) {
-              final aDate = newestDates[a.id] ??
+              final aDate =
+                  newestDates[a.id] ??
                   a.productionDate ??
                   a.packagedDate ??
                   DateTime.fromMillisecondsSinceEpoch(0);
-              final bDate = newestDates[b.id] ??
+              final bDate =
+                  newestDates[b.id] ??
                   b.productionDate ??
                   b.packagedDate ??
                   DateTime.fromMillisecondsSinceEpoch(0);
@@ -706,7 +736,7 @@ class ProductionRepository implements AssalRepository {
 
   @override
   Future<AssalLoadState<AssalProductInteractionState>>
-      loadProductInteractionState(String userId, String productId) async {
+  loadProductInteractionState(String userId, String productId) async {
     try {
       final rows = await Future.wait([
         _gateway.select(
@@ -1454,12 +1484,12 @@ class ProductionRepository implements AssalRepository {
       final verificationStatus = proVerified
           ? 'approved'
           : latestVerificationStatus == 'approved'
-              ? hasExpiredBadge
-                  ? 'expired'
-                  : hasRevokedBadge
-                      ? 'revoked'
-                      : 'not_requested'
-              : latestVerificationStatus;
+          ? hasExpiredBadge
+                ? 'expired'
+                : hasRevokedBadge
+                ? 'revoked'
+                : 'not_requested'
+          : latestVerificationStatus;
       return AssalMerchantWorkspaceSummary(
         store: store,
         verificationStatus: verificationStatus,
@@ -2052,8 +2082,10 @@ class ProductionRepository implements AssalRepository {
               final rightOrder = (right['sort_order'] as num?)?.toInt() ?? 0;
               final orderComparison = leftOrder.compareTo(rightOrder);
               if (orderComparison != 0) return orderComparison;
-              final leftCode = '${left['code'] ?? ''}:${left['billing_interval'] ?? ''}';
-              final rightCode = '${right['code'] ?? ''}:${right['billing_interval'] ?? ''}';
+              final leftCode =
+                  '${left['code'] ?? ''}:${left['billing_interval'] ?? ''}';
+              final rightCode =
+                  '${right['code'] ?? ''}:${right['billing_interval'] ?? ''}';
               return leftCode.compareTo(rightCode);
             });
           return orderedRows
