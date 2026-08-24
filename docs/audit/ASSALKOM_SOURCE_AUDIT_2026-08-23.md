@@ -971,3 +971,12 @@
 ## TASK 067 — الإحصاءات التشغيلية
 
 جُردت `AnalyticsPanel` ومسار `adminApi.analytics` ومؤشرات المصدر. كُشف أن الرد `null` قد ينتج إطارًا فارغًا وزمن قراءة غير صالح وأن الخطأ لا يملك retry، فأضيف تعطيل التحديث أثناء الطلب ورسالة retry وحالة صريحة للقراءة غير الصالحة، مع بقاء المؤشرات مشتقة من الجداول القائمة دون تقدير. نجحت الاختبارات والبناء والتحليل، بينما غياب أصول TASK 067 منع golden وسُجل GAP-041؛ لم تُجرَ قراءة Analytics Production حية ولم تتغير DB/API/RLS/permissions.
+
+
+## نتيجة تنفيذ TASK 068
+
+يذكر فهرس المهام `screens/068_state_loading.png` و`explanations/068_state_loading.md`، لكن خط الأساس `artifacts/task060_080_gap_baseline.json` وفحص checkout يثبتان غيابهما. لذلك لم تُستخدم صورة بديلة ولم تُسجل مطابقة بصرية.
+
+دُقنت primitives حالات التحميل في `apps/mobile_flutter/lib/core/assal_widgets.dart` ومستهلكوها في `customer_discovery.dart` و`customer_account.dart` و`customer_catalog.dart` و`merchant_dashboard.dart`. المكوّن المشترك `AssalGlassLoading` يوفّر loader عربيًا مع `Semantics(liveRegion: true)`، و`AssalFutureStateView` يحافظ على حالة التحميل حتى إكمال Future، بينما `AssalStateView` و`AssalMessageCard` يغطيان error/empty مع retry اختياري حقيقي. لم يثبت الجرد فجوة إنتاجية تبرر تعديلًا عامًا، كما فُصلت مؤشرات الإرسال داخل الأزرار في مسارات الطلب/التفاعل عن نطاق حالة تحميل الصفحة.
+
+أُضيف `apps/mobile_flutter/test/task068_loading_state_test.dart` فقط لاختبار السلوك القائم: ظهور النص العربي والأيقونة، استمرار loader أثناء Future معلق، ثم الانتقال إلى Data. نجح `flutter test test/task068_loading_state_test.dart` باختبارين، ونجح `flutter analyze --no-pub` بلا ملاحظات. القبول الوظيفي مسجل، بينما القبول البصري محجوب لفقدان المصدر، ولا تغيير DB/API/RLS/permissions أو ادعاء مزامنة حية.
