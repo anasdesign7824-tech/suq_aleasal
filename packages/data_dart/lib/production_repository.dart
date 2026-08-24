@@ -109,6 +109,17 @@ class ProductionRepository implements AssalRepository {
         kind: AssalErrorKind.network,
         retryable: true,
       );
+    } on FormatException catch (error) {
+      developer.log(
+        'write_validation_failed resource=$resource',
+        name: 'assalkom.production',
+      );
+      return _failure(
+        'صيغة الملف أو محتواه غير صالح. اختر ملفًا مدعومًا ثم حاول مرة أخرى.',
+        code: 'upload_validation_failed',
+        kind: AssalErrorKind.validation,
+        source: error,
+      );
     } on Object catch (error) {
       final raw = error.toString();
       final isSchema =
@@ -1786,22 +1797,16 @@ class ProductionRepository implements AssalRepository {
     String kind,
     Uint8List bytes,
     String extension,
-  ) {
-    final safeKind = kind == 'cover' ? 'cover' : 'logo';
-    final safeExtension = switch (extension.toLowerCase()) {
-      'png' => 'png',
-      'webp' => 'webp',
-      _ => 'jpg',
-    };
-    return _write(
-      resource: 'merchant_image.upload',
-      write: () async {
-        final path =
-            '$userId/merchant/$safeKind-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
-        return _gateway.uploadPublicImage(path, bytes, safeExtension);
-      },
-    );
-  }
+  ) => _write(
+    resource: 'merchant_image.upload',
+    write: () async {
+      final safeKind = kind == 'cover' ? 'cover' : 'logo';
+      final safeExtension = normalizePublicImageExtension(extension);
+      final path =
+          '$userId/merchant/$safeKind-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
+      return _gateway.uploadPublicImage(path, bytes, safeExtension);
+    },
+  );
 
   @override
   Future<AssalLoadState<String>> uploadStoreGalleryImage(
@@ -1817,7 +1822,7 @@ class ProductionRepository implements AssalRepository {
         filters: {'id': storeId, 'merchant_id': userId},
       );
       if (stores.isEmpty) throw StateError('merchant_store_not_owned');
-      final safeExtension = extension.toLowerCase() == 'png' ? 'png' : 'jpg';
+      final safeExtension = normalizePublicImageExtension(extension);
 
       final path =
           '$userId/store/$storeId/gallery-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
@@ -1852,7 +1857,7 @@ class ProductionRepository implements AssalRepository {
         filters: {'id': storeId, 'merchant_id': userId},
       );
       if (stores.isEmpty) throw StateError('merchant_store_not_owned');
-      final safeExtension = extension.toLowerCase() == 'png' ? 'png' : 'jpg';
+      final safeExtension = normalizePublicImageExtension(extension);
       final path =
           '$userId/product/$productId/image-${DateTime.now().toUtc().millisecondsSinceEpoch}.$safeExtension';
 

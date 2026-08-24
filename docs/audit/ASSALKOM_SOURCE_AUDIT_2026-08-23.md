@@ -1059,3 +1059,12 @@
 المراجع `screens/077_state_session_expired.png` و`explanations/077_state_session_expired.md` مفقودة من checkout. كما أن عقد `AssalSession` الحالي يعرّف حالتي `guest` و`unavailable` فقط، ولا يعرّف حالة `expired` أو code مستقلًا؛ لذلك لم يُخترع عقد جديد.
 
 أثبت اختبار TASK 077 أن `AssalSession.unavailable` لا يتحول إلى بوابة تسجيل دخول صامتة، بل يعرض رسالة المزامنة وزر retry، وأن retry يعيد جلسة مصادقًا عليها ويكمل تحميل المحفوظات. نجح `flutter analyze` وregression data layer لفصل unavailable عن guest وregression بوابة الجلسة من TASK 029. يبقى السيناريو الصريح لانتهاء الجلسة غير معرّف تعاقديًا، كما يبقى القبول البصري وrefresh token/OTP الحي والمزامنة متعددة الأجهزة خارج الإثبات، ولم تُحدّث goldens.
+
+
+## نتيجة تنفيذ TASK 078
+
+المراجع `screens/078_state_upload_error.png` و`explanations/078_state_upload_error.md` مفقودة من checkout، فبقي القبول البصري محجوبًا ولم يُصنع baseline بديل.
+
+أثبت التدقيق أن `uploadProductImage` كان يحول الامتدادات غير `png` إلى `jpg` بصمت، وأن التحقق الفعلي من الامتداد والتوقيع والحجم كان داخل `SupabaseQueryGateway` فقط؛ لذلك كان `ProductionRepository` يحتاج تحويل `FormatException` إلى حالة بيانات قابلة للعرض. أزيل fallback الصامت ووُحدت `normalizePublicImageExtension` في صور التاجر والمتجر والمنتج، وأضاف `_write` حالة validation عربية وnon-retryable.
+
+نجحت اختبارات TASK 078 لامتدادات `gif` في المسارات الثلاثة دون استدعاء الرفع أو إدخال صفوف، ونجح `flutter analyze` وregression data layer للرفع المدعوم والـfactory. لا تغيير DB/API/RLS/permissions ولا إثبات لرفع Storage حي أو picker على جهاز حقيقي، ولم تُحدّث goldens.
