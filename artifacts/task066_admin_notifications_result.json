@@ -1,0 +1,16 @@
+{
+  "task": "066",
+  "scope": "admin notifications",
+  "sourceAssets": {"markdown": false, "png": false, "expectedPngDimensions": "1600x1000"},
+  "changedFiles": ["apps/admin_web/client/src/components/AdminPeople.tsx"],
+  "changes": [
+    "notification list now exposes an explicit error/retry state",
+    "notification list header has an accessible refresh action",
+    "image upload accepts only PNG/JPEG/WebP before reading bytes",
+    "existing per-user/broadcast validation and send busy guard remain unchanged"
+  ],
+  "verifiedStates": ["loading", "error/retry", "empty", "user target", "broadcast target", "image MIME guard", "image size guard", "send busy guard", "success/error"],
+  "tests": {"pnpm test": "PASS — 8 files", "pnpm check": "PASS", "pnpm build": "PASS"},
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
