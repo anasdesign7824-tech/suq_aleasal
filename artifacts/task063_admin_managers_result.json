@@ -1,0 +1,16 @@
+{
+  "task": "063",
+  "scope": "admin managers and memberships",
+  "sourceAssets": {"markdown": false, "png": false, "expectedPngDimensions": "1600x1000"},
+  "changedFiles": ["apps/admin_web/client/src/components/AdminGovernance.tsx"],
+  "changes": [
+    "admin membership activation/deactivation now asks for explicit Arabic confirmation",
+    "a per-membership updating guard disables duplicate actions while the request is in flight",
+    "membership list errors now expose a visible retry action",
+    "existing adminApi.updateAdminUser authorization and audit path remains unchanged"
+  ],
+  "verifiedStates": ["loading", "error/retry", "empty", "active", "disabled", "confirm", "duplicate-action guard", "success/error"],
+  "tests": {"pnpm test": "PASS — 8 files", "pnpm check": "PASS", "pnpm build": "PASS"},
+  "visual": "NOT_RUN — reference Markdown and PNG are absent",
+  "dbApiRlsPermissionsChanged": false
+}
