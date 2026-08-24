@@ -268,14 +268,27 @@ class AssalStateView<T> extends StatelessWidget {
     super.key,
     required this.state,
     required this.builder,
-    this.onRetry,
-    this.emptyMessageAr =
-        'لا توجد نتائج متاحة الآن. جرّب تغيير الفلاتر أو البحث مرة أخرى.',
+      this.onRetry,
+      this.emptyMessageAr,
+      this.emptyActionLabel,
+      this.onEmptyAction,
+      this.emptyIcon = Icons.inbox_outlined,
   });
   final AssalLoadState<T> state;
   final Widget Function(T value) builder;
   final VoidCallback? onRetry;
-  final String emptyMessageAr;
+  final String? emptyMessageAr;
+  final String? emptyActionLabel;
+  final VoidCallback? onEmptyAction;
+  final IconData emptyIcon;
+
+  Widget _emptyState(String message) => AssalMessageCard(
+        icon: emptyIcon,
+        message: message,
+        onRetry: onRetry,
+        actionLabel: emptyActionLabel,
+        onAction: onEmptyAction,
+      );
 
   IconData _errorIcon(AssalErrorKind kind) => switch (kind) {
         AssalErrorKind.network => Icons.wifi_off_outlined,
@@ -289,18 +302,13 @@ class AssalStateView<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => switch (state) {
         AssalLoading<T>() => const AssalGlassLoading(),
-        AssalData<T>(:final value) => value is Iterable && value.isEmpty
-            ? AssalMessageCard(
-                icon: Icons.inbox_outlined,
-                message: emptyMessageAr,
-                onRetry: onRetry,
-              )
+                AssalData<T>(:final value) => value is Iterable && value.isEmpty
+            ? _emptyState(emptyMessageAr ??
+                'لا توجد نتائج متاحة الآن. جرّب تغيير الفلاتر أو البحث مرة أخرى.')
             : builder(value),
-        AssalEmpty<T>(:final messageAr) => AssalMessageCard(
-            icon: Icons.inbox_outlined,
-            message: messageAr,
-            onRetry: onRetry,
-          ),
+        AssalEmpty<T>(:final messageAr) =>
+            _emptyState(emptyMessageAr ?? messageAr),
+
         AssalError<T>(:final messageAr, :final kind, :final retryable) =>
           AssalMessageCard(
             icon: _errorIcon(kind),
@@ -316,10 +324,14 @@ class AssalMessageCard extends StatelessWidget {
     required this.icon,
     required this.message,
     this.onRetry,
+    this.actionLabel,
+    this.onAction,
   });
   final IconData icon;
   final String message;
   final VoidCallback? onRetry;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -339,14 +351,29 @@ class AssalMessageCard extends StatelessWidget {
                     color: AssalColors.textSecondary,
                   ),
                 ),
-                if (onRetry != null) ...[
+                                if (onRetry != null || onAction != null) ...[
                   const SizedBox(height: AssalSpacing.sm),
-                  TextButton.icon(
-                    onPressed: onRetry,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة المحاولة'),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: AssalSpacing.sm,
+                    runSpacing: AssalSpacing.xs,
+                    children: [
+                      if (onRetry != null)
+                        TextButton.icon(
+                          onPressed: onRetry,
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('إعادة المحاولة'),
+                        ),
+                      if (onAction != null && actionLabel != null)
+                        FilledButton.icon(
+                          onPressed: onAction,
+                          icon: const Icon(Icons.arrow_forward_rounded),
+                          label: Text(actionLabel!),
+                        ),
+                    ],
                   ),
                 ],
+
               ],
             ),
           ),

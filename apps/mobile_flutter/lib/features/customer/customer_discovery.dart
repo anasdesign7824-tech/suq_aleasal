@@ -252,8 +252,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           onAction: widget.onOpenSearch))),
               SliverToBoxAdapter(
                   child: SizedBox(
-                      height: 92,
+                                            height: 120,
                       child: FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
+
                           future: taxonomyFuture,
                           builder: (context, snapshot) {
                             if (snapshot.hasError)
@@ -310,6 +311,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             return AssalStateView<List<AssalProductSummary>>(
                                 state: snapshot.data!,
                                 onRetry: _refresh,
+                                emptyMessageAr:
+                                    'لا توجد منتجات مختارة منشورة الآن. جرّب استكشاف الكتالوج.',
+                                emptyActionLabel: 'استكشف المنتجات',
+                                onEmptyAction: widget.onOpenSearch,
                                 builder: (products) => GridView.builder(
                                     shrinkWrap: true,
                                     physics:
@@ -1231,20 +1236,22 @@ class _ProductRail extends StatelessWidget {
   final bool verifiedOnly;
   final VoidCallback? onRetry;
 
+  void _openAll(BuildContext context) => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => SearchScreen(
+            repository: repository,
+            verifiedOnly: verifiedOnly,
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) =>
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SectionHeader(
           title: title,
           actionLabel: 'عرض الكل',
-          onAction: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => SearchScreen(
-                repository: repository,
-                verifiedOnly: verifiedOnly,
-              ),
-            ),
-          ),
+          onAction: () => _openAll(context),
         ),
         const SizedBox(height: AssalSpacing.sm),
         SizedBox(
@@ -1261,6 +1268,11 @@ class _ProductRail extends StatelessWidget {
               if (!snapshot.hasData) return const AssalGlassLoading();
               return AssalStateView<List<AssalProductSummary>>(
                 state: snapshot.data!,
+                onRetry: onRetry,
+                emptyMessageAr:
+                    'لا توجد منتجات في هذا القسم بعد. استكشف الكتالوج الكامل بدلًا من ذلك.',
+                emptyActionLabel: 'استكشف المنتجات',
+                onEmptyAction: () => _openAll(context),
                 builder: (products) => ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding:
@@ -2059,6 +2071,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       return AssalStateView<List<AssalProductSummary>>(
                         state: snapshot.data!,
                         onRetry: _applySearch,
+                        emptyMessageAr:
+                            'لا توجد منتجات مطابقة. جرّب إزالة البحث أو الفلاتر.',
+                        emptyActionLabel: 'مسح البحث والفلاتر',
+                        onEmptyAction: _clearFilters,
                         builder: (products) => GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),

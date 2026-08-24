@@ -980,3 +980,12 @@
 دُقنت primitives حالات التحميل في `apps/mobile_flutter/lib/core/assal_widgets.dart` ومستهلكوها في `customer_discovery.dart` و`customer_account.dart` و`customer_catalog.dart` و`merchant_dashboard.dart`. المكوّن المشترك `AssalGlassLoading` يوفّر loader عربيًا مع `Semantics(liveRegion: true)`، و`AssalFutureStateView` يحافظ على حالة التحميل حتى إكمال Future، بينما `AssalStateView` و`AssalMessageCard` يغطيان error/empty مع retry اختياري حقيقي. لم يثبت الجرد فجوة إنتاجية تبرر تعديلًا عامًا، كما فُصلت مؤشرات الإرسال داخل الأزرار في مسارات الطلب/التفاعل عن نطاق حالة تحميل الصفحة.
 
 أُضيف `apps/mobile_flutter/test/task068_loading_state_test.dart` فقط لاختبار السلوك القائم: ظهور النص العربي والأيقونة، استمرار loader أثناء Future معلق، ثم الانتقال إلى Data. نجح `flutter test test/task068_loading_state_test.dart` باختبارين، ونجح `flutter analyze --no-pub` بلا ملاحظات. القبول الوظيفي مسجل، بينما القبول البصري محجوب لفقدان المصدر، ولا تغيير DB/API/RLS/permissions أو ادعاء مزامنة حية.
+
+
+## نتيجة تنفيذ TASK 069
+
+مراجعة المصدر أثبتت أن مراجع `screens/069_state_empty_products.png` و`explanations/069_state_empty_products.md` مفقودة من checkout، كما يثبت خط الأساس العام؛ لذلك لم تُصنع صورة أو عقد بديل ولم تُسجل مطابقة بصرية.
+
+قبل التعديل كانت `AssalStateView` تعرض `AssalEmpty` برسالته أو القائمة الفارغة برسالة عامة، دون قدرة مشتركة على تقديم مسار بديل. كما كانت الصفحة الرئيسية والرفوف وشاشة البحث تستخدم الحالة العامة دون CTA خاص بالمنتجات. عولجت الفجوة بإضافة CTA اختياري إلى `AssalStateView` و`AssalMessageCard`، مع دعم override لرسالة `AssalEmpty` المصدرية. رُبطت الصفحة الرئيسية والرفوف بـ«استكشف المنتجات»، وربطت نتائج البحث بـ«مسح البحث والفلاتر» الذي يستدعي `_clearFilters` ويعيد مصدر النتائج. لم تُضف بيانات أو endpoint أو migration أو صلاحية.
+
+نجح اختبار TASK 069 الجديد في التحقق من callback الحقيقي للـCTA، وحالة بحث منتجات فارغة مع إعادة التحميل، ونجحت اختبارات regression الوظيفية المحددة للصفحة الرئيسية والبحث وبطاقة المنتج، كما نجح `flutter analyze --no-pub`. ظهرت أثناء الاختبار حالة overflow حقيقية في حاوية التصنيفات الفارغة بسبب ارتفاع 92px، فتم توسيع الحاوية إلى 120px ثم استقر الاختبار بلا overflow. بقيت goldens السابقة محجوبة ولم تُحدّث، ولا توجد مطالبة بمزامنة Production أو قبول جهاز خارجي.
