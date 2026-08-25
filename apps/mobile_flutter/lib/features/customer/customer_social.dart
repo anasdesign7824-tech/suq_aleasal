@@ -358,7 +358,9 @@ class _CommentsSectionState extends State<CommentsSection> {
                             children: [
                               Text(comment.body),
                               if (comment.isLocal)
-                                const Text('تم حفظ التعليق والمزامنة مع التاجر.'),
+                                const Text(
+                                  'قيد المراجعة؛ سيظهر للآخرين بعد الاعتماد.',
+                                ),
                             ],
                           ),
                         ),
@@ -449,7 +451,9 @@ class _CommentsSectionState extends State<CommentsSection> {
           future = widget.repository.listComments(widget.targetId);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم حفظ التعليق وإرساله للتاجر.')),
+          const SnackBar(
+            content: Text('تم حفظ تعليقك؛ تتم مراجعته قبل ظهوره للآخرين.'),
+          ),
         );
       } else if (result is AssalError<AssalCommentSummary>) {
         ScaffoldMessenger.of(context).showSnackBar(

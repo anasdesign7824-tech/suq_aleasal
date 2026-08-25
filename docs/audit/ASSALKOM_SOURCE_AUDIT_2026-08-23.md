@@ -1068,3 +1068,12 @@
 أثبت التدقيق أن `uploadProductImage` كان يحول الامتدادات غير `png` إلى `jpg` بصمت، وأن التحقق الفعلي من الامتداد والتوقيع والحجم كان داخل `SupabaseQueryGateway` فقط؛ لذلك كان `ProductionRepository` يحتاج تحويل `FormatException` إلى حالة بيانات قابلة للعرض. أزيل fallback الصامت ووُحدت `normalizePublicImageExtension` في صور التاجر والمتجر والمنتج، وأضاف `_write` حالة validation عربية وnon-retryable.
 
 نجحت اختبارات TASK 078 لامتدادات `gif` في المسارات الثلاثة دون استدعاء الرفع أو إدخال صفوف، ونجح `flutter analyze` وregression data layer للرفع المدعوم والـfactory. لا تغيير DB/API/RLS/permissions ولا إثبات لرفع Storage حي أو picker على جهاز حقيقي، ولم تُحدّث goldens.
+
+
+## نتيجة تنفيذ TASK 079
+
+المراجع `screens/079_state_comment_pending.png` و`explanations/079_state_comment_pending.md` مفقودة من checkout، فبقي القبول البصري محجوبًا ولم يُصنع baseline بديل. عقد `AssalCommentSummary` لا يعرّف status moderation مستقلًا، ويستخدم `isLocal` لتمييز النتيجة المحلية المؤقتة.
+
+أثبت التدقيق أن `CommentsSection` كان يعرض عبارة تؤكد المزامنة مع التاجر، وهي أقوى من الدليل المتاح. صُححت الدلالة إلى «قيد المراجعة؛ سيظهر للآخرين بعد الاعتماد.» مع SnackBar صادق، وبقي التعليق ظاهرًا لصاحبه بعد نجاح `createComment` دون إضافة API/DB أو اختراع moderation endpoint.
+
+نجح اختبار TASK 079 المستقل، وregression TASK 016 للتعليق المحلي، وregression TASK 097 للوصولية ومنع الإرسال المكرر ولوحة المفاتيح، و`flutter analyze`. لا إثبات لاعتماد الإدارة أو المزامنة متعددة المستخدمين أو Production الحي، ولم تُحدّث goldens.

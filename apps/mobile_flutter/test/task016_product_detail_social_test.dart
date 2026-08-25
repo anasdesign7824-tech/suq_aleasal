@@ -112,7 +112,10 @@ void main() {
 
     expect(repository.commentCalls, 1);
     expect(find.text('تعليق جديد للتاجر'), findsOneWidget);
-    expect(find.text('تم حفظ التعليق والمزامنة مع التاجر.'), findsOneWidget);
+    expect(
+      find.text('قيد المراجعة؛ سيظهر للآخرين بعد الاعتماد.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('TASK 016 submits a review and exposes pending moderation state',

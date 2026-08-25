@@ -64,7 +64,10 @@ void main() {
     expect(
         tester.widget<IconButton>(find.byType(IconButton)).onPressed, isNull);
     expect(find.text('تعليق اختبار'), findsOneWidget);
-    expect(find.text('تم حفظ التعليق والمزامنة مع التاجر.'), findsOneWidget);
+    expect(
+      find.text('قيد المراجعة؛ سيظهر للآخرين بعد الاعتماد.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
