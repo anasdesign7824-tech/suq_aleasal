@@ -13,7 +13,7 @@
 | T005 | Coverage | إنشاء مصفوفة تغطية كل المسارات | `UI_COVERAGE_MATRIX.md` | T001-T004 | VERIFIED | 29 مجالًا مسجلًا | تمت مراجعة القائمة | موثق | gaps ظاهرة | gaps ظاهرة | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
 | T006 | Gaps | تسجيل الفجوات والتعارضات دون تخمين | `UI_GAP_REGISTER.md` | T001-T004 | VERIFIED | 20 Gap مسجلة | تمت مراجعة الأدلة | موثق | واضح ما هو غير مدعوم | واضح ما هو غير مدعوم | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
 | T007 | Governance | اعتماد سجل التنفيذ الذري | `UI_RECONSTRUCTION_TASK_LEDGER.md` | T001-T006 | VERIFIED | السجل منشأ وفيه 72 مهمة | تم فحص الملف وcommit | موثق | موثق | موثق | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T008 | Navigation | إنشاء Route Registry مسمى | `apps/mobile_flutter/lib/app/` | T002,T006 | PENDING | لم يبدأ | — | — | — | — | — | — |
+| T008 | Navigation | إنشاء Route Registry مسمى | `apps/mobile_flutter/lib/app/` | T002,T006 | BLOCKED | أُضيف `assal_routes.dart` وربطت auth/search/notifications بالأسماء القانونية | static grep و`git diff --check` نجحا؛ Flutter test blocked لغياب SDK | لم يُنفذ visual check | لا تغيير بيانات | لا تغيير صلاحيات | لم يُشغّل Flutter regression | `UI_GAP_REGISTER.md` GAP-021 |
 | T009 | States | توحيد حالات loading/empty/error/partial | `apps/mobile_flutter/lib/core/` | T004,T006 | PENDING | لم يبدأ | — | — | — | — | — | — |
 | T010 | Capabilities | تعريف capability matrix للعميل والتاجر والإدارة | `packages/contracts_dart/`, `packages/contracts_ts/` | T003,T006 | PENDING | لم يبدأ | — | — | — | — | — | — |
 | T011 | Media | تثبيت نسب الصور ومسارات public/private | `apps/mobile_flutter/lib/core/` | T003,T006 | PENDING | لم يبدأ | — | — | — | — | — | — |

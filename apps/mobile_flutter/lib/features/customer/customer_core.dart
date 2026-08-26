@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:assalkom_contracts/assal_domain.dart';
 import 'package:assalkom_data/assal_repository.dart';
 import '../../core/assal_widgets.dart';
+import '../../app/assal_routes.dart';
 import 'customer_account.dart';
 
 Future<bool> openAuth(BuildContext context, AssalRepository repository) async {
   final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => AuthScreen(repository: repository)));
+      MaterialPageRoute(
+        settings: const RouteSettings(name: AssalRoutes.auth),
+        builder: (_) => AuthScreen(repository: repository),
+      ));
   return result == true;
 }
 

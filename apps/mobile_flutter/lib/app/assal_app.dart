@@ -10,6 +10,7 @@ import '../core/assal_widgets.dart';
 import '../core/supabase_realtime_sync.dart';
 import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
+import 'assal_routes.dart';
 
 class AssalApp extends StatelessWidget {
   const AssalApp({super.key, this.repository, this.startupError, this.realtimeSync});
@@ -215,9 +216,13 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
     });
   }
 
-  void _openSearch() => Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => SearchScreen(repository: repository)));
+  void _openSearch() => Navigator.of(context).push(MaterialPageRoute(
+      settings: const RouteSettings(name: AssalRoutes.search),
+      builder: (_) => SearchScreen(repository: repository),
+    ));
 
   void _openNotifications() => Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => NotificationsScreen(repository: repository)));
+      settings: const RouteSettings(name: AssalRoutes.notifications),
+      builder: (_) => NotificationsScreen(repository: repository),
+    ));
 }
