@@ -1,0 +1,72 @@
+# UI Reconstruction Discovery — عسلكم
+
+## نطاق الاكتشاف
+
+أُجري هذا الاكتشاف على نسخة GitHub عند commit `e2499d4` من مستودع `anasdesign7824-tech/suq_aleasal`. يغطي الجرد تطبيق Flutter في `apps/mobile_flutter`، لوحة الإدارة في `apps/admin_web`، الصفحة العامة في `apps/landing_web`، العقود في `packages/contracts_dart` و`packages/contracts_ts`، ومصادر البيانات في `packages/data_dart` وطبقة خادم الإدارة.
+
+الهدف من الوثيقة هو تثبيت العلاقة بين **الشاشة والبيانات والأفعال والاعتماديات** قبل إعادة بناء الواجهة. لا تُعد هذه الوثيقة إثباتًا لاكتمال أي مسار إنتاجي؛ فهي تصف ما يظهر في الكود وما يتطلب تحققًا إضافيًا.
+
+> القاعدة الحاكمة: لا يُضاف عنصر UI إذا لم يكن له مصدر بيانات وعقد عملية وصلاحية وحالة فشل قابلة للتتبع.
+
+## ملخص معماري حالي
+
+الموبايل يمر عمليًا عبر `AssalApp` و`AssalHomeShell` ثم يحقن `AssalRepository`، مع `DemoRepository` افتراضيًا عند عدم تمرير مستودع آخر، ومصادر Supabase خلف العقد نفسه. الواجهات تستخدم مكونات مشتركة مثل `AssalAppBar` و`ProductCard` و`StoreCard` و`AssalStateView`، لكن بعض الشاشات تجمع بناء الواجهة واستدعاء المستودع داخل الملف نفسه. لوحة الإدارة React/Vite وتملك قائمة تشغيل مستقلة وعقد API خاصًا بها، بينما الصفحة العامة ما زالت README فقط وفق الجرد الحالي.
+
+## خريطة الشاشات والواجهات
+
+| Screen | Current UI | Current Data | Current Actions | Problems | Required New Structure | Backend Dependency |
+|---|---|---|---|---|---|---|
+| App bootstrap | `AssalApp` يفرض العربية وRTL ويختار `AssalHomeShell` أو شاشة خطأ | إعداد التشغيل والمستودع المحقون | بدء المزامنة اللحظية، عرض خطأ الإعداد | لا يوجد Router مسمى أو سجل تنقل مركزي | `AppShell` مع Router/route registry وحارس حالة موحد | `AssalRepository`, runtime config, realtime sync |
+| Customer shell | `NavigationBar` للموبايل و`NavigationRail` للشاشات العريضة بخمسة أقسام | الصفحات تُبنى داخل `IndexedStack` | تبديل القسم، فتح البحث والإشعارات | IA الحالية لا تطابق القائمة الكاملة؛ لا يوجد Following أو Notifications كوجهة رئيسية | Shell مبني على Customer IA مع تبويبات مستقرة ووجهات عميقة | session, repository |
+| Home / Discover | `HomeScreen` يعرض رأسًا وبحثًا وبنرات وتصنيفات ورفوف منتجات ومتاجر وتخصيصًا | `listBanners`, `listCategories`, `listProducts`, `listStores`, `listPopularSearches`, `listNotifications` | فتح البحث، المنتج، المتجر، الإشعارات، الحفظ، فتح الطلب | كثافة عالية داخل ملف واحد، وبعض الأقسام تعتمد على تتابع Futures؛ لا يجب عرض قسم فارغ | أقسام اكتشاف مستقلة، بيانات مشتقة من الاستعلام، إخفاء الأقسام الفارغة | Product/Store/Category/Banner repositories |
+| Categories | `CategoriesScreen` قائمة تصنيفات مع الانتقال إلى البحث | `listCategories` و`listTaxonomy` بحسب التنفيذ | فتح نتائج التصنيف | التصنيف مرتبط مباشرة بالبحث بدل أن يكون كيانًا واضحًا له صفحة تعريف | Category landing مع تصنيف رئيسي وفرعي وحالة اختيار واضحة | taxonomy/category repository |
+| Search | `SearchScreen` بحث وفلاتر ونتائج منتجات/متاجر | `AssalProductQuery`, `listProducts`, taxonomy, regions, popular searches | تطبيق الفلاتر، تغيير الترتيب، فتح المنتج/المتجر | الفلاتر الحالية لا تغطي كل متطلبات Store Discovery، ونتائج الكيانات مختلطة | Search command + result tabs أو mode واضح للمنتج/المتجر | product query, taxonomy, regions, store query |
+| Stores discovery | `StoresScreen` بحث وقائمة متاجر مع اختيار منطقة وشارة توثيق في العرض | `listStores(regionId)` ثم تصفية محلية محدودة | فتح `StoreProfileScreen` | لا يظهر عقد بحث/محافظة/مديرية/نوع/ترتيب كامل في repository | Store Discovery مستقلة بفلاتر متدرجة ومحفوظة | `listStores`, locations, verification |
+| Store details | `StoreProfileScreen` رأس متجر ومنتجات ومعلومات وتواصل ومتابعة ورسالة | `getStore`, `listProducts(storeId)`, session | متابعة، بدء محادثة، إنشاء طلب، فتح منتج | ترتيب البيانات يحتاج فصل الهوية عن المعلومات والسياسات؛ احتمال تكرار بيانات المتجر داخل المنتج | Entity page: header، identity، actions، products، info، location، policies، engagement | store/product/profile/review/comment/conversation/request contracts |
+| Product list | نتائج داخل `SearchScreen` ورفوف `HomeScreen` باستخدام `ProductCard` | `AssalProductSummary` و`AssalProductQuery` | فتح التفاصيل، حفظ/إلغاء حفظ | اختلاف سياق العرض يحتاج Variant موثق لا بطاقة جديدة | Canonical `ProductPresentation` مع variants للكثافة والمصدر | product repository |
+| Product details | `ProductDetailScreen` بمعرض وتبويبات معلومات/تفاعل/منتجات مشابهة وCTA طلب | `getProduct`, `listReviews`, `listComments`, `listProducts` | حفظ، إعجاب، مراجعة، تعليق، طلب، فتح المتجر | يجب منع تكرار بيانات المتجر كاملة؛ لا يظهر بوضوح مسار الشهادات/الأصل/الجودة إذا كانت البيانات غير متاحة | Product Entity Page حسب spec مع Store Preview وسياق طلب | product/store/social/request repositories |
+| Favorites / Following | `FavoritesScreen` بتبويبات منتجات وتصنيفات ومتاجر | `listFavoriteProducts`, `listFavoriteTaxonomies`, `listFollowedStores` | فتح الكيان، التبديل/الحذف بحسب التنفيذ | المتابعة ممثلة عمليًا بالمتاجر فقط؛ لا توجد صفحة Following مستقلة | Following hub يفصل saved عن followed ويعرض العلاقة | user relation repository |
+| Auth | `AuthScreen` تسجيل/دخول بالبريد ورمز OTP وتسجيل كلمة مرور عند الإنشاء | `register`, `requestEmailOtp`, `verifyEmailOtp`, `verifyEmailConfirmation` | التسجيل، إرسال الرمز، إعادة الإرسال، التحقق | Google/Facebook موجودان في العقد لا في الواجهة المعروضة هنا؛ استعادة الجلسة تحتاج حارسًا موحدًا | Auth flow منفصل بمراحل واضحة، حالات rate-limit/offline/expired token | auth gateway/repository |
+| Profile | `ProfileScreen` زائر أو مستخدم مع غلاف وصورة وإحصاءات وروابط | `getSession`, followed stores, favorites, requests | تعديل الملف، الطلبات، مساحة التاجر، تسجيل الخروج، حذف الحساب | لا توجد Tabs المطلوبة Activity/Products/Stores/About، وعرض البريد/الهاتف يحتاج سياسة خصوصية صريحة | Profile Entity Page + visibility policy + capability actions | profile/session/relations/merchant contracts |
+| Profile editor | `ProfileEditorScreen` صور واسم ونبذة وهاتف وموقع | `AssalUserProfilePatch`, upload image APIs | اختيار الصور، تحديد الموقع نصيًا، حفظ | الموقع نص حر وليس اختيارًا من مرجع المحافظات/المديريات؛ رفع الصور وحفظ الملف في مسار واحد | Form sections مع validation ومصدر موقع canonical وحالات upload مستقلة | profile update, public storage, locations |
+| Requests | `RequestsScreen` قائمة طلبات المستخدم | `listRequests(userId)` | دخول، عرض حالة الطلب | لا توجد شاشة Request Detail للعميل في الملف الحالي؛ لا يظهر مسار تحديث الحالة أو سياق المنتج بصورة كاملة | Requests list + Request detail + state timeline | request repository |
+| Notifications | `NotificationsScreen` قائمة إشعارات وعلامة مقروء | `listNotifications`, `markNotificationRead` | تعليم كمقروء | النقر يعلّم الإشعار فقط ولا يوجه إلى Destination قابل للتنفيذ | Notification router يربط النوع بالكيان المقصود | notification payload + destination contracts |
+| Messages | `MessagesScreen` قائمة محادثات ثم `ConversationScreen` ورسائل وإرسال | `listConversations`, `listMessages`, `sendMessage` | فتح محادثة، إرسال رسالة | سياق الرسالة محدود باسم المتجر؛ لا يوجد عرض موحد للمنتج/الطلب المرتبط | Conversation entity header مع context preview وread/send states | conversation/message repository |
+| Reviews/comments | `ReviewsSection` و`CommentsSection` داخل تفاصيل المنتج | `listReviews`, `listComments`, `createReview`, `createComment` | إضافة مراجعة/تعليق | التحقق من الصلاحية ومنع التكرار وحالات النشر تحتاج عرضًا صريحًا | Social blocks بقدرات حسب session وentity | review/comment repository |
+| Settings | `SettingsScreen` إعداد إشعارات ومعلومات عن التطبيق | حالة محلية للإشعارات | تبديل الإشعارات، About dialog | الإعداد محلي للجلسة وليس عقدًا دائمًا؛ لا تظهر اللغة/الخصوصية/المساعدة كأقسام مستقلة | Settings sections مع persisted preference عندما يدعمه Backend | user preferences contract or documented gap |
+| Merchant entry | زر `مساحة المتجر` يختار بين إعداد مساحة التاجر واللوحة | `loadMerchantWorkspace`, session role | فتح setup أو dashboard | تجربة التاجر ليست مسارًا واضحًا من عدة مراحل قبل فتح المساحة | Capability-aware merchant hub | merchant workspace repository |
+| Merchant workspace setup | `MerchantWorkspaceSetupScreen` نموذج بدء مساحة/طلب تاجر | draft/application operations بحسب الملف | إدخال البيانات، حفظ مسودة، إرسال | يجب تقسيمه إلى Wizard: هوية، موقع، معلومات، تواصل، صور، توثيق، مراجعة | Store Wizard مع draft/resume وstep validation | merchant application/workspace/media/locations |
+| Merchant dashboard | `MerchantDashboard` تبويبات overview/products/drafts/statistics/comments/requests | workspace, merchant products, merchant requests/comments | تحرير المتجر، إضافة/تحرير/حذف منتج، توثيق، خطط | يحتاج توحيدًا بصريًا مع Customer وEntity Presentation، وتوثيق صلاحيات كل فعل | Merchant shell + capability panels فوق الكيانات الموحدة | merchant workspace/product/request/verification/subscription |
+| Merchant store editor | `MerchantStoreEditorScreen` بيانات متجر وموقع وصور | regions, workspace draft, upload APIs | اختيار المحافظات/المديريات، رفع الشعار/المعرض، حفظ | يحتاج مراحل واضحة وحالة رفع لكل ملف وسياسة صور موحدة | Store Wizard steps and shared image system | workspace, regions, storage |
+| Merchant product editor | `MerchantProductEditorScreen` نموذج منتج طويل مع صور وحقول | `AssalProductDraft`, taxonomy, product image upload | اختيار التصنيف/النوع/السعر/التوافر/الصور والحفظ | يجب أن يصبح Product Wizard canonical مع Preview وSubmit وحالات draft/review | Product Wizard shared with Admin review fields | product draft/taxonomy/storage |
+| Verification | `StoreVerificationScreen` إنشاء طلب، مستندات، دفع/مرجع، إرسال | verification summary/draft, document upload, payment APIs | إنشاء طلب، رفع مستند، إضافة مستند، دفع مرجع، submit | مسار الكاميرا/الهوية/الخصوصية وحالات Admin review يجب أن تكون واضحة | Verification entity + evidence timeline + policy-aware upload | verification/payment/document/storage |
+| Subscription plans | `SubscriptionPlansScreen` خطط وحملة وحوالة وإثبات دفع | plans/campaign/transfer settings/payment request | اختيار خطة، رفع إثبات، إرسال للمراجعة | جزء من تجربة التاجر لكن يحتاج فصلًا عن التوثيق وتأكيد حالة الدفع | Subscription entity flow with payment states | subscription/payment contracts |
+| Admin login | Web login/session supplied by server routes | `/api/admin/auth/session`, login/logout/password | تسجيل الدخول، تغيير كلمة المرور، الخروج | يجب أن تكون صلاحية Admin مستقلة ولا يكفي localhost | Protected Admin shell with explicit permission gates | admin auth, role, RLS/server session |
+| Admin console | React `Home.tsx` بقائمة تشغيل 15 قسمًا ولوحات وجداول وSheets | `adminApi` overview/products/stores/requests/... | CRUD، moderation، reply، export، refresh، notifications | UI uses many inline styles; entity presentation not shared with mobile; some panels need audit/permission states | Admin shell with canonical entity renderers and capability actions | admin API, Supabase Production, audit |
+| Admin entities | Products/stores/requests/merchant apps/verification/plans/banners/taxonomy/logistics/users/admins/audit/notifications/analytics | typed API endpoints in `admin-api.ts` | create/update/delete/review/approve/reject/suspend/send | بعض العقود `unknown` وتفاصيل الحقول غير موحدة | Typed admin presentation adapters mapped to canonical entities | admin server endpoints and RLS |
+| Landing web | README موجود ولا تظهر صفحات تنفيذية في الجرد | لا يوجد مصدر بيانات واجهة مثبت | لا توجد أفعال قابلة للمراجعة | الصفحة العامة خارج التنفيذ الفعلي الحالي | Landing IA مستقلة تسويقية، دون اختراع بيانات تشغيلية | static content/assets only |
+| Global states | `AssalFutureStateView`, `AssalStateView`, `AssalGlassLoading`, `AssalMessageCard` | `AssalLoadState<T>` loading/data/empty/error | retry في بعض الشاشات | حالات unauthorized/forbidden/offline/partial/disabled ليست موحدة لكل كيان | State renderer contract يغطي الحالات الثماني المطلوبة | repository result/error codes |
+| Images and media | `AssalImageTile`, `AssalImageUploadSlot`, network/memory images | URLs وbytes وstorage upload methods | اختيار/رفع/تغيير الصور | لا يوجد Registry موحد لنسب الصور ومساراتها العامة/الخاصة | Media presentation/upload contract حسب entity | storage policies/path conventions |
+| Accessibility/RTL/responsive | RTL مفروض في `AssalApp`، touch targets وSemantics جزئيًا، wide layout موجود | لا توجد بيانات إضافية | تحجيم/تنقل حسب العرض | التدقيق الشامل للتركيز، قارئات الشاشة، overflow، wide Admin غير مثبت | Accessibility and responsive gates لكل Component/Screen | Flutter/Browser capabilities |
+
+## نتائج الاكتشاف الحاكمة
+
+يتضح أن المشروع يملك أساسًا فعليًا للعميل والتاجر والإدارة، وليس من الصحيح إعادة اختراع المستودع أو عقود Supabase. في المقابل، لا توجد بعد **خريطة تنقل مسماة** أو **Presentation Models مستقلة** أو **حراسة صلاحيات موحدة على مستوى الواجهة** تغطي جميع الكيانات. كما أن `AssalRepository` يدعم الطلبات والرسائل والمراجعات والتوثيق والرفع، لكنه لا يقدم عقدًا واضحًا للطلبات التجارية التقليدية أو Activity/Following للمستخدمين ككيانات مستقلة.
+
+سيبدأ التنفيذ من إنشاء المواصفات والـGap Register والـTask Ledger، ثم إعادة بناء طبقة العرض المشتركة قبل تعديل الشاشات. أي فجوة لا يدعمها العقد ستبقى موثقة كـ`BLOCKED` أو `GAP` ولن تُملأ ببيانات وهمية.
+
+## الأدلة المصدرية
+
+| Evidence | المصدر |
+|---|---|
+| App shell and current navigation | [`apps/mobile_flutter/lib/app/assal_app.dart`](apps/mobile_flutter/lib/app/assal_app.dart) |
+| Shared widgets and current canonical cards | [`apps/mobile_flutter/lib/core/assal_widgets.dart`](apps/mobile_flutter/lib/core/assal_widgets.dart) |
+| Customer discovery screens | [`apps/mobile_flutter/lib/features/customer/customer_discovery.dart`](apps/mobile_flutter/lib/features/customer/customer_discovery.dart) |
+| Customer entity details | [`apps/mobile_flutter/lib/features/customer/customer_catalog.dart`](apps/mobile_flutter/lib/features/customer/customer_catalog.dart) |
+| Auth/profile/messages/settings | [`apps/mobile_flutter/lib/features/customer/customer_account.dart`](apps/mobile_flutter/lib/features/customer/customer_account.dart) |
+| Repository operations | [`packages/data_dart/lib/assal_repository.dart`](packages/data_dart/lib/assal_repository.dart) |
+| Domain entities | [`packages/contracts_dart/lib/assal_domain.dart`](packages/contracts_dart/lib/assal_domain.dart) |
+| Admin information architecture | [`apps/admin_web/client/src/pages/Home.tsx`](apps/admin_web/client/src/pages/Home.tsx) |
+| Admin API contract | [`apps/admin_web/client/src/lib/admin-api.ts`](apps/admin_web/client/src/lib/admin-api.ts) |
+| Design tokens and component contract | [`docs/design-system-contract.md`](docs/design-system-contract.md) |
+| Existing cross-system discovery | [`docs/evidence/unified_discovery.md`](docs/evidence/unified_discovery.md) |
