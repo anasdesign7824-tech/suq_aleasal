@@ -1,0 +1,6 @@
+name = "assalkom-landing-preview"
+compatibility_date = "2026-08-27"
+pages_build_output_dir = "."
+
+# Cloudflare account/project binding is intentionally omitted until an
+# authorized Pages project is confirmed. Never store API tokens here.
