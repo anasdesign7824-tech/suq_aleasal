@@ -12,36 +12,80 @@ import '../features/customer/customer_experience.dart';
 import 'assal_theme.dart';
 import 'assal_routes.dart';
 
-class AssalApp extends StatelessWidget {
-  const AssalApp({super.key, this.repository, this.startupError, this.realtimeSync});
+class AssalApp extends StatefulWidget {
+  const AssalApp({
+    super.key,
+    this.repository,
+    this.startupError,
+    this.realtimeSync,
+    this.themeController,
+  });
+
   final AssalRepository? repository;
   final String? startupError;
   final SupabaseRealtimeSync? realtimeSync;
+  final AssalThemeController? themeController;
+
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'عسلكم',
-        theme: buildAssalTheme(),
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-            value: const SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarIconBrightness: Brightness.light,
-              statusBarBrightness: Brightness.dark,
-              systemNavigationBarColor: AssalColors.primaryDark,
-              systemNavigationBarIconBrightness: Brightness.light,
-              systemStatusBarContrastEnforced: false,
-              systemNavigationBarContrastEnforced: false,
-              systemNavigationBarDividerColor: Colors.transparent,
-            ),
-            child: Directionality(
+  State<AssalApp> createState() => _AssalAppState();
+}
+
+class _AssalAppState extends State<AssalApp> {
+  late final AssalThemeController _themeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _themeController = widget.themeController ?? AssalThemeController();
+  }
+
+  @override
+  void dispose() {
+    if (widget.themeController == null) _themeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AssalThemeScope(
+        controller: _themeController,
+        child: ValueListenableBuilder<AssalThemeMode>(
+          valueListenable: _themeController,
+          builder: (context, mode, _) => MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'عسلكم',
+            theme: buildAssalTheme(mode: mode),
+            locale: const Locale('ar'),
+            supportedLocales: const [Locale('ar')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness:
+                    mode == AssalThemeMode.dark ? Brightness.light : Brightness.dark,
+                statusBarBrightness:
+                    mode == AssalThemeMode.dark ? Brightness.dark : Brightness.light,
+                systemNavigationBarColor: mode == AssalThemeMode.dark
+                    ? AssalColors.background
+                    : AssalBeigeColors.background,
+                systemNavigationBarIconBrightness:
+                    mode == AssalThemeMode.dark ? Brightness.light : Brightness.dark,
+                systemStatusBarContrastEnforced: false,
+                systemNavigationBarContrastEnforced: false,
+                systemNavigationBarDividerColor: Colors.transparent,
+              ),
+              child: Directionality(
                 textDirection: TextDirection.rtl,
-                child: child ?? const SizedBox.shrink())),
-        home: startupError == null
-            ? AssalHomeShell(repository: repository, realtimeSync: realtimeSync)
-            : AssalStartupErrorScreen(messageAr: startupError!),
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
+            home: widget.startupError == null
+                ? AssalHomeShell(
+                    repository: widget.repository,
+                    realtimeSync: widget.realtimeSync,
+                  )
+                : AssalStartupErrorScreen(messageAr: widget.startupError!),
+          ),
+        ),
       );
 }
 
@@ -111,6 +155,11 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scaffoldColor = theme.scaffoldBackgroundColor;
+    final surfaceColor = theme.colorScheme.surface;
+    final dividerColor = theme.dividerColor;
+
     final pages = [
       HomeScreen(
         repository: repository,
@@ -155,7 +204,7 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         top: false,
         bottom: false,
         child: ColoredBox(
-          color: AssalColors.cream,
+          color: scaffoldColor,
           child: IndexedStack(index: selectedIndex, children: pages),
         ),
       );
@@ -166,21 +215,25 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         4 => 'حسابي',
         _ => 'عسلكم',
       };
-      // Desktop keeps its own framed column; mobile uses the single outer
-      // Scaffold below so an AppBar is never mounted twice.
       final wideContent = selectedIndex == 0
           ? content
           : Scaffold(
-              backgroundColor: AssalColors.cream,
+              backgroundColor: scaffoldColor,
               appBar: AssalAppBar(title: pageTitle),
               body: content,
             );
       if (wide) {
         return Scaffold(
-            backgroundColor: AssalColors.cream,
+            backgroundColor: scaffoldColor,
             body: Row(children: [
           DecoratedBox(
-            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              border: Border(
+                left: BorderSide(color: dividerColor),
+                right: BorderSide(color: dividerColor),
+              ),
+            ),
             child: NavigationRail(
               selectedIndex: selectedIndex,
               onDestinationSelected: (index) =>
@@ -197,16 +250,17 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         ]));
       }
       return Scaffold(
-          backgroundColor: AssalColors.cream,
-          // Keep the scrollable page above the navigation bar. Extending the
-          // body here made the profile actions look clipped at the bottom.
+          backgroundColor: scaffoldColor,
           extendBody: false,
           appBar: selectedIndex == 0
               ? null
               : AssalAppBar(title: pageTitle),
           body: content,
           bottomNavigationBar: DecoratedBox(
-            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              border: Border(top: BorderSide(color: dividerColor)),
+            ),
             child: NavigationBar(
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) =>

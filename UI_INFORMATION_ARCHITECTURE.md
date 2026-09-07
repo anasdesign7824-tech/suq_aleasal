@@ -1,113 +1,107 @@
-# UI Information Architecture — عسلكم
+# UI Information Architecture — عسلكم (new IA)
 
-## المبدأ
+> Discovery-only artifact. Approved IA for the new visual layer. Does not modify backend contracts.
 
-تُبنى الواجهة حول الكيانات والقدرات والحالات، لا حول ملفات الشاشة القديمة. تبقى تطبيقات Flutter وAdmin Web وLanding مستقلة تنفيذيًا، لكنها تشترك في أسماء الكيانات والعلاقات والحالات والهوية التجارية. الاسم الظاهر هو **عسلكم**، والاسم التقني الداخلي هو `Souq Al Assal`.
+## 1. Principle
 
-## المستوى الأعلى
+The new UI is organized around **entities + capabilities + states**, not around old screens or old visual order. The same Product / Store / User / Request / Review / Notification presentation is reused across Customer, Merchant, and Admin; roles add capabilities, not new designs.
+
+## 2. Top-level IA
 
 ```text
 عسلكم
-├── Customer Experience
-│   ├── اكتشف
-│   │   ├── الرئيسية
-│   │   ├── البحث
-│   │   ├── التصنيفات
-│   │   ├── المنتجات
-│   │   └── المتاجر
-│   ├── المتابعة والحفظ
-│   ├── المراسلات
-│   ├── الإشعارات
-│   └── حسابي
-├── Merchant Capabilities
-│   ├── مساحة التاجر
-│   ├── المتجر
-│   ├── المنتجات
-│   ├── الطلبات وطلبات التواصل
-│   ├── المراسلات
-│   ├── التوثيق
-│   ├── الاشتراكات والدفع
-│   └── الإحصاءات
-├── Admin Console
-│   ├── لوحة التشغيل
-│   ├── المستخدمون
-│   ├── التجار والمتاجر
-│   ├── المنتجات والتصنيف
-│   ├── طلبات التواصل
-│   ├── التوثيق والاشتراكات
-│   ├── البنرات واللوجستيات
-│   ├── الإشعارات
-│   ├── الإحصاءات
-│   └── المديرون والتدقيق
-└── Public Landing
-    ├── تعريف عسلكم
-    ├── كيف تعمل المنصة
-    ├── الثقة والتوثيق
-    └── الدخول إلى التطبيق
+├── Customer (guest / signed-in)
+│   ├── Discover (Home)
+│   │   ├── Header + global Search
+│   │   ├── Hero / campaign
+│   │   └── Discovery sections (canonical, only non-empty)
+│   ├── Categories (Main → Subcategory → Product type → products)
+│   ├── Stores (hub: search/filter/browse/open)
+│   ├── Product detail
+│   ├── Store detail
+│   ├── Search command
+│   ├── Saved (Favorites: Products + Stores + Taxonomies)
+│   ├── Following (separate from Saved; store following today)
+│   ├── Messages (conversations → detail)
+│   ├── Notifications
+│   ├── Requests (list + detail/timeline)
+│   ├── Profile (public identity + capability actions)
+│   └── Settings
+├── Merchant (same user, same design language)
+│   ├── Merchant hub (My Store card + capabilities)
+│   ├── Store management
+│   ├── Product management / Product wizard
+│   ├── Requests / Messages
+│   ├── Verification
+│   ├── Plans / subscriptions / payments
+│   └── Analytics
+├── Admin
+│   ├── Overview / Analytics
+│   ├── Catalog / Products / Taxonomy / Banners
+│   ├── Stores / Logistics
+│   ├── Merchant applications / Verification / Plans
+│   ├── Requests / Messages / Notifications
+│   ├── Users / Admins / Audit
+└── Public Landing (marketing, data-free for operational UI)
 ```
 
-## تنقل العميل
+## 3. Customer navigation (new)
 
-| الوجهة | نقطة الدخول | المخرجات | الحارس |
+| Destination | Entry | Guard | Notes |
 |---|---|---|---|
-| اكتشف | الوجهة الافتراضية | بنرات، تصنيفات، منتجات، متاجر، توصيات عند توفرها | لا يتطلب حسابًا؛ الأقسام بلا بيانات تُخفى |
-| المتاجر | Navigation أو من بطاقة متجر | Store Discovery ثم Store Details | لا يتطلب حسابًا للتصفح |
-| التصنيفات | Navigation أو زر من الصفحة الرئيسية | تصنيف رئيسي وفرعي ونتائج مرتبطة | لا يتطلب حسابًا |
-| المراسلات | Navigation أو متجر/طلب | Conversations ثم Conversation Detail | حساب مطلوب؛ الزائر يرى دعوة تسجيل |
-| حسابي | Navigation | Profile/Guest، الحفظ، الطلبات، الإعدادات، مساحة التاجر | بعض الوجهات تتطلب حسابًا |
-| البحث | Header/CTA | Search Results مع وضع منتج/متجر وفلاتر | لا يتطلب حسابًا |
-| تفاصيل المنتج | Product Card | Product Entity + Store Preview + social + request | الطلب/التفاعل يتطلب حسابًا عند الحاجة |
-| تفاصيل المتجر | Store Card | Store Entity + products + follow/contact | المتابعة/المراسلة/الطلب تتطلب حسابًا |
-| الإشعارات | Header/Profile | قائمة قابلة للنقر إلى Destination | حساب مطلوب |
-| الطلبات | Profile | قائمة ثم تفاصيل وحالات | حساب مطلوب |
-| المتابعة والحفظ | Profile | Products/Stores/Categories المحفوظة والمتابَعة | حساب مطلوب |
+| Discover | Default | guest OK | Hide empty sections |
+| Categories | Nav or Home chip | guest OK | Full taxonomy hierarchy |
+| Stores | Nav or Home link | guest OK | Store hub via repository |
+| Search | Header icon | guest OK | Command bar, product/store modes |
+| Notifications | Header badge + profile | auth | typed destination when available |
+| Saved (Favorites) | Nav/profile | auth | Products, stores, taxonomies |
+| Following | Nav/profile | auth | Store following; user-following documented gap |
+| Messages | Nav/profile | auth | Conversation list + context preview |
+| Requests | Profile | auth | List + detail/timeline |
+| Profile | Nav/profile | guest + auth | Public identity; separate from Store |
+| Settings | Profile | guest + auth | Local session unless persistent contract |
 
-## تنقل التاجر
+Mobile bottom navigation (new):
+- Anchor 5 stable destinations: **Discover, Categories, Stores, Saved/Following combined via one "My saved hub" or separate Saved**, **Profile/Menu**.
+- Messages / Notifications / Requests / Merchant are **contextual destinations**, reachable from header/profile / capability cards, to avoid an overcrowded 8-item bar.
 
-يُفعّل التاجر داخل نفس App Shell، ولا ينشئ هوية بصرية منفصلة. تظهر القدرة بحسب `AssalRole` وحالة مساحة التاجر والنتيجة القادمة من repository.
+## 4. Merchant navigation
 
 ```text
-Profile
-└── مساحة التاجر
-    ├── Overview
-    ├── Store
-    │   ├── عرض المتجر
-    │   └── تحرير المتجر
-    ├── Products
-    │   ├── منشورة
-    │   ├── مسودات/قيد المراجعة
-    │   └── Product Wizard
-    ├── Requests
-    ├── Messages
-    ├── Verification
-    ├── Subscriptions & Payments
-    └── Analytics
+Profile → My Store / Merchant hub
+├── Store overview (canPublish/canEdit states)
+├── Store details (canonical Store entity + manage actions)
+├── Products
+│   ├── Published
+│   ├── Drafts / review
+│   └── Product Wizard (+ edit)
+├── Requests
+├── Messages
+├── Verification (evidence timeline)
+├── Subscriptions / Payment proofs
+└── Analytics (data-backed metrics only)
 ```
 
-يُقسم `Store Wizard` إلى هوية أساسية، موقع، معلومات، تواصل وطلب، صور، توثيق، مراجعة، ثم إرسال. ويُقسم `Product Wizard` إلى الهوية، التصنيف، النوع، الأصل، الجودة، السعر، التوفر، الخصائص، الشهادات، الصور، الوصف، الترتيب، المعاينة، ثم الإرسال.
+## 5. Admin navigation
 
-## تنقل الإدارة
+Keep same capability domains but present them through canonical entity renderers and typed admin API adapters.
 
-تبقى لوحة الإدارة محلية التشغيل ومحمية بجلسة Admin وصلاحيات/RLS. القائمة الحالية في `Home.tsx` هي الأساس التشغيلي، لكن تعرض الواجهة الجديدة الكيانات المشتركة نفسها مع أفعال الإدارة.
+## 6. Entity routing rules
 
-| المجال | الوجهات | الأفعال |
-|---|---|---|
-| التشغيل | Overview, Analytics | قراءة مؤشرات حقيقية، تحديث، تصدير موجز |
-| الكتالوج | Products, Taxonomy, Categories | إنشاء/تعديل/حذف/مراجعة، مع عدم اختراع حقول |
-| المتاجر | Stores, Logistics | اعتماد، رفض، تعليق، إعادة تفعيل، إدارة التوصيل والاستلام |
-| دورة التاجر | Merchant Applications, Verification, Plans, Payments | مراجعة، طلب معلومات، اعتماد، رفض، تسوية دفع |
-| التواصل | Requests, Messages, Notifications | عرض السياق، الرد، إرسال إشعار بوجهة |
-| الحوكمة | Users, Admins, Audit | قراءة، إدارة عضويات، مراجعة سجل التدقيق |
-| المحتوى | Banners | إنشاء/تعديل/حذف مع مصدر تخزين عام |
+- Every deep link carries `route + entityId + context` (already defined by `AssalRouteIntent`).
+- Notification without a resolvable destination is rendered as a read-only informational notification, never a fake actionable one.
+- Requests/order: today this is Request/Contact, not a full commercial Order. UI should not present a full checkout unless a backend Order contract is approved.
 
-## قواعد الانتقال
+## 7. Responsive rules
 
-كل انتقال يجب أن يكون إلى وجهة معرفة، ويحمل `entityId` و`entityType` و`context` عند الحاجة. إشعار بلا وجهة قابلة للتنفيذ لا يُعرض كإشعار actionable. ولا يسمح المسار بفتح صفحة تحرير عند غياب صلاحية الكتابة؛ يعرض بدلًا من ذلك قراءة أو سبب المنع.
+- `<=599`: single column, bottom navigation, drawer/sheet filters.
+- `600–899`: two/three column, rail or top bar, constrained reading width.
+- `>=900`: sidebar/rail, canonical entity pages within a max reading column; admin table data converts to cards/expandable rows where needed.
 
-## نمط العرض العريض
+## 8. RTL
 
-في Flutter تتحول الوجهات الرئيسية إلى `NavigationRail` أو Sidebar عند عرض لا يقل عن 900px، وتبقى تفاصيل الكيان داخل عمود قراءة محدود العرض. في Admin يستخدم Sidebar ثابتًا على الشاشات الكبيرة وDrawer على الصغيرة. لا تُنشأ شاشات ثانية للمقاس؛ يُستخدم responsive layout مع الحفاظ على ترتيب المعلومات.
+Arabic first. All chevrons, back buttons, horizontal scrolls, text alignment, forms, sheets, dialogs, and tables use directional semantics. Brand logos/images are never mirrored.
 
-## الفجوات التي لا يحلها IA
+## 9. Gap boundaries
 
-لا يقدم العقد الحالي صفحة Following لمستخدمين، أو Order تقليديًا كاملًا، أو destination schema للإشعارات، أو سجل Activity غنيًا. تُحفظ هذه العناصر في `UI_GAP_REGISTER.md` كفجوات، ولا تُنشأ لها بيانات ثابتة أو نجاح وهمي.
+User-following, full order, notification destination, profile visibility policy, and persistent settings are documented as gaps; the new IA uses `UI_DATA_GAP` / `BACKEND_GAP_REPORT` rather than inventing unsupported flows.

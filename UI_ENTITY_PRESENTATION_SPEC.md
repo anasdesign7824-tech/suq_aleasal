@@ -1,86 +1,149 @@
-# UI Entity Presentation Specification — عسلكم
+# UI Entity Presentation Specification — عسلكم (canonical)
 
-## الغرض
+> Discovery/spec artifact. This is the **single source** of how each entity is presented for Customer, Merchant, and Admin. Differences are capabilities/actions/permissions/visibility, not different designs.
 
-تحدد هذه الوثيقة العرض القانوني المشترك لكل كيان عبر العميل والتاجر والإدارة. الاختلاف بين السياقات يكون في **Permission + Action + State**، وليس في هوية البيانات الأساسية أو أسلوب عرضها.
+## 1. Rule
 
-## ProductPresentation
+- One `ProductPresentation`, one `StorePresentation`, one `UserProfilePresentation`, one `RequestPresentation`, one `ReviewPresentation`, one `NotificationPresentation`, one `ConversationPresentation`.
+- Variants expose more/fewer **actions**, never a different data hierarchy.
+- Do not repeat the full Store inside Product; use a `StorePreview`.
 
-| الطبقة | الحقول المشتركة | عرض العميل | عرض التاجر | عرض الإدارة |
-|---|---|---|---|---|
-| Identity | id, nameAr, category, subcategory, productType | الاسم والنوع | الاسم والنوع مع حالة التحرير | الاسم والنوع والمعرف |
-| Media | primaryImageUrl, gallery | صورة رئيسية ومعرض | معاينة وصور قابلة للإدارة | معاينة ومصدر التخزين |
-| Commerce | price, currencyCode, availability | السعر والتوفر | السعر والتوفر القابلان للتحرير | تدقيق القيم والحالة |
-| Provenance | origin, grade, processing, packaging | عند توفرها | إدخال/تعديل | مراجعة وقبول |
-| Trust | certificates, status, store verification | شارات موثقة فقط عند دعمها | رفع/عرض الأدلة | اعتماد/رفض/تعليق |
-| Social | ratingAverage, reviewCount, likesCount | قراءة وإضافة وفق الصلاحية | قراءة التفاعل | قراءة ومراجعة/إخفاء عند دعم العقد |
-| Relationship | storeId, merchantId | Store Preview قابل للنقر | المتجر المالك | ربط المنتج بالمتجر والتاجر |
-| Capability actions | favorite, like, request/order | حسب session وحالة المنتج | edit/delete/submit | approve/reject/suspend/edit/audit |
+## 2. ProductPresentation
 
-قاعدة العرض: لا تُعرض بيانات المتجر الكاملة داخل بطاقة أو صفحة المنتج. يظهر `StorePreview` بالاسم والصورة والمنطقة وشارة التوثيق، والانتقال إلى Store Entity يكون صريحًا.
-
-## StorePresentation
-
-يعرض الكيان صورة الهوية، الاسم، حالة التوثيق، وصفًا مختصرًا، الموقع المختصر، ومتجرًا/تاجرًا مرتبطًا دون تكرار الملف الشخصي. صفحة التفاصيل ترتب الهوية ثم أفعال المتابعة/التواصل ثم المنتجات ثم الوصف والمعلومات والموقع والسياسات وطرق الاتصال والتفاعل والمتاجر المشابهة عند وجود بيانات.
-
-| القدرة | Customer | Merchant | Admin |
-|---|---|---|---|
-| read | متاح للمتاجر المنشورة | متاح للمتجر المملوك | متاح مع بيانات الحالة |
-| follow/contact | حساب وعقد علاقة صالح | حسب الصلاحية والعلاقة | لا يُفترض انتحال علاقة عميل |
-| edit | غير متاح | للمالك/الدور المسموح | بحسب permission |
-| moderate | غير متاح | غير متاح | approve/reject/suspend/reactivate |
-| media | قراءة الصور العامة | رفع الصور العامة | إدارة الصور العامة دون فتح الخاصة |
-
-## UserProfilePresentation
-
-المستخدم كيان مستقل عن المتجر. يظهر الاسم والصورة والهوية العامة والموقع المختصر وحالة التاجر/التوثيق والنشاط المسموح به. لا تظهر البريد والهواتف والبيانات الحساسة لمستخدم عادي إلا وفق Visibility Policy وعلاقة المستخدم ونوع الحساب والصلاحية.
+Structure (top → bottom):
 
 ```text
-UserProfile
-├── public identity
-├── visibility policy
-├── profile activity
-├── owned stores
-├── owned products
-└── capabilities
+Product gallery (1:1 primary + thumbnails/slides)
+→ Identity (nameAr, category/subcategory/type)
+→ Commerce (price+currency or "السعر عند الطلب", availability)
+→ Quick actions (Save/Share; Like/Comment/Request placed later)
+→ Trust summary (verification badge, rating, review count, badges)
+→ Product information (progressive disclosure)
+    → Origin (country, governorate/district/regions)
+    → Quality (grade/gradeLabel, qualityLabel)
+    → Taxonomy (category, subcategory, type)
+    → Production (methods/status, harvest, dates, shelf life)
+    → Packaging/weights/forms
+    → Certifications/badges
+→ StorePreview (name, logo, region, verification, follow/contact)
+→ CTA (Request / Contact) — kept at bottom, not a permanent full-width bar unless screen density allows
+→ Reviews
+→ Comments
+→ Similar products
 ```
 
-الملف الشخصي في حساب المستخدم يضم Activity وProducts وStores وAbout. وإذا كان المستخدم يملك أكثر من متجر، تعرض المتاجر ككيانات مستقلة مرتبطة به، ولا تُدمج في بطاقة مستخدم واحدة.
+| Layer | Customer | Merchant | Admin |
+|---|---|---|---|
+| Media | view | manage images | view/manage storage |
+| Commerce | read + request | edit price/currency/availability | review values |
+| Provenance | read | edit from reference selectors | approve/reject |
+| Trust | badges only from data | document source | review/verify |
+| Social | add review/comment, save/like | read + reply where supported | moderate/hide |
+| Store | StorePreview | owned store link | full ownership context |
+| Actions | request/contact | edit/delete/preview/submit | approve/reject/suspend |
 
-## VerificationPresentation
-
-التوثيق كيان له حالة ودورة حياة وأدلة، وليس شارة تجميلية. الحد الأدنى للعرض هو storeId، requester/userId، الحالة، حالة الدفع عند وجودها، المستندات، ملاحظات المراجعة، وتاريخ الإنشاء/الإرسال/القرار عند دعم العقد.
+## 3. StorePresentation
 
 ```text
-draft → submitted → under_review → approved | needs_more_info | rejected | revoked
+Cover + logo/identity
+→ Name + verification/status
+→ Follow / Contact
+→ Products (canonical grid)
+→ About/description
+→ Information (region, governorate/district, years, specialties)
+→ Certifications
+→ Location/delivery/pickup
+→ Contact/order channels
+→ Reviews/comments (where supported)
+→ Related/similar stores
 ```
 
-تظهر الوثائق الخاصة في سياق آمن ولا تُعامل كصور عامة. في العميل يرى التاجر حالته وتعليمات الخطوة التالية. في الإدارة تظهر أدوات المراجعة وسجل القرار. في العميل لا تظهر شارة Verified إلا من مصدر حالة موثوق.
+StoreCard: image, name, verification, location, products count, follow. No overly long description.
 
-## BannerPresentation
-
-البنر كيان محتوى عام له id، عنوان، نص، صورة، رابط/وجهة، ترتيب، حالة نشر، وتاريخ صلاحية عند وجودها. لا يعرض التطبيق بنرًا بلا وجهة إذا كان مصممًا كدعوة للفعل، ولا يختلق صورة أو رابطًا عند فقدان المصدر.
-
-## RequestPresentation
-
-طلب التواصل مرتبط بالمستخدم والمتجر، وقد يرتبط بمنتج وبخيار تسليم. يعرض الموضوع، الوصف، المنتج/المتجر، خيار التسليم، الحالة، آخر تحديث، والإجراء التالي. الحالات المشتركة هي `open`, `inProgress`, `answered`, `closed`, `cancelled`. يختلف الإجراء بحسب الدور: العميل يقرأ ويرد عند دعم العقد، التاجر يتابع ويجيب، والإدارة تراجع وتدقق.
-
-## ConversationPresentation وMessagePresentation
-
-المحادثة مرتبطة بمرسل ومستلم وسياق وكيان، إن توفر. يعرض رأس المحادثة اسم المتجر أو الطرف الآخر مع `ContextPreview` للمنتج/الطلب، ثم الرسائل مع timestamp وread state، ثم composer. لا تُفقد العلاقة بالمنتج أو المتجر عند الانتقال من CTA التواصل.
-
-## حالات الكيان
-
-كل Presentation Model يجب أن يقبل الحالات التالية دون كسر الترتيب البصري: `loading`, `empty`, `success`, `partial`, `error`, `disabled`, `unauthorized`, `forbidden`, `offline`. لا تعرض الشارات أو الأفعال كأنها ناجحة قبل عودة نتيجة العقد.
-
-## Media Contract
-
-| الكيان | الأصل | المعرض | مستوى التخزين |
+| Capability | Customer | Merchant | Admin |
 |---|---|---|---|
-| Product | صورة رئيسية | Gallery | عام عند النشر |
-| Store | صورة هوية | Gallery | عام عند النشر |
-| Profile | Avatar | غير مطلوب افتراضيًا | عام فقط وفق سياسة الملف |
-| Verification | لا توجد صورة عامة إلزامية | مستندات وأدلة | خاص |
-| Banner | صورة الحملة | حسب العقد | عام |
+| read | published stores | owned store | all stores |
+| follow/contact | auth | owner/manage | not impersonate |
+| edit | no | yes (permission) | moderate |
+| media | public | upload public | manage public, never private without policy |
+| moderate | no | no | approve/reject/suspend/reactivate |
 
-يجب أن تستخدم كل السياقات `AssalImageTile` أو مكوّن الصورة القانوني بعد توسيعه، مع نسب وصور fallback موحدة.
+## 4. UserProfilePresentation
+
+User and Store are separate entities. Do not merge a customer profile into a store card.
+
+```text
+Profile identity (avatar, name, bio/presentation, location, role/store link)
+→ visibility policy (email/phone only when permitted)
+→ capability/actions (edit profile, my store, saved, following, requests, settings, sign-out)
+→ owned stores (links/cards)
+→ owned products (if public/permitted)
+→ activity (data-backed only)
+→ reviews
+```
+
+`UserProfile` fields include `followersCount`, `followingCount`, role. No user-following relation exists in repository today (see gaps).
+
+## 5. RequestPresentation
+
+Request = request/contact entity. It is **not** a full commercial order.
+
+```text
+Subject
+→ Product/Store context
+→ Requester (name/phone optional)
+→ Quantity/handoff option/price note/delivery note
+→ Status timeline (open → in_progress → answered → closed/cancelled)
+→ Actions per role
+```
+
+Customer: read + view detail; Merchant: manage/answer (where contract supports); Admin: review/audit.
+
+## 6. ReviewPresentation / CommentPresentation
+
+Canonical: author, rating (only review), body, date, helpful count, merchant reply, moderation state. Always render loading/empty/error/forbidden correctly; never show submitted review success without a repository result.
+
+## 7. NotificationPresentation
+
+```text
+Icon/type → title → body → time → read state → destination
+```
+
+If `payload` contains no resolvable destination, render as informational read-only notification (documented `UI_DATA_GAP`), not a fake action.
+
+## 8. ConversationPresentation
+
+```text
+Conversation header: store/party name + ContextPreview (product/request where contract supports)
+→ Messages (sender, read state, timestamp, attachments)
+→ composer (send state, disabled/error)
+```
+
+Store-only context today; product/request context is a documented gap.
+
+## 9. VerificationPresentation
+
+State machine/status must be shown in every role:
+
+```text
+draft → payment_pending → submitted → under_review →
+  approved | needs_more_info | rejected | expired | revoked
+```
+
+Merchant sees evidence + payment instructions + next step. Admin sees review tools and decision log. Customer never sees private documents.
+
+## 10. Media contract
+
+| Entity | Primary | Gallery | Storage |
+|---|---|---|---|
+| Product | 1:1 | gallery | public when published |
+| Store | logo | cover + gallery | public when published |
+| User | avatar | cover | public per policy |
+| Banner | hero media | — | public |
+| Verification/payment | — | documents/proof | private |
+
+All entities use the same `ImageMedia` rules (loading, error, empty, ratio, semantics).
+
+## 11. Required states for every entity
+
+`loading, empty, success, partial, error, disabled, unauthorized, forbidden, offline`. Do not render a positive badge or action before the repository response.

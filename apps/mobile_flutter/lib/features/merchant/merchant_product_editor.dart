@@ -340,14 +340,15 @@ class _MerchantProductEditorScreenState
 
   Widget _sectionTabBar() => Container(
         decoration: BoxDecoration(
-          gradient: AssalColors.darkGradient,
+          color: context.assalSurface,
           borderRadius: BorderRadius.circular(AssalRadius.medium),
+          border: Border.all(color: context.assalBorder),
         ),
-        child: const TabBar(
+        child: TabBar(
           isScrollable: true,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          indicatorColor: AssalColors.honey,
+          labelColor: context.assalPrimaryLight,
+          unselectedLabelColor: context.assalTextMuted,
+          indicatorColor: context.assalPrimary,
           dividerColor: Colors.transparent,
           tabs: [
             Tab(text: 'الأساسي والتصنيف'),

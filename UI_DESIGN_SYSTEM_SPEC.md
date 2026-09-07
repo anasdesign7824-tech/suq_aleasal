@@ -1,67 +1,122 @@
-# UI Design System Specification — عسلكم
+# UI Design System Specification — عسلكم (new, from scratch)
 
-## الهوية البصرية
+> Discovery/spec artifact. The visual component system described here replaces the old UI shell, header, navigation, cards, and entity presentation. It does **not** change the brand mark, brand palette, font family, or backend/data contracts.
 
-الهوية المعتمدة هي **Premium Arabic Social Marketplace**: دافئة وفخمة وهادئة، مع أولوية للقراءة والبيانات وعدم تضخيم البطاقات. اسم المستخدم هو **عسلكم**، ويظل `Souq Al Assal / سوق العسل` اسمًا هندسيًا داخليًا.
+## 1. Visual identity
 
-## Tokens
+- **Name:** عسلكم.
+- **Positioning:** Premium Arabic honey social-marketplace. Calm, warm, clear, trustworthy.
+- **Feel:** Warm cream canvas, white elevated surfaces, very light warm borders, one primary amber accent as highlight (not full background), dark brown used for text/primary brand moments only.
+- **Avoid:** heavy dark gradients as default chrome, dense multi-rail home, `ListTile`-only entity cards, unorganized filter sheet, full-screen spinners, random card radius/colors.
 
-تُستخدم tokens الموجودة في `packages/design_system/dart` و`docs/design-system-contract.md` بدل القيم المباشرة داخل الشاشات. الألوان الأساسية هي `primary #F39C12` و`primaryDark #9C5A00` و`honeyLight #FFF0D6` و`deepBrown #4F2E1F` و`cream #F8F4EC` و`surface #FFFFFF`، مع `textPrimary #342118` و`textSecondary #6F5B4C` و`border #E8DCCB` وحالات النجاح والتحذير والخطأ المعتمدة.
+## 2. Design tokens
 
-الخط الموحد هو `IBM Plex Sans Arabic`. سلم المسافات من مضاعفات 4، ونصف أقطار العناصر بين 8 و28، بينما تستخدم Chips وBadges نصف القطر الحبيبي. لا تُستخدم ألوان أو قياسات أو ظلال جديدة داخل Screen من دون قرار موثق.
+Use the existing brand tokens as the base (not changed): `IBM Plex Sans Arabic`, honey/amber palette, `#F8F4EC` cream, `#FFFFFF` surface, `#342118` text primary, `#6F5B4C` text secondary, `#E8DCCB` border, `#4F7A45` success, `#B86B1E` warning, `#A64232` error.
 
-## المكونات الإلزامية
+Extend with semantic tokens (new):
 
-| Component | السلوك القانوني | الحالات المطلوبة |
-|---|---|---|
-| `AssalAppBar` | رأس موحد مع RTL وشعار/رجوع وأفعال | normal, scrolled, compact |
-| `PrimaryButton` | فعل رئيسي واحد واضح | enabled, loading, disabled, forbidden |
-| `SecondaryButton` | فعل ثانوي غير منافس | enabled, disabled |
-| `HoneyCard` | حاوية بيانات ناعمة كثيفة | normal, pressed, disabled |
-| `ProductCard` | عرض ProductPresentation موحد | compact, rail, grid, disabled |
-| `StoreCard` | عرض StorePresentation موحد | compact, list, verified |
-| `SearchField` | بحث RTL مع نص إدخال واضح | empty, typing, loading, error |
-| `FilterChip` | فلتر قابل للتمييز | selected, unselected, disabled |
-| `Badge` | حالة/توثيق من مصدر بيانات | verified, pending, rejected, unavailable |
-| `InputField` | حقل مع label/help/error | empty, valid, invalid, disabled |
-| `EntityStateView` | Renderer موحد للحالات | الثماني حالات |
-| `Dialog/Sheet` | قرار/تفصيل دون فقدان السياق | confirm, error, loading |
-| `MediaTile` | نسبة صورة ومعالجة fallback ثابتة | loading, loaded, failed, empty |
-| `ContextPreview` | ربط المنتج/المتجر/الطلب | present, absent |
-
-## قواعد البطاقات
-
-`ProductCard` يثبت نسبة الصورة، الاسم، التصنيف، السعر/عند الطلب، التقييم، التوفر، والوسم القانوني. الأفعال توضع في موضع واحد ولا تُكرر داخل البطاقة. `StoreCard` يعرض صورة الهوية والاسم وشارة التوثيق والموقع ومؤشر التفاعل، ولا يعرض وصفًا طويلًا أو قائمة منتجات داخل البطاقة.
-
-أي اختلاف بين العميل والتاجر والإدارة ينفذ كـ`variant` أو `capability slot` موثق. لا تنشأ `CustomerProductCard` أو `MerchantProductCard` أو `AdminProductCard` إلا عند وجود اختلاف دلالي مثبت في Discovery.
-
-## الحالات العامة
-
-توحّد الواجهة عرض الحالات التالية: التحميل مع رسالة قصيرة لا تحجز مساحة مبالغًا فيها؛ الفراغ مع سبب وخطوة تالية؛ النجاح بالبيانات؛ النجاح الجزئي مع بيان ما لم يحمل؛ الخطأ مع إعادة محاولة؛ التعطيل مع سبب؛ عدم تسجيل الدخول مع دعوة واضحة؛ المنع مع تفسير دون كشف معلومات أمنية؛ والفشل غير المتصل مع إجراء استرداد.
-
-`AssalStateView` الحالي يغطي loading/data/empty/error، وسيُوسّع أو يُغلّف دون كسر العقد لتغطية partial/disabled/unauthorized/forbidden/offline بصورة صريحة.
-
-## الأفعال والتغذية الراجعة
-
-كل زر ينفذ mutation حقيقية خلف repository أو يكون معطلًا بسبب واضح. بعد النجاح تعرض الواجهة نتيجة قابلة للفهم وتحدّث المصدر/الحالة. عند الفشل لا يُعرض نجاح وهمي، ولا تُمسح مدخلات المستخدم قبل نجاح العقد. الأفعال الحساسة مثل الحذف والاعتماد والرفض والإرسال النهائي تتطلب تأكيدًا مناسبًا.
-
-## RTL وإمكانية الوصول
-
-العربية وRTL هما الافتراض. تستخدم المحاذاة والهوامش الاتجاهية، ولا تُستخدم أرقام المعرفات أو البريد إلا مع `TextDirection.ltr` عند الحاجة. كل زر وأيقونة تملك label أو tooltip عربيًا، وكل صورة تملك وصفًا دلاليًا أو `ExcludeSemantics` إذا كانت زخرفية. الحد الأدنى لحجم اللمس 44x44، ويجب أن يعمل تكبير النص دون قص أو overflow.
-
-## Responsive
-
-| العرض | القاعدة |
+| Token | Intent |
 |---|---|
-| أقل من 600px | عمود واحد، أفعال أساسية بعرض واضح، Sheets بدل لوحات جانبية |
-| 600–899px | تخطيط متوسط، شبكات مرنة، الحفاظ على ترتيب القراءة |
-| 900px فأعلى | NavigationRail/Sidebar، أعمدة محدودة العرض، بطاقات أكثر كثافة |
-| Admin mobile | Drawer وقوائم قابلة للتمرير، الجداول تتحول إلى بطاقات أو scroll موثق |
+| `--assal-surface-inverse` | small dark surfaces only for selected actions/badges |
+| `--assal-surface-elevated` | white raised card with very soft warm shadow |
+| `--assal-divider` | very light `#E8DCCB` divider |
+| `--assal-action-primary` | filled dark-brown/amber button only for single primary action |
+| `--assal-action-secondary` | outlined / tonal secondary action |
+| `--assal-focus-ring` | amber focus ring, always visible on focus |
+| `--assal-feedback-success/error/warning/info` | state colors |
+| `--assal-metadata` | caption or tiny text color for metadata |
 
-## الحركة والأداء
+Spacing scale: 4, 8, 12, 16, 24, 32, 40, 48, 64.
+Radius scale: 8 (control), 12 (card), 18 (large container), 28 (hero media), pill (chips/badges).
+Shadow scale: soft (page-level), raised (interactive sheet/dialog), none for flat cards.
 
-الحركة قصيرة وهادئة، ولا تغيّر تخطيط القراءة دون سبب. لا تُحمّل صورة أو بيانات قسم مخفي، ولا تُنشئ Future جديدًا مع كل rebuild دون cache أو lifecycle واضح. يجب أن تبقى القوائم قابلة للتمرير وأن تستخدم placeholders خفيفة بدل البطاقات العملاقة.
+## 3. Typography scale (canonical)
 
-## التحقق من النظام
+| Role | Size | Line-height | Weight | Use |
+|---|---|---|---|---|
+| Display | 36 | 48 | 700 | Brand moments only |
+| H1 | 30 | 40 | 700 | Page identity |
+| H2 | 24 | 34 | 600 | Section title |
+| H3 / Title | 20 | 30 | 600 | Card title / open section |
+| Title | 18 | 28 | 600 | Entity name |
+| Subtitle | 16 | 26 | 500 | Supporting lead |
+| BodyLarge | 16 | 28 | 400 | Paragraph |
+| Body | 14 | 24 | 400 | Standard content |
+| BodySmall | 12 | 20 | 400 | Secondary line |
+| Caption | 11 | 18 | 500 | Metadata |
+| Label | 12 | 18 | 500 | Input label |
+| Button | 14 | 22 | 600 | Button |
+| Navigation | 13 | 20 | 600 | Bottom nav / rail |
+| Metadata | 10–11 | 16–18 | 400–500 | Timestamp, counts |
 
-قبل اعتماد أي مكوّن جديد يجب اجتياز فحص tokens، RTL، states، semantics، responsive، data source، permission، وregression. أي امتداد بصري أو دلالي يضاف إلى `UI_GAP_REGISTER.md` و`UI_RECONSTRUCTION_TASK_LEDGER.md` قبل تنفيذه.
+No screen may introduce a different text scale.
+
+## 4. Core component system (new)
+
+| Component | Contract |
+|---|---|
+| `AssalShell` | outer app shell, header + content + nav, light surface |
+| `AssalHeader` | brand mark + context title + search access + notifications + account |
+| `BottomNavigation` / `Rail` | 5 stable destinations; contextual deep actions in header/profile/cards |
+| `SearchCommand` | global search overlay with recents/popular + product/store mode |
+| `CanonicalProductCard` | image 1:1, name, price+currency, category/type, store, verification, rating, availability, one action; variants: grid, rail, compact, merchant/edit, admin/review |
+| `CanonicalStoreCard` | logo/cover, name, verification, location, product count, follow; no overstuffed fields |
+| `CanonicalUserCard` | avatar, name, bio, role/store link, follow/contact when supported |
+| `CanonicalRequestCard` | subject, product/store context, status, handoff, time |
+| `CanonicalReviewCard` | author, rating, body, merchant reply, helpful count |
+| `CanonicalNotificationItem` | icon, title, body, time, read state, destination |
+| `EntityStateView` | loading/empty/success/partial/error/disabled/unauthorized/forbidden/offline |
+| `HoneySectionHeader` | title + optional action |
+| `HoneyCard` | white surface, border + soft shadow, spacing 16 |
+| `HoneyInput` | labeled field, help/error, focus ring |
+| `CascadingLocationSelector` | Governorate → District from reference |
+| `ReferenceSelect` / `ChipSelect` | selectors from taxonomy/grade/badges/packaging/type |
+| `FilterDrawer` | grouped filter sheet / accordion |
+| `ImageMedia` | ratio-aware, loading+failed+empty+private handling |
+| `ProgressiveDisclosure` | collapsible metadata sections |
+| `ConfirmationDialog` / `SnackFeedback` | consistent confirmation and feedback |
+
+## 5. Action hierarchy
+
+- **One primary action** per entity card/page (where required): for customer product = request/contact; for merchant product = edit/preview/submit; for admin = review/moderate.
+- Secondary actions (save/follow/like/share/comment) are grouped contextually, never in a single crowded icon bar.
+- Sensitive actions require a confirmation dialog and a success/failure state from the actual repository result.
+
+## 6. States
+
+**Always render**, in order:
+
+| State | Render |
+|---|---|
+| Loading | `EntityStateView.loading` — skeleton/partial, never full-screen spinner for a single section |
+| Empty | icon + short title + optional description + action (no huge empty card) |
+| Success | entity content |
+| Partial | content + small notice about what failed |
+| Error | message + retry, context preserved |
+| Disabled | reason + disabled control |
+| Unauthorized | guest CTA to sign in |
+| Forbidden | reason without leaking security details |
+| Offline | recovery action |
+
+## 7. Images
+
+- Product primary: **1:1**.
+- Store: logo/identity + cover + gallery when present.
+- Profile: avatar, cover.
+- Banner/hero: aspect based on slot.
+- Never distort/stretch/crop badly. Always provide fallback and semantics.
+
+## 8. RTL, accessibility, responsive
+
+- Arabic + RTL default. Use directional padding/margins/arrows.
+- Minimum touch target 44×44. All icons/tooltips have Arabic labels. Images have semantics or exclude if decorative. Text scaling must not overflow.
+- Mobile `<=599`, tablet `600–899`, desktop `>=900`. No stretched mobile layout; responsive-column/rule is used.
+
+## 9. Taxonomy-driven forms
+
+- Categories/Subcategories/Product Types/Grades/Badges/Packaging/Governorate/District/Origin/Quality come from real data sources (JSON/repository).
+- Never use comma-separated `TextField` for reference-list metadata. Use chips / multi-select / cascading selectors.
+
+## 10. Adoption rule
+
+Any new visual element must be tokenized, use the canonical component registry, support all required states, pass RTL/responsive/accessibility checks, and have a data/contract source. Deviations are logged in `UI_GAP_REGISTER.md` before implementation.
