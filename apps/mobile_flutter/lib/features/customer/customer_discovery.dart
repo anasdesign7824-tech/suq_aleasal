@@ -1772,3 +1772,193 @@ class _StoresScreenState extends State<StoresScreen> {
     );
   }
 }
+
+/// A local, design-validation cart.
+///
+/// It stores only product identifiers in memory and never writes to Supabase.
+/// The admin panel exposes the demo catalog controls; this screen simply lets
+/// the UI show the bag layout from the design mockups without fabricated
+/// production records.
+class CartScreen extends StatelessWidget {
+  const CartScreen(
+      {super.key, required this.repository, this.showAppBar = true});
+  final AssalRepository repository;
+  final bool showAppBar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: showAppBar ? const AssalAppBar(title: 'السلة') : null,
+      body: AnimatedBuilder(
+        animation: AssalDesignCartStore.instance,
+        builder: (context, _) {
+          final items = AssalDesignCartStore.instance.items;
+          if (items.isEmpty) {
+            return ListView(
+              padding: const EdgeInsets.all(AssalSpacing.lg),
+              children: [
+                const AssalMessageCard(
+                  icon: Icons.shopping_bag_outlined,
+                  title: 'سلتك فارغة',
+                  message:
+                      'أضف منتجات من الصفحة الرئيسية أو نتائج البحث لعرض شكل سلة التصميم.',
+                ),
+                const SizedBox(height: AssalSpacing.md),
+                const HoneySectionHeader(
+                  title: 'كيف تعمل السلة هنا؟',
+                  subtitle: 'أداة شكل فقط ولا ترسل أوامر إلى قاعدة البيانات.',
+                ),
+                const SizedBox(height: AssalSpacing.sm),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AssalSpacing.lg),
+                    child: Row(
+                      children: [
+                        Icon(Icons.storage_outlined,
+                            color: context.assalPrimaryLight),
+                        const SizedBox(width: AssalSpacing.md),
+                        const Expanded(
+                          child: Text(
+                            'السلة معاينة محلية قابلة للمسح من لوحة الإدارة. أي طلب شراء حقيقي يتم عبر «تواصل مع المتجر» أو «إرسال طلب تواصل».',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          return Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(
+                  AssalSpacing.lg,
+                  AssalSpacing.md,
+                  AssalSpacing.lg,
+                  0,
+                ),
+                child: _CartDesignNotice(),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: AssalSpacing.sm),
+                  itemBuilder: (_, index) {
+                    final item = items[index];
+                    return Dismissible(
+                      key: ValueKey(item.key),
+                      onDismissed: (_) =>
+                          AssalDesignCartStore.instance.remove(item.key),
+                      background: Container(
+                        alignment: AlignmentDirectional.centerStart,
+                        padding: const EdgeInsets.all(AssalSpacing.md),
+                        color: Colors.red.shade50,
+                        child: Icon(Icons.delete_outline,
+                            color: Colors.red.shade700),
+                      ),
+                      child: Card(
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: context.assalHoneyLight,
+                            child: Icon(Icons.hexagon_outlined,
+                                color: context.assalPrimaryLight),
+                          ),
+                          title: Text(item.value),
+                          subtitle: Text(
+                            'معرّف معاينة: ${item.key}',
+                            style: AssalTypography.caption
+                                .copyWith(color: context.assalTextMuted),
+                          ),
+                          trailing: IconButton(
+                            onPressed: () =>
+                                AssalDesignCartStore.instance.remove(item.key),
+                            icon: const Icon(Icons.close_rounded),
+                            tooltip: 'إزالة من السلة',
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(
+                  AssalSpacing.lg,
+                  AssalSpacing.md,
+                  AssalSpacing.lg,
+                  AssalSpacing.md + MediaQuery.paddingOf(context).bottom,
+                ),
+                decoration: BoxDecoration(
+                  color: context.assalSurface,
+                  border: Border(
+                    top: BorderSide(color: context.assalBorder),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('عدد المنتجات',
+                            style: AssalTypography.caption.copyWith(
+                                color: context.assalTextMuted)),
+                        Text('${items.length}',
+                            style: AssalTypography.heading2.copyWith(
+                                color: context.assalPrimaryLight)),
+                      ],
+                    ),
+                    const SizedBox(width: AssalSpacing.md),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(const SnackBar(
+                                content: Text(
+                                    'التأكيد يتم عبر «تواصل مع المتجر» أو «إرسال طلب تواصل».')));
+                        },
+                        icon: const Icon(Icons.arrow_forward_rounded),
+                        label: const Text('متابعة الطلب'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _CartDesignNotice extends StatelessWidget {
+  const _CartDesignNotice();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(AssalSpacing.md),
+        decoration: BoxDecoration(
+          color: context.assalSurfaceVariant,
+          borderRadius: BorderRadius.circular(AssalRadius.large),
+          border: Border.all(color: context.assalBorder),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.design_services_outlined,
+                color: context.assalPrimaryLight, size: 20),
+            const SizedBox(width: AssalSpacing.sm),
+            const Expanded(
+              child: Text(
+                'سلة تصميم محلية · يمكن مسحها من لوحة الإدارة.',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      );
+}

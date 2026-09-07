@@ -166,35 +166,35 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         onOpenSearch: _openSearch,
         onOpenNotifications: _openNotifications,
       ),
-      StoresScreen(repository: repository, showAppBar: false),
       CategoriesScreen(repository: repository, showAppBar: false),
-      MessagesScreen(repository: repository, showAppBar: false),
+      CartScreen(repository: repository, showAppBar: false),
+      FavoritesScreen(repository: repository, showAppBar: false),
       ProfileScreen(repository: repository, showAppBar: false),
     ];
     const destinations = [
       NavigationDestination(
-        icon: Icon(Icons.explore_outlined),
-        selectedIcon: Icon(Icons.explore),
-        label: 'اكتشف',
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home_rounded),
+        label: 'الرئيسية',
       ),
       NavigationDestination(
-        icon: Icon(Icons.storefront_outlined),
-        selectedIcon: Icon(Icons.storefront),
-        label: 'المتاجر',
-      ),
-      NavigationDestination(
-        icon: Icon(Icons.category_outlined),
-        selectedIcon: Icon(Icons.category),
+        icon: Icon(Icons.grid_view_outlined),
+        selectedIcon: Icon(Icons.grid_view_rounded),
         label: 'التصنيفات',
       ),
       NavigationDestination(
-        icon: Icon(Icons.forum_outlined),
-        selectedIcon: Icon(Icons.forum),
-        label: 'المراسلات',
+        icon: Icon(Icons.shopping_bag_outlined),
+        selectedIcon: Icon(Icons.shopping_bag_rounded),
+        label: 'السلة',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.favorite_border_rounded),
+        selectedIcon: Icon(Icons.favorite_rounded),
+        label: 'المفضلة',
       ),
       NavigationDestination(
         icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
+        selectedIcon: Icon(Icons.person_rounded),
         label: 'حسابي',
       ),
     ];
@@ -209,9 +209,9 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         ),
       );
       final pageTitle = switch (selectedIndex) {
-        1 => 'المتاجر',
-        2 => 'التصنيفات',
-        3 => 'المراسلات',
+        1 => 'التصنيفات',
+        2 => 'السلة',
+        3 => 'المفضلة',
         4 => 'حسابي',
         _ => 'عسلكم',
       };
