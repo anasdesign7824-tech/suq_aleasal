@@ -74,6 +74,32 @@ class AssalBrandMark extends StatelessWidget {
   }
 }
 
+class AssalDesignCartStore extends ChangeNotifier {
+  AssalDesignCartStore._();
+  static final AssalDesignCartStore instance = AssalDesignCartStore._();
+
+  final Map<String, String> _items = <String, String>{};
+
+  int get count => _items.length;
+  List<MapEntry<String, String>> get items => _items.entries.toList();
+  bool contains(String productId) => _items.containsKey(productId);
+
+  void add(String productId, String label) {
+    _items[productId] = label;
+    notifyListeners();
+  }
+
+  void remove(String productId) {
+    if (_items.remove(productId) != null) notifyListeners();
+  }
+
+  void clear() {
+    if (_items.isEmpty) return;
+    _items.clear();
+    notifyListeners();
+  }
+}
+
 class DemoModePill extends StatelessWidget {
   const DemoModePill({super.key});
   @override
@@ -689,19 +715,14 @@ class ProductCard extends StatelessWidget {
                               .copyWith(color: context.assalTextPrimary)),
                       SizedBox(height: AssalSpacing.xs),
                       Text(
-                          product.subcategoryNameAr ??
+                          product.weightLabel ??
+                              product.subcategoryNameAr ??
                               product.categoryNameAr ??
                               'منتج نحلي يمني',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AssalTypography.bodySmall
                               .copyWith(color: context.assalTextSecondary)),
-                      SizedBox(height: AssalSpacing.xs),
-                      Text(
-                          formatAssalPrice(product.price, product.currencyCode),
-                          style: AssalTypography.bodySmall.copyWith(
-                              color: context.assalPrimaryLight,
-                              fontWeight: FontWeight.w700)),
                       SizedBox(height: AssalSpacing.xs),
                       Row(children: [
                         RatingStars(rating: product.ratingAverage),
@@ -710,20 +731,47 @@ class ProductCard extends StatelessWidget {
                             style: AssalTypography.caption
                                 .copyWith(color: context.assalTextMuted)),
                         Spacer(),
-                        if (product.availability.isNotEmpty)
+                        if (product.gradeLevel != null)
                           Flexible(
-                              child: Text(product.availability,
+                              child: Text('درجة ${product.gradeLevel}',
                                   overflow: TextOverflow.ellipsis,
                                   style: AssalTypography.caption.copyWith(
-                                      color: context.assalTextSecondary)))
+                                      color: context.assalTextSecondary))),
                       ]),
                       SizedBox(height: AssalSpacing.sm),
                       Row(children: [
-                        if (product.gradeLevel != null)
-                          InfoChip(label: 'درجة ${product.gradeLevel}'),
-                        Spacer(),
-                        Icon(Icons.arrow_back_rounded,
-                            size: 18, color: context.assalPrimaryLight),
+                        Expanded(
+                          child: Text(
+                            formatAssalPrice(
+                                product.price, product.currencyCode),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AssalTypography.bodySmall.copyWith(
+                                color: context.assalPrimaryLight,
+                                fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                        SizedBox(width: AssalSpacing.xs),
+                        IconButton(
+                          onPressed: () {
+                            AssalDesignCartStore.instance.add(
+                                product.id, product.nameAr);
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(SnackBar(
+                                  content: Text(
+                                      'أُضيف «${product.nameAr}» إلى سلة التصميم'),
+                                  duration: const Duration(seconds: 2)));
+                          },
+                          tooltip: 'أضف إلى السلة',
+                          icon: Icon(Icons.shopping_cart_outlined, size: 18),
+                          style: IconButton.styleFrom(
+                            backgroundColor: context.assalPrimary,
+                            foregroundColor: context.assalCream,
+                            minimumSize: const Size(36, 36),
+                            padding: const EdgeInsets.all(8),
+                          ),
+                        ),
                       ]),
                     ]),
               ),
