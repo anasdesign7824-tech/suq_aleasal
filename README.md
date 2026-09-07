@@ -45,14 +45,27 @@ Supabase هو مصدر الإنتاج الرسمي للبيانات والمصا
 
 > [افتح معرض التصميم الكامل →](./docs/design-previews/README.md)
 
+**الوضع الافتراضي — Beige (البيج):**
+
 | الصورة | المعاينة |
 |---|---|
 | عسلكم — الرئيسية (بيج) | ![Home Beige](./docs/design-previews/beige/mobile-home-beige-honey.png) |
 | عسلكم — المنتج (بيج) | ![Product Beige](./docs/design-previews/beige/mobile-product-beige-honey.png) |
+| عسلكم — البحث والفلاتر (بيج) | ![Search Beige](./docs/design-previews/beige/search-filters-beige-honey.png) |
+| عسلكم — صفحة المتجر (بيج) | ![Store Beige](./docs/design-previews/beige/store-profile-beige-honey.png) |
+| عسلكم — الحساب والملف الشخصي (بيج) | ![Profile Beige](./docs/design-previews/beige/auth-profile-beige-honey.png) |
 | عسلكم — التاجر (بيج) | ![Merchant Beige](./docs/design-previews/beige/merchant-dashboard-beige-honey.png) |
+| عسلكم — لوحة الإدارة (بيج) | ![Admin Beige](./docs/design-previews/beige/admin-console-beige-honey.png) |
+
+**الوضع الليلي — Dark Honey (من الإعدادات):**
+
+| الصورة | المعاينة |
+|---|---|
 | عسلكم — الرئيسية (داكن) | ![Home Dark](./docs/design-previews/mobile-home-dark-honey.png) |
 | عسلكم — المنتج (داكن) | ![Product Dark](./docs/design-previews/mobile-product-dark-honey.png) |
 | عسلكم — التاجر (داكن) | ![Merchant Dark](./docs/design-previews/merchant-dashboard-dark-honey.png) |
+| عسلكم — المراسلات والإشعارات (داكن) | ![Messages Dark](./docs/design-previews/mobile-messages-dark-honey.png) |
+| عسلكم — الإعدادات ومبدّل المظهر (داكن) | ![Settings Dark](./docs/design-previews/mobile-settings-dark-honey.png) |
 | عسلكم — الهبوط/الويب (داكن) | ![Admin Landing](./docs/design-previews/admin-landing-dark-honey.png) |
 
 ### أدلة الجودة والمراجعة
