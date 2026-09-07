@@ -157,20 +157,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ),
           ),
-          const SizedBox(height: AssalSpacing.sm),
+          SizedBox(height: AssalSpacing.sm),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               gallery.length,
               (index) => AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
+                duration: Duration(milliseconds: 180),
                 width: index == galleryIndex ? 22 : 8,
                 height: 8,
-                margin: const EdgeInsets.symmetric(horizontal: 3),
+                margin: EdgeInsets.symmetric(horizontal: 3),
                 decoration: BoxDecoration(
                   color: index == galleryIndex
-                      ? AssalColors.primary
-                      : AssalColors.border,
+                      ? context.assalPrimary
+                      : context.assalBorder,
                   borderRadius: BorderRadius.circular(AssalRadius.pill),
                 ),
               ),
@@ -218,9 +218,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           Text(
             product.nameAr,
             style: AssalTypography.heading1
-                .copyWith(color: AssalColors.textPrimary),
+                .copyWith(color: context.assalTextPrimary),
           ),
-          const SizedBox(height: AssalSpacing.sm),
+          SizedBox(height: AssalSpacing.sm),
           Wrap(
             spacing: AssalSpacing.sm,
             runSpacing: AssalSpacing.sm,
@@ -232,21 +232,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 InfoChip(label: product.regionNameAr!),
             ],
           ),
-          const SizedBox(height: AssalSpacing.md),
+          SizedBox(height: AssalSpacing.md),
           Row(
             children: [
-              const Icon(Icons.star, size: 18, color: AssalColors.primaryLight),
-              const SizedBox(width: AssalSpacing.xs),
+              Icon(Icons.star, size: 18, color: context.assalPrimaryLight),
+              SizedBox(width: AssalSpacing.xs),
               Text(product.ratingAverage.toStringAsFixed(1)),
-              const SizedBox(width: AssalSpacing.sm),
+              SizedBox(width: AssalSpacing.sm),
               Text('${product.reviewCount} مراجعة',
                   style: AssalTypography.caption
-                      .copyWith(color: AssalColors.textMuted)),
-              const Spacer(),
+                      .copyWith(color: context.assalTextMuted)),
+              Spacer(),
               Text(
                 formatAssalPrice(product.price, product.currencyCode),
                 style: AssalTypography.title
-                    .copyWith(color: AssalColors.primaryLight),
+                    .copyWith(color: context.assalPrimaryLight),
               ),
             ],
           ),
@@ -275,35 +275,35 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
+            padding: EdgeInsets.all(AssalSpacing.lg),
             child: Row(children: [
               CircleAvatar(
                 radius: 30,
-                backgroundColor: AssalColors.surfaceVariant,
+                backgroundColor: context.assalSurfaceVariant,
                 backgroundImage: (store.logoUrl ?? store.avatarUrl) != null &&
                         (store.logoUrl ?? store.avatarUrl)!.startsWith('http')
                     ? NetworkImage((store.logoUrl ?? store.avatarUrl)!)
                     : null,
                 child: (store.logoUrl ?? store.avatarUrl) == null
-                    ? const Icon(Icons.storefront_outlined,
-                        color: AssalColors.primaryLight)
+                    ? Icon(Icons.storefront_outlined,
+                        color: context.assalPrimaryLight)
                     : null,
               ),
-              const SizedBox(width: AssalSpacing.md),
+              SizedBox(width: AssalSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(store.nameAr,
                         style: AssalTypography.title
-                            .copyWith(color: AssalColors.textPrimary)),
-                    const SizedBox(height: AssalSpacing.xs),
+                            .copyWith(color: context.assalTextPrimary)),
+                    SizedBox(height: AssalSpacing.xs),
                     Text(
                       store.isVerified
                           ? 'متجر موثق · ${store.regionNameAr ?? ''}'
                           : 'متجر على منصة عسلكم',
                       style: AssalTypography.bodySmall
-                          .copyWith(color: AssalColors.textSecondary),
+                          .copyWith(color: context.assalTextSecondary),
                     ),
                   ],
                 ),
@@ -315,7 +315,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         repository: widget.repository, storeId: store.id),
                   ),
                 ),
-                child: const Text('فتح المتجر'),
+                child: Text('فتح المتجر'),
               ),
             ]),
           ),
@@ -324,29 +324,29 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Widget _requestCard(
       AssalProductSummary product, AssalStoreSummary? store) {
-    if (store == null) return const SizedBox.shrink();
+    if (store == null) return SizedBox.shrink();
     return Card(
-      color: AssalColors.surfaceVariant,
+      color: context.assalSurfaceVariant,
       child: Padding(
-        padding: const EdgeInsets.all(AssalSpacing.lg),
+        padding: EdgeInsets.all(AssalSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('جاهز للاستفسار والطلب',
+            Text('جاهز للاستفسار والطلب',
                 style: AssalTypography.heading3
-                    .copyWith(color: AssalColors.textPrimary)),
-            const SizedBox(height: AssalSpacing.xs),
+                    .copyWith(color: context.assalTextPrimary)),
+            SizedBox(height: AssalSpacing.xs),
             Text(
               'حدد التفاصيل و أرسل طلب تواصل مباشرًا إلى المتجر.',
               style: AssalTypography.body
-                  .copyWith(color: AssalColors.textSecondary),
+                  .copyWith(color: context.assalTextSecondary),
             ),
-            const SizedBox(height: AssalSpacing.md),
+            SizedBox(height: AssalSpacing.md),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: () => _request(product, store),
-                icon: const Icon(Icons.chat_bubble_outline),
+                icon: Icon(Icons.chat_bubble_outline),
                 label: const Text('إرسال طلب تواصل'),
               ),
             ),
@@ -448,54 +448,54 @@ class _MetadataCard extends StatelessWidget {
           padding: const EdgeInsets.all(AssalSpacing.lg),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            _row('نوع المنتج', assalProductTypeLabel(product.productType)),
+            _row(context, 'نوع المنتج', assalProductTypeLabel(product.productType)),
             if (product.honeyIdentity != null)
-              _row('هوية العسل', product.honeyIdentity!),
-            _row('المنطقة', product.regionNameAr ?? 'غير محددة'),
+              _row(context, 'هوية العسل', product.honeyIdentity!),
+            _row(context, 'المنطقة', product.regionNameAr ?? 'غير محددة'),
             if (product.provinceNameAr != null)
-              _row('المحافظة', product.provinceNameAr!),
+              _row(context, 'المحافظة', product.provinceNameAr!),
             if (product.originCountry != null)
-              _row('بلد الأصل', product.originCountry!),
-            _row('التصنيف', product.subcategoryNameAr ?? 'غير محدد'),
+              _row(context, 'بلد الأصل', product.originCountry!),
+            _row(context, 'التصنيف', product.subcategoryNameAr ?? 'غير محدد'),
             if (product.qualityLabelAr != null)
-              _row('الجودة', product.qualityLabelAr!),
+              _row(context, 'الجودة', product.qualityLabelAr!),
             if (product.processingMethodAr != null)
-              _row('المعالجة', product.processingMethodAr!),
+              _row(context, 'المعالجة', product.processingMethodAr!),
             if (product.processingStatusAr != null)
-              _row('حالة المعالجة', product.processingStatusAr!),
+              _row(context, 'حالة المعالجة', product.processingStatusAr!),
             if (product.packagingLabelAr != null)
-              _row('التعبئة', product.packagingLabelAr!),
+              _row(context, 'التعبئة', product.packagingLabelAr!),
             if (product.productionDate != null)
-              _row('تاريخ الإنتاج', _dateLabel(product.productionDate)),
+              _row(context, 'تاريخ الإنتاج', _dateLabel(product.productionDate)),
             if (product.packagedDate != null)
-              _row('تاريخ التعبئة', _dateLabel(product.packagedDate)),
+              _row(context, 'تاريخ التعبئة', _dateLabel(product.packagedDate)),
             if (product.shelfLifeLabelAr != null)
-              _row('الصلاحية', product.shelfLifeLabelAr!),
-            _row('التوفر', product.availability),
+              _row(context, 'الصلاحية', product.shelfLifeLabelAr!),
+            _row(context, 'التوفر', product.availability),
             if (product.weightLabel != null)
-              _row('الوزن', product.weightLabel!),
+              _row(context, 'الوزن', product.weightLabel!),
             if (product.harvestLabel != null)
-              _row('القطفة', product.harvestLabel!),
+              _row(context, 'القطفة', product.harvestLabel!),
             if (product.deliveryOptions.isNotEmpty)
-              _row('التسليم', product.deliveryOptions.join('، ')),
+              _row(context, 'التسليم', product.deliveryOptions.join('، ')),
             if (product.pickupLocations.isNotEmpty)
-              _row('الاستلام', product.pickupLocations.join('، ')),
+              _row(context, 'الاستلام', product.pickupLocations.join('، ')),
           ]),
         ),
       );
 
-  Widget _row(String label, String value) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: AssalSpacing.xs),
+  Widget _row(BuildContext context, String label, String value) => Padding(
+      padding: EdgeInsets.symmetric(vertical: AssalSpacing.xs),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(
             width: 96,
             child: Text(label,
                 style: AssalTypography.bodySmall
-                    .copyWith(color: AssalColors.textMuted))),
+                    .copyWith(color: context.assalTextMuted))),
         Expanded(
             child: Text(value,
                 style: AssalTypography.body
-                    .copyWith(color: AssalColors.textPrimary)))
+                    .copyWith(color: context.assalTextPrimary)))
       ]));
 }
 
@@ -571,14 +571,14 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
+          padding: EdgeInsets.fromLTRB(
               AssalSpacing.lg, AssalSpacing.lg, AssalSpacing.lg, 0),
           child: AspectRatio(
             aspectRatio: 1.6,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
               child: Container(
-                color: AssalColors.surfaceVariant,
+                color: context.assalSurfaceVariant,
                 child: AssalImageTile(
                   imageUrl: store.coverUrl,
                   height: 180,
@@ -589,29 +589,29 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
           ),
         ),
         Transform.translate(
-          offset: const Offset(0, -40),
+          offset: Offset(0, -40),
           child: Column(
             children: [
               CircleAvatar(
                 radius: 44,
-                backgroundColor: AssalColors.surfaceRaised,
+                backgroundColor: context.assalSurfaceRaised,
                 backgroundImage:
                     logoUrl != null && logoUrl.startsWith('http')
                         ? NetworkImage(logoUrl)
                         : null,
                 child: logoUrl == null || !logoUrl.startsWith('http')
-                    ? const Icon(Icons.storefront_outlined,
-                        size: 36, color: AssalColors.primaryLight)
+                    ? Icon(Icons.storefront_outlined,
+                        size: 36, color: context.assalPrimaryLight)
                     : null,
               ),
-              const SizedBox(height: AssalSpacing.sm),
+              SizedBox(height: AssalSpacing.sm),
               Text(
                 store.nameAr,
                 textAlign: TextAlign.center,
                 style:
-                    AssalTypography.heading1.copyWith(color: AssalColors.textPrimary),
+                    AssalTypography.heading1.copyWith(color: context.assalTextPrimary),
               ),
-              const SizedBox(height: AssalSpacing.sm),
+              SizedBox(height: AssalSpacing.sm),
               Wrap(
                 spacing: AssalSpacing.sm,
                 children: [
@@ -634,21 +634,21 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                 ],
               ),
               if (store.description != null) ...[
-                const SizedBox(height: AssalSpacing.md),
+                SizedBox(height: AssalSpacing.md),
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+                      EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
                   child: Text(
                     store.description!,
                     textAlign: TextAlign.center,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: AssalTypography.bodyLarge
-                        .copyWith(color: AssalColors.textSecondary),
+                        .copyWith(color: context.assalTextSecondary),
                   ),
                 ),
               ],
-              const SizedBox(height: AssalSpacing.lg),
+              SizedBox(height: AssalSpacing.lg),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -849,8 +849,8 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
                             repository: widget.repository,
                             conversation: result.value)));
                   },
-                  icon: const Icon(Icons.forum_outlined),
-                  label: const Text('مراسلة'),
+                  icon: Icon(Icons.forum_outlined),
+                  label: Text('مراسلة'),
                 ),
               ),
             ],
@@ -861,27 +861,27 @@ class _StoreProfileScreenState extends State<StoreProfileScreen> {
   void _showContact(String channel, String value) => showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-              backgroundColor: AssalColors.surfaceRaised,
+              backgroundColor: context.assalSurfaceRaised,
               title: Text('بيانات ${_socialLabel(channel)}'),
               content: SelectableText(value),
               actions: [
                 FilledButton(
                     onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('إغلاق'))
+                    child: Text('إغلاق'))
               ]));
 
   Widget _storeInfoRow(IconData icon, String label, String value) => ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: AssalColors.primaryLight),
+      leading: Icon(icon, color: context.assalPrimaryLight),
       title: Text(label),
       subtitle: Text(value));
 
   Widget _stat(String value, String label) => Column(children: [
         Text(value,
             style: AssalTypography.heading3
-                .copyWith(color: AssalColors.textPrimary)),
+                .copyWith(color: context.assalTextPrimary)),
         Text(label,
-            style: AssalTypography.caption.copyWith(color: AssalColors.textMuted))
+            style: AssalTypography.caption.copyWith(color: context.assalTextMuted))
       ]);
 }
 
@@ -964,7 +964,7 @@ class _RequestSheetState extends State<RequestSheet> {
   @override
   Widget build(BuildContext context) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
+          padding: EdgeInsets.all(AssalSpacing.lg),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -972,14 +972,14 @@ class _RequestSheetState extends State<RequestSheet> {
               children: [
                 Text('طلب تواصل',
                     style: AssalTypography.heading2
-                        .copyWith(color: AssalColors.textPrimary)),
-                const SizedBox(height: AssalSpacing.xs),
+                        .copyWith(color: context.assalTextPrimary)),
+                SizedBox(height: AssalSpacing.xs),
                 Text(
                   widget.product.nameAr,
                   style: AssalTypography.body
-                      .copyWith(color: AssalColors.textSecondary),
+                      .copyWith(color: context.assalTextSecondary),
                 ),
-                const SizedBox(height: AssalSpacing.lg),
+                SizedBox(height: AssalSpacing.lg),
                 Row(children: [
                   Expanded(
                     child: _quantityCard(
@@ -1054,10 +1054,10 @@ class _RequestSheetState extends State<RequestSheet> {
         onPressed: onTap,
         icon: Icon(icon),
         style: IconButton.styleFrom(
-          backgroundColor: AssalColors.surfaceVariant,
+          backgroundColor: context.assalSurfaceVariant,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AssalRadius.medium),
-            side: const BorderSide(color: AssalColors.border),
+            side: BorderSide(color: context.assalBorder),
           ),
         ),
       );

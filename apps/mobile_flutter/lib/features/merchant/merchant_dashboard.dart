@@ -138,7 +138,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               AssalSpacing.lg,
               AssalSpacing.lg,
               AssalSpacing.lg,
@@ -147,12 +147,12 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             child: Card(
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: AssalColors.honeyLight,
+                  backgroundColor: context.assalHoneyLight,
                   child: Icon(
                     workspace.canPublish
                         ? Icons.verified_outlined
                         : Icons.pending_actions_outlined,
-                    color: AssalColors.primaryDark,
+                    color: context.assalPrimaryDark,
                   ),
                 ),
                 title:
@@ -161,26 +161,26 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
                 trailing: IconButton(
                   tooltip: 'تحديث',
                   onPressed: () => setState(_refresh),
-                  icon: const Icon(Icons.refresh_outlined),
+                  icon: Icon(Icons.refresh_outlined),
                 ),
               ),
             ),
           ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+            margin: EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
             decoration: BoxDecoration(
-              color: AssalColors.surface,
+              color: context.assalSurface,
               borderRadius: BorderRadius.circular(AssalRadius.medium),
-              border: Border.all(color: AssalColors.border),
+              border: Border.all(color: context.assalBorder),
             ),
             child: TabBar(
               isScrollable: true,
-              padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.xs),
-              labelColor: AssalColors.primaryLight,
-              unselectedLabelColor: AssalColors.textMuted,
+              padding: EdgeInsets.symmetric(horizontal: AssalSpacing.xs),
+              labelColor: context.assalPrimaryLight,
+              unselectedLabelColor: context.assalTextMuted,
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
-                color: AssalColors.honeyLight,
+                color: context.assalHoneyLight,
                 borderRadius: BorderRadius.circular(AssalRadius.small),
               ),
               dividerColor: Colors.transparent,
@@ -214,24 +214,24 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
   Widget _overview(AssalMerchantWorkspaceSummary workspace) {
     final store = workspace.store;
     return ListView(
-      padding: const EdgeInsets.all(AssalSpacing.lg),
+      padding: EdgeInsets.all(AssalSpacing.lg),
       children: [
         Text(
           'مساحة متجرك جاهزة للتحرير',
           style:
-              AssalTypography.heading2.copyWith(color: AssalColors.textPrimary),
+              AssalTypography.heading2.copyWith(color: context.assalTextPrimary),
         ),
-        const SizedBox(height: AssalSpacing.sm),
+        SizedBox(height: AssalSpacing.sm),
         Text(
           workspace.canPublish
               ? 'متجرك مفعّل. يمكنك إدارة بياناته ومنتجاته وتفاعل العملاء.'
               : 'أكمل البيانات وأضف المنتجات. ستظل مخفية عن العملاء حتى تفعيل الإدارة.',
           style:
-              AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+              AssalTypography.body.copyWith(color: context.assalTextSecondary),
         ),
-        const SizedBox(height: AssalSpacing.lg),
+        SizedBox(height: AssalSpacing.lg),
         if (workspace.planCode != null && workspace.planStatus != 'active')
-          const AssalMessageCard(
+          AssalMessageCard(
             icon: Icons.hourglass_top_outlined,
             message: 'الباقة في انتظار التفعيل — قد يستغرق التفعيل حتى 24 ساعة. يمكنك متابعة إعداد المتجر وإضافة المنتجات، وستظهر للعملاء بعد اعتماد الإدارة.',
           ),
@@ -406,18 +406,18 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             );
           }
           return ListView.separated(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
+            padding: EdgeInsets.all(AssalSpacing.lg),
             itemCount: comments.length,
             separatorBuilder: (_, __) =>
-                const SizedBox(height: AssalSpacing.sm),
+                SizedBox(height: AssalSpacing.sm),
             itemBuilder: (_, index) {
               final comment = comments[index];
               return Card(
                 child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: AssalColors.honeyLight,
+                  leading: CircleAvatar(
+                    backgroundColor: context.assalHoneyLight,
                     child: Icon(Icons.person_outline,
-                        color: AssalColors.primaryDark),
+                        color: context.assalPrimaryDark),
                   ),
                   title: Text(comment.authorName),
                   subtitle: Text(comment.body),
@@ -449,16 +449,16 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
             );
           }
           return ListView.separated(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
+            padding: EdgeInsets.all(AssalSpacing.lg),
             itemCount: requests.length,
             separatorBuilder: (_, __) =>
-                const SizedBox(height: AssalSpacing.sm),
+                SizedBox(height: AssalSpacing.sm),
             itemBuilder: (_, index) {
               final request = requests[index];
               return Card(
                 child: ListTile(
-                  leading: const Icon(Icons.assignment_outlined,
-                      color: AssalColors.primaryDark),
+                  leading: Icon(Icons.assignment_outlined,
+                      color: context.assalPrimaryDark),
                   title: Text(request.subject),
                   subtitle: Text(
                     '${request.status.name} · ${request.body ?? 'بدون تفاصيل'}',
@@ -482,8 +482,8 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         _metricCard('الإعجابات', '${store.followersCount} متابع للمتجر'),
         _metricCard('المراجعات', '${store.reviewCount} مراجعة'),
         _metricCard('سنوات الخبرة', '${store.yearsExperience} سنوات'),
-        const SizedBox(height: AssalSpacing.md),
-        const AssalMessageCard(
+        SizedBox(height: AssalSpacing.md),
+        AssalMessageCard(
           icon: Icons.analytics_outlined,
           message:
               'تظهر الأرقام المتاحة من Production فقط، ولا يتم اختراع أرقام عند فراغ الجداول.',
@@ -494,7 +494,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
 
   Widget _infoCard(IconData icon, String title, String value) => Card(
         child: ListTile(
-          leading: Icon(icon, color: AssalColors.primaryDark),
+          leading: Icon(icon, color: context.assalPrimaryDark),
           title: Text(title),
           subtitle: Text(value),
         ),
@@ -502,8 +502,8 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
 
   Widget _metricCard(String title, String value) => Card(
         child: ListTile(
-          leading: const Icon(Icons.insights_outlined,
-              color: AssalColors.primaryDark),
+          leading: Icon(Icons.insights_outlined,
+              color: context.assalPrimaryDark),
           title: Text(title),
           subtitle: Text(value),
         ),
@@ -511,8 +511,8 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
 
   Widget _productTile(AssalProductSummary product) => Card(
         child: ListTile(
-          leading: const Icon(Icons.inventory_2_outlined,
-              color: AssalColors.primaryDark),
+          leading: Icon(Icons.inventory_2_outlined,
+              color: context.assalPrimaryDark),
           title: Text(product.nameAr),
           subtitle: Text(_productStatusLabel(product.status)),
           trailing: Wrap(
@@ -524,13 +524,13 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
                   product.storeId,
                   product: product,
                 ),
-                icon: const Icon(Icons.edit_outlined),
+                icon: Icon(Icons.edit_outlined),
               ),
               IconButton(
                 tooltip: 'حذف',
                 onPressed: () => _deleteProduct(product),
                 icon:
-                    const Icon(Icons.delete_outline, color: AssalColors.error),
+                    Icon(Icons.delete_outline, color: context.assalError),
               ),
             ],
           ),

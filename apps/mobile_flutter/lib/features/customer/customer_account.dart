@@ -41,29 +41,29 @@ class _AuthScreenState extends State<AuthScreen> {
       appBar: AssalAppBar(
           title: registerMode ? 'إنشاء حساب' : 'تسجيل الدخول',
           showBrand: false),
-      body: ListView(padding: const EdgeInsets.all(AssalSpacing.xl), children: [
-        const Center(
+      body: ListView(padding: EdgeInsets.all(AssalSpacing.xl), children: [
+        Center(
           child: AssalBrandMark(size: 92, showName: false),
         ),
-        const SizedBox(height: AssalSpacing.xl),
+        SizedBox(height: AssalSpacing.xl),
         Text(
           registerMode ? 'ابدأ تجربتك مع العسل' : 'مرحبًا بك من جديد',
           textAlign: TextAlign.center,
           style: AssalTypography.heading1.copyWith(
-            color: AssalColors.textPrimary,
+            color: context.assalTextPrimary,
           ),
         ),
-        const SizedBox(height: AssalSpacing.sm),
+        SizedBox(height: AssalSpacing.sm),
         Text(
           registerMode
               ? 'أنشئ حسابك للوصول إلى الحفظ والمتابعة والطلبات والمراسلة.'
               : 'سجّل دخولك بالبريد الإلكتروني، وسنرسل لك رمز التحقق.',
           textAlign: TextAlign.center,
           style: AssalTypography.bodyLarge.copyWith(
-            color: AssalColors.textSecondary,
+            color: context.assalTextSecondary,
           ),
         ),
-        const SizedBox(height: AssalSpacing.xl),
+        SizedBox(height: AssalSpacing.xl),
         if (registerMode) ...[
           TextField(
               controller: nameController,
@@ -87,23 +87,23 @@ class _AuthScreenState extends State<AuthScreen> {
                 labelText: 'كلمة المرور',
                 filled: true,
                 fillColor: _passwordIsStrong(passwordController.text)
-                    ? AssalColors.success.withAlpha(30)
-                    : AssalColors.error.withAlpha(20),
+                    ? context.assalSuccess.withAlpha(30)
+                    : context.assalError.withAlpha(20),
                 enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: _passwordIsStrong(passwordController.text)
-                            ? AssalColors.success
-                            : AssalColors.error)),
+                            ? context.assalSuccess
+                            : context.assalError)),
                 focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: _passwordIsStrong(passwordController.text)
-                            ? AssalColors.success
-                            : AssalColors.error,
+                            ? context.assalSuccess
+                            : context.assalError,
                         width: 2)),
               )),
-          const SizedBox(height: AssalSpacing.sm),
+          SizedBox(height: AssalSpacing.sm),
           _PasswordStrength(value: passwordController.text),
-          const SizedBox(height: AssalSpacing.md),
+          SizedBox(height: AssalSpacing.md),
           TextField(
               controller: confirmPasswordController,
               obscureText: true,
@@ -232,14 +232,14 @@ class _AuthScreenState extends State<AuthScreen> {
           return PopScope(
             canPop: false,
             child: AlertDialog(
-              backgroundColor: AssalColors.surfaceRaised,
+              backgroundColor: context.assalSurfaceRaised,
               title: Text(loginMode ? 'رمز الدخول' : 'تأكيد البريد الإلكتروني'),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const AssalBrandMark(size: 54, showName: false),
-                    const SizedBox(height: AssalSpacing.sm),
+                    AssalBrandMark(size: 54, showName: false),
+                    SizedBox(height: AssalSpacing.sm),
                     Text(
                         loginMode
                             ? 'أرسلنا رمز الدخول إلى'
@@ -274,8 +274,8 @@ class _AuthScreenState extends State<AuthScreen> {
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.ltr,
                       style: AssalTypography.heading2.copyWith(
-                          color: AssalColors.textPrimary, letterSpacing: 5),
-                      decoration: const InputDecoration(
+                          color: context.assalTextPrimary, letterSpacing: 5),
+                      decoration: InputDecoration(
                           labelText: 'رمز التحقق (6–9 أرقام)', counterText: ''),
                     ),
                     Text(
@@ -284,21 +284,21 @@ class _AuthScreenState extends State<AuthScreen> {
                           : 'يمكنك طلب رمز جديد الآن',
                       textAlign: TextAlign.center,
                       style: AssalTypography.caption
-                          .copyWith(color: AssalColors.textMuted),
+                          .copyWith(color: context.assalTextMuted),
                     ),
                     if (dialogError != null) ...[
-                      const SizedBox(height: AssalSpacing.sm),
+                      SizedBox(height: AssalSpacing.sm),
                       Text(dialogError!,
                           textAlign: TextAlign.center,
                           style: AssalTypography.caption
-                              .copyWith(color: AssalColors.error)),
+                              .copyWith(color: context.assalError)),
                     ],
                     if (dialogNotice != null) ...[
-                      const SizedBox(height: AssalSpacing.sm),
+                      SizedBox(height: AssalSpacing.sm),
                       Text(dialogNotice!,
                           textAlign: TextAlign.center,
                           style: AssalTypography.caption
-                              .copyWith(color: AssalColors.success)),
+                              .copyWith(color: context.assalSuccess)),
                     ],
                   ],
                 ),
@@ -415,10 +415,10 @@ class _PasswordStrength extends StatelessWidget {
     final asciiOnly =
         value.isEmpty || RegExp(r'^[\x21-\x7E]+$').hasMatch(value);
     final strong = asciiOnly && checks.every((check) => check.valid);
-    final color = strong ? AssalColors.success : AssalColors.error;
+    final color = strong ? context.assalSuccess : context.assalError;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AssalSpacing.sm),
+      padding: EdgeInsets.all(AssalSpacing.sm),
       decoration: BoxDecoration(
         color: color.withAlpha(20),
         borderRadius: BorderRadius.circular(AssalRadius.medium),
@@ -431,7 +431,7 @@ class _PasswordStrength extends StatelessWidget {
                 : (strong ? 'كلمة المرور قوية' : 'كلمة المرور تحتاج إلى تقوية'),
             style: AssalTypography.caption
                 .copyWith(color: color, fontWeight: FontWeight.w700)),
-        const SizedBox(height: AssalSpacing.xs),
+        SizedBox(height: AssalSpacing.xs),
         Wrap(
           spacing: AssalSpacing.sm,
           runSpacing: AssalSpacing.xs,
@@ -440,14 +440,14 @@ class _PasswordStrength extends StatelessWidget {
                     Icon(check.valid ? Icons.check_circle : Icons.cancel,
                         size: 15,
                         color: check.valid
-                            ? AssalColors.success
-                            : AssalColors.error),
-                    const SizedBox(width: 3),
+                            ? context.assalSuccess
+                            : context.assalError),
+                    SizedBox(width: 3),
                     Text(check.label,
                         style: AssalTypography.caption.copyWith(
                             color: check.valid
-                                ? AssalColors.success
-                                : AssalColors.error)),
+                                ? context.assalSuccess
+                                : context.assalError)),
                   ]))
               .toList(),
         ),
@@ -520,22 +520,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _guest(BuildContext context) {
     return Card(
-      color: AssalColors.surfaceVariant,
+      color: context.assalSurfaceVariant,
       child: Padding(
-        padding: const EdgeInsets.all(AssalSpacing.xl),
+        padding: EdgeInsets.all(AssalSpacing.xl),
         child: Column(children: [
-          const CircleAvatar(
+          CircleAvatar(
               radius: 34,
-              backgroundColor: AssalColors.honeyLight,
+              backgroundColor: context.assalHoneyLight,
               child: Icon(Icons.person_outline,
-                  size: 36, color: AssalColors.primaryLight)),
-          const SizedBox(height: AssalSpacing.md),
+                  size: 36, color: context.assalPrimaryLight)),
+          SizedBox(height: AssalSpacing.md),
           Text('تصفح كزائر',
               style: AssalTypography.heading2
-                  .copyWith(color: AssalColors.textPrimary)),
-          const SizedBox(height: AssalSpacing.sm),
-          const Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'),
-          const SizedBox(height: AssalSpacing.lg),
+                  .copyWith(color: context.assalTextPrimary)),
+          SizedBox(height: AssalSpacing.sm),
+          Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'),
+          SizedBox(height: AssalSpacing.lg),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
@@ -584,10 +584,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           Transform.translate(
-            offset: const Offset(0, -42),
+            offset: Offset(0, -42),
             child: CircleAvatar(
               radius: 42,
-              backgroundColor: AssalColors.surfaceRaised,
+              backgroundColor: context.assalSurfaceRaised,
               backgroundImage:
                   avatarUrl != null && avatarUrl.startsWith('http')
                       ? NetworkImage(avatarUrl)
@@ -598,7 +598,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ? 'ع'
                           : user.nameAr.substring(0, 1),
                       style: AssalTypography.heading1
-                          .copyWith(color: AssalColors.primaryLight),
+                          .copyWith(color: context.assalPrimaryLight),
                     )
                   : null,
             ),
@@ -606,13 +606,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             user.nameAr.isEmpty ? 'عميل عسلكم' : user.nameAr,
             style:
-                AssalTypography.heading2.copyWith(color: AssalColors.textPrimary),
+                AssalTypography.heading2.copyWith(color: context.assalTextPrimary),
           ),
           if (user.email != null && user.email!.isNotEmpty)
             Text(
               user.email!,
               style: AssalTypography.body
-                  .copyWith(color: AssalColors.textSecondary),
+                  .copyWith(color: context.assalTextSecondary),
             ),
           if (user.phone != null && user.phone!.isNotEmpty)
             _profileLine(Icons.phone_outlined, user.phone!),
@@ -677,12 +677,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _profileLine(IconData icon, String value) => Padding(
-        padding: const EdgeInsets.only(top: AssalSpacing.xs),
+        padding: EdgeInsets.only(top: AssalSpacing.xs),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: AssalColors.primaryLight),
-            const SizedBox(width: AssalSpacing.xs),
+            Icon(icon, size: 16, color: context.assalPrimaryLight),
+            SizedBox(width: AssalSpacing.xs),
             Text(value, style: AssalTypography.body),
           ],
         ),
@@ -707,12 +707,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _accountHub(BuildContext context) {
     return Card(
-        color: AssalColors.surfaceVariant,
+        color: context.assalSurfaceVariant,
         child: Column(children: [
           ListTile(
-              leading: const Icon(Icons.bookmarks_outlined),
-              title: const Text('المحفوظات'),
-              trailing: const Icon(Icons.chevron_left),
+              leading: Icon(Icons.bookmarks_outlined),
+              title: Text('المحفوظات'),
+              trailing: Icon(Icons.chevron_left),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) =>
                       FavoritesScreen(repository: repository)))),
@@ -724,22 +724,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   builder: (_) =>
                       NotificationsScreen(repository: repository)))),
           ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('الإعدادات'),
-              trailing: const Icon(Icons.chevron_left),
+              leading: Icon(Icons.settings_outlined),
+              title: Text('الإعدادات'),
+              trailing: Icon(Icons.chevron_left),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => const SettingsScreen()))),
+                  builder: (_) => SettingsScreen()))),
           ListTile(
-              leading: const Icon(Icons.help_outline),
-              title: const Text('الدعم والتعريف بعسلكم'),
-              trailing: const Icon(Icons.chevron_left),
+              leading: Icon(Icons.help_outline),
+              title: Text('الدعم والتعريف بعسلكم'),
+              trailing: Icon(Icons.chevron_left),
               onTap: () => showAboutDialog(
                       context: context,
-                      backgroundColor: AssalColors.surfaceRaised,
+                      backgroundColor: context.assalSurfaceRaised,
                       applicationName: 'عسلكم',
                       applicationVersion: 'Demo',
                       children: [
-                        const Text(
+                        Text(
                             'منصة اكتشاف وتواصل للعسل اليمني من مصدره.')
                       ]))
         ]));
@@ -815,12 +815,12 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
     final value = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: AssalColors.surfaceRaised,
-        title: const Text('تحديد الموقع الجغرافي'),
+        backgroundColor: context.assalSurfaceRaised,
+        title: Text('تحديد الموقع الجغرافي'),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'المدينة أو المنطقة',
             hintText: 'مثال: صنعاء، حدة',
           ),
@@ -1006,19 +1006,20 @@ class _ProfileStats extends StatelessWidget {
           return Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _metric('${countAt(0)}', 'المتابعات'),
-                _metric('${countAt(1)}', 'المحفوظات'),
-                _metric('${countAt(2)}', 'الطلبات')
+                _metric(context, '${countAt(0)}', 'المتابعات'),
+                _metric(context, '${countAt(1)}', 'المحفوظات'),
+                _metric(context, '${countAt(2)}', 'الطلبات')
               ]);
         },
       );
 
-  Widget _metric(String value, String label) => Column(children: [
+  Widget _metric(BuildContext context, String value, String label) =>
+      Column(children: [
         Text(value,
             style: AssalTypography.heading3
-                .copyWith(color: AssalColors.textPrimary)),
+                .copyWith(color: context.assalTextPrimary)),
         Text(label,
-            style: AssalTypography.caption.copyWith(color: AssalColors.textMuted))
+            style: AssalTypography.caption.copyWith(color: context.assalTextMuted))
       ]);
 }
 
@@ -1050,18 +1051,18 @@ class RequestsScreen extends StatelessWidget {
               return AssalStateView<List<AssalRequestSummary>>(
                 state: snapshot.data!,
                 builder: (requests) => ListView.separated(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  padding: EdgeInsets.all(AssalSpacing.lg),
                   itemCount: requests.length,
                   separatorBuilder: (_, __) =>
-                      const SizedBox(height: AssalSpacing.sm),
+                      SizedBox(height: AssalSpacing.sm),
                   itemBuilder: (_, index) {
                     final request = requests[index];
                     return Card(
                       child: ListTile(
-                        leading: const CircleAvatar(
-                            backgroundColor: AssalColors.honeyLight,
+                        leading: CircleAvatar(
+                            backgroundColor: context.assalHoneyLight,
                             child: Icon(Icons.assignment_outlined,
-                                color: AssalColors.primaryLight)),
+                                color: context.assalPrimaryLight)),
                         title: Text(request.subject),
                         subtitle: Text(
                             '${request.storeName ?? request.storeId} · ${request.preferredHandoffOption ?? 'تواصل مباشر'}'),
@@ -1107,7 +1108,7 @@ class NotificationsScreen extends StatelessWidget {
               return AssalStateView<List<AssalNotificationSummary>>(
                 state: snapshot.data!,
                 builder: (items) => ListView.separated(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  padding: EdgeInsets.all(AssalSpacing.lg),
                   itemCount: items.length,
                   separatorBuilder: (_, __) => const Divider(),
                   itemBuilder: (_, index) {
@@ -1119,8 +1120,8 @@ class NotificationsScreen extends StatelessWidget {
                         imageUrlString != null && imageUrlString.isNotEmpty;
                     return Card(
                       color: item.readAt == null
-                          ? AssalColors.surfaceVariant
-                          : AssalColors.surface,
+                          ? context.assalSurfaceVariant
+                          : context.assalSurface,
                       child: ListTile(
                         leading: hasImage
                             ? ClipRRect(
@@ -1132,17 +1133,17 @@ class NotificationsScreen extends StatelessWidget {
                                   height: 52,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) =>
-                                      const Icon(Icons.broken_image_outlined),
+                                      Icon(Icons.broken_image_outlined),
                                 ),
                               )
-                            : const CircleAvatar(
-                                backgroundColor: AssalColors.honeyLight,
+                            : CircleAvatar(
+                                backgroundColor: context.assalHoneyLight,
                                 child: Icon(
                                     Icons.notifications_active_outlined,
-                                    color: AssalColors.primaryLight)),
+                                    color: context.assalPrimaryLight)),
                         title: Text(item.titleAr,
                             style: item.readAt == null
-                                ? const TextStyle(fontWeight: FontWeight.w700)
+                                ? TextStyle(fontWeight: FontWeight.w700)
                                 : null),
                         subtitle: Text(item.bodyAr ?? ''),
                         onTap: () async {
@@ -1207,7 +1208,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               return AssalStateView<List<AssalMessageSummary>>(
                 state: snapshot.data!,
                 builder: (messages) => ListView(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  padding: EdgeInsets.all(AssalSpacing.lg),
                   children: messages.map<Widget>((message) {
                     return Align(
                       alignment: message.isMine
@@ -1215,10 +1216,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           : AlignmentDirectional.centerEnd,
                       child: Card(
                         color: message.isMine
-                            ? AssalColors.honeyLight
-                            : AssalColors.surfaceVariant,
+                            ? context.assalHoneyLight
+                            : context.assalSurfaceVariant,
                         child: Padding(
-                            padding: const EdgeInsets.all(AssalSpacing.md),
+                            padding: EdgeInsets.all(AssalSpacing.md),
                             child: Text(message.body)),
                       ),
                     );
@@ -1238,13 +1239,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       maxLines: 3,
                       minLines: 1,
                       decoration:
-                          const InputDecoration(hintText: 'اكتب رسالتك'))),
+                          InputDecoration(hintText: 'اكتب رسالتك'))),
               IconButton(
                   onPressed: _send,
-                  icon: const Icon(Icons.send_rounded),
+                  icon: Icon(Icons.send_rounded),
                   style: IconButton.styleFrom(
-                    backgroundColor: AssalColors.honeyLight,
-                    foregroundColor: AssalColors.primaryLight,
+                    backgroundColor: context.assalHoneyLight,
+                    foregroundColor: context.assalPrimaryLight,
                   ),
                   tooltip: 'إرسال'),
             ]),
@@ -1312,10 +1313,10 @@ class MessagesScreen extends StatelessWidget {
               return AssalStateView<List<AssalConversationSummary>>(
                 state: snapshot.data!,
                 builder: (items) => ListView.separated(
-                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  padding: EdgeInsets.all(AssalSpacing.lg),
                   itemCount: items.length,
                   separatorBuilder: (_, __) =>
-                      const SizedBox(height: AssalSpacing.sm),
+                      SizedBox(height: AssalSpacing.sm),
                   itemBuilder: (_, index) {
                     final item = items[index];
                     return Card(
@@ -1323,11 +1324,11 @@ class MessagesScreen extends StatelessWidget {
                         leading: Badge(
                           isLabelVisible: item.unreadCount > 0,
                           label: Text('${item.unreadCount}'),
-                          backgroundColor: AssalColors.primary,
-                          child: const CircleAvatar(
-                              backgroundColor: AssalColors.honeyLight,
+                          backgroundColor: context.assalPrimary,
+                          child: CircleAvatar(
+                              backgroundColor: context.assalHoneyLight,
                               child: Icon(Icons.storefront_outlined,
-                                  color: AssalColors.primaryLight)),
+                                  color: context.assalPrimaryLight)),
                         ),
                         title: Text(item.storeName),
                         subtitle: Text(item.lastMessage),
@@ -1350,7 +1351,9 @@ class MessagesScreen extends StatelessWidget {
 }
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.themeController});
+
+  final AssalThemeController? themeController;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -1360,66 +1363,116 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationsEnabled = true;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: const AssalAppBar(title: 'الإعدادات'),
-        body:
-            ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
-          Card(
-              color: AssalColors.surfaceVariant,
-              child: Column(children: [
+  Widget build(BuildContext context) {
+    final controller =
+        widget.themeController ?? AssalThemeScope.of(context);
+    return Scaffold(
+      appBar: const AssalAppBar(title: 'الإعدادات'),
+      body: ListView(
+          padding: const EdgeInsets.all(AssalSpacing.lg),
+          children: [
+        Card(
+            child: Column(children: [
+          ValueListenableBuilder<AssalThemeMode>(
+            valueListenable: controller,
+            builder: (context, mode, _) {
+              final isDark = mode == AssalThemeMode.dark;
+              return Column(children: [
                 SwitchListTile(
-                    value: notificationsEnabled,
-                    onChanged: (value) {
-                      setState(() => notificationsEnabled = value);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(value
-                              ? 'تم تفعيل الإشعارات في هذه الجلسة.'
-                              : 'تم إيقاف الإشعارات في هذه الجلسة.')));
-                    },
-                    title: const Text('الإشعارات'),
-                    subtitle: const Text('تفضيل محفوظ في Demo Mode للجلسة الحالية'),
-                    secondary: const Icon(Icons.notifications_outlined)),
-                const ListTile(
-                    leading: Icon(Icons.language),
-                    title: Text('اللغة'),
-                    subtitle: Text('العربية — RTL (اللغة الأساسية)')),
-                const ListTile(
-                    leading: Icon(Icons.palette_outlined),
-                    title: Text('المظهر'),
-                    subtitle: Text('هوية عسلكم الداكنة')),
-                ListTile(
-                    leading: const Icon(Icons.lock_outline),
-                    title: const Text('الخصوصية والأمان'),
-                    subtitle: const Text('صلاحيات الحساب وبيانات التواصل'),
-                    onTap: () => showDialog<void>(
-                            context: context,
-                            builder: (dialogContext) => AlertDialog(
-                                backgroundColor: AssalColors.surfaceRaised,
-                                title: const Text('الخصوصية والأمان'),
-                                content: const Text(
-                                    'في Demo لا تُرسل بياناتك إلى خادم. في Production ستُفرض الصلاحيات من Auth وRLS.'),
-                                actions: [
-                                  FilledButton(
-                                      onPressed: () =>
-                                          Navigator.pop(dialogContext),
-                                      child: const Text('حسنًا'))
-                                ]))),
-                ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: const Text('عن عسلكم'),
-                    subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'),
-                    onTap: () => showAboutDialog(
-                            context: context,
-                            backgroundColor: AssalColors.surfaceRaised,
-                            applicationName: 'عسلكم',
-                            applicationVersion: 'Customer App',
-                            children: [
-                              const Text(
-                                  'اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.')
-                            ]))
-              ])),
-        ]),
-      );
+                  value: isDark,
+                  onChanged: (value) {
+                    controller.setMode(value
+                        ? AssalThemeMode.dark
+                        : AssalThemeMode.beige);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(value
+                            ? 'تم تفعيل الوضع الليلي الداكن.'
+                            : 'تم الرجوع إلى الوضع الافتراضي البيج.')));
+                  },
+                  title: const Text('الوضع الليلي'),
+                  subtitle: Text(isDark
+                      ? 'التصميم الجاري الآن: العسلي الداكن'
+                      : 'الوضع الجاري الآن: البيج الفاتح الافتراضي'),
+                  secondary: const Icon(Icons.nightlight_outlined),
+                ),
+                SegmentedButton<AssalThemeMode>(
+                  segments: const [
+                    ButtonSegment(
+                      value: AssalThemeMode.beige,
+                      icon: Icon(Icons.light_mode_outlined),
+                      label: Text('الافتراضي البيج'),
+                    ),
+                    ButtonSegment(
+                      value: AssalThemeMode.dark,
+                      icon: Icon(Icons.dark_mode_outlined),
+                      label: Text('الداكن'),
+                    ),
+                  ],
+                  selected: {mode},
+                  onSelectionChanged: (selection) {
+                    controller.setMode(selection.first);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(selection.first == AssalThemeMode.dark
+                            ? 'تم تفعيل الوضع الليلي الداكن.'
+                            : 'تم الرجوع إلى الوضع الافتراضي البيج.')));
+                  },
+                ),
+              ]);
+            },
+          ),
+          const Divider(),
+          SwitchListTile(
+              value: notificationsEnabled,
+              onChanged: (value) {
+                setState(() => notificationsEnabled = value);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(value
+                        ? 'تم تفعيل الإشعارات في هذه الجلسة.'
+                        : 'تم إيقاف الإشعارات في هذه الجلسة.')));
+              },
+              title: const Text('الإشعارات'),
+              subtitle: const Text('تفضيل محفوظ في Demo Mode للجلسة الحالية'),
+              secondary: const Icon(Icons.notifications_outlined)),
+          const ListTile(
+              leading: Icon(Icons.language),
+              title: Text('اللغة'),
+              subtitle: Text('العربية — RTL (اللغة الأساسية)')),
+          const ListTile(
+              leading: Icon(Icons.palette_outlined),
+              title: Text('المظهر'),
+              subtitle: Text('افتراضي: بيج دافئ قريب من الأبيض | ليلي: داكن عسلي')),
+          ListTile(
+              leading: const Icon(Icons.lock_outline),
+              title: const Text('الخصوصية والأمان'),
+              subtitle: const Text('صلاحيات الحساب وبيانات التواصل'),
+              onTap: () => showDialog<void>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                          backgroundColor:
+                              Theme.of(dialogContext).colorScheme.surface,
+                          title: const Text('الخصوصية والأمان'),
+                          content: const Text(
+                              'في Demo لا تُرسل بياناتك إلى خادم. في Production ستُفرض الصلاحيات من Auth وRLS.'),
+                          actions: [
+                            FilledButton(
+                                onPressed: () => Navigator.pop(dialogContext),
+                                child: const Text('حسنًا'))
+                          ]))),
+          ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('عن عسلكم'),
+              subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'),
+              onTap: () => showAboutDialog(
+                      context: context,
+                      applicationName: 'عسلكم',
+                      applicationVersion: 'Customer App',
+                      children: const [
+                        Text('اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.')
+                      ]))
+        ])),
+      ]),
+    );
+  }
 }
 
 class MerchantWorkspaceSetupScreen extends StatefulWidget {
@@ -1619,37 +1672,37 @@ class _MerchantWorkspaceSetupScreenState
       body: Form(
         key: formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
+          padding: EdgeInsets.all(AssalSpacing.lg),
           children: [
-            const AssalImageTile(
+            AssalImageTile(
               height: 170,
               icon: Icons.storefront_outlined,
             ),
-            const SizedBox(height: AssalSpacing.lg),
+            SizedBox(height: AssalSpacing.lg),
             Text(
               'مساحة متجرك تبدأ الآن',
               style: AssalTypography.heading1
-                  .copyWith(color: AssalColors.textPrimary),
+                  .copyWith(color: context.assalTextPrimary),
             ),
-            const SizedBox(height: AssalSpacing.sm),
+            SizedBox(height: AssalSpacing.sm),
             Text(
               'أكمل الحد الأدنى من البيانات، ثم افتح مساحة المتجر فورًا.',
               style: AssalTypography.bodyLarge
-                  .copyWith(color: AssalColors.textSecondary),
+                  .copyWith(color: context.assalTextSecondary),
             ),
-            const SizedBox(height: AssalSpacing.lg),
+            SizedBox(height: AssalSpacing.lg),
             Container(
-              padding: const EdgeInsets.all(AssalSpacing.md),
+              padding: EdgeInsets.all(AssalSpacing.md),
               decoration: BoxDecoration(
-                color: AssalColors.surfaceVariant,
+                color: context.assalSurfaceVariant,
                 borderRadius: BorderRadius.circular(AssalRadius.medium),
-                border: Border.all(color: AssalColors.border),
+                border: Border.all(color: context.assalBorder),
               ),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(Icons.pending_actions_outlined,
-                      color: AssalColors.primaryLight),
+                      color: context.assalPrimaryLight),
                   SizedBox(width: AssalSpacing.sm),
                   Expanded(
                     child: Text(

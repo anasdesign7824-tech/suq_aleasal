@@ -1,5 +1,5 @@
-/* عسلكم — Premium Dark Honey Admin (RTL-first).
-   Light legacy paint is neutralized by the dark override layer below. */
+/* عسلكم — Premium beige default + optional dark night (RTL-first).
+   Default is warm beige near-white. Dark layer activates only under html.dark. */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -22,15 +22,16 @@
 
 :root {
   --radius: 1rem;
-  --background: #0d0906;
-  --foreground: #f7ede2;
-  --card: #1a120c;
-  --card-foreground: #f7ede2;
-  --primary: #f5a623;
-  --primary-foreground: #2b1a12;
-  --border: #38291d;
-  --input: #24180f;
-  --ring: #f5a623;
+  --background: #fbf8f2;
+  --foreground: #342118;
+  --card: #ffffff;
+  --card-foreground: #342118;
+  --primary: #9c5a00;
+  --primary-foreground: #fffaf0;
+  --border: #eadcc9;
+  --input: #f5eee3;
+  --ring: #d79a2b;
+  color-scheme: light;
 }
 
 .dark {
@@ -46,83 +47,69 @@
   color-scheme: dark;
 }
 
-* { border-color: var(--border); color-scheme: dark; }
-html { min-width: 320px; background: var(--background); color-scheme: dark; }
+* { border-color: var(--border); }
+html { min-width: 320px; background: var(--background); }
 body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-sans); }
 button, input, select, textarea { font: inherit; }
-h1, h2, h3, h4 { color: var(--foreground); }
-p, span, li, td, th, dt, dd, label { color: var(--foreground); }
 
-/* New premium dark honey containers */
 .admin-card {
-  border: 1px solid #38291d;
+  border: 1px solid #eadcc9;
   border-radius: 1.25rem;
-  background: linear-gradient(160deg, rgba(26,18,12,.98), rgba(43,29,18,.86));
-  box-shadow: 0 14px 38px rgba(0, 0, 0, .38);
-  color: #f7ede2;
-  transition: transform 180ms cubic-bezier(.23, 1, .32, 1), border-color 180ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms cubic-bezier(.23, 1, .32, 1);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 12px 32px rgba(79,46,31,.055);
+  color: #342118;
+  transition: transform 180ms cubic-bezier(.23,1,.32,1), border-color 180ms cubic-bezier(.23,1,.32,1), box-shadow 180ms cubic-bezier(.23,1,.32,1);
 }
-.admin-card:hover { border-color: #4a3523; box-shadow: 0 20px 48px rgba(0, 0, 0, .5); }
+.admin-card:hover { border-color: #c9a46b; box-shadow: 0 17px 38px rgba(79,46,31,.085); }
 .section-kicker {
   display: inline-flex;
   align-items: center;
   gap: .55rem;
-  color: #f5a623;
+  color: #a06b25;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: .16em;
 }
-.section-kicker::before { content: ""; display: inline-block; height: .8rem; width: 3px; border-radius: 99px; background: #f5a623; }
+.section-kicker::before { content: ""; display: inline-block; height: .8rem; width: 3px; border-radius: 99px; background: #f39c12; }
 
-/* Dark override layer — remap legacy light-ivory classes without touching JSX */
-[class*="bg-[#fbf8f2]"] { background-color: #0d0906 !important; }
-[class*="bg-white"] { background-color: #1f150d !important; }
-[class*="bg-[#fffaf3]"] { background-color: #24180f !important; }
-[class*="bg-[#fff0d6]"] { background-color: #332416 !important; }
-[class*="bg-[#fff7e9]"] { background-color: #332416 !important; }
-[class*="bg-[#f3e9df]"] { background-color: #2b1d12 !important; }
-[class*="bg-white/70"] { background-color: rgba(31, 21, 13, .78) !important; }
-[class*="border-[#eadcc9]"] { border-color: #38291d !important; }
-[class*="border-[#eee1d0]"] { border-color: #38291d !important; }
-[class*="border-[#f1e7da]"] { border-color: #38291d !important; }
-[class*="border-[#e3c28d]"] { border-color: #7a5a2a !important; }
-[class*="border-[#d8c7b6]"] { border-color: #4a3523 !important; }
-[class*="divide-[#f1e7da]"] > * + * { border-color: #38291d !important; }
-
-[class*="text-[#342118]"] { color: #f7ede2 !important; }
-[class*="text-[#432a1e]"] { color: #f7ede2 !important; }
-[class*="text-[#3f281d]"] { color: #f7ede2 !important; }
-[class*="text-[#4f2e1f]"] { color: #f5a623 !important; }
-[class*="text-[#806b5a]"] { color: #c9b6a3 !important; }
-[class*="text-[#8e7a68]"] { color: #c9b6a3 !important; }
-[class*="text-[#816b58]"] { color: #c9b6a3 !important; }
-[class*="text-[#8b5a2b]"] { color: #ffc45e !important; }
-[class*="text-[#8b5a2d]"] { color: #ffc45e !important; }
-[class*="text-[#76502e]"] { color: #ffc45e !important; }
-[class*="text-[#a06b25]"] { color: #f5a623 !important; }
-[class*="text-[#a37747]"] { color: #c9b6a3 !important; }
-[class*="text-[#9c5a00]"] { color: #f5a623 !important; }
-[class*="text-[#c77d1a]"] { color: #ffc45e !important; }
-
-[class*="bg-[#4f2e1f]"] { background-color: #2b1d12 !important; }
-[class*="hover:bg-[#6b412a]"]:hover { background-color: #332416 !important; }
-
-[class*="bg-amber-50"] { background-color: #332416 !important; }
-[class*="bg-red-50"] { background-color: #2b1a12 !important; }
-[class*="text-amber-900"] { color: #ffc45e !important; }
-[class*="text-red-800"] { color: #ff8a7d !important; }
-[class*="border-amber-300"] { border-color: #7a5a2a !important; }
-
-/* Radix / shadcn dialogs and sheets inherit the dark surface */
-[data-slot="dialog-content"], [data-slot="sheet-content"], [data-slot="popover-content"], [data-slot="dropdown-menu-content"] {
-  background-color: var(--card) !important;
-  color: var(--foreground) !important;
-  border-color: var(--border) !important;
-}
-[data-slot="select-content"] { background-color: var(--card) !important; border-color: var(--border) !important; }
+/* Night layer only when html.dark is present */
+.dark .admin-card { border-color: #38291d; background: linear-gradient(160deg, rgba(26,18,12,.98), rgba(43,29,18,.86)); color: #f7ede2; box-shadow: 0 14px 38px rgba(0,0,0,.38); }
+.dark .admin-card:hover { border-color: #4a3523; }
+.dark .section-kicker { color: #f5a623; }
+.dark .section-kicker::before { background: #f5a623; }
+.dark [class*="bg-[#fbf8f2]"] { background-color: #0d0906 !important; }
+.dark [class*="bg-white"] { background-color: #1f150d !important; }
+.dark [class*="bg-[#fffaf3]"] { background-color: #24180f !important; }
+.dark [class*="bg-[#fff0d6]"] { background-color: #332416 !important; }
+.dark [class*="bg-[#fff7e9]"] { background-color: #332416 !important; }
+.dark [class*="bg-[#f3e9df]"] { background-color: #2b1d12 !important; }
+.dark [class*="bg-white/70"] { background-color: rgba(31,21,13,.78) !important; }
+.dark [class*="border-[#eadcc9]"] { border-color: #38291d !important; }
+.dark [class*="border-[#eee1d0]"] { border-color: #38291d !important; }
+.dark [class*="border-[#f1e7da]"] { border-color: #38291d !important; }
+.dark [class*="border-[#e3c28d]"] { border-color: #7a5a2a !important; }
+.dark [class*="border-[#d8c7b6]"] { border-color: #4a3523 !important; }
+.dark [class*="text-[#342118]"] { color: #f7ede2 !important; }
+.dark [class*="text-[#432a1e]"] { color: #f7ede2 !important; }
+.dark [class*="text-[#3f281d]"] { color: #f7ede2 !important; }
+.dark [class*="text-[#4f2e1f]"] { color: #f5a623 !important; }
+.dark [class*="text-[#806b5a]"] { color: #c9b6a3 !important; }
+.dark [class*="text-[#8e7a68]"] { color: #c9b6a3 !important; }
+.dark [class*="text-[#8b5a2b]"] { color: #ffc45e !important; }
+.dark [class*="text-[#76502e]"] { color: #ffc45e !important; }
+.dark [class*="text-[#9c5a00]"] { color: #f5a623 !important; }
+.dark [class*="bg-[#4f2e1f]"] { background-color: #2b1d12 !important; }
+.dark [class*="hover:bg-[#6b412a]"]:hover { background-color: #332416 !important; }
+.dark [class*="bg-amber-50"] { background-color: #332416 !important; }
+.dark [class*="bg-red-50"] { background-color: #2b1a12 !important; }
+.dark [class*="text-amber-900"] { color: #ffc45e !important; }
+.dark [class*="text-red-800"] { color: #ff8a7d !important; }
+.dark [class*="border-amber-300"] { border-color: #7a5a2a !important; }
+.dark [data-slot="dialog-content"], .dark [data-slot="sheet-content"], .dark [data-slot="popover-content"], .dark [data-slot="dropdown-menu-content"] { background-color: var(--card) !important; color: var(--foreground) !important; border-color: var(--border) !important; }
+.dark [data-slot="select-content"] { background-color: var(--card) !important; border-color: var(--border) !important; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .admin-card { animation: card-in 360ms cubic-bezier(.23, 1, .32, 1) both; }
+  .admin-card { animation: card-in 360ms cubic-bezier(.23,1,.32,1) both; }
   @keyframes card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 }
 @media (max-width: 640px) { .admin-card { border-radius: 1rem; } }

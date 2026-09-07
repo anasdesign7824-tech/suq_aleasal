@@ -174,19 +174,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final session = await widget.repository.getSession();
     final userId = session.user?.id;
     if (userId == null || userId.isEmpty)
-      return const AssalEmpty('سجّل الدخول لرؤية إشعاراتك');
+      return AssalEmpty('سجّل الدخول لرؤية إشعاراتك');
     return widget.repository.listNotifications(userId);
   }
 
   @override
   Widget build(BuildContext context) => RefreshIndicator(
-        color: AssalColors.primary,
+        color: context.assalPrimary,
         onRefresh: () async => _refresh(),
         child: FutureBuilder<bool>(
           future: initialContentFuture,
           builder: (context, snapshot) {
             if (snapshot.hasError)
-              return const CustomScrollView(slivers: [
+              return CustomScrollView(slivers: [
                 SliverFillRemaining(
                     hasScrollBody: false,
                     child: AssalMessageCard(
@@ -468,7 +468,7 @@ class _HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
     return Container(
-      color: AssalColors.surface,
+      color: context.assalSurface,
       padding: EdgeInsets.fromLTRB(
           AssalSpacing.lg, top + AssalSpacing.sm, AssalSpacing.lg, AssalSpacing.lg),
       child: Column(
@@ -490,50 +490,50 @@ class _HomeHeader extends StatelessWidget {
                   return Badge(
                     isLabelVisible: unread > 0,
                     label: Text('$unread'),
-                    backgroundColor: AssalColors.primary,
+                    backgroundColor: context.assalPrimary,
                     child: IconButton(
                       onPressed: onOpenNotifications,
-                      icon: const Icon(Icons.notifications_none_rounded),
+                      icon: Icon(Icons.notifications_none_rounded),
                       tooltip: 'الإشعارات',
-                      color: AssalColors.textPrimary,
+                      color: context.assalTextPrimary,
                     ),
                   );
                 },
               ),
-              const SizedBox(width: AssalSpacing.xs),
-              const Icon(Icons.more_vert_rounded),
+              SizedBox(width: AssalSpacing.xs),
+              Icon(Icons.more_vert_rounded),
             ],
           ),
-          const SizedBox(height: AssalSpacing.lg),
+          SizedBox(height: AssalSpacing.lg),
           Text(
             'العسل اليمني من مصدره',
             style: AssalTypography.heading2
-                .copyWith(color: AssalColors.textPrimary),
+                .copyWith(color: context.assalTextPrimary),
           ),
-          const SizedBox(height: AssalSpacing.xs),
+          SizedBox(height: AssalSpacing.xs),
           Text(
             'اكتشف النوع والمنطقة والتوثيق قبل أن تتواصل.',
             style:
-                AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+                AssalTypography.body.copyWith(color: context.assalTextSecondary),
           ),
-          const SizedBox(height: AssalSpacing.md),
+          SizedBox(height: AssalSpacing.md),
           InkWell(
             borderRadius: BorderRadius.circular(AssalRadius.medium),
             onTap: onOpenSearch,
             child: Container(
               height: 48,
-              padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.md),
+              padding: EdgeInsets.symmetric(horizontal: AssalSpacing.md),
               decoration: BoxDecoration(
-                color: AssalColors.surfaceVariant,
+                color: context.assalSurfaceVariant,
                 borderRadius: BorderRadius.circular(AssalRadius.medium),
-                border: Border.all(color: AssalColors.border),
+                border: Border.all(color: context.assalBorder),
               ),
-              child: const Row(children: [
-                Icon(Icons.search, color: AssalColors.primaryLight, size: 20),
+              child: Row(children: [
+                Icon(Icons.search, color: context.assalPrimaryLight, size: 20),
                 SizedBox(width: AssalSpacing.sm),
                 Text('ابحث عن صنف أو منطقة أو متجر',
                     style: AssalTypography.body
-                        .copyWith(color: AssalColors.textMuted)),
+                        .copyWith(color: context.assalTextMuted)),
               ]),
             ),
           ),
@@ -608,9 +608,9 @@ class _BannerCard extends StatelessWidget {
     final hasImage = banner.imageUrl != null && banner.imageUrl!.startsWith('http');
     return Container(
       decoration: BoxDecoration(
-        gradient: AssalColors.darkGradient,
+        gradient: context.assalGradient,
         borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
-        border: Border.all(color: AssalColors.borderStrong),
+        border: Border.all(color: context.assalBorderStrong),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -620,7 +620,7 @@ class _BannerCard extends StatelessWidget {
             Image.network(
               banner.imageUrl!,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              errorBuilder: (_, __, ___) => SizedBox.shrink(),
             ),
           Container(
             decoration: BoxDecoration(
@@ -628,14 +628,14 @@ class _BannerCard extends StatelessWidget {
                 begin: AlignmentDirectional.bottomStart,
                 end: AlignmentDirectional.topEnd,
                 colors: [
-                  AssalColors.glassDark,
-                  AssalColors.glassDark.withValues(alpha: .55),
+                  context.assalBackground,
+                  context.assalBackground.withValues(alpha: .55),
                 ],
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AssalSpacing.xl),
+            padding: EdgeInsets.all(AssalSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -645,17 +645,17 @@ class _BannerCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: AssalTypography.heading2
-                      .copyWith(color: AssalColors.cream),
+                      .copyWith(color: context.assalCream),
                 ),
-                const SizedBox(height: AssalSpacing.xs),
+                SizedBox(height: AssalSpacing.xs),
                 Text(
                   banner.descriptionAr,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style:
-                      AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+                      AssalTypography.body.copyWith(color: context.assalTextSecondary),
                 ),
-                const SizedBox(height: AssalSpacing.md),
+                SizedBox(height: AssalSpacing.md),
                 FilledButton(
                   onPressed: onExplore,
                   child: Text(banner.ctaLabelAr),
@@ -696,16 +696,16 @@ class _CategoryRail extends StatelessWidget {
             onTap: () => onTap(item),
             child: Container(
               width: 108,
-              padding: const EdgeInsets.all(AssalSpacing.sm),
+              padding: EdgeInsets.all(AssalSpacing.sm),
               decoration: BoxDecoration(
-                color: AssalColors.surfaceVariant,
+                color: context.assalSurfaceVariant,
                 borderRadius: BorderRadius.circular(AssalRadius.medium),
-                border: Border.all(color: AssalColors.border),
+                border: Border.all(color: context.assalBorder),
               ),
               child: Column(
                 children: [
-                  Icon(_taxonomyIcon(item.nameAr), color: AssalColors.primaryLight),
-                  const SizedBox(height: AssalSpacing.xs),
+                  Icon(_taxonomyIcon(item.nameAr), color: context.assalPrimaryLight),
+                  SizedBox(height: AssalSpacing.xs),
                   Expanded(
                     child: Text(
                       item.nameAr,
@@ -713,7 +713,7 @@ class _CategoryRail extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AssalTypography.caption.copyWith(
-                          color: AssalColors.textSecondary),
+                          color: context.assalTextSecondary),
                     ),
                   ),
                 ],
@@ -837,40 +837,40 @@ class CategoriesScreen extends StatelessWidget {
                               ),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(AssalSpacing.lg),
+                              padding: EdgeInsets.all(AssalSpacing.lg),
                               child: Row(children: [
                                 Container(
                                   width: 54,
                                   height: 54,
                                   decoration: BoxDecoration(
-                                    color: AssalColors.honeyLight,
+                                    color: context.assalHoneyLight,
                                     borderRadius: BorderRadius.circular(AssalRadius.medium),
-                                    border: Border.all(color: AssalColors.borderStrong),
+                                    border: Border.all(color: context.assalBorderStrong),
                                   ),
                                   child: Icon(
                                     _taxonomyIcon(category.nameAr, category.productType),
-                                    color: AssalColors.primaryLight,
+                                    color: context.assalPrimaryLight,
                                   ),
                                 ),
-                                const SizedBox(width: AssalSpacing.md),
+                                SizedBox(width: AssalSpacing.md),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(category.nameAr,
                                           style: AssalTypography.title
-                                              .copyWith(color: AssalColors.textPrimary)),
-                                      const SizedBox(height: AssalSpacing.xs),
+                                              .copyWith(color: context.assalTextPrimary)),
+                                      SizedBox(height: AssalSpacing.xs),
                                       Text(
                                         '${category.productCount} منتج متاح',
                                         style: AssalTypography.bodySmall
-                                            .copyWith(color: AssalColors.textSecondary),
+                                            .copyWith(color: context.assalTextSecondary),
                                       ),
                                     ],
                                   ),
                                 ),
-                                const Icon(Icons.chevron_left,
-                                    color: AssalColors.textMuted),
+                                Icon(Icons.chevron_left,
+                                    color: context.assalTextMuted),
                               ]),
                             ),
                           ),
@@ -1367,7 +1367,7 @@ class _SearchScreenState extends State<SearchScreen> {
       builder: (sheetContext) => StatefulBuilder(
         builder: (sheetContext, setModalState) => SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
+            padding: EdgeInsets.all(AssalSpacing.lg),
             child: SingleChildScrollView(
                 child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -1375,12 +1375,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: [
                       Text('تصفية النتائج',
                           style: AssalTypography.heading2
-                              .copyWith(color: AssalColors.textPrimary)),
-                      const SizedBox(height: AssalSpacing.md),
+                              .copyWith(color: context.assalTextPrimary)),
+                      SizedBox(height: AssalSpacing.md),
                       DropdownButtonFormField<String>(
                           initialValue: draftRegion,
                           decoration:
-                              const InputDecoration(labelText: 'المحافظة'),
+                              InputDecoration(labelText: 'المحافظة'),
                           items: regionItems,
                           onChanged: (value) => setModalState(() {
                                 draftRegion = value ?? '';
@@ -1491,7 +1491,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           decoration:
                               const InputDecoration(labelText: 'التوفر'),
                           items: [
-                            const DropdownMenuItem<String>(
+                            DropdownMenuItem<String>(
                                 value: '', child: Text('جميع الحالات')),
                             ...availabilityOptions.map((item) =>
                                 DropdownMenuItem<String>(
@@ -1502,9 +1502,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       Text(
                           'نطاق السعر: ${draftPriceRange.start.toStringAsFixed(0)} – ${draftPriceRange.end.toStringAsFixed(0)} ريال',
                           style: AssalTypography.bodyLarge
-                              .copyWith(color: AssalColors.textSecondary)),
+                              .copyWith(color: context.assalTextSecondary)),
                       RangeSlider(
-                        activeColor: AssalColors.primary,
+                        activeColor: context.assalPrimary,
                         min: priceMin,
                         max: priceMax,
                         divisions: 100,
@@ -1519,18 +1519,18 @@ class _SearchScreenState extends State<SearchScreen> {
                       Text(
                           'أدنى تقييم: ${draftMinRatingValue.toStringAsFixed(1)} من ${dataMaxRating.toStringAsFixed(1)}',
                           style: AssalTypography.bodyLarge
-                              .copyWith(color: AssalColors.textSecondary)),
+                              .copyWith(color: context.assalTextSecondary)),
                       Slider(
                         min: 0,
                         max: dataMaxRating,
-                        activeColor: AssalColors.primary,
+                        activeColor: context.assalPrimary,
                         divisions: 10,
                         value: draftMinRatingValue,
                         label: draftMinRatingValue.toStringAsFixed(1),
                         onChanged: (value) =>
                             setModalState(() => draftMinRatingValue = value),
                       ),
-                      const SizedBox(height: AssalSpacing.md),
+                      SizedBox(height: AssalSpacing.md),
                       SizedBox(
                           width: double.infinity,
                           child: FilledButton(

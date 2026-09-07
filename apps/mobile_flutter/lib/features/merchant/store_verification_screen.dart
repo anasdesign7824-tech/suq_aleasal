@@ -267,22 +267,22 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
 
   Widget _intro() => Card(
         child: Padding(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
+          padding: EdgeInsets.all(AssalSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.verified_user_outlined,
-                      color: AssalColors.primaryDark),
-                  const SizedBox(width: AssalSpacing.sm),
+                  Icon(Icons.verified_user_outlined,
+                      color: context.assalPrimaryDark),
+                  SizedBox(width: AssalSpacing.sm),
                   Text('شارة ثقة مبنية على مراجعة',
                       style: AssalTypography.heading3
-                          .copyWith(color: AssalColors.textPrimary)),
+                          .copyWith(color: context.assalTextPrimary)),
                 ],
               ),
-              const SizedBox(height: AssalSpacing.sm),
-              const Text(
+              SizedBox(height: AssalSpacing.sm),
+              Text(
                 'فتح المتجر وتفعيل ظهوره لا يعني التوثيق. توثيق Pro خدمة مستقلة تتطلب رسومًا ومستندات ومراجعة إدارية، وقد تُرفض أو تطلب معلومات إضافية.',
               ),
             ],
@@ -292,20 +292,20 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
 
   Widget _startCard() => Card(
         child: Padding(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
+          padding: EdgeInsets.all(AssalSpacing.lg),
           child: Column(
             children: [
-              const Icon(Icons.assignment_outlined,
-                  size: 42, color: AssalColors.primaryDark),
-              const SizedBox(height: AssalSpacing.sm),
-              const Text('لم يبدأ طلب التوثيق لهذا المتجر.'),
-              const SizedBox(height: AssalSpacing.md),
+              Icon(Icons.assignment_outlined,
+                  size: 42, color: context.assalPrimaryDark),
+              SizedBox(height: AssalSpacing.sm),
+              Text('لم يبدأ طلب التوثيق لهذا المتجر.'),
+              SizedBox(height: AssalSpacing.md),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: busy ? null : _createRequest,
-                  icon: const Icon(Icons.add_task_outlined),
-                  label: const Text('بدء طلب توثيق Pro'),
+                  icon: Icon(Icons.add_task_outlined),
+                  label: Text('بدء طلب توثيق Pro'),
                 ),
               ),
             ],
@@ -315,31 +315,31 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
 
   Widget _statusCard(AssalStoreVerificationSummary current) => Card(
         child: ListTile(
-          leading: const Icon(Icons.timeline_outlined,
-              color: AssalColors.primaryDark),
+          leading: Icon(Icons.timeline_outlined,
+              color: context.assalPrimaryDark),
           title: Text(current.status.labelAr),
           subtitle: Text(current.paymentStatus.labelAr),
           trailing: current.documentCount == 0
-              ? const Icon(Icons.warning_amber_outlined,
-                  color: AssalColors.warning)
+              ? Icon(Icons.warning_amber_outlined,
+                  color: context.assalWarning)
               : Text('${current.documentCount} مستند'),
         ),
       );
 
   Widget _paymentCard(AssalStoreVerificationSummary current) => Card(
         child: Padding(
-          padding: const EdgeInsets.all(AssalSpacing.lg),
+          padding: EdgeInsets.all(AssalSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('رسوم توثيق Pro',
                   style: AssalTypography.heading3
-                      .copyWith(color: AssalColors.textPrimary)),
-              const SizedBox(height: AssalSpacing.xs),
-              const Text(
+                      .copyWith(color: context.assalTextPrimary)),
+              SizedBox(height: AssalSpacing.xs),
+              Text(
                 'أرسل رقم العملية أو مرجع التحويل بالطريقة التي تعتمدها الإدارة. لا يتحول الطلب إلى مدفوع إلا بعد التحقق الإداري.',
               ),
-              const SizedBox(height: AssalSpacing.md),
+              SizedBox(height: AssalSpacing.md),
               TextField(
                 controller: paymentReferenceController,
                 enabled: !busy &&
@@ -381,16 +381,16 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
     ];
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AssalSpacing.lg),
+        padding: EdgeInsets.all(AssalSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('المستندات المطلوبة',
                 style: AssalTypography.heading3
-                    .copyWith(color: AssalColors.textPrimary)),
-            const SizedBox(height: AssalSpacing.xs),
-            const Text('المطلوب الأساسي: الهوية وإثبات تسجيل النشاط. بقية المستندات تدعم المراجعة حسب طبيعة المتجر.'),
-            const SizedBox(height: AssalSpacing.sm),
+                    .copyWith(color: context.assalTextPrimary)),
+            SizedBox(height: AssalSpacing.xs),
+            Text('المطلوب الأساسي: الهوية وإثبات تسجيل النشاط. بقية المستندات تدعم المراجعة حسب طبيعة المتجر.'),
+            SizedBox(height: AssalSpacing.sm),
             ...types.map(
               (type) {
                 final wire = _wireType(type);
@@ -400,8 +400,8 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
                   leading: Icon(
                     uploaded ? Icons.check_circle : Icons.description_outlined,
                     color: uploaded
-                        ? AssalColors.success
-                        : AssalColors.textSecondary,
+                        ? context.assalSuccess
+                        : context.assalTextSecondary,
                   ),
                   title: Text(_documentLabel(type)),
                   subtitle: Text(uploaded ? 'مرفق' : 'لم يُرفق بعد'),

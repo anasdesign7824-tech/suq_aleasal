@@ -27,16 +27,16 @@ class _ReviewsSectionState extends State<ReviewsSection> {
       FutureBuilder<AssalLoadState<List<AssalReviewSummary>>>(
         future: future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
+          if (!snapshot.hasData) return AssalSkeletonList(count: 3);
           return AssalStateView<List<AssalReviewSummary>>(
             state: snapshot.data!,
             builder: (reviews) => Column(
               children: reviews.map<Widget>((review) => Card(
                 child: ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: AssalColors.honeyLight,
+                  leading: CircleAvatar(
+                    backgroundColor: context.assalHoneyLight,
                     child: Icon(Icons.person_outline,
-                        color: AssalColors.primaryLight),
+                        color: context.assalPrimaryLight),
                   ),
                   title: Row(children: [
                     Expanded(child: Text(review.authorName ?? 'عميل')),
@@ -68,14 +68,14 @@ class _ReviewsSectionState extends State<ReviewsSection> {
     final submit = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(builder: (context, setModal) => AlertDialog(
-        backgroundColor: AssalColors.surfaceRaised,
-        title: const Text('مراجعتك'),
+        backgroundColor: context.assalSurfaceRaised,
+        title: Text('مراجعتك'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           DropdownButtonFormField<int>(initialValue: rating, items: [1, 2, 3, 4, 5].map<DropdownMenuItem<int>>((item) => DropdownMenuItem(value: item, child: Text('$item نجوم'))).toList(), onChanged: (value) => setModal(() => rating = value ?? 5)),
-          TextField(controller: body, maxLines: 3, decoration: const InputDecoration(hintText: 'شارك ما يفيد الآخرين')),
+          TextField(controller: body, maxLines: 3, decoration: InputDecoration(hintText: 'شارك ما يفيد الآخرين')),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('إلغاء')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text('إلغاء')),
           FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('نشر')),
         ],
       )),

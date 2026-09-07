@@ -28,6 +28,9 @@ Each row is a required acceptance criterion. Status: `PASS`, `PARTIAL`, `FAIL`, 
 | A22 | Static validation | PASS | `git diff --check` clean; no legacy light `deepBrown` refs in Flutter; no old light hex colors in Flutter. |
 | A23 | Runtime validation | BLOCKED | GAP-021: no Flutter/Dart SDK in sandbox. |
 | A24 | Backend/schema constraints respected | PASS | No backend/db/RLS/auth change. |
+| A25 | Default theme is warm beige | PASS | `AssalThemeMode.beige` is the default; theme builder uses beige canvas (`#FBF8F2`), white cards, dark brown text. |
+| A26 | Optional dark night from Settings | PASS | Settings screen exposes a night switch + segmented control; state switches via `AssalThemeController`. |
+| A27 | Theme state wired without backend/db | PASS | Theme preference is presentation-only (`ValueNotifier`/`InheritedNotifier`); no persistence contract changed. |
 
 ## Blocked / deferred
 

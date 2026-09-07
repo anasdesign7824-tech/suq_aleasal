@@ -105,21 +105,21 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   Widget _taxonomies() => FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
         future: taxonomiesFuture!,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalSkeletonList(count: 4);
+          if (!snapshot.hasData) return AssalSkeletonList(count: 4);
           return AssalStateView<List<AssalTaxonomy>>(
             state: snapshot.data!,
             onRetry: () => setState(() => _load(_loadedUserId!)),
             builder: (items) => ListView.separated(
-              padding: const EdgeInsets.all(AssalSpacing.lg),
+              padding: EdgeInsets.all(AssalSpacing.lg),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.sm),
+              separatorBuilder: (_, __) => SizedBox(height: AssalSpacing.sm),
               itemBuilder: (_, index) => Card(
                 child: ListTile(
                   leading: Icon(_favoriteTaxonomyIcon(items[index].nameAr),
-                      color: AssalColors.primaryLight),
+                      color: context.assalPrimaryLight),
                   title: Text(items[index].nameAr),
                   subtitle: Text(items[index].description ?? 'تصنيف محفوظ مرتبط بمنتجاتك'),
-                  trailing: const Icon(Icons.chevron_left),
+                  trailing: Icon(Icons.chevron_left),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) => SearchScreen(
                           repository: widget.repository,
