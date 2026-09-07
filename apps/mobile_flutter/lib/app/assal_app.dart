@@ -30,7 +30,7 @@ class AssalApp extends StatelessWidget {
               statusBarColor: Colors.transparent,
               statusBarIconBrightness: Brightness.light,
               statusBarBrightness: Brightness.dark,
-              systemNavigationBarColor: AssalColors.primaryDark,
+              systemNavigationBarColor: AssalColors.background,
               systemNavigationBarIconBrightness: Brightness.light,
               systemStatusBarContrastEnforced: false,
               systemNavigationBarContrastEnforced: false,
@@ -155,7 +155,7 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         top: false,
         bottom: false,
         child: ColoredBox(
-          color: AssalColors.cream,
+          color: AssalColors.background,
           child: IndexedStack(index: selectedIndex, children: pages),
         ),
       );
@@ -166,21 +166,25 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         4 => 'حسابي',
         _ => 'عسلكم',
       };
-      // Desktop keeps its own framed column; mobile uses the single outer
-      // Scaffold below so an AppBar is never mounted twice.
       final wideContent = selectedIndex == 0
           ? content
           : Scaffold(
-              backgroundColor: AssalColors.cream,
+              backgroundColor: AssalColors.background,
               appBar: AssalAppBar(title: pageTitle),
               body: content,
             );
       if (wide) {
         return Scaffold(
-            backgroundColor: AssalColors.cream,
+            backgroundColor: AssalColors.background,
             body: Row(children: [
           DecoratedBox(
-            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            decoration: const BoxDecoration(
+              color: AssalColors.surface,
+              border: Border(
+                left: BorderSide(color: AssalColors.border),
+                right: BorderSide(color: AssalColors.border),
+              ),
+            ),
             child: NavigationRail(
               selectedIndex: selectedIndex,
               onDestinationSelected: (index) =>
@@ -197,16 +201,17 @@ class _AssalHomeShellState extends State<AssalHomeShell> {
         ]));
       }
       return Scaffold(
-          backgroundColor: AssalColors.cream,
-          // Keep the scrollable page above the navigation bar. Extending the
-          // body here made the profile actions look clipped at the bottom.
+          backgroundColor: AssalColors.background,
           extendBody: false,
           appBar: selectedIndex == 0
               ? null
               : AssalAppBar(title: pageTitle),
           body: content,
           bottomNavigationBar: DecoratedBox(
-            decoration: const BoxDecoration(gradient: assalDarkGradient),
+            decoration: const BoxDecoration(
+              color: AssalColors.surface,
+              border: Border(top: BorderSide(color: AssalColors.border)),
+            ),
             child: NavigationBar(
                 selectedIndex: selectedIndex,
                 onDestinationSelected: (index) =>

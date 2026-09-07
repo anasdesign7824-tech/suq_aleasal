@@ -30,17 +30,27 @@ class AssalBrandMark extends StatelessWidget {
             padding:
                 EdgeInsets.all(size >= 64 ? AssalSpacing.sm : AssalSpacing.xs),
             decoration: BoxDecoration(
-              color: AssalColors.cream,
-              borderRadius: BorderRadius.circular(AssalRadius.small),
+              color: AssalColors.surfaceRaised,
+              borderRadius: BorderRadius.circular(AssalRadius.medium),
               border:
-                  Border.all(color: AssalColors.cream.withValues(alpha: .9)),
+                  Border.all(color: AssalColors.borderStrong),
             ),
-            child: SvgPicture.asset(AssalAssets.logoInternal),
+            child: SvgPicture.asset(
+              AssalAssets.logoInternal,
+              colorFilter: const ColorFilter.mode(
+                AssalColors.primaryLight,
+                BlendMode.srcIn,
+              ),
+            ),
           )
         : SvgPicture.asset(
             AssalAssets.logoInternal,
             width: size,
             height: size,
+            colorFilter: const ColorFilter.mode(
+              AssalColors.primaryLight,
+              BlendMode.srcIn,
+            ),
           );
 
     return Semantics(
@@ -55,7 +65,7 @@ class AssalBrandMark extends StatelessWidget {
             Text(
               'عسلكم',
               style: AssalTypography.heading3.copyWith(
-                color: nameColor ?? AssalColors.deepBrown,
+                color: nameColor ?? AssalColors.textPrimary,
               ),
             ),
           ],
@@ -72,11 +82,12 @@ class DemoModePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(
             horizontal: AssalSpacing.md, vertical: AssalSpacing.xs),
         decoration: BoxDecoration(
-            color: AssalColors.honeyLight,
-            borderRadius: BorderRadius.circular(AssalRadius.pill)),
+            color: AssalColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(AssalRadius.pill),
+            border: Border.all(color: AssalColors.border)),
         child: Text('تجربة بلا تسجيل',
             style: AssalTypography.caption
-                .copyWith(color: AssalColors.primaryDark)),
+                .copyWith(color: AssalColors.textSecondary)),
       );
 }
 
@@ -98,7 +109,10 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final canPop = ModalRoute.of(context)?.canPop ?? false;
     return DecoratedBox(
-      decoration: const BoxDecoration(gradient: assalDarkGradient),
+      decoration: const BoxDecoration(
+        color: AssalColors.surface,
+        border: Border(bottom: BorderSide(color: AssalColors.border)),
+      ),
       child: AppBar(
         bottom: bottom,
         backgroundColor: Colors.transparent,
@@ -106,13 +120,15 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
         forceMaterialTransparency: true,
         elevation: 0,
         shadowColor: Colors.transparent,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleTextStyle: AssalTypography.heading3.copyWith(color: Colors.white),
+        scrolledUnderElevation: 0,
+        iconTheme: const IconThemeData(color: AssalColors.textPrimary),
+        titleTextStyle: AssalTypography.heading3
+            .copyWith(color: AssalColors.textPrimary),
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
           statusBarBrightness: Brightness.dark,
-          systemNavigationBarColor: AssalColors.primaryDark,
+          systemNavigationBarColor: AssalColors.background,
           systemNavigationBarIconBrightness: Brightness.light,
           systemNavigationBarContrastEnforced: false,
           systemNavigationBarDividerColor: Colors.transparent,
@@ -128,10 +144,10 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ? const Padding(
                     padding: EdgeInsets.all(AssalSpacing.sm),
                     child: AssalBrandMark(
-                      size: 36,
+                      size: 34,
                       showName: false,
                       framed: true,
-                      nameColor: Colors.white,
+                      nameColor: AssalColors.textPrimary,
                     ),
                   )
                 : null,
@@ -141,9 +157,9 @@ class AssalAppBar extends StatelessWidget implements PreferredSizeWidget {
             if (showBrand && canPop) ...[
               const AssalBrandMark(
                 size: 28,
-                showName: true,
+                showName: false,
                 framed: true,
-                nameColor: Colors.white,
+                nameColor: AssalColors.textPrimary,
               ),
               const SizedBox(width: AssalSpacing.sm),
             ],
@@ -187,7 +203,7 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
 
   @override
   Widget build(BuildContext context) {
-    final height = widget.height.clamp(56, 104).toDouble();
+    final height = widget.height.clamp(48, 120).toDouble();
     return Semantics(
       liveRegion: true,
       label: widget.label,
@@ -203,7 +219,7 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
                 child: const Icon(
                   Icons.hive_outlined,
                   size: 22,
-                  color: AssalColors.primaryDark,
+                  color: AssalColors.primary,
                 ),
               ),
               const SizedBox(width: AssalSpacing.xs),
@@ -219,6 +235,61 @@ class _AssalGlassLoadingState extends State<AssalGlassLoading>
       ),
     );
   }
+}
+
+class AssalSkeleton extends StatelessWidget {
+  const AssalSkeleton({super.key, this.height = 16, this.width, this.radius});
+  final double height;
+  final double? width;
+  final double? radius;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        height: height,
+        width: width ?? double.infinity,
+        decoration: BoxDecoration(
+          color: AssalColors.surfaceVariant,
+          borderRadius: BorderRadius.circular(radius ?? AssalRadius.small),
+          border: Border.all(color: AssalColors.border),
+        ),
+      );
+}
+
+class AssalSkeletonList extends StatelessWidget {
+  const AssalSkeletonList({super.key, this.count = 5});
+  final int count;
+  @override
+  Widget build(BuildContext context) => ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(AssalSpacing.lg),
+        itemCount: count,
+        separatorBuilder: (_, __) => const SizedBox(height: AssalSpacing.md),
+        itemBuilder: (_, index) => Container(
+          height: 104,
+          decoration: BoxDecoration(
+            color: AssalColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(AssalRadius.large),
+            border: Border.all(color: AssalColors.border),
+          ),
+          padding: const EdgeInsets.all(AssalSpacing.md),
+          child: Row(children: [
+            const AssalSkeleton(height: 68, width: 68, radius: 18),
+            const SizedBox(width: AssalSpacing.md),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  AssalSkeleton(height: 14, width: 160),
+                  SizedBox(height: AssalSpacing.sm),
+                  AssalSkeleton(height: 11, width: 96),
+                ],
+              ),
+            ),
+          ]),
+        ),
+      );
 }
 
 class AssalFutureStateView<T> extends StatelessWidget {
@@ -245,7 +316,7 @@ class AssalFutureStateView<T> extends StatelessWidget {
                 onRetry: onRetry);
           }
           if (!snapshot.hasData) {
-            return AssalGlassLoading(height: loadingHeight);
+            return const AssalGlassLoading(height: 76);
           }
           return AssalStateView<T>(
               state: snapshot.data!, builder: builder, onRetry: onRetry);
@@ -269,7 +340,7 @@ class AssalStateView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (state) {
-        AssalLoading<T>() => const AssalGlassLoading(),
+        AssalLoading<T>() => const AssalSkeletonList(count: 3),
         AssalData<T>(:final value) => value is Iterable && value.isEmpty
             ? AssalMessageCard(
                 icon: Icons.inbox_outlined,
@@ -287,47 +358,41 @@ class AssalStateView<T> extends StatelessWidget {
       };
 }
 
-class AssalMessageCard extends StatelessWidget {
-  const AssalMessageCard({
-    super.key,
-    required this.icon,
-    required this.message,
-    this.onRetry,
-  });
-  final IconData icon;
-  final String message;
-  final VoidCallback? onRetry;
+class HoneySectionHeader extends StatelessWidget {
+  const HoneySectionHeader(
+      {super.key, required this.title, this.subtitle, this.actionLabel, this.onAction});
+  final String title;
+  final String? subtitle;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: AssalSpacing.lg),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
+  Widget build(BuildContext context) => Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, size: 34, color: AssalColors.textMuted),
-                const SizedBox(height: AssalSpacing.sm),
                 Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: AssalTypography.body.copyWith(
-                    color: AssalColors.textSecondary,
-                  ),
+                  title,
+                  style: AssalTypography.heading3
+                      .copyWith(color: AssalColors.textPrimary),
                 ),
-                if (onRetry != null) ...[
-                  const SizedBox(height: AssalSpacing.sm),
-                  TextButton.icon(
-                    onPressed: onRetry,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة المحاولة'),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: AssalTypography.caption
+                        .copyWith(color: AssalColors.textMuted),
                   ),
                 ],
               ],
             ),
           ),
-        ),
+          if (actionLabel != null)
+            TextButton(onPressed: onAction, child: Text(actionLabel!)),
+        ],
       );
 }
 
@@ -339,13 +404,87 @@ class SectionHeader extends StatelessWidget {
   final VoidCallback? onAction;
   @override
   Widget build(BuildContext context) =>
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(title,
-            style: AssalTypography.heading3
-                .copyWith(color: AssalColors.deepBrown)),
-        if (actionLabel != null)
-          TextButton(onPressed: onAction, child: Text(actionLabel!)),
-      ]);
+      HoneySectionHeader(title: title, actionLabel: actionLabel, onAction: onAction);
+}
+
+class AssalMessageCard extends StatelessWidget {
+  const AssalMessageCard({
+    super.key,
+    required this.icon,
+    required this.message,
+    this.onRetry,
+    this.title,
+    this.actionLabel,
+    this.onAction,
+  });
+  final IconData icon;
+  final String message;
+  final VoidCallback? onRetry;
+  final String? title;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: AssalSpacing.lg),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: AssalColors.surfaceVariant,
+                    borderRadius: BorderRadius.circular(AssalRadius.large),
+                    border: Border.all(color: AssalColors.border),
+                  ),
+                  child: Icon(icon, size: 30, color: AssalColors.primary),
+                ),
+                const SizedBox(height: AssalSpacing.md),
+                if (title != null) ...[
+                  Text(
+                    title!,
+                    textAlign: TextAlign.center,
+                    style: AssalTypography.title
+                        .copyWith(color: AssalColors.textPrimary),
+                  ),
+                  const SizedBox(height: AssalSpacing.xs),
+                ],
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: AssalTypography.body
+                      .copyWith(color: AssalColors.textSecondary),
+                ),
+                if (onRetry != null || actionLabel != null) ...[
+                  const SizedBox(height: AssalSpacing.md),
+                  Wrap(
+                    spacing: AssalSpacing.sm,
+                    runSpacing: AssalSpacing.sm,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      if (onRetry != null)
+                        OutlinedButton.icon(
+                          onPressed: onRetry,
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('إعادة المحاولة'),
+                        ),
+                      if (actionLabel != null && onAction != null)
+                        FilledButton(
+                          onPressed: onAction,
+                          child: Text(actionLabel!),
+                        ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 class AssalImageUploadSlot extends StatelessWidget {
@@ -377,7 +516,11 @@ class AssalImageUploadSlot extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AssalTypography.subtitle),
+        Text(
+          label,
+          style: AssalTypography.subtitle
+              .copyWith(color: AssalColors.textPrimary),
+        ),
         const SizedBox(height: AssalSpacing.sm),
         ClipRRect(
           borderRadius: BorderRadius.circular(AssalRadius.large),
@@ -388,8 +531,12 @@ class AssalImageUploadSlot extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 ColoredBox(
-                  color: AssalColors.honeyLight,
-                  child: image ?? Center(child: Icon(icon, size: 42)),
+                  color: AssalColors.surfaceVariant,
+                  child: image ??
+                      Center(
+                        child: Icon(icon,
+                            size: 42, color: AssalColors.primaryLight),
+                      ),
                 ),
                 Positioned(
                   bottom: AssalSpacing.sm,
@@ -426,16 +573,27 @@ class AssalImageTile extends StatelessWidget {
         height: height,
         width: double.infinity,
         decoration: BoxDecoration(
-            color: AssalColors.honeyLight,
-            borderRadius: BorderRadius.circular(AssalRadius.large)),
+            color: AssalColors.surfaceVariant,
+            borderRadius: BorderRadius.circular(AssalRadius.large),
+            border: Border.all(color: AssalColors.border)),
         clipBehavior: Clip.antiAlias,
         child: imageUrl != null && imageUrl!.startsWith('http')
             ? Image.network(imageUrl!,
-                fit: BoxFit.cover, errorBuilder: (_, __, ___) => _fallback())
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, progress) => progress == null
+                    ? child
+                    : const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                errorBuilder: (_, __, ___) => _fallback())
             : _fallback(),
       );
   Widget _fallback() => Center(
-      child: Icon(icon, size: height * .38, color: AssalColors.primaryDark));
+      child: Icon(icon, size: height * .38, color: AssalColors.primaryLight));
 }
 
 String formatAssalPrice(double? price, String currencyCode) {
@@ -448,6 +606,14 @@ String formatAssalPrice(double? price, String currencyCode) {
   };
   return '${price.toStringAsFixed(0)} $currency';
 }
+
+String assalProductTypeLabel(ProductType type) => switch (type) {
+      ProductType.honey => 'عسل',
+      ProductType.wax => 'شمع',
+      ProductType.mix => 'خلطة',
+      ProductType.raw => 'منتج خام',
+      ProductType.gift => 'هدية',
+    };
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -477,7 +643,7 @@ class ProductCard extends StatelessWidget {
                   Positioned(
                       top: AssalSpacing.sm,
                       left: AssalSpacing.sm,
-                      child: IconButton.filledTonal(
+                      child: IconButton(
                           onPressed: onFavorite,
                           icon: const Icon(Icons.bookmark_border),
                           tooltip: 'حفظ المنتج')),
@@ -485,26 +651,26 @@ class ProductCard extends StatelessWidget {
                   Positioned(
                     top: AssalSpacing.sm,
                     right: AssalSpacing.sm,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AssalColors.success,
-                        borderRadius: BorderRadius.circular(AssalRadius.pill),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AssalSpacing.sm,
+                        vertical: AssalSpacing.xs,
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AssalSpacing.sm,
-                          vertical: AssalSpacing.xs,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.verified,
-                                size: 14, color: AssalColors.cream),
-                            SizedBox(width: AssalSpacing.xs),
-                            Text('موثق Pro',
-                                style: TextStyle(color: AssalColors.cream)),
-                          ],
-                        ),
+                      decoration: BoxDecoration(
+                        color: AssalColors.honeyLight,
+                        borderRadius: BorderRadius.circular(AssalRadius.pill),
+                        border: Border.all(color: AssalColors.borderStrong),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.verified,
+                              size: 14, color: AssalColors.primaryLight),
+                          SizedBox(width: AssalSpacing.xs),
+                          Text('موثق Pro',
+                              style: AssalTypography.caption.copyWith(
+                                  color: AssalColors.primaryLight)),
+                        ],
                       ),
                     ),
                   ),
@@ -518,7 +684,7 @@ class ProductCard extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: AssalTypography.title
-                              .copyWith(color: AssalColors.deepBrown)),
+                              .copyWith(color: AssalColors.textPrimary)),
                       const SizedBox(height: AssalSpacing.xs),
                       Text(
                           product.subcategoryNameAr ??
@@ -532,7 +698,7 @@ class ProductCard extends StatelessWidget {
                       Text(
                           formatAssalPrice(product.price, product.currencyCode),
                           style: AssalTypography.bodySmall.copyWith(
-                              color: AssalColors.primaryDark,
+                              color: AssalColors.primaryLight,
                               fontWeight: FontWeight.w700)),
                       const SizedBox(height: AssalSpacing.xs),
                       Row(children: [
@@ -555,7 +721,7 @@ class ProductCard extends StatelessWidget {
                           InfoChip(label: 'درجة ${product.gradeLevel}'),
                         const Spacer(),
                         const Icon(Icons.arrow_back_rounded,
-                            size: 18, color: AssalColors.primaryDark),
+                            size: 18, color: AssalColors.primaryLight),
                       ]),
                     ]),
               ),
@@ -581,13 +747,13 @@ class StoreCard extends StatelessWidget {
               child: Row(children: [
                 CircleAvatar(
                     radius: 30,
-                    backgroundColor: AssalColors.honeyLight,
+                    backgroundColor: AssalColors.surfaceVariant,
                     backgroundImage: logoUrl != null && logoUrl.startsWith('http')
                         ? NetworkImage(logoUrl)
                         : null,
                     child: logoUrl == null || !logoUrl.startsWith('http')
                         ? const Icon(Icons.storefront_outlined,
-                            color: AssalColors.primaryDark, size: 28)
+                            color: AssalColors.primaryLight, size: 28)
                         : null),
                   const SizedBox(width: AssalSpacing.md),
                   Expanded(
@@ -600,12 +766,12 @@ class StoreCard extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: AssalTypography.title
-                                      .copyWith(color: AssalColors.deepBrown))),
+                                      .copyWith(color: AssalColors.textPrimary))),
                           if (store.isVerified)
                             const Tooltip(
                               message: 'متجر موثق Pro',
                               child: Icon(Icons.verified,
-                                  color: AssalColors.primaryDark, size: 18),
+                                  color: AssalColors.primaryLight, size: 18),
                             )
                         ]),
                         const SizedBox(height: AssalSpacing.xs),
@@ -642,7 +808,7 @@ class RatingStars extends StatelessWidget {
                   ? Icons.star_rounded
                   : Icons.star_border_rounded,
               size: 16,
-              color: AssalColors.primaryDark)));
+              color: AssalColors.primaryLight)));
 }
 
 class InfoChip extends StatelessWidget {
@@ -655,20 +821,72 @@ class InfoChip extends StatelessWidget {
           horizontal: AssalSpacing.sm, vertical: AssalSpacing.xs),
       decoration: BoxDecoration(
           color: AssalColors.surfaceVariant,
-          borderRadius: BorderRadius.circular(AssalRadius.small)),
+          borderRadius: BorderRadius.circular(AssalRadius.small),
+          border: Border.all(color: AssalColors.border)),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (icon != null) Icon(icon, size: 14, color: AssalColors.primaryDark),
+        if (icon != null)
+          Icon(icon, size: 14, color: AssalColors.primaryLight),
         if (icon != null) const SizedBox(width: 3),
         Text(label,
-            style:
-                AssalTypography.caption.copyWith(color: AssalColors.secondary))
+            style: AssalTypography.caption
+                .copyWith(color: AssalColors.textSecondary))
       ]));
+}
+
+class HoneyPill extends StatelessWidget {
+  const HoneyPill(
+      {super.key,
+      required this.label,
+      this.icon,
+      this.color,
+      this.selected = false,
+      this.onTap});
+  final String label;
+  final IconData? icon;
+  final Color? color;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget content = Container(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AssalSpacing.md, vertical: AssalSpacing.sm),
+      decoration: BoxDecoration(
+        color: selected ? AssalColors.honeyLight : AssalColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AssalRadius.pill),
+        border: Border.all(
+            color: selected ? AssalColors.primary : AssalColors.border),
+      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        if (icon != null) ...[
+          Icon(icon,
+              size: 16,
+              color: selected ? AssalColors.primaryLight : AssalColors.textSecondary),
+          const SizedBox(width: AssalSpacing.xs),
+        ],
+        Text(label,
+            style: AssalTypography.caption.copyWith(
+                color: selected
+                    ? AssalColors.primaryLight
+                    : color ?? AssalColors.textSecondary,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
+      ]),
+    );
+    if (onTap == null) return content;
+    return InkWell(
+      borderRadius: BorderRadius.circular(AssalRadius.pill),
+      onTap: onTap,
+      child: content,
+    );
+  }
 }
 
 Future<bool> showAuthPrompt(BuildContext context) async =>
     await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        backgroundColor: AssalColors.surfaceRaised,
         title: const Text('هذه الميزة تحتاج حسابًا'),
         content: const Text(
             'أنشئ حسابًا مجانيًا لحفظ المنتجات ومتابعة المتاجر وإرسال الطلبات، أو تابع التصفح كزائر.'),

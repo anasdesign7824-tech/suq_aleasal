@@ -166,7 +166,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
         body: FutureBuilder<void>(
           future: _loadFuture,
           builder: (context, snapshot) {
-            if (!snapshot.hasData && snapshot.connectionState != ConnectionState.done) return const AssalGlassLoading();
+            if (!snapshot.hasData && snapshot.connectionState != ConnectionState.done) return const AssalSkeletonList(count: 3);
             return ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
               _intro(),
               if (message != null) ...[const SizedBox(height: AssalSpacing.md), AssalMessageCard(icon: Icons.info_outline, message: message!)],
@@ -179,7 +179,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
       );
 
   Widget _intro() => Card(child: Padding(padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [const Icon(Icons.auto_awesome_outlined, color: AssalColors.primaryDark), const SizedBox(width: AssalSpacing.sm), Text('خطط واضحة، مزايا حقيقية', style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown))]),
+        Row(children: [const Icon(Icons.auto_awesome_outlined, color: AssalColors.primaryDark), const SizedBox(width: AssalSpacing.sm), Text('خطط واضحة، مزايا حقيقية', style: AssalTypography.heading3.copyWith(color: AssalColors.textPrimary))]),
         const SizedBox(height: AssalSpacing.sm),
         Text(campaign?.isActive == true ? 'خصم الافتتاح فعال حاليًا حسب كل خطة. يظهر السعر قبل الخصم وبعده، ويعاد حساب المبلغ من الخادم.' : 'اختر الخطة التي تناسب عدد متاجرك ومنتجاتك. الدفع المتاح حاليًا بالحوالة المحلية فقط.'),
         const SizedBox(height: AssalSpacing.md),
@@ -193,11 +193,11 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
     final finalAmount = double.parse((plan.priceAmount * (1 - discount / 100)).toStringAsFixed(2));
     final intervalLabel = plan.billingInterval == 'year' ? 'سنة' : 'شهر';
     final isGold = plan.code == 'gold';
-    return Card(child: Container(decoration: BoxDecoration(gradient: LinearGradient(colors: isGold ? [const Color(0xfffff0b8), const Color(0xffd79a2b)] : [const Color(0xfffff8e8), const Color(0xffe6b667)]), borderRadius: BorderRadius.circular(AssalRadius.medium)), padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Text(plan.nameAr, style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown))), if (discount > 0) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .75), borderRadius: BorderRadius.circular(20)), child: Text('خصم ${discount.toStringAsFixed(0)}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AssalColors.primaryDark)))]),
+    return Card(child: Container(decoration: BoxDecoration(gradient: isGold ? AssalColors.darkGradient : const LinearGradient(colors: [AssalColors.surfaceVariant, AssalColors.surfaceRaised]), borderRadius: BorderRadius.circular(AssalRadius.medium), border: Border.all(color: isGold ? AssalColors.primary : AssalColors.border)), padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Text(plan.nameAr, style: AssalTypography.heading3.copyWith(color: AssalColors.textPrimary))), if (discount > 0) Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: AssalColors.honeyLight, borderRadius: BorderRadius.circular(20), border: Border.all(color: AssalColors.primary)), child: Text('خصم ${discount.toStringAsFixed(0)}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AssalColors.primaryLight)))]),
       const SizedBox(height: AssalSpacing.sm),
-      if (plan.priceAmount > 0) Text.rich(TextSpan(children: [TextSpan(text: '${plan.priceAmount.toStringAsFixed(2)} ر.س  ', style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.black54)), TextSpan(text: '${finalAmount.toStringAsFixed(2)} ر.س / $intervalLabel', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.deepBrown))])),
-      if (plan.priceAmount == 0) const Text('مجانية', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.deepBrown)),
+      if (plan.priceAmount > 0) Text.rich(TextSpan(children: [TextSpan(text: '${plan.priceAmount.toStringAsFixed(2)} ر.س  ', style: const TextStyle(decoration: TextDecoration.lineThrough, color: AssalColors.textMuted)), TextSpan(text: '${finalAmount.toStringAsFixed(2)} ر.س / $intervalLabel', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.textPrimary))])),
+      if (plan.priceAmount == 0) const Text('مجانية', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AssalColors.textPrimary)),
       const SizedBox(height: AssalSpacing.sm),
       if (plan.billingInterval == 'year') const Text('السعر السنوي محسوب على عشرة أشهر — شهران مجانيان ضمن السعر الأساسي', style: TextStyle(fontWeight: FontWeight.w700, color: AssalColors.primaryDark)),
       Text('${plan.storeLimit} متاجر · ${plan.productLimit} منتجًا نشطًا لكل متجر'),
@@ -209,7 +209,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
   }
 
   Widget _paymentCard() => Card(child: Padding(padding: const EdgeInsets.all(AssalSpacing.lg), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('الحوالة المحلية', style: AssalTypography.heading3.copyWith(color: AssalColors.deepBrown)),
+        Text('الحوالة المحلية', style: AssalTypography.heading3.copyWith(color: AssalColors.textPrimary)),
         const SizedBox(height: AssalSpacing.sm),
         if (transfer == null || !transfer!.isActive) const Text('بيانات الحوالة لم تُفعّل من الإدارة بعد.') else ...[
           if (transfer!.logoUrl?.isNotEmpty == true) Center(child: Image.network(transfer!.logoUrl!, height: 44, errorBuilder: (_, __, ___) => const SizedBox.shrink())),

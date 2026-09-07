@@ -1,23 +1,25 @@
 :root {
-  --assal-primary: #f39c12;
-  --assal-primary-dark: #9c5a00;
-  --assal-primary-light: #ffa94d;
-  --assal-secondary: #8b5a2b;
-  --assal-deep-brown: #4f2e1f;
-  --assal-honey: #f39c12;
-  --assal-honey-light: #fff0d6;
-  --assal-cream: #f8f4ec;
-  --assal-background: #fcfaf7;
-  --assal-surface: #ffffff;
-  --assal-surface-variant: #f4eee5;
-  --assal-text-primary: #342118;
-  --assal-text-secondary: #6f5b4c;
-  --assal-text-muted: #9a897d;
-  --assal-border: #e8dccb;
-  --assal-success: #4f7a45;
-  --assal-warning: #b86b1e;
-  --assal-error: #a64232;
-  --assal-info: #6b675c;
+  --assal-primary: #f5a623;
+  --assal-primary-dark: #e08a00;
+  --assal-primary-light: #ffc45e;
+  --assal-secondary: #b8833b;
+  --assal-deep-brown: #2b1a12;
+  --assal-honey: #f5a623;
+  --assal-honey-light: #332416;
+  --assal-cream: #f8ede1;
+  --assal-background: #0d0906;
+  --assal-surface: #1a120c;
+  --assal-surface-variant: #24180f;
+  --assal-surface-raised: #2b1d12;
+  --assal-text-primary: #f7ede2;
+  --assal-text-secondary: #c9b6a3;
+  --assal-text-muted: #8f7a66;
+  --assal-border: #38291d;
+  --assal-border-strong: #4a3523;
+  --assal-success: #66a85e;
+  --assal-warning: #e07b34;
+  --assal-error: #e0614f;
+  --assal-info: #a99a8a;
 
   --assal-space-xs: 4px;
   --assal-space-sm: 8px;
@@ -35,8 +37,8 @@
   --assal-radius-extra-large: 28px;
   --assal-radius-pill: 999px;
 
-  --assal-shadow-soft: 0 8px 24px rgba(79, 46, 31, 0.08);
-  --assal-shadow-raised: 0 14px 36px rgba(79, 46, 31, 0.12);
+  --assal-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --assal-shadow-raised: 0 14px 36px rgba(0, 0, 0, 0.45);
 
   --assal-font-family: "IBM Plex Sans Arabic", sans-serif;
   --assal-font-size-display: 36px;

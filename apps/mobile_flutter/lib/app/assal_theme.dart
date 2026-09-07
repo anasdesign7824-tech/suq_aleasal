@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:assalkom_design/assal_tokens.dart';
 
 const _assalInteractionOverlay = WidgetStatePropertyAll<Color?>(
-  Color(0x269C5A00),
+  Color(0x40F5A623),
 );
 
 Widget _assalGradientButtonBackground(
@@ -18,7 +18,7 @@ Widget _assalGradientButtonBackground(
       decoration: BoxDecoration(
         gradient: disabled
             ? const LinearGradient(
-                colors: [AssalColors.border, AssalColors.surfaceVariant],
+                colors: [AssalColors.surfaceVariant, AssalColors.border],
               )
             : AssalColors.darkGradient,
       ),
@@ -38,99 +38,122 @@ ButtonStyle _assalGradientButtonStyle() => ButtonStyle(
           borderRadius: BorderRadius.circular(AssalRadius.medium),
         ),
       ),
-      textStyle: const WidgetStatePropertyAll(AssalTypography.button),
+      textStyle: const WidgetStatePropertyAll<TextStyle?>(AssalTypography.button),
     );
 
 ThemeData buildAssalTheme() {
   final scheme = ColorScheme.fromSeed(
     seedColor: AssalColors.primary,
-    brightness: Brightness.light,
+    brightness: Brightness.dark,
     primary: AssalColors.primaryDark,
-    onPrimary: Colors.white,
+    onPrimary: AssalColors.cream,
     secondary: AssalColors.secondary,
-    onSecondary: Colors.white,
+    onSecondary: AssalColors.cream,
     surface: AssalColors.surface,
     onSurface: AssalColors.textPrimary,
     error: AssalColors.error,
+    surfaceTint: Colors.transparent,
   );
 
-  final darkForeground = AssalTypography.body.copyWith(
-    color: AssalColors.cream,
+  final darkForeground = AssalTypography.body.copyWith(color: AssalColors.cream);
+  final darkCaption = AssalTypography.caption.copyWith(
+    color: AssalColors.textSecondary,
   );
   final darkNavigationLabel = AssalTypography.caption.copyWith(
-    color: AssalColors.cream,
-    fontWeight: FontWeight.w600,
+    color: AssalColors.textSecondary,
+    fontWeight: FontWeight.w700,
   );
+  const darkIcon = IconThemeData(color: AssalColors.textPrimary);
 
   return ThemeData(
     useMaterial3: true,
+    brightness: Brightness.dark,
     colorScheme: scheme,
     scaffoldBackgroundColor: AssalColors.background,
+    canvasColor: AssalColors.surface,
     fontFamily: AssalTypography.family,
     splashFactory: InkSparkle.splashFactory,
-    hoverColor: AssalColors.primaryDark.withValues(alpha: .12),
-    focusColor: AssalColors.primaryDark.withValues(alpha: .12),
-    highlightColor: AssalColors.primaryDark.withValues(alpha: .08),
-    textTheme: const TextTheme(
-      displayLarge: AssalTypography.display,
-      headlineLarge: AssalTypography.heading1,
-      headlineMedium: AssalTypography.heading2,
-      titleLarge: AssalTypography.heading3,
-      titleMedium: AssalTypography.title,
-      bodyLarge: AssalTypography.bodyLarge,
-      bodyMedium: AssalTypography.body,
-      bodySmall: AssalTypography.bodySmall,
-      labelLarge: AssalTypography.button,
-      labelMedium: AssalTypography.label,
+    hoverColor: AssalColors.primary.withValues(alpha: .12),
+    focusColor: AssalColors.primary.withValues(alpha: .12),
+    highlightColor: AssalColors.primary.withValues(alpha: .08),
+    disabledColor: AssalColors.textMuted,
+    overlayColor: AssalColors.primary.withValues(alpha: .10),
+    dividerColor: AssalColors.border,
+    textTheme: TextTheme(
+      displayLarge: AssalTypography.display.copyWith(color: AssalColors.textPrimary),
+      headlineLarge: AssalTypography.heading1.copyWith(color: AssalColors.textPrimary),
+      headlineMedium: AssalTypography.heading2.copyWith(color: AssalColors.textPrimary),
+      headlineSmall: AssalTypography.heading3.copyWith(color: AssalColors.textPrimary),
+      titleLarge: AssalTypography.heading3.copyWith(color: AssalColors.textPrimary),
+      titleMedium: AssalTypography.title.copyWith(color: AssalColors.textPrimary),
+      titleSmall: AssalTypography.subtitle.copyWith(color: AssalColors.textSecondary),
+      bodyLarge: AssalTypography.bodyLarge.copyWith(color: AssalColors.textSecondary),
+      bodyMedium: AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+      bodySmall: AssalTypography.bodySmall.copyWith(color: AssalColors.textMuted),
+      labelLarge: AssalTypography.button.copyWith(color: AssalColors.cream),
+      labelMedium: AssalTypography.label.copyWith(color: AssalColors.textSecondary),
+      labelSmall: AssalTypography.caption.copyWith(color: AssalColors.textMuted),
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: AssalColors.deepBrown,
-      foregroundColor: Colors.white,
+      backgroundColor: AssalColors.surface,
+      foregroundColor: AssalColors.textPrimary,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       shadowColor: Colors.transparent,
       centerTitle: false,
-      titleTextStyle: AssalTypography.heading3.copyWith(
-        color: Colors.white,
-      ),
-      iconTheme: const IconThemeData(color: Colors.white),
-      actionsIconTheme: const IconThemeData(color: Colors.white),
+      titleTextStyle: AssalTypography.heading3.copyWith(color: AssalColors.textPrimary),
+      iconTheme: darkIcon,
+      actionsIconTheme: darkIcon,
+      scrolledUnderElevation: 0,
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: AssalColors.primaryDark,
+        systemNavigationBarColor: AssalColors.background,
         systemNavigationBarIconBrightness: Brightness.light,
         systemStatusBarContrastEnforced: false,
         systemNavigationBarContrastEnforced: false,
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AssalColors.surface,
       surfaceTintColor: Colors.transparent,
-      indicatorColor: AssalColors.primaryDark,
+      indicatorColor: AssalColors.honeyLight,
       elevation: 0,
       shadowColor: Colors.transparent,
-      labelTextStyle: WidgetStatePropertyAll(darkNavigationLabel),
-      iconTheme: const WidgetStatePropertyAll<IconThemeData?>(
-        IconThemeData(color: AssalColors.cream),
-      ),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return darkNavigationLabel.copyWith(
+          color: selected ? AssalColors.primaryLight : AssalColors.textMuted,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          color: selected ? AssalColors.primaryLight : AssalColors.textMuted,
+        );
+      }),
       overlayColor: _assalInteractionOverlay,
     ),
     navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: Colors.transparent,
-      indicatorColor: AssalColors.primaryDark,
+      backgroundColor: AssalColors.surface,
+      indicatorColor: AssalColors.honeyLight,
       useIndicator: true,
-      selectedIconTheme: const IconThemeData(color: AssalColors.cream),
-      unselectedIconTheme: const IconThemeData(color: AssalColors.cream),
-      selectedLabelTextStyle: darkForeground,
-      unselectedLabelTextStyle: darkForeground,
-      groupAlignment: 0,
+      selectedIconTheme: const IconThemeData(color: AssalColors.primaryLight),
+      unselectedIconTheme: const IconThemeData(color: AssalColors.textMuted),
+      selectedLabelTextStyle: AssalTypography.label.copyWith(
+        color: AssalColors.primaryLight,
+        fontWeight: FontWeight.w600,
+      ),
+      unselectedLabelTextStyle: AssalTypography.label.copyWith(
+        color: AssalColors.textMuted,
+      ),
+      groupAlignment: -1,
     ),
     tabBarTheme: TabBarThemeData(
-      labelColor: AssalColors.cream,
-      unselectedLabelColor: AssalColors.cream.withValues(alpha: .68),
-      indicatorColor: AssalColors.honey,
+      labelColor: AssalColors.primaryLight,
+      unselectedLabelColor: AssalColors.textMuted,
+      indicatorColor: AssalColors.primary,
       dividerColor: Colors.transparent,
       overlayColor: _assalInteractionOverlay,
       labelStyle: AssalTypography.button,
@@ -139,6 +162,7 @@ ThemeData buildAssalTheme() {
     cardTheme: CardThemeData(
       color: AssalColors.surface,
       elevation: 0,
+      shadowColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AssalRadius.large),
         side: const BorderSide(color: AssalColors.border),
@@ -147,7 +171,7 @@ ThemeData buildAssalTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AssalColors.surface,
+      fillColor: AssalColors.surfaceVariant,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AssalSpacing.lg,
         vertical: AssalSpacing.md,
@@ -162,7 +186,7 @@ ThemeData buildAssalTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AssalRadius.medium),
-        borderSide: const BorderSide(color: AssalColors.primaryDark, width: 1.5),
+        borderSide: const BorderSide(color: AssalColors.primary, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AssalRadius.medium),
@@ -173,38 +197,38 @@ ThemeData buildAssalTheme() {
         borderSide: const BorderSide(color: AssalColors.error, width: 1.5),
       ),
       hintStyle: AssalTypography.body.copyWith(color: AssalColors.textMuted),
-      prefixIconColor: AssalColors.primaryDark,
-      suffixIconColor: AssalColors.primaryDark,
+      labelStyle: AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+      prefixIconColor: AssalColors.primary,
+      suffixIconColor: AssalColors.primary,
     ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: _assalGradientButtonStyle(),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: _assalGradientButtonStyle(),
-    ),
+    filledButtonTheme: FilledButtonThemeData(style: _assalGradientButtonStyle()),
+    elevatedButtonTheme: ElevatedButtonThemeData(style: _assalGradientButtonStyle()),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AssalColors.deepBrown,
-        overlayColor: AssalColors.primaryDark.withValues(alpha: .12),
-        side: const BorderSide(color: AssalColors.deepBrown),
+        foregroundColor: AssalColors.textPrimary,
+        backgroundColor: AssalColors.surfaceVariant,
+        overlayColor: AssalColors.primary.withValues(alpha: .12),
+        side: const BorderSide(color: AssalColors.borderStrong),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AssalRadius.medium),
         ),
+        textStyle: AssalTypography.button,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AssalColors.deepBrown,
-        overlayColor: AssalColors.primaryDark.withValues(alpha: .12),
+        foregroundColor: AssalColors.textPrimary,
+        overlayColor: AssalColors.primary.withValues(alpha: .12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AssalRadius.medium),
         ),
+        textStyle: AssalTypography.button,
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
-        foregroundColor: AssalColors.deepBrown,
-        overlayColor: AssalColors.primaryDark.withValues(alpha: .12),
+        foregroundColor: AssalColors.textPrimary,
+        overlayColor: AssalColors.primary.withValues(alpha: .12),
       ),
     ),
     switchTheme: SwitchThemeData(
@@ -213,35 +237,66 @@ ThemeData buildAssalTheme() {
         return AssalColors.textMuted;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return AssalColors.deepBrown;
-        }
-        return AssalColors.border;
+        if (states.contains(WidgetState.selected)) return AssalColors.honeyLight;
+        return AssalColors.surfaceVariant;
       }),
       overlayColor: _assalInteractionOverlay,
     ),
-    bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: AssalColors.cream,
+    chipTheme: ChipThemeData(
+      backgroundColor: AssalColors.surfaceVariant,
+      selectedColor: AssalColors.honeyLight,
+      disabledColor: AssalColors.surface,
+      labelStyle: AssalTypography.caption.copyWith(color: AssalColors.textSecondary),
+      secondaryLabelStyle: AssalTypography.caption.copyWith(color: AssalColors.primaryLight),
+      side: const BorderSide(color: AssalColors.border),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AssalRadius.pill)),
+    ),
+    snackBarTheme: const SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: AssalColors.surfaceRaised,
+      contentTextStyle: TextStyle(color: AssalColors.textPrimary),
+    ),
+    dialogTheme: DialogTheme(
+      backgroundColor: AssalColors.surfaceRaised,
       surfaceTintColor: Colors.transparent,
-      modalBackgroundColor: AssalColors.cream,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AssalRadius.large),
+        side: const BorderSide(color: AssalColors.border),
+      ),
+      titleTextStyle: AssalTypography.heading3.copyWith(color: AssalColors.textPrimary),
+      contentTextStyle: AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AssalColors.surfaceRaised,
+      surfaceTintColor: Colors.transparent,
+      modalBackgroundColor: AssalColors.surfaceRaised,
       modalBarrierColor: Color(0x99000000),
       showDragHandle: true,
-      dragHandleColor: AssalColors.deepBrown,
+      dragHandleColor: AssalColors.borderStrong,
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
       textStyle: AssalTypography.body.copyWith(color: AssalColors.textPrimary),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AssalColors.surface,
+        fillColor: AssalColors.surfaceVariant,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AssalRadius.medium),
           borderSide: const BorderSide(color: AssalColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AssalRadius.medium),
-          borderSide: const BorderSide(color: AssalColors.primaryDark, width: 1.5),
+          borderSide: const BorderSide(color: AssalColors.primary, width: 1.5),
         ),
       ),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: AssalColors.surfaceRaised,
+      elevation: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AssalRadius.medium),
+        side: const BorderSide(color: AssalColors.border),
+      ),
+      textStyle: AssalTypography.body.copyWith(color: AssalColors.textPrimary),
     ),
   );
 }

@@ -24,18 +24,24 @@ class _ReviewsSectionState extends State<ReviewsSection> {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SectionHeader(title: 'المراجعات'),
       FutureBuilder<AssalLoadState<List<AssalReviewSummary>>>(
         future: future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalGlassLoading();
+          if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
           return AssalStateView<List<AssalReviewSummary>>(
             state: snapshot.data!,
             builder: (reviews) => Column(
               children: reviews.map<Widget>((review) => Card(
                 child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person_outline)),
-                  title: Row(children: [Text(review.authorName ?? 'عميل'), const SizedBox(width: AssalSpacing.sm), RatingStars(rating: review.rating.toDouble())]),
+                  leading: const CircleAvatar(
+                    backgroundColor: AssalColors.honeyLight,
+                    child: Icon(Icons.person_outline,
+                        color: AssalColors.primaryLight),
+                  ),
+                  title: Row(children: [
+                    Expanded(child: Text(review.authorName ?? 'عميل')),
+                    RatingStars(rating: review.rating.toDouble()),
+                  ]),
                   subtitle: Text(review.body ?? 'تجربة موثقة'),
                 ),
               )).toList(),
@@ -44,7 +50,13 @@ class _ReviewsSectionState extends State<ReviewsSection> {
         },
       ),
       const SizedBox(height: AssalSpacing.sm),
-      OutlinedButton.icon(onPressed: _writeReview, icon: const Icon(Icons.rate_review_outlined), label: const Text('أضف مراجعتك')),
+      SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+            onPressed: _writeReview,
+            icon: const Icon(Icons.rate_review_outlined),
+            label: const Text('أضف مراجعتك')),
+      ),
     ]);
   }
 
@@ -56,6 +68,7 @@ class _ReviewsSectionState extends State<ReviewsSection> {
     final submit = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(builder: (context, setModal) => AlertDialog(
+        backgroundColor: AssalColors.surfaceRaised,
         title: const Text('مراجعتك'),
         content: Column(mainAxisSize: MainAxisSize.min, children: [
           DropdownButtonFormField<int>(initialValue: rating, items: [1, 2, 3, 4, 5].map<DropdownMenuItem<int>>((item) => DropdownMenuItem(value: item, child: Text('$item نجوم'))).toList(), onChanged: (value) => setModal(() => rating = value ?? 5)),
@@ -101,15 +114,19 @@ class _CommentsSectionState extends State<CommentsSection> {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const SectionHeader(title: 'التعليقات'),
       FutureBuilder<AssalLoadState<List<AssalCommentSummary>>>(
         future: future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalGlassLoading();
+          if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
           return AssalStateView<List<AssalCommentSummary>>(
             state: snapshot.data!,
             builder: (comments) => Column(
-              children: comments.map<Widget>((comment) => Card(child: ListTile(title: Text(comment.authorName), subtitle: Text(comment.body)))).toList(),
+              children: comments.map<Widget>((comment) => Card(
+                child: ListTile(
+                  title: Text(comment.authorName),
+                  subtitle: Text(comment.body),
+                ),
+              )).toList(),
             ),
           );
         },
@@ -132,4 +149,3 @@ class _CommentsSectionState extends State<CommentsSection> {
     setState(() => future = widget.repository.listComments(widget.targetId));
   }
 }
-

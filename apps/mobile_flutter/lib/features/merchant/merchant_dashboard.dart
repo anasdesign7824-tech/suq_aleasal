@@ -105,7 +105,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         body: FutureBuilder<AssalLoadState<AssalMerchantWorkspaceSummary?>>(
           future: workspaceFuture,
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const AssalGlassLoading();
+            if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
             final state = snapshot.data!;
             if (state is AssalError<AssalMerchantWorkspaceSummary?>) {
               return AssalMessageCard(
@@ -169,17 +169,18 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
             decoration: BoxDecoration(
-              gradient: AssalColors.darkGradient,
+              color: AssalColors.surface,
               borderRadius: BorderRadius.circular(AssalRadius.medium),
+              border: Border.all(color: AssalColors.border),
             ),
             child: TabBar(
               isScrollable: true,
               padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.xs),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white.withValues(alpha: .72),
+              labelColor: AssalColors.primaryLight,
+              unselectedLabelColor: AssalColors.textMuted,
               indicatorSize: TabBarIndicatorSize.tab,
               indicator: BoxDecoration(
-                color: AssalColors.primaryDark,
+                color: AssalColors.honeyLight,
                 borderRadius: BorderRadius.circular(AssalRadius.small),
               ),
               dividerColor: Colors.transparent,
@@ -218,7 +219,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
         Text(
           'مساحة متجرك جاهزة للتحرير',
           style:
-              AssalTypography.heading2.copyWith(color: AssalColors.deepBrown),
+              AssalTypography.heading2.copyWith(color: AssalColors.textPrimary),
         ),
         const SizedBox(height: AssalSpacing.sm),
         Text(
@@ -321,7 +322,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalGlassLoading();
+          if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
           final state = snapshot.data!;
           if (state is AssalError<List<AssalProductSummary>>) {
             return AssalMessageCard(
@@ -361,7 +362,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
       FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
         future: productsFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalGlassLoading();
+          if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
           final state = snapshot.data!;
           if (state is AssalError<List<AssalProductSummary>>) {
             return AssalMessageCard(
@@ -389,7 +390,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
       FutureBuilder<AssalLoadState<List<AssalCommentSummary>>>(
         future: commentsFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalGlassLoading();
+          if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
           final state = snapshot.data!;
           if (state is AssalError<List<AssalCommentSummary>>) {
             return AssalMessageCard(
@@ -432,7 +433,7 @@ class _MerchantDashboardState extends State<MerchantDashboard> {
       FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
         future: requestsFuture,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const AssalGlassLoading();
+          if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
           final state = snapshot.data!;
           if (state is AssalError<List<AssalRequestSummary>>) {
             return AssalMessageCard(

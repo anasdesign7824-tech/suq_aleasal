@@ -1,6 +1,3 @@
-// Existing discovery code predates the shared UX pass and uses intentional one-line guards.
-// Keep the current layout stable while new shared components remain fully linted.
-// ignore_for_file: curly_braces_in_flow_control_structures
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,7 +7,6 @@ import 'package:assalkom_design/assal_tokens.dart';
 import '../../core/assal_widgets.dart';
 import '../../core/yemen_location_reference.dart';
 import 'customer_catalog.dart';
-import 'customer_account.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen(
@@ -56,8 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _load() {
-    // All home rails start together. Empty Production data is rendered as an
-    // explicit state; it must never be confused with a missing widget.
     featuredFuture = widget.repository
         .listProducts(query: const AssalProductQuery(featuredOnly: true));
     taxonomyFuture = widget.repository.listTaxonomy();
@@ -186,6 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) => RefreshIndicator(
+        color: AssalColors.primary,
         onRefresh: () async => _refresh(),
         child: FutureBuilder<bool>(
           future: initialContentFuture,
@@ -201,18 +196,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ]);
             if (snapshot.data != true) return _loadingBody();
             return CustomScrollView(controller: scrollController, slivers: [
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _PinnedHeaderDelegate(
-                  topInset: MediaQuery.paddingOf(context).top,
-                  child: _Header(
-                    repository: widget.repository,
-                    notificationsFuture: notificationsFuture,
-                    bannersFuture: bannersFuture,
-                    onOpenNotifications: widget.onOpenNotifications,
-                    searchController: searchController,
-                    onOpenSearch: widget.onOpenSearch,
-                  ),
+              SliverToBoxAdapter(
+                child: _HomeHeader(
+                  repository: widget.repository,
+                  notificationsFuture: notificationsFuture,
+                  onOpenNotifications: widget.onOpenNotifications,
+                  searchController: searchController,
+                  onOpenSearch: widget.onOpenSearch,
                 ),
               ),
               const SliverToBoxAdapter(
@@ -244,52 +234,51 @@ class _HomeScreenState extends State<HomeScreen> {
                                         AssalDataSourceMode.demo));
                           }))),
               SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(AssalSpacing.lg,
-                      AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm),
+                padding: const EdgeInsets.fromLTRB(
+                    AssalSpacing.lg, AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm),
+                sliver: SliverToBoxAdapter(
+                  child: HoneySectionHeader(
+                    title: 'الأقسام',
+                    subtitle: 'اكتشف التصنيف الرئيسي ثم التفاصيل',
+                    actionLabel: 'كل الأقسام',
+                    onAction: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) =>
+                            CategoriesScreen(repository: widget.repository))),
+                  ),
+                ),
+              ),
+              SliverPadding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
                   sliver: SliverToBoxAdapter(
-                      child: SectionHeader(
-                          title: 'استكشف حسب التصنيف',
-                          actionLabel: 'كل التصنيفات',
-                          onAction: widget.onOpenSearch))),
-              SliverToBoxAdapter(
-                  child: SizedBox(
-                      height: 92,
-                      child: FutureBuilder<AssalLoadState<List<AssalTaxonomy>>>(
+                      child: FutureBuilder<
+                              AssalLoadState<List<AssalTaxonomy>>>(
                           future: taxonomyFuture,
                           builder: (context, snapshot) {
-                            if (snapshot.hasError)
-                              return AssalMessageCard(
-                                  icon: Icons.wifi_off_outlined,
-                                  message:
-                                      'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.',
-                                  onRetry: _refresh);
                             if (!snapshot.hasData)
-                              return const AssalGlassLoading(height: 92);
+                              return const AssalGlassLoading(height: 72);
                             return AssalStateView<List<AssalTaxonomy>>(
                                 state: snapshot.data!,
-                                builder: (items) => ListView.separated(
-                                    scrollDirection: Axis.horizontal,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: AssalSpacing.lg),
-                                    itemCount: items.length,
-                                    separatorBuilder: (_, __) =>
-                                        const SizedBox(width: AssalSpacing.sm),
-                                    itemBuilder: (_, index) => _CategoryTile(
-                                        item: items[index],
-                                        onTap: () => Navigator.of(context).push(
+                                onRetry: _refresh,
+                                builder: (items) => _CategoryRail(
+                                    items: items,
+                                    onTap: (item) =>
+                                        Navigator.of(context).push(
                                             MaterialPageRoute(
-                                                builder: (_) => SearchScreen(
-                                                    repository:
-                                                        widget.repository,
-                                                    initialSubcategoryId:
-                                                        items[index].id))))));
+                                                builder: (_) =>
+                                                    SearchScreen(
+                                                        repository: widget
+                                                            .repository,
+                                                        initialSubcategoryId:
+                                                            item.id)))));
                           }))),
               SliverPadding(
                   padding: const EdgeInsets.fromLTRB(AssalSpacing.lg,
                       AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm),
                   sliver: SliverToBoxAdapter(
-                      child: SectionHeader(
+                      child: HoneySectionHeader(
                           title: 'منتجات مختارة',
+                          subtitle: 'أفضل ما تقدمه المنصة الآن',
                           actionLabel: 'عرض الكل',
                           onAction: widget.onOpenSearch))),
               SliverPadding(
@@ -341,6 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _ProductRail(
                             repository: widget.repository,
                             title: 'الأكثر مشاهدة',
+                            subtitle: 'منتجات يتابعها السوق الآن',
                             future: popularFuture!,
                             onRetry: _refresh))),
                 SliverPadding(
@@ -350,6 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _ProductRail(
                             repository: widget.repository,
                             title: 'وصل حديثًا',
+                            subtitle: 'أحدث الإضافات من المناحل',
                             future: newProductsFuture!,
                             onRetry: _refresh))),
                 SliverPadding(
@@ -363,6 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: _ProductRail(
                       repository: widget.repository,
                       title: 'المنتجات اليمنية الموثوقة',
+                      subtitle: 'من متاجر موثقة',
                       future: verifiedProductsFuture!,
                       verifiedOnly: true,
                       onRetry: _refresh,
@@ -381,6 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: _ProductRail(
                         repository: widget.repository,
                         title: 'مقترحات مخصصة لك',
+                        subtitle: 'مبنية على تفاعلك',
                         future: personalizedFuture!,
                         onRetry: _refresh,
                       ),
@@ -390,8 +383,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.fromLTRB(AssalSpacing.lg,
                         AssalSpacing.xl, AssalSpacing.lg, AssalSpacing.sm),
                     sliver: SliverToBoxAdapter(
-                        child: SectionHeader(
+                        child: HoneySectionHeader(
                             title: 'متاجر موثوقة',
+                            subtitle: 'ابدأ من مصدر تثق به',
                             actionLabel: 'عرض المتاجر',
                             onAction: _openStores))),
                 SliverPadding(
@@ -438,442 +432,112 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
   Widget _loadingBody() => CustomScrollView(slivers: [
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: _PinnedHeaderDelegate(
-            topInset: MediaQuery.paddingOf(context).top,
-            child: _Header(
-              repository: widget.repository,
-              notificationsFuture: notificationsFuture,
-              bannersFuture: bannersFuture,
-              onOpenNotifications: widget.onOpenNotifications,
-              searchController: searchController,
-              onOpenSearch: widget.onOpenSearch,
-            ),
+        SliverToBoxAdapter(
+          child: _HomeHeader(
+            repository: widget.repository,
+            notificationsFuture: notificationsFuture,
+            onOpenNotifications: widget.onOpenNotifications,
+            searchController: searchController,
+            onOpenSearch: widget.onOpenSearch,
           ),
         ),
+        const SliverToBoxAdapter(child: SizedBox(height: AssalSpacing.lg)),
         const SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
                 padding: EdgeInsets.all(AssalSpacing.lg),
-                child: AssalGlassLoading(
-                    height: 520, label: 'جارٍ تحميل الصفحة والمنتجات...'))),
+                child: AssalSkeletonList(count: 5))),
       ]);
 }
 
-class _NewsTicker extends StatefulWidget {
-  const _NewsTicker({required this.items, required this.onTap});
-  final List<AssalBannerSummary> items;
-  final VoidCallback onTap;
-
-  @override
-  State<_NewsTicker> createState() => _NewsTickerState();
-}
-
-class _NewsTickerState extends State<_NewsTicker> {
-  Timer? _timer;
-  int _index = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.items.length > 1) {
-      _timer = Timer.periodic(const Duration(seconds: 4), (_) {
-        if (!mounted) return;
-        setState(() => _index = (_index + 1) % widget.items.length);
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.items.isEmpty) return const SizedBox.shrink();
-    final item = widget.items[_index % widget.items.length];
-    return Padding(
-      padding: const EdgeInsets.only(top: AssalSpacing.md),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(AssalRadius.medium),
-          child: Container(
-            height: 52,
-            padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.md),
-            decoration: BoxDecoration(
-              color: AssalColors.surface.withValues(alpha: .78),
-              borderRadius: BorderRadius.circular(AssalRadius.medium),
-              border: Border.all(
-                color: AssalColors.cream.withValues(alpha: .95),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AssalColors.deepBrown.withValues(alpha: .06),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.campaign_outlined,
-                  size: 20,
-                  color: AssalColors.primaryDark,
-                ),
-                const SizedBox(width: AssalSpacing.sm),
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 350),
-                    transitionBuilder: (child, animation) => FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(.08, 0),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      ),
-                    ),
-                    child: Align(
-                      key: ValueKey(item.id),
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(
-                        item.titleAr,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AssalTypography.body.copyWith(
-                          color: AssalColors.deepBrown,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: AssalSpacing.sm),
-                const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 14,
-                  color: AssalColors.textMuted,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
-  const _PinnedHeaderDelegate({required this.topInset, required this.child});
-  static const contentExtent = 160.0;
-  final double topInset;
-  final Widget child;
-
-  @override
-  double get minExtent => topInset + contentExtent;
-
-  @override
-  double get maxExtent => topInset + contentExtent;
-
-  @override
-  Widget build(
-          BuildContext context, double shrinkOffset, bool overlapsContent) =>
-      DecoratedBox(
-        decoration: const BoxDecoration(gradient: assalDarkGradient),
-        child: Material(
-          color: Colors.transparent,
-          elevation: overlapsContent ? 4 : 0,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              AssalSpacing.lg,
-              topInset + AssalSpacing.xs,
-              AssalSpacing.lg,
-              AssalSpacing.sm,
-            ),
-            child: SizedBox(
-              height: contentExtent - AssalSpacing.xs - AssalSpacing.sm,
-              child: child,
-            ),
-          ),
-        ),
-      );
-
-  @override
-  bool shouldRebuild(covariant _PinnedHeaderDelegate oldDelegate) => true;
-}
-
-class _Header extends StatelessWidget {
-  const _Header({
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({
     required this.repository,
     required this.notificationsFuture,
-    required this.bannersFuture,
     required this.onOpenNotifications,
     required this.searchController,
     required this.onOpenSearch,
   });
   final AssalRepository repository;
-  final Future<AssalLoadState<List<AssalNotificationSummary>>>
-      notificationsFuture;
-  final Future<AssalLoadState<List<AssalBannerSummary>>> bannersFuture;
+  final Future<AssalLoadState<List<AssalNotificationSummary>>> notificationsFuture;
   final VoidCallback onOpenNotifications;
   final TextEditingController searchController;
   final VoidCallback onOpenSearch;
 
   @override
-  Widget build(BuildContext context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            height: 38,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const AssalBrandMark(
-                  size: 30,
-                  showName: true,
-                  framed: true,
-                  nameColor: Colors.white,
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                            builder: (_) => const SettingsScreen()),
-                      ),
-                      icon: const Icon(Icons.settings_outlined,
-                          color: Colors.white),
-                      tooltip: 'الإعدادات',
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    FutureBuilder<
-                        AssalLoadState<List<AssalNotificationSummary>>>(
-                      future: notificationsFuture,
-                      builder: (context, snapshot) {
-                        final state = snapshot.data;
-                        final unread =
-                            state is AssalData<List<AssalNotificationSummary>>
-                                ? state.value
-                                    .where((item) => item.readAt == null)
-                                    .length
-                                : 0;
-                        return Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            IconButton(
-                              onPressed: onOpenNotifications,
-                              icon: const Icon(Icons.notifications_none_rounded,
-                                  color: Colors.white),
-                              tooltip: 'الإشعارات',
-                              visualDensity: VisualDensity.compact,
-                            ),
-                            if (unread > 0)
-                              Positioned(
-                                top: 1,
-                                right: 1,
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    color: AssalColors.error,
-                                    borderRadius:
-                                        BorderRadius.circular(AssalRadius.pill),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4, vertical: 1),
-                                    child: Text(
-                                      '$unread',
-                                      style: AssalTypography.caption
-                                          .copyWith(color: AssalColors.cream),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AssalSpacing.xs),
-          FutureBuilder<AssalLoadState<List<AssalBannerSummary>>>(
-            future: bannersFuture,
-            builder: (context, snapshot) {
-              final state = snapshot.data;
-              final items = state is AssalData<List<AssalBannerSummary>>
-                  ? state.value
-                  : const <AssalBannerSummary>[];
-              final tickerItems = items.isNotEmpty ||
-                      repository.mode != AssalDataSourceMode.demo ||
-                      state != null
-                  ? items
-                  : const <AssalBannerSummary>[
-                      AssalBannerSummary(
-                        id: 'demo-ticker-loading',
-                        titleAr:
-                            'الثقة تبدأ من المصدر   •   سدر يمني من وديانه',
-                        descriptionAr: '',
-                        ctaLabelAr: 'استكشف',
-                        imageUrl: '',
-                      ),
-                    ];
-              return _HomeIntroTicker(
-                items: tickerItems,
-                onTap: onOpenSearch,
-              );
-            },
-          ),
-          const SizedBox(height: AssalSpacing.md),
-          SizedBox(
-            height: 48,
-            child: TextField(
-              controller: searchController,
-              readOnly: true,
-              onTap: onOpenSearch,
-              style: AssalTypography.body.copyWith(
-                color: AssalColors.deepBrown,
-              ),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: AssalColors.cream,
-                prefixIcon:
-                    const Icon(Icons.search, color: AssalColors.deepBrown),
-                suffixIcon: const Icon(Icons.tune_rounded,
-                    color: AssalColors.deepBrown),
-                hintText: 'ابحث عن سدر، سمر، شمع أو هدية',
-                hintStyle: AssalTypography.bodySmall.copyWith(
-                  color: AssalColors.textMuted,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: AssalSpacing.md),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AssalRadius.medium),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-}
-
-class _HomeIntroTicker extends StatefulWidget {
-  const _HomeIntroTicker({required this.items, required this.onTap});
-  final List<AssalBannerSummary> items;
-  final VoidCallback onTap;
-
-  @override
-  State<_HomeIntroTicker> createState() => _HomeIntroTickerState();
-}
-
-class _HomeIntroTickerState extends State<_HomeIntroTicker>
-    with SingleTickerProviderStateMixin {
-  static const _introText =
-      'اكتشف العسل من مصدره • تصفح المتاجر والمنتجات اليمنية الموثوقة • تواصل مع التاجر بسهولة';
-  late final AnimationController controller = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 16),
-  )..repeat();
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final bannerText = widget.items
-        .map((item) => item.titleAr.trim())
-        .where((item) => item.isNotEmpty)
-        .join('   •   ');
-    final text =
-        bannerText.isEmpty ? _introText : '$_introText   •   $bannerText';
-    final style = AssalTypography.bodySmall.copyWith(
-      color: AssalColors.cream,
-      fontWeight: FontWeight.w600,
-      letterSpacing: .1,
-    );
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: widget.onTap,
-        borderRadius: BorderRadius.circular(AssalRadius.medium),
-        child: Container(
-          height: 42,
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: AlignmentDirectional.centerStart,
-              end: AlignmentDirectional.centerEnd,
-              colors: [
-                Colors.white.withValues(alpha: .20),
-                Colors.white.withValues(alpha: .07),
-                Colors.white.withValues(alpha: .16),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(AssalRadius.large),
-            border: Border.all(color: Colors.white.withValues(alpha: .34)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: .10),
-                blurRadius: 12,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final painter = TextPainter(
-                text: TextSpan(text: text, style: style),
-                textDirection: TextDirection.rtl,
-                maxLines: 1,
-              )..layout();
-              final textWidth = painter.width + AssalSpacing.lg;
-              final start = constraints.maxWidth + AssalSpacing.md;
-              final end = -textWidth - AssalSpacing.md;
-              return AnimatedBuilder(
-                animation: controller,
-                builder: (context, child) {
-                  final x = start + (end - start) * controller.value;
-                  return ClipRect(
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Positioned(
-                          left: x,
-                          top: 0,
-                          bottom: 0,
-                          width: textWidth,
-                          child: Center(child: child),
-                        ),
-                      ],
+    final top = MediaQuery.paddingOf(context).top;
+    return Container(
+      color: AssalColors.surface,
+      padding: EdgeInsets.fromLTRB(
+          AssalSpacing.lg, top + AssalSpacing.sm, AssalSpacing.lg, AssalSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const AssalBrandMark(size: 40, showName: true),
+              const Spacer(),
+              FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(
+                future: notificationsFuture,
+                builder: (context, snapshot) {
+                  final unread = snapshot.data is AssalData<List<AssalNotificationSummary>>
+                      ? (snapshot.data! as AssalData<List<AssalNotificationSummary>>)
+                          .value
+                          .where((item) => item.readAt == null)
+                          .length
+                      : 0;
+                  return Badge(
+                    isLabelVisible: unread > 0,
+                    label: Text('$unread'),
+                    backgroundColor: AssalColors.primary,
+                    child: IconButton(
+                      onPressed: onOpenNotifications,
+                      icon: const Icon(Icons.notifications_none_rounded),
+                      tooltip: 'الإشعارات',
+                      color: AssalColors.textPrimary,
                     ),
                   );
                 },
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Text(
-                    text,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.visible,
-                    style: style,
-                  ),
-                ),
-              );
-            },
+              ),
+              const SizedBox(width: AssalSpacing.xs),
+              const Icon(Icons.more_vert_rounded),
+            ],
           ),
-        ),
+          const SizedBox(height: AssalSpacing.lg),
+          Text(
+            'العسل اليمني من مصدره',
+            style: AssalTypography.heading2
+                .copyWith(color: AssalColors.textPrimary),
+          ),
+          const SizedBox(height: AssalSpacing.xs),
+          Text(
+            'اكتشف النوع والمنطقة والتوثيق قبل أن تتواصل.',
+            style:
+                AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+          ),
+          const SizedBox(height: AssalSpacing.md),
+          InkWell(
+            borderRadius: BorderRadius.circular(AssalRadius.medium),
+            onTap: onOpenSearch,
+            child: Container(
+              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.md),
+              decoration: BoxDecoration(
+                color: AssalColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(AssalRadius.medium),
+                border: Border.all(color: AssalColors.border),
+              ),
+              child: const Row(children: [
+                Icon(Icons.search, color: AssalColors.primaryLight, size: 20),
+                SizedBox(width: AssalSpacing.sm),
+                Text('ابحث عن صنف أو منطقة أو متجر',
+                    style: AssalTypography.body
+                        .copyWith(color: AssalColors.textMuted)),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -896,143 +560,37 @@ class _BannersCarousel extends StatefulWidget {
 }
 
 class _BannersCarouselState extends State<_BannersCarousel> {
-  late final PageController controller;
-  Timer? timer;
-  int currentIndex = 0;
-
-  List<AssalBannerSummary> get visibleBanners => widget.banners
-      .where((item) =>
-          item.imageUrl.trim().startsWith('http') ||
-          item.imageUrl.trim().startsWith('assets/'))
-      .take(4)
-      .toList(growable: false);
-
-  @override
-  void initState() {
-    super.initState();
-    controller = PageController();
-    if (visibleBanners.length > 1) {
-      timer = Timer.periodic(const Duration(seconds: 5), (_) {
-        if (!mounted || !controller.hasClients) return;
-        final next = (currentIndex + 1) % visibleBanners.length;
-        controller.animateToPage(next,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOutCubic);
-      });
-    }
-  }
+  late final PageController controller = PageController(viewportFraction: .88);
+  int index = 0;
 
   @override
   void dispose() {
-    timer?.cancel();
     controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final banners = visibleBanners;
-    if (banners.isEmpty) {
-      if (widget.useFallbackDemo) {
-        return _HeroBanner(onExplore: widget.onExplore);
-      }
-      return _BannerEmptyState(
-          onExplore: widget.onExplore, onRetry: widget.onRetry);
+    if (widget.banners.isEmpty) {
+      return AssalMessageCard(
+        icon: Icons.campaign_outlined,
+        title: 'لا توجد حملات الآن',
+        message: 'ستظهر هنا العروض والتعريف بالمنصة فور توفرها.',
+        actionLabel: 'ابدأ البحث',
+        onAction: widget.onExplore,
+      );
     }
-    return Column(children: [
-      SizedBox(
-        height: 210,
-        child: PageView.builder(
-          controller: controller,
-          itemCount: banners.length,
-          onPageChanged: (index) => setState(() => currentIndex = index),
-          itemBuilder: (_, index) =>
-              _BannerCard(item: banners[index], onExplore: widget.onExplore),
-        ),
-      ),
-      const SizedBox(height: AssalSpacing.sm),
-      Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-              banners.length,
-              (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
-                  width: index == currentIndex ? 22 : 8,
-                  height: 8,
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  decoration: BoxDecoration(
-                      color: index == currentIndex
-                          ? AssalColors.primaryDark
-                          : AssalColors.border,
-                      borderRadius: BorderRadius.circular(AssalRadius.pill))))),
-    ]);
-  }
-}
-
-class _BannerCard extends StatelessWidget {
-  const _BannerCard({required this.item, required this.onExplore});
-  final AssalBannerSummary item;
-  final VoidCallback onExplore;
-
-  @override
-  Widget build(BuildContext context) {
-    final source = item.imageUrl.trim();
-    final image = source.startsWith('assets/')
-        ? Image.asset(
-            source,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => const _BannerImageFallback(),
-          )
-        : Image.network(
-            source,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, progress) => progress == null
-                ? child
-                : const AssalGlassLoading(
-                    height: 72, label: 'جارٍ تحميل الصورة...'),
-            errorBuilder: (_, __, ___) => const _BannerImageFallback(),
-          );
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onExplore,
-        child: SizedBox(
-          height: 210,
-          width: double.infinity,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              image,
-              if (item.titleAr.trim().isNotEmpty)
-                Positioned(
-                  left: AssalSpacing.md,
-                  right: AssalSpacing.md,
-                  bottom: AssalSpacing.md,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AssalColors.deepBrown.withValues(alpha: .72),
-                      borderRadius: BorderRadius.circular(AssalRadius.medium),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AssalSpacing.md,
-                          vertical: AssalSpacing.xs),
-                      child: Text(
-                        item.titleAr,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: AssalTypography.bodySmall.copyWith(
-                          color: AssalColors.cream,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+    return SizedBox(
+      height: 168,
+      child: PageView.builder(
+        controller: controller,
+        itemCount: widget.banners.length,
+        onPageChanged: (value) => setState(() => index = value),
+        itemBuilder: (context, i) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.xs),
+          child: _BannerCard(
+            banner: widget.banners[i],
+            onExplore: widget.onExplore,
           ),
         ),
       ),
@@ -1040,174 +598,132 @@ class _BannerCard extends StatelessWidget {
   }
 }
 
-class _BannerEmptyState extends StatelessWidget {
-  const _BannerEmptyState({required this.onExplore, required this.onRetry});
+class _BannerCard extends StatelessWidget {
+  const _BannerCard({required this.banner, required this.onExplore});
+  final AssalBannerSummary banner;
   final VoidCallback onExplore;
-  final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) => Column(
+  Widget build(BuildContext context) {
+    final hasImage = banner.imageUrl != null && banner.imageUrl!.startsWith('http');
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AssalColors.darkGradient,
+        borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
+        border: Border.all(color: AssalColors.borderStrong),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          SizedBox(
-            height: 210,
-            width: double.infinity,
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: onExplore,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AssalColors.deepBrown, AssalColors.secondary],
-                    ),
-                    borderRadius: BorderRadius.circular(AssalRadius.extraLarge),
-                    border: Border.all(
-                      color: AssalColors.primaryLight.withValues(alpha: .35),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AssalSpacing.xl),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.image_outlined,
-                          size: 58,
-                          color: AssalColors.primaryLight,
-                        ),
-                        const SizedBox(width: AssalSpacing.lg),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'لا توجد بنرات منشورة بعد',
-                                style: AssalTypography.heading3.copyWith(
-                                  color: AssalColors.cream,
-                                ),
-                              ),
-                              const SizedBox(height: AssalSpacing.sm),
-                              Text(
-                                'سيظهر المحتوى هنا تلقائيًا عند نشره من لوحة الإدارة.',
-                                style: AssalTypography.bodySmall.copyWith(
-                                  color:
-                                      AssalColors.cream.withValues(alpha: .84),
-                                ),
-                              ),
-                              const SizedBox(height: AssalSpacing.md),
-                              Wrap(
-                                spacing: AssalSpacing.sm,
-                                children: [
-                                  OutlinedButton(
-                                    onPressed: onExplore,
-                                    child: const Text('استكشف المنتجات'),
-                                  ),
-                                  TextButton(
-                                    onPressed: onRetry,
-                                    child: const Text('تحديث'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+          if (hasImage)
+            Image.network(
+              banner.imageUrl!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+            ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: AlignmentDirectional.bottomStart,
+                end: AlignmentDirectional.topEnd,
+                colors: [
+                  AssalColors.glassDark,
+                  AssalColors.glassDark.withValues(alpha: .55),
+                ],
               ),
             ),
           ),
-          const SizedBox(height: AssalSpacing.sm),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 22,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: AssalColors.primaryDark,
-                  borderRadius: BorderRadius.circular(AssalRadius.pill),
+          Padding(
+            padding: const EdgeInsets.all(AssalSpacing.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  banner.titleAr,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AssalTypography.heading2
+                      .copyWith(color: AssalColors.cream),
                 ),
-              ),
-            ],
+                const SizedBox(height: AssalSpacing.xs),
+                Text(
+                  banner.descriptionAr,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      AssalTypography.body.copyWith(color: AssalColors.textSecondary),
+                ),
+                const SizedBox(height: AssalSpacing.md),
+                FilledButton(
+                  onPressed: onExplore,
+                  child: Text(banner.ctaLabelAr),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CategoryRail extends StatelessWidget {
+  const _CategoryRail({required this.items, required this.onTap});
+  final List<AssalTaxonomy> items;
+  final ValueChanged<AssalTaxonomy> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = items.take(10).toList();
+    if (visible.isEmpty) {
+      return const AssalMessageCard(
+        icon: Icons.category_outlined,
+        message: 'لم تُحمّل الأقسام بعد.',
       );
-}
-
-class _BannerImageFallback extends StatelessWidget {
-  const _BannerImageFallback();
-
-  @override
-  Widget build(BuildContext context) => const ColoredBox(
-        color: AssalColors.cream,
-        child: Center(
-          child: Icon(Icons.image_not_supported_outlined,
-              color: AssalColors.textMuted, size: 38),
-        ),
-      );
-}
-
-class _HeroBanner extends StatelessWidget {
-  const _HeroBanner({required this.onExplore});
-  final VoidCallback onExplore;
-  @override
-  Widget build(BuildContext context) => Container(
-      padding: const EdgeInsets.all(AssalSpacing.xl),
-      decoration: BoxDecoration(
-          gradient: const LinearGradient(
-              colors: [AssalColors.deepBrown, AssalColors.secondary]),
-          borderRadius: BorderRadius.circular(AssalRadius.extraLarge)),
-      child: Row(children: [
-        Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('الثقة تبدأ من المصدر',
-              style:
-                  AssalTypography.heading2.copyWith(color: AssalColors.cream)),
-          const SizedBox(height: AssalSpacing.sm),
-          Text('اعرف النوع والمنطقة والتوثيق قبل أن تتواصل.',
-              style: AssalTypography.body.copyWith(color: AssalColors.cream)),
-          const SizedBox(height: AssalSpacing.md),
-          FilledButton.tonal(
-              onPressed: onExplore, child: const Text('ابدأ الاكتشاف'))
-        ])),
-        const Icon(Icons.local_florist_rounded,
-            size: 74, color: AssalColors.primaryLight)
-      ]));
-}
-
-class _CategoryTile extends StatelessWidget {
-  const _CategoryTile({required this.item, required this.onTap});
-  final AssalTaxonomy item;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) => InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AssalRadius.large),
-      child: Container(
-          width: 122,
-          padding: const EdgeInsets.all(AssalSpacing.sm),
-          decoration: BoxDecoration(
-              color: AssalColors.surface,
-              border: Border.all(color: AssalColors.border),
-              borderRadius: BorderRadius.circular(AssalRadius.large)),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(
-              _taxonomyIcon(item.nameAr),
-              color: AssalColors.primaryDark,
+    }
+    return SizedBox(
+      height: 92,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: visible.length,
+        separatorBuilder: (_, __) => const SizedBox(width: AssalSpacing.sm),
+        itemBuilder: (context, index) {
+          final item = visible[index];
+          return InkWell(
+            borderRadius: BorderRadius.circular(AssalRadius.medium),
+            onTap: () => onTap(item),
+            child: Container(
+              width: 108,
+              padding: const EdgeInsets.all(AssalSpacing.sm),
+              decoration: BoxDecoration(
+                color: AssalColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(AssalRadius.medium),
+                border: Border.all(color: AssalColors.border),
+              ),
+              child: Column(
+                children: [
+                  Icon(_taxonomyIcon(item.nameAr), color: AssalColors.primaryLight),
+                  const SizedBox(height: AssalSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      item.nameAr,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AssalTypography.caption.copyWith(
+                          color: AssalColors.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: AssalSpacing.xs),
-            Text(item.nameAr,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                style: AssalTypography.caption
-                    .copyWith(color: AssalColors.deepBrown))
-          ])));
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _ProductRail extends StatelessWidget {
@@ -1215,64 +731,45 @@ class _ProductRail extends StatelessWidget {
     required this.repository,
     required this.title,
     required this.future,
+    required this.onRetry,
+    this.subtitle,
     this.verifiedOnly = false,
-    this.onRetry,
   });
   final AssalRepository repository;
   final String title;
+  final String? subtitle;
   final Future<AssalLoadState<List<AssalProductSummary>>> future;
+  final VoidCallback onRetry;
   final bool verifiedOnly;
-  final VoidCallback? onRetry;
 
   @override
-  Widget build(BuildContext context) =>
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SectionHeader(
-          title: title,
-          actionLabel: 'عرض الكل',
-          onAction: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => SearchScreen(
-                repository: repository,
-                verifiedOnly: verifiedOnly,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: AssalSpacing.sm),
-        SizedBox(
-          height: 340,
-          child: FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HoneySectionHeader(title: title, subtitle: subtitle),
+          const SizedBox(height: AssalSpacing.md),
+          FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
             future: future,
             builder: (context, snapshot) {
-              if (snapshot.hasError)
-                return AssalMessageCard(
-                    icon: Icons.wifi_off_outlined,
-                    message:
-                        'تعذر تحميل هذه البيانات الآن. تحقق من الاتصال ثم أعد المحاولة.',
-                    onRetry: onRetry);
-              if (!snapshot.hasData) return const AssalGlassLoading();
+              if (!snapshot.hasData) return const AssalSkeletonList(count: 4);
               return AssalStateView<List<AssalProductSummary>>(
                 state: snapshot.data!,
-                builder: (products) => ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AssalSpacing.xs),
-                  itemCount: products.length > 8 ? 8 : products.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(width: AssalSpacing.md),
-                  itemBuilder: (_, index) => SizedBox(
-                    width: 168,
-                    child: ProductCard(
-                      product: products[index],
-                      showVerifiedBadge: verifiedOnly,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ProductDetailScreen(
-                            repository: repository,
-                            productId: products[index].id,
-                          ),
-                        ),
+                onRetry: onRetry,
+                builder: (products) => SizedBox(
+                  height: 232,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: products.length > 8 ? 8 : products.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: AssalSpacing.md),
+                    itemBuilder: (_, index) => SizedBox(
+                      width: 170,
+                      child: ProductCard(
+                        product: products[index],
+                        showVerifiedBadge: verifiedOnly,
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => ProductDetailScreen(
+                                repository: repository,
+                                productId: products[index].id))),
                       ),
                     ),
                   ),
@@ -1280,8 +777,8 @@ class _ProductRail extends StatelessWidget {
               );
             },
           ),
-        ),
-      ]);
+        ],
+      );
 }
 
 class CategoriesScreen extends StatelessWidget {
@@ -1306,48 +803,83 @@ class CategoriesScreen extends StatelessWidget {
               message: 'تعذر تحميل الأقسام الآن.',
             );
           }
-          if (!snapshot.hasData) return const AssalGlassLoading();
+          if (!snapshot.hasData) return const AssalSkeleton(count: 5);
           return AssalStateView<List<AssalCategorySummary>>(
             state: snapshot.data!,
-            builder: (categories) => ListView.separated(
-              padding: const EdgeInsets.all(AssalSpacing.lg),
-              itemCount: categories.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(height: AssalSpacing.sm),
-              itemBuilder: (_, index) {
-                final category = categories[index];
-                final description = category.description?.trim();
-                final subtitle = <String>[
-                  if (description != null &&
-                      description.isNotEmpty &&
-                      !description.contains('Master'))
-                    description,
-                  '${category.productCount} منتج متاح',
-                ].join('\n');
-                return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: AssalColors.honeyLight,
-                      child: Icon(
-                        _taxonomyIcon(category.nameAr, category.productType),
-                        color: AssalColors.primaryDark,
-                      ),
-                    ),
-                    title: Text(category.nameAr),
-                    subtitle: Text(subtitle),
-                    isThreeLine: subtitle.contains('\n'),
-                    trailing: const Icon(Icons.chevron_left),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => SearchScreen(
-                          repository: repository,
-                          initialCategoryId: category.id,
-                        ),
-                      ),
+            builder: (categories) => CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  sliver: SliverToBoxAdapter(
+                    child: HoneySectionHeader(
+                      title: 'تصفح حسب القسم',
+                      subtitle: 'التصنيف الرئيسي ثم التفاصيل ثم المنتجات',
                     ),
                   ),
-                );
-              },
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AssalSpacing.lg),
+                  sliver: SliverList.builder(
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: AssalSpacing.md),
+                        child: Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => SearchScreen(
+                                  repository: repository,
+                                  initialCategoryId: category.id,
+                                ),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(AssalSpacing.lg),
+                              child: Row(children: [
+                                Container(
+                                  width: 54,
+                                  height: 54,
+                                  decoration: BoxDecoration(
+                                    color: AssalColors.honeyLight,
+                                    borderRadius: BorderRadius.circular(AssalRadius.medium),
+                                    border: Border.all(color: AssalColors.borderStrong),
+                                  ),
+                                  child: Icon(
+                                    _taxonomyIcon(category.nameAr, category.productType),
+                                    color: AssalColors.primaryLight,
+                                  ),
+                                ),
+                                const SizedBox(width: AssalSpacing.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(category.nameAr,
+                                          style: AssalTypography.title
+                                              .copyWith(color: AssalColors.textPrimary)),
+                                      const SizedBox(height: AssalSpacing.xs),
+                                      Text(
+                                        '${category.productCount} منتج متاح',
+                                        style: AssalTypography.bodySmall
+                                            .copyWith(color: AssalColors.textSecondary),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(Icons.chevron_left,
+                                    color: AssalColors.textMuted),
+                              ]),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           );
         },
@@ -1360,16 +892,10 @@ IconData _taxonomyIcon(String nameAr, [ProductType? type]) {
   final name = nameAr.trim();
   if (name.contains('شمع')) return Icons.hexagon_outlined;
   if (name.contains('سدر')) return Icons.water_drop_outlined;
-  if (name.contains('سمر') || name.contains('طلح')) {
-    return Icons.eco_outlined;
-  }
-  if (name.contains('خلط') || name.contains('مزيج')) {
-    return Icons.local_florist_outlined;
-  }
+  if (name.contains('سمر') || name.contains('طلح')) return Icons.eco_outlined;
+  if (name.contains('خلط') || name.contains('مزيج')) return Icons.local_florist_outlined;
   if (name.contains('هد')) return Icons.card_giftcard_outlined;
-  if (name.contains('صافي') || name.contains('سائل')) {
-    return Icons.opacity_outlined;
-  }
+  if (name.contains('خام')) return Icons.hive_outlined;
   return switch (type ?? ProductType.honey) {
     ProductType.honey => Icons.water_drop_outlined,
     ProductType.wax => Icons.hexagon_outlined,
@@ -1481,188 +1007,92 @@ class _SearchScreenState extends State<SearchScreen> {
       .firstWhere((name) => name.isNotEmpty, orElse: () => 'التصنيف المحدد');
 
   String _regionLabel(String id) =>
-      locationReference?.governorateByCode(id)?.nameAr ??
-      locationReference?.governorateByCode(id)?.nameAr ??
-      'المحافظة المحددة';
+      locationReference?.governorateByCode(id)?.nameAr ?? 'المحافظة المحددة';
 
   String _provinceLabel(String id) =>
       locationReference?.districtByCode(id)?.nameAr ?? 'المديرية المحددة';
 
   void _search() {
     final query = AssalProductQuery(
-        categoryId: categoryId,
-        search: controller.text,
-        subcategoryId: subcategoryId,
-        regionId: regionId,
-        provinceId: provinceId,
-        gradeLevel: gradeLevel,
-        productType: productType,
-        verifiedStoresOnly: verifiedOnly,
-        originCountry: originCountry,
-        processingMethod: processingMethod,
-        packaging: packaging,
-        availability: availability,
-        minRating: minRating,
-        minPrice: minPrice,
-        maxPrice: maxPrice,
-        sort: sort);
+      categoryId: categoryId,
+      search: controller.text,
+      subcategoryId: subcategoryId,
+      regionId: regionId,
+      provinceId: provinceId,
+      gradeLevel: gradeLevel,
+      productType: productType,
+      verifiedStoresOnly: verifiedOnly,
+      originCountry: originCountry,
+      processingMethod: processingMethod,
+      packaging: packaging,
+      availability: availability,
+      minRating: minRating,
+      minPrice: minPrice,
+      maxPrice: maxPrice,
+      sort: sort,
+    );
     productsFuture = widget.repository.listProducts(query: query);
-    storesFuture = widget.repository.listStores();
+    storesFuture = widget.repository.listStores(regionId: regionId);
     popularSearchesFuture = widget.repository.listPopularSearches();
   }
 
-  void _captureFilterOptions(List<AssalProductSummary> products) {
-    for (final product in products) {
-      if (product.originCountry != null)
-        originOptions.add(product.originCountry!);
-      if (product.processingMethodAr != null)
-        processingOptions.add(product.processingMethodAr!);
-      if (product.packagingLabelAr != null)
-        packagingOptions.add(product.packagingLabelAr!);
-      if (product.availability.isNotEmpty)
-        availabilityOptions.add(product.availability);
-      if (product.price != null) {
-        dataMinPrice = dataMinPrice == null || product.price! < dataMinPrice!
-            ? product.price
-            : dataMinPrice;
-        dataMaxPrice = dataMaxPrice == null || product.price! > dataMaxPrice!
-            ? product.price
-            : dataMaxPrice;
-      }
-      if (product.ratingAverage > dataMaxRating)
-        dataMaxRating = product.ratingAverage;
-    }
-  }
+  int get _activeFilterCount => [
+        categoryId,
+        subcategoryId,
+        regionId,
+        provinceId,
+        gradeLevel,
+        productType,
+        originCountry,
+        processingMethod,
+        packaging,
+        availability,
+        minRating,
+        minPrice,
+        maxPrice,
+      ].where((value) => value != null).length +
+          (verifiedOnly ? 1 : 0);
 
-  List<DropdownMenuItem<String>> _stringOptions(Set<String> options) {
-    final values = options.toList()..sort();
-    return [
-      const DropdownMenuItem<String>(value: '', child: Text('الكل')),
-      ...values.map(
-        (value) => DropdownMenuItem<String>(value: value, child: Text(value)),
-      ),
-    ];
-  }
-
-  void _applySearch() => setState(_search);
-
-  int get _activeFilterCount {
-    var count = 0;
-    if (categoryId != null) count++;
-    if (subcategoryId != null) count++;
-    if (regionId != null) count++;
-    if (provinceId != null) count++;
-    if (gradeLevel != null) count++;
-    if (productType != null) count++;
-    if (verifiedOnly) count++;
-    if (originCountry != null) count++;
-    if (processingMethod != null) count++;
-    if (packaging != null) count++;
-    if (availability != null) count++;
-    if (minRating != null || minPrice != null || maxPrice != null) count++;
-    if (sort != AssalSort.featured) count++;
-    return count;
+  void _clearFilters() {
+    setState(() {
+      categoryId = null;
+      subcategoryId = null;
+      regionId = null;
+      provinceId = null;
+      gradeLevel = null;
+      productType = null;
+      verifiedOnly = false;
+      originCountry = null;
+      processingMethod = null;
+      packaging = null;
+      availability = null;
+      minRating = null;
+      minPrice = null;
+      maxPrice = null;
+      sort = AssalSort.featured;
+      _applySearch();
+    });
   }
 
   List<Widget> _activeFilterChips() => [
         if (categoryId != null)
-          InputChip(
-              label: Text('القسم: ${_categoryLabel(categoryId!)}'),
-              onDeleted: () => setState(() {
-                    categoryId = null;
-                    _search();
-                  })),
+          InfoChip(label: _categoryLabel(categoryId!)),
         if (subcategoryId != null)
-          InputChip(
-              label: Text('التصنيف: ${_subcategoryLabel(subcategoryId!)}'),
-              onDeleted: () => setState(() {
-                    subcategoryId = null;
-                    _search();
-                  })),
-        if (regionId != null)
-          InputChip(
-              label: Text('المحافظة: ${_regionLabel(regionId!)}'),
-              onDeleted: () => setState(() {
-                    regionId = null;
-                    provinceId = null;
-                    _search();
-                  })),
-        if (provinceId != null)
-          InputChip(
-              label: Text('المديرية: ${_provinceLabel(provinceId!)}'),
-              onDeleted: () => setState(() {
-                    provinceId = null;
-                    _search();
-                  })),
+          InfoChip(label: _subcategoryLabel(subcategoryId!)),
+        if (regionId != null) InfoChip(label: _regionLabel(regionId!)),
+        if (provinceId != null) InfoChip(label: _provinceLabel(provinceId!)),
+        if (gradeLevel != null) InfoChip(label: 'درجة $gradeLevel'),
         if (productType != null)
-          InputChip(
-              label: Text(_productTypeLabel(productType!)),
-              onDeleted: () => setState(() {
-                    productType = null;
-                    _search();
-                  })),
-        if (gradeLevel != null)
-          InputChip(
-              label: Text('الدرجة $gradeLevel'),
-              onDeleted: () => setState(() {
-                    gradeLevel = null;
-                    _search();
-                  })),
-        if (verifiedOnly)
-          InputChip(
-              label: const Text('متاجر موثقة'),
-              onDeleted: () => setState(() {
-                    verifiedOnly = false;
-                    _search();
-                  })),
-        if (originCountry != null)
-          InputChip(
-              label: Text('الأصل: $originCountry'),
-              onDeleted: () => setState(() {
-                    originCountry = null;
-                    _search();
-                  })),
-        if (processingMethod != null)
-          InputChip(
-              label: Text('المعالجة: $processingMethod'),
-              onDeleted: () => setState(() {
-                    processingMethod = null;
-                    _search();
-                  })),
-        if (packaging != null)
-          InputChip(
-              label: Text('التعبئة: $packaging'),
-              onDeleted: () => setState(() {
-                    packaging = null;
-                    _search();
-                  })),
-        if (availability != null)
-          InputChip(
-              label: Text('التوفر: $availability'),
-              onDeleted: () => setState(() {
-                    availability = null;
-                    _search();
-                  })),
+          InfoChip(label: assalProductTypeLabel(productType!)),
+        if (verifiedOnly) const InfoChip(label: 'موثقة'),
+        if (minPrice != null || maxPrice != null)
+          InfoChip(
+              label:
+                  '${minPrice?.toStringAsFixed(0) ?? '0'} – ${maxPrice?.toStringAsFixed(0) ?? '∞'}'),
       ];
 
-  void _clearFilters() {
-    controller.clear();
-    categoryId = null;
-    subcategoryId = null;
-    regionId = null;
-    provinceId = null;
-    gradeLevel = null;
-    productType = null;
-    verifiedOnly = false;
-    originCountry = null;
-    processingMethod = null;
-    packaging = null;
-    availability = null;
-    minRating = null;
-    minPrice = null;
-    maxPrice = null;
-    sort = AssalSort.featured;
-    _applySearch();
+  void _applySearch() {
+    setState(_search);
   }
 
   @override
@@ -1680,7 +1110,7 @@ class _SearchScreenState extends State<SearchScreen> {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
-              hintText: 'اكتب اسم المنتج أو المنطقة',
+              hintText: 'ابحث عن صنف أو منطقة أو متجر',
               suffixIcon: IconButton(
                   onPressed: () {
                     controller.clear();
@@ -1732,7 +1162,7 @@ class _SearchScreenState extends State<SearchScreen> {
               initialValue: sort,
               onSelected: (value) => setState(() {
                 sort = value;
-                _search();
+                _applySearch();
               }),
               itemBuilder: (_) => const [
                 PopupMenuItem(
@@ -1772,7 +1202,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 padding: const EdgeInsets.fromLTRB(
                     AssalSpacing.lg, 0, AssalSpacing.lg, AssalSpacing.xl),
                 children: [
-                  const SectionHeader(title: 'المنتجات'),
+                  const HoneySectionHeader(title: 'المنتجات'),
                   FutureBuilder<AssalLoadState<List<AssalProductSummary>>>(
                     future: productsFuture,
                     builder: (context, snapshot) {
@@ -1818,7 +1248,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     },
                   ),
                   const SizedBox(height: AssalSpacing.xl),
-                  const SectionHeader(title: 'المتاجر'),
+                  const HoneySectionHeader(title: 'المتاجر'),
                   FutureBuilder<AssalLoadState<List<AssalStoreSummary>>>(
                     future: storesFuture,
                     builder: (context, snapshot) {
@@ -1854,9 +1284,25 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void _captureFilterOptions(List<AssalProductSummary> products) {
+    for (final product in products) {
+      if (product.originCountry != null)
+        originOptions.add(product.originCountry!);
+      if (product.processingMethodAr != null)
+        processingOptions.add(product.processingMethodAr!);
+      if (product.packagingLabelAr != null)
+        packagingOptions.add(product.packagingLabelAr!);
+      if (product.availability.isNotEmpty)
+        availabilityOptions.add(product.availability);
+      if (product.price != null) {
+        final current = product.price!;
+        dataMinPrice = dataMinPrice == null ? current : (dataMinPrice! < current ? dataMinPrice : current);
+        dataMaxPrice = dataMaxPrice == null ? current : (dataMaxPrice! > current ? dataMaxPrice : current);
+      }
+    }
+  }
+
   Future<void> _showFilters() async {
-    // The sheet must open immediately. Reference reads are local/refreshable and
-    // must not block the user's tap while production queries are in flight.
     unawaited(_primeFilterLabels());
     unawaited(_primeLocationReference());
     final reference = locationReference;
@@ -1895,53 +1341,16 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     ];
-    List<DropdownMenuItem<String>> subcategoryItemsFor(
-        String selectedCategory) {
-      final taxonomies = filterTaxonomy.where((taxonomy) {
-        final parentId = taxonomy.metadata['category_id'] ??
-            taxonomy.metadata['parent_category_id'] ??
-            taxonomy.metadata['parent_id'];
-        return selectedCategory.isEmpty ||
-            parentId == null ||
-            parentId.toString() == selectedCategory;
-      });
-      return [
-        const DropdownMenuItem<String>(
-          value: '',
-          child: Text('كل التصنيفات الفرعية'),
-        ),
-        ...taxonomies.map(
-          (taxonomy) => DropdownMenuItem<String>(
-            value: taxonomy.id,
-            child: Text(taxonomy.nameAr),
-          ),
-        ),
-      ];
-    }
-
-    if (!categoryItems.any((item) => item.value == draftCategory)) {
-      draftCategory = '';
-    }
-    if (!subcategoryItemsFor(draftCategory)
-        .any((item) => item.value == draftSubcategory)) {
-      draftSubcategory = '';
-    }
     final typeItems = <DropdownMenuItem<ProductType?>>[
-      const DropdownMenuItem<ProductType?>(
-          value: null, child: Text('كل الأنواع')),
-      ...ProductType.values.map<DropdownMenuItem<ProductType?>>((type) =>
-          DropdownMenuItem<ProductType?>(
-              value: type, child: Text(_productTypeLabel(type)))),
+      const DropdownMenuItem<ProductType?>(value: null, child: Text('كل الأنواع')),
+      ...ProductType.values.map((type) => DropdownMenuItem<ProductType?>(
+          value: type, child: Text(assalProductTypeLabel(type)))),
     ];
     final gradeItems = <DropdownMenuItem<int?>>[
       const DropdownMenuItem<int?>(value: null, child: Text('كل الدرجات')),
-      ...[1, 2, 3, 4].map<DropdownMenuItem<int?>>((grade) =>
-          DropdownMenuItem<int?>(value: grade, child: Text('درجة $grade'))),
+      for (var level = 1; level <= 4; level++)
+        DropdownMenuItem<int?>(value: level, child: Text('درجة $level')),
     ];
-    final originItems = _stringOptions(originOptions);
-    final processingItems = _stringOptions(processingOptions);
-    final packagingItems = _stringOptions(packagingOptions);
-    final availabilityItems = _stringOptions(availabilityOptions);
     final regionItems = <DropdownMenuItem<String>>[
       const DropdownMenuItem<String>(value: '', child: Text('كل المحافظات')),
       ...(reference?.governorates ?? const <AssalRegion>[]).map(
@@ -1951,35 +1360,22 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     ];
-    if (!regionItems.any((item) => item.value == draftRegion)) {
-      draftRegion = '';
-    }
-    final validDistricts =
-        reference?.districtsFor(draftRegion) ?? const <AssalRegion>[];
-    if (!validDistricts
-        .any((item) => (item.code ?? item.id) == draftProvince)) {
-      draftProvince = '';
-    }
     final apply = await showModalBottomSheet<bool>(
       context: context,
-      showDragHandle: true,
       isScrollControlled: true,
+      showDragHandle: true,
       builder: (sheetContext) => StatefulBuilder(
-          builder: (context, setModalState) => Padding(
-                padding: EdgeInsets.only(
-                    left: AssalSpacing.xl,
-                    right: AssalSpacing.xl,
-                    top: AssalSpacing.xl,
-                    bottom: MediaQuery.viewInsetsOf(context).bottom +
-                        AssalSpacing.xl),
-                child: SingleChildScrollView(
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+        builder: (sheetContext, setModalState) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AssalSpacing.lg),
+            child: SingleChildScrollView(
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text('تصفية النتائج',
                           style: AssalTypography.heading2
-                              .copyWith(color: AssalColors.deepBrown)),
+                              .copyWith(color: AssalColors.textPrimary)),
                       const SizedBox(height: AssalSpacing.md),
                       DropdownButtonFormField<String>(
                           initialValue: draftRegion,
@@ -2019,7 +1415,17 @@ class _SearchScreenState extends State<SearchScreen> {
                           initialValue: draftSubcategory,
                           decoration: const InputDecoration(
                               labelText: 'التصنيف الفرعي'),
-                          items: subcategoryItemsFor(draftCategory),
+                          items: [
+                            const DropdownMenuItem<String>(
+                                value: '', child: Text('كل التصنيفات')),
+                            ...filterTaxonomy
+                                .where((item) =>
+                                    draftCategory.isEmpty ||
+                                    (item.metadata['category_id'] == draftCategory) ||
+                                    _categoryCodeMatches(item, draftCategory))
+                                .map((item) => DropdownMenuItem<String>(
+                                    value: item.id, child: Text(item.nameAr))),
+                          ],
                           onChanged: (value) => setModalState(
                               () => draftSubcategory = value ?? '')),
                       DropdownButtonFormField<ProductType?>(
@@ -2045,28 +1451,52 @@ class _SearchScreenState extends State<SearchScreen> {
                           initialValue: draftOrigin,
                           decoration: const InputDecoration(
                               labelText: 'بلد/منطقة الأصل'),
-                          items: originItems,
+                          items: [
+                            const DropdownMenuItem<String>(
+                                value: '', child: Text('جميع الأنواع')),
+                            ...originOptions.map((item) =>
+                                DropdownMenuItem<String>(
+                                    value: item, child: Text(item))),
+                          ],
                           onChanged: (value) =>
                               setModalState(() => draftOrigin = value ?? '')),
                       DropdownButtonFormField<String>(
                           initialValue: draftProcessing,
                           decoration: const InputDecoration(
                               labelText: 'طريقة المعالجة'),
-                          items: processingItems,
+                          items: [
+                            const DropdownMenuItem<String>(
+                                value: '', child: Text('جميع الطرق')),
+                            ...processingOptions.map((item) =>
+                                DropdownMenuItem<String>(
+                                    value: item, child: Text(item))),
+                          ],
                           onChanged: (value) => setModalState(
                               () => draftProcessing = value ?? '')),
                       DropdownButtonFormField<String>(
                           initialValue: draftPackaging,
                           decoration:
                               const InputDecoration(labelText: 'التعبئة'),
-                          items: packagingItems,
+                          items: [
+                            const DropdownMenuItem<String>(
+                                value: '', child: Text('جميع الأنواع')),
+                            ...packagingOptions.map((item) =>
+                                DropdownMenuItem<String>(
+                                    value: item, child: Text(item))),
+                          ],
                           onChanged: (value) => setModalState(
                               () => draftPackaging = value ?? '')),
                       DropdownButtonFormField<String>(
                           initialValue: draftAvailability,
                           decoration:
                               const InputDecoration(labelText: 'التوفر'),
-                          items: availabilityItems,
+                          items: [
+                            const DropdownMenuItem<String>(
+                                value: '', child: Text('جميع الحالات')),
+                            ...availabilityOptions.map((item) =>
+                                DropdownMenuItem<String>(
+                                    value: item, child: Text(item))),
+                          ],
                           onChanged: (value) => setModalState(
                               () => draftAvailability = value ?? '')),
                       Text(
@@ -2074,6 +1504,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           style: AssalTypography.bodyLarge
                               .copyWith(color: AssalColors.textSecondary)),
                       RangeSlider(
+                        activeColor: AssalColors.primary,
                         min: priceMin,
                         max: priceMax,
                         divisions: 100,
@@ -2092,6 +1523,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       Slider(
                         min: 0,
                         max: dataMaxRating,
+                        activeColor: AssalColors.primary,
                         divisions: 10,
                         value: draftMinRatingValue,
                         label: draftMinRatingValue.toStringAsFixed(1),
@@ -2144,19 +1576,24 @@ class _SearchScreenState extends State<SearchScreen> {
                               },
                               child: const Text('تطبيق الفلاتر'))),
                     ])),
-              )),
+          ),
+        ),
+      ),
     );
     if (apply == true) _applySearch();
   }
-}
 
-String _productTypeLabel(ProductType type) => switch (type) {
-      ProductType.honey => 'عسل',
-      ProductType.wax => 'شمع',
-      ProductType.mix => 'خلطة',
-      ProductType.raw => 'منتج خام',
-      ProductType.gift => 'هدية'
-    };
+  bool _categoryCodeMatches(AssalTaxonomy item, String categoryId) {
+    final metadata = item.metadata;
+    final candidateValues = <Object?>[
+      metadata['category_id'],
+      metadata['categoryId'],
+      metadata['parent_id'],
+      metadata['parentId'],
+    ];
+    return candidateValues.contains(categoryId);
+  }
+}
 
 class StoresScreen extends StatefulWidget {
   const StoresScreen({
@@ -2174,6 +1611,7 @@ class StoresScreen extends StatefulWidget {
 class _StoresScreenState extends State<StoresScreen> {
   late final Future<AssalLoadState<List<AssalStoreSummary>>> storesFuture;
   late final Future<YemenLocationReference?> locationsFuture;
+  final Map<String, String> regionNames = <String, String>{};
   String searchQuery = '';
   String? regionId;
   bool verifiedOnly = false;
@@ -2187,7 +1625,12 @@ class _StoresScreenState extends State<StoresScreen> {
 
   Future<YemenLocationReference?> _loadLocations() async {
     try {
-      return await YemenLocationReference.load();
+      final reference = await YemenLocationReference.load();
+      for (final governorate in reference.governorates) {
+        final id = governorate.code ?? governorate.id;
+        regionNames[id] = governorate.nameAr;
+      }
+      return reference;
     } on Object {
       return null;
     }
@@ -2199,10 +1642,19 @@ class _StoresScreenState extends State<StoresScreen> {
       final matchesQuery = query.isEmpty ||
           store.nameAr.toLowerCase().contains(query) ||
           (store.regionNameAr ?? '').toLowerCase().contains(query);
-      final matchesRegion = regionId == null || store.regionId == regionId;
+      final matchesRegion = regionId == null ||
+          store.regionId == regionId ||
+          _regionMatches(store.regionNameAr, regionId!);
       final matchesVerified = !verifiedOnly || store.isVerified;
       return matchesQuery && matchesRegion && matchesVerified;
     }).toList(growable: false);
+  }
+
+  bool _regionMatches(String? regionName, String requested) {
+    if (regionName == null) return false;
+    final label = regionNames[requested] ?? requested;
+    return regionName.toLowerCase().contains(label.toLowerCase()) ||
+        regionName.toLowerCase().contains(requested.toLowerCase());
   }
 
   @override
@@ -2278,13 +1730,14 @@ class _StoresScreenState extends State<StoresScreen> {
                     message: 'تعذر تحميل المتاجر الآن.',
                   );
                 }
-                if (!snapshot.hasData) return const AssalGlassLoading();
+                if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
                 final state = snapshot.data!;
                 if (state is AssalData<List<AssalStoreSummary>>) {
                   final stores = _filtered(state.value);
                   if (stores.isEmpty) {
                     return const AssalMessageCard(
                       icon: Icons.store_mall_directory_outlined,
+                      title: 'لا توجد متاجر',
                       message: 'لا توجد متاجر تطابق الفلاتر الحالية.',
                     );
                   }

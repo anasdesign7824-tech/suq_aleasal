@@ -50,7 +50,7 @@ class _AuthScreenState extends State<AuthScreen> {
           registerMode ? 'ابدأ تجربتك مع العسل' : 'مرحبًا بك من جديد',
           textAlign: TextAlign.center,
           style: AssalTypography.heading1.copyWith(
-            color: AssalColors.deepBrown,
+            color: AssalColors.textPrimary,
           ),
         ),
         const SizedBox(height: AssalSpacing.sm),
@@ -87,8 +87,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 labelText: 'كلمة المرور',
                 filled: true,
                 fillColor: _passwordIsStrong(passwordController.text)
-                    ? AssalColors.success.withAlpha(18)
-                    : AssalColors.error.withAlpha(12),
+                    ? AssalColors.success.withAlpha(30)
+                    : AssalColors.error.withAlpha(20),
                 enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                         color: _passwordIsStrong(passwordController.text)
@@ -181,8 +181,6 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
 
-    // Existing-account login is passwordless by design: request the OTP
-    // before showing the mandatory verification dialog.
     setState(() => loading = true);
     final result = await widget.repository.requestEmailOtp(email);
     if (!mounted) return;
@@ -234,6 +232,7 @@ class _AuthScreenState extends State<AuthScreen> {
           return PopScope(
             canPop: false,
             child: AlertDialog(
+              backgroundColor: AssalColors.surfaceRaised,
               title: Text(loginMode ? 'رمز الدخول' : 'تأكيد البريد الإلكتروني'),
               content: SingleChildScrollView(
                 child: Column(
@@ -275,7 +274,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       textAlign: TextAlign.center,
                       textDirection: TextDirection.ltr,
                       style: AssalTypography.heading2.copyWith(
-                          color: AssalColors.deepBrown, letterSpacing: 5),
+                          color: AssalColors.textPrimary, letterSpacing: 5),
                       decoration: const InputDecoration(
                           labelText: 'رمز التحقق (6–9 أرقام)', counterText: ''),
                     ),
@@ -421,9 +420,9 @@ class _PasswordStrength extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AssalSpacing.sm),
       decoration: BoxDecoration(
-        color: color.withAlpha(18),
+        color: color.withAlpha(20),
         borderRadius: BorderRadius.circular(AssalRadius.medium),
-        border: Border.all(color: color.withAlpha(100)),
+        border: Border.all(color: color.withAlpha(120)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(
@@ -490,59 +489,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
         future: repository.getSession(),
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const AssalGlassLoading();
+            return const AssalSkeletonList(count: 5);
           }
           final session = snapshot.data ?? AssalSession.guest;
-          return ListView(
-              padding: const EdgeInsets.fromLTRB(
-                AssalSpacing.lg,
-                AssalSpacing.lg,
-                AssalSpacing.lg,
-                AssalSpacing.x2l,
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(AssalSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AssalBrandMark(showName: true),
+                      const SizedBox(height: AssalSpacing.xl),
+                      session.isAuthenticated
+                          ? _authenticated(context, session)
+                          : _guest(context),
+                      const SizedBox(height: AssalSpacing.lg),
+                      _accountHub(context),
+                    ],
+                  ),
+                ),
               ),
-              children: [
-                const AssalBrandMark(),
-                const SizedBox(height: AssalSpacing.xl),
-                session.isAuthenticated
-                    ? _authenticated(context, session)
-                    : _guest(context),
-                const SizedBox(height: AssalSpacing.lg),
-                Card(
-                    child: Column(children: [
-                  ListTile(
-                      leading: const Icon(Icons.bookmarks_outlined),
-                      title: const Text('المحفوظات والمتاجر المتابَعة'),
-                      trailing: const Icon(Icons.chevron_left),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) =>
-                              FavoritesScreen(repository: repository)))),
-                  ListTile(
-                      leading: const Icon(Icons.notifications_outlined),
-                      title: const Text('الإشعارات'),
-                      trailing: const Icon(Icons.chevron_left),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) =>
-                              NotificationsScreen(repository: repository)))),
-                  ListTile(
-                      leading: const Icon(Icons.settings_outlined),
-                      title: const Text('الإعدادات'),
-                      trailing: const Icon(Icons.chevron_left),
-                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const SettingsScreen()))),
-                  ListTile(
-                      leading: const Icon(Icons.help_outline),
-                      title: const Text('الدعم والتعريف بعسلكم'),
-                      trailing: const Icon(Icons.chevron_left),
-                      onTap: () => showAboutDialog(
-                              context: context,
-                              applicationName: 'عسلكم',
-                              applicationVersion: 'Demo',
-                              children: [
-                                const Text(
-                                    'منصة اكتشاف وتواصل للعسل اليمني من مصدره.')
-                              ]))
-                ])),
-              ]);
+            ],
+          );
         },
       ),
     );
@@ -550,7 +520,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _guest(BuildContext context) {
     return Card(
-      color: AssalColors.cream,
+      color: AssalColors.surfaceVariant,
       child: Padding(
         padding: const EdgeInsets.all(AssalSpacing.xl),
         child: Column(children: [
@@ -558,20 +528,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               radius: 34,
               backgroundColor: AssalColors.honeyLight,
               child: Icon(Icons.person_outline,
-                  size: 36, color: AssalColors.primaryDark)),
+                  size: 36, color: AssalColors.primaryLight)),
           const SizedBox(height: AssalSpacing.md),
           Text('تصفح كزائر',
               style: AssalTypography.heading2
-                  .copyWith(color: AssalColors.deepBrown)),
+                  .copyWith(color: AssalColors.textPrimary)),
           const SizedBox(height: AssalSpacing.sm),
           const Text('احفظ ما يعجبك وأرسل طلباتك عند إنشاء حساب مجاني.'),
           const SizedBox(height: AssalSpacing.lg),
-          FilledButton(
-              onPressed: () async {
-                final authenticated = await openAuth(context, repository);
-                if (mounted && authenticated) setState(() {});
-              },
-              child: const Text('تسجيل الدخول أو إنشاء حساب')),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+                onPressed: () async {
+                  final authenticated = await openAuth(context, repository);
+                  if (mounted && authenticated) setState(() {});
+                },
+                child: const Text('تسجيل الدخول أو إنشاء حساب')),
+          ),
         ]),
       ),
     );
@@ -580,8 +553,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _authenticated(BuildContext context, AssalSession session) {
     final user = session.user;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (user != null) _profileHeader(context, user),
+        if (user != null) _profileHeader(context, user, session),
         const SizedBox(height: AssalSpacing.lg),
         if (user != null)
           _ProfileStats(
@@ -589,126 +563,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
             userId: user.id,
           ),
         const SizedBox(height: AssalSpacing.lg),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: AssalSpacing.sm,
-          runSpacing: AssalSpacing.sm,
-          children: [
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 44),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AssalSpacing.md,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AssalRadius.medium),
-                ),
-              ),
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => RequestsScreen(repository: repository))),
-              icon: const Icon(Icons.assignment_outlined),
-              label: const Text('طلباتي'),
-            ),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 44),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AssalSpacing.md,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AssalRadius.medium),
-                ),
-              ),
-              onPressed: () => _openMerchantArea(context, session),
-              icon: Icon(session.role == AssalRole.merchant
-                  ? Icons.dashboard_outlined
-                  : Icons.storefront_outlined),
-              label: Text(session.role == AssalRole.merchant
-                  ? 'لوحة التاجر'
-                  : 'مساحة المتجر'),
-            ),
-          ],
-        ),
-        const SizedBox(height: AssalSpacing.sm),
-        OutlinedButton.icon(
-          onPressed: () async {
-            final result = await repository.signOut();
-            if (context.mounted) {
-              if (result is AssalData<void>) {
-                setState(() {});
-              }
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text(result is AssalError<void>
-                      ? result.messageAr
-                      : (repository.mode == AssalDataSourceMode.demo
-                          ? 'تم تسجيل الخروج من Demo Mode'
-                          : 'تم تسجيل الخروج.'))));
-            }
-          },
-          icon: const Icon(Icons.logout),
-          label: const Text('تسجيل الخروج'),
-        ),
-        const SizedBox(height: AssalSpacing.xs),
-        TextButton.icon(
-          onPressed: () => _deleteAccount(context),
-          icon: const Icon(Icons.delete_outline, color: AssalColors.error),
-          label: const Text('حذف الحساب',
-              style: TextStyle(color: AssalColors.error)),
-        ),
+        _profileCapabilities(context, session),
       ],
     );
   }
 
-  Widget _profileHeader(BuildContext context, AssalUserProfile user) {
+  Widget _profileHeader(
+      BuildContext context, AssalUserProfile user, AssalSession session) {
     final avatarUrl = user.avatarUrl;
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          SizedBox(
-            height: 150,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned.fill(
-                  child: AssalImageTile(
-                    imageUrl: user.coverUrl,
-                    height: 150,
-                    icon: Icons.landscape_outlined,
-                  ),
-                ),
-                Positioned(
-                  bottom: -34,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: CircleAvatar(
-                      radius: 42,
-                      backgroundColor: AssalColors.honeyLight,
-                      backgroundImage:
-                          avatarUrl != null && avatarUrl.startsWith('http')
-                              ? NetworkImage(avatarUrl)
-                              : null,
-                      child: avatarUrl == null || !avatarUrl.startsWith('http')
-                          ? Text(
-                              user.nameAr.isEmpty
-                                  ? 'ع'
-                                  : user.nameAr.substring(0, 1),
-                              style: AssalTypography.heading1
-                                  .copyWith(color: AssalColors.primaryDark),
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              ],
+          AspectRatio(
+            aspectRatio: 2.4,
+            child: AssalImageTile(
+              imageUrl: user.coverUrl,
+              height: 150,
+              icon: Icons.landscape_outlined,
             ),
           ),
-          const SizedBox(height: 48),
+          Transform.translate(
+            offset: const Offset(0, -42),
+            child: CircleAvatar(
+              radius: 42,
+              backgroundColor: AssalColors.surfaceRaised,
+              backgroundImage:
+                  avatarUrl != null && avatarUrl.startsWith('http')
+                      ? NetworkImage(avatarUrl)
+                      : null,
+              child: avatarUrl == null || !avatarUrl.startsWith('http')
+                  ? Text(
+                      user.nameAr.isEmpty
+                          ? 'ع'
+                          : user.nameAr.substring(0, 1),
+                      style: AssalTypography.heading1
+                          .copyWith(color: AssalColors.primaryLight),
+                    )
+                  : null,
+            ),
+          ),
           Text(
             user.nameAr.isEmpty ? 'عميل عسلكم' : user.nameAr,
             style:
-                AssalTypography.heading2.copyWith(color: AssalColors.deepBrown),
+                AssalTypography.heading2.copyWith(color: AssalColors.textPrimary),
           ),
           if (user.email != null && user.email!.isNotEmpty)
             Text(
@@ -730,24 +628,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: AssalTypography.bodyLarge,
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(AssalSpacing.lg),
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                await Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => ProfileEditorScreen(
-                    repository: repository,
-                    profile: user,
-                  ),
-                ));
-                if (mounted) setState(() {});
-              },
-              icon: const Icon(Icons.edit_outlined),
-              label: const Text('تعديل الملف الشخصي'),
-            ),
+          const SizedBox(height: AssalSpacing.lg),
+          OutlinedButton.icon(
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => ProfileEditorScreen(
+                  repository: repository,
+                  profile: user,
+                ),
+              ));
+              if (mounted) setState(() {});
+            },
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('تعديل الملف الشخصي'),
           ),
+          const SizedBox(height: AssalSpacing.lg),
         ],
       ),
+    );
+  }
+
+  Widget _profileCapabilities(
+      BuildContext context, AssalSession session) {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => RequestsScreen(repository: repository))),
+            icon: const Icon(Icons.assignment_outlined),
+            label: const Text('طلباتي'),
+          ),
+        ),
+        const SizedBox(width: AssalSpacing.sm),
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: () => _openMerchantArea(context, session),
+            icon: Icon(session.role == AssalRole.merchant
+                ? Icons.dashboard_outlined
+                : Icons.storefront_outlined),
+            label: Text(session.role == AssalRole.merchant
+                ? 'لوحة التاجر'
+                : 'مساحة المتجر'),
+          ),
+        ),
+      ],
     );
   }
 
@@ -756,7 +681,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: AssalColors.primaryDark),
+            Icon(icon, size: 16, color: AssalColors.primaryLight),
             const SizedBox(width: AssalSpacing.xs),
             Text(value, style: AssalTypography.body),
           ],
@@ -780,36 +705,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ));
   }
 
-  Future<void> _deleteAccount(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('حذف الحساب؟'),
-        content: const Text(
-            'سيتم حذف حسابك وبياناته المرتبطة نهائيًا. لا يمكن التراجع عن هذا الإجراء.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('إلغاء')),
-          FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('حذف الحساب')),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    final result = await repository.deleteAccount();
-    if (!context.mounted) return;
-    if (result is AssalData<void>) {
-      if (context.mounted) {
-        setState(() {});
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('تم حذف الحساب وتسجيل الخروج.')));
-      }
-    } else if (result is AssalError<void>) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result.messageAr)));
-    }
+  Widget _accountHub(BuildContext context) {
+    return Card(
+        color: AssalColors.surfaceVariant,
+        child: Column(children: [
+          ListTile(
+              leading: const Icon(Icons.bookmarks_outlined),
+              title: const Text('المحفوظات'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) =>
+                      FavoritesScreen(repository: repository)))),
+          ListTile(
+              leading: const Icon(Icons.notifications_outlined),
+              title: const Text('الإشعارات'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) =>
+                      NotificationsScreen(repository: repository)))),
+          ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('الإعدادات'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const SettingsScreen()))),
+          ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('الدعم والتعريف بعسلكم'),
+              trailing: const Icon(Icons.chevron_left),
+              onTap: () => showAboutDialog(
+                      context: context,
+                      backgroundColor: AssalColors.surfaceRaised,
+                      applicationName: 'عسلكم',
+                      applicationVersion: 'Demo',
+                      children: [
+                        const Text(
+                            'منصة اكتشاف وتواصل للعسل اليمني من مصدره.')
+                      ]))
+        ]));
   }
 }
 
@@ -882,6 +815,7 @@ class _ProfileEditorScreenState extends State<ProfileEditorScreen> {
     final value = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
+        backgroundColor: AssalColors.surfaceRaised,
         title: const Text('تحديد الموقع الجغرافي'),
         content: TextField(
           controller: controller,
@@ -1082,10 +1016,9 @@ class _ProfileStats extends StatelessWidget {
   Widget _metric(String value, String label) => Column(children: [
         Text(value,
             style: AssalTypography.heading3
-                .copyWith(color: AssalColors.deepBrown)),
+                .copyWith(color: AssalColors.textPrimary)),
         Text(label,
-            style:
-                AssalTypography.caption.copyWith(color: AssalColors.textMuted))
+            style: AssalTypography.caption.copyWith(color: AssalColors.textMuted))
       ]);
 }
 
@@ -1101,7 +1034,7 @@ class RequestsScreen extends StatelessWidget {
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
           if (sessionSnapshot.connectionState != ConnectionState.done) {
-            return const AssalGlassLoading();
+            return const AssalSkeletonList(count: 4);
           }
           final session = sessionSnapshot.data ?? AssalSession.guest;
           if (!session.isAuthenticated) {
@@ -1113,7 +1046,7 @@ class RequestsScreen extends StatelessWidget {
           return FutureBuilder<AssalLoadState<List<AssalRequestSummary>>>(
             future: repository.listRequests(session.user!.id),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
+              if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
               return AssalStateView<List<AssalRequestSummary>>(
                 state: snapshot.data!,
                 builder: (requests) => ListView.separated(
@@ -1128,11 +1061,11 @@ class RequestsScreen extends StatelessWidget {
                         leading: const CircleAvatar(
                             backgroundColor: AssalColors.honeyLight,
                             child: Icon(Icons.assignment_outlined,
-                                color: AssalColors.primaryDark)),
+                                color: AssalColors.primaryLight)),
                         title: Text(request.subject),
                         subtitle: Text(
                             '${request.storeName ?? request.storeId} · ${request.preferredHandoffOption ?? 'تواصل مباشر'}'),
-                        trailing: Chip(label: Text(request.status.labelAr)),
+                        trailing: InfoChip(label: request.status.labelAr),
                       ),
                     );
                   },
@@ -1158,7 +1091,7 @@ class NotificationsScreen extends StatelessWidget {
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
           if (sessionSnapshot.connectionState != ConnectionState.done) {
-            return const AssalGlassLoading();
+            return const AssalSkeletonList(count: 4);
           }
           final session = sessionSnapshot.data ?? AssalSession.guest;
           if (!session.isAuthenticated) {
@@ -1170,7 +1103,7 @@ class NotificationsScreen extends StatelessWidget {
           return FutureBuilder<AssalLoadState<List<AssalNotificationSummary>>>(
             future: repository.listNotifications(session.user!.id),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
+              if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
               return AssalStateView<List<AssalNotificationSummary>>(
                 state: snapshot.data!,
                 builder: (items) => ListView.separated(
@@ -1184,42 +1117,45 @@ class NotificationsScreen extends StatelessWidget {
                         imageUrl is String ? imageUrl.trim() : null;
                     final hasImage =
                         imageUrlString != null && imageUrlString.isNotEmpty;
-                    return ListTile(
-                      tileColor: item.readAt == null ? AssalColors.cream : null,
-                      leading: hasImage
-                          ? ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(AssalRadius.medium),
-                              child: Image.network(
-                                imageUrlString,
-                                width: 52,
-                                height: 52,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) =>
-                                    const Icon(Icons.broken_image_outlined),
-                              ),
-                            )
-                          : CircleAvatar(
-                              backgroundColor: AssalColors.honeyLight,
-                              child: Icon(
-                                  item.readAt == null
-                                      ? Icons.notifications_active_outlined
-                                      : Icons.notifications_none,
-                                  color: AssalColors.primaryDark)),
-                      title: Text(item.titleAr,
-                          style: item.readAt == null
-                              ? const TextStyle(fontWeight: FontWeight.w700)
-                              : null),
-                      subtitle: Text(item.bodyAr ?? ''),
-                      onTap: () async {
-                        await repository.markNotificationRead(
-                            session.user!.id, item.id);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('تم تعليم الإشعار كمقروء.')));
-                        }
-                      },
+                    return Card(
+                      color: item.readAt == null
+                          ? AssalColors.surfaceVariant
+                          : AssalColors.surface,
+                      child: ListTile(
+                        leading: hasImage
+                            ? ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(AssalRadius.medium),
+                                child: Image.network(
+                                  imageUrlString,
+                                  width: 52,
+                                  height: 52,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.broken_image_outlined),
+                                ),
+                              )
+                            : const CircleAvatar(
+                                backgroundColor: AssalColors.honeyLight,
+                                child: Icon(
+                                    Icons.notifications_active_outlined,
+                                    color: AssalColors.primaryLight)),
+                        title: Text(item.titleAr,
+                            style: item.readAt == null
+                                ? const TextStyle(fontWeight: FontWeight.w700)
+                                : null),
+                        subtitle: Text(item.bodyAr ?? ''),
+                        onTap: () async {
+                          await repository.markNotificationRead(
+                              session.user!.id, item.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text('تم تعليم الإشعار كمقروء.')));
+                          }
+                        },
+                      ),
                     );
                   },
                 ),
@@ -1267,7 +1203,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           child: FutureBuilder<AssalLoadState<List<AssalMessageSummary>>>(
             future: future,
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
+              if (!snapshot.hasData) return const AssalSkeletonList(count: 4);
               return AssalStateView<List<AssalMessageSummary>>(
                 state: snapshot.data!,
                 builder: (messages) => ListView(
@@ -1306,6 +1242,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
               IconButton(
                   onPressed: _send,
                   icon: const Icon(Icons.send_rounded),
+                  style: IconButton.styleFrom(
+                    backgroundColor: AssalColors.honeyLight,
+                    foregroundColor: AssalColors.primaryLight,
+                  ),
                   tooltip: 'إرسال'),
             ]),
           ),
@@ -1356,7 +1296,7 @@ class MessagesScreen extends StatelessWidget {
         future: repository.getSession(),
         builder: (context, sessionSnapshot) {
           if (sessionSnapshot.connectionState != ConnectionState.done) {
-            return const AssalGlassLoading();
+            return const AssalSkeletonList(count: 4);
           }
           final session = sessionSnapshot.data ?? AssalSession.guest;
           if (!session.isAuthenticated) {
@@ -1368,7 +1308,7 @@ class MessagesScreen extends StatelessWidget {
           return FutureBuilder<AssalLoadState<List<AssalConversationSummary>>>(
             future: repository.listConversations(session.user!.id),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const AssalGlassLoading();
+              if (!snapshot.hasData) return const AssalSkeletonList(count: 3);
               return AssalStateView<List<AssalConversationSummary>>(
                 state: snapshot.data!,
                 builder: (items) => ListView.separated(
@@ -1380,10 +1320,15 @@ class MessagesScreen extends StatelessWidget {
                     final item = items[index];
                     return Card(
                       child: ListTile(
-                        leading: const CircleAvatar(
-                            backgroundColor: AssalColors.honeyLight,
-                            child: Icon(Icons.storefront_outlined,
-                                color: AssalColors.primaryDark)),
+                        leading: Badge(
+                          isLabelVisible: item.unreadCount > 0,
+                          label: Text('${item.unreadCount}'),
+                          backgroundColor: AssalColors.primary,
+                          child: const CircleAvatar(
+                              backgroundColor: AssalColors.honeyLight,
+                              child: Icon(Icons.storefront_outlined,
+                                  color: AssalColors.primaryLight)),
+                        ),
                         title: Text(item.storeName),
                         subtitle: Text(item.lastMessage),
                         onTap: () => Navigator.of(context).push(
@@ -1420,56 +1365,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
         body:
             ListView(padding: const EdgeInsets.all(AssalSpacing.lg), children: [
           Card(
+              color: AssalColors.surfaceVariant,
               child: Column(children: [
-            SwitchListTile(
-                value: notificationsEnabled,
-                onChanged: (value) {
-                  setState(() => notificationsEnabled = value);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(value
-                          ? 'تم تفعيل الإشعارات في هذه الجلسة.'
-                          : 'تم إيقاف الإشعارات في هذه الجلسة.')));
-                },
-                title: const Text('الإشعارات'),
-                subtitle: const Text('تفضيل محفوظ في Demo Mode للجلسة الحالية'),
-                secondary: const Icon(Icons.notifications_outlined)),
-            const ListTile(
-                leading: Icon(Icons.language),
-                title: Text('اللغة'),
-                subtitle: Text('العربية — RTL (اللغة الأساسية)')),
-            const ListTile(
-                leading: Icon(Icons.palette_outlined),
-                title: Text('المظهر'),
-                subtitle: Text(
-                    'هوية عسلكم الفاتحة — تخصيص السمات يحتاج إعداد الإنتاج')),
-            ListTile(
-                leading: const Icon(Icons.lock_outline),
-                title: const Text('الخصوصية والأمان'),
-                subtitle: const Text('صلاحيات الحساب وبيانات التواصل'),
-                onTap: () => showDialog<void>(
-                    context: context,
-                    builder: (dialogContext) => AlertDialog(
-                            title: const Text('الخصوصية والأمان'),
-                            content: const Text(
-                                'في Demo لا تُرسل بياناتك إلى خادم. في Production ستُفرض الصلاحيات من Auth وRLS.'),
-                            actions: [
-                              FilledButton(
-                                  onPressed: () => Navigator.pop(dialogContext),
-                                  child: const Text('حسنًا'))
-                            ]))),
-            ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text('عن عسلكم'),
-                subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'),
-                onTap: () => showAboutDialog(
-                        context: context,
-                        applicationName: 'عسلكم',
-                        applicationVersion: 'Customer App',
-                        children: [
-                          const Text(
-                              'اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.')
-                        ]))
-          ])),
+                SwitchListTile(
+                    value: notificationsEnabled,
+                    onChanged: (value) {
+                      setState(() => notificationsEnabled = value);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(value
+                              ? 'تم تفعيل الإشعارات في هذه الجلسة.'
+                              : 'تم إيقاف الإشعارات في هذه الجلسة.')));
+                    },
+                    title: const Text('الإشعارات'),
+                    subtitle: const Text('تفضيل محفوظ في Demo Mode للجلسة الحالية'),
+                    secondary: const Icon(Icons.notifications_outlined)),
+                const ListTile(
+                    leading: Icon(Icons.language),
+                    title: Text('اللغة'),
+                    subtitle: Text('العربية — RTL (اللغة الأساسية)')),
+                const ListTile(
+                    leading: Icon(Icons.palette_outlined),
+                    title: Text('المظهر'),
+                    subtitle: Text('هوية عسلكم الداكنة')),
+                ListTile(
+                    leading: const Icon(Icons.lock_outline),
+                    title: const Text('الخصوصية والأمان'),
+                    subtitle: const Text('صلاحيات الحساب وبيانات التواصل'),
+                    onTap: () => showDialog<void>(
+                            context: context,
+                            builder: (dialogContext) => AlertDialog(
+                                backgroundColor: AssalColors.surfaceRaised,
+                                title: const Text('الخصوصية والأمان'),
+                                content: const Text(
+                                    'في Demo لا تُرسل بياناتك إلى خادم. في Production ستُفرض الصلاحيات من Auth وRLS.'),
+                                actions: [
+                                  FilledButton(
+                                      onPressed: () =>
+                                          Navigator.pop(dialogContext),
+                                      child: const Text('حسنًا'))
+                                ]))),
+                ListTile(
+                    leading: const Icon(Icons.info_outline),
+                    title: const Text('عن عسلكم'),
+                    subtitle: const Text('منصة اكتشاف وتواصل للعسل اليمني'),
+                    onTap: () => showAboutDialog(
+                            context: context,
+                            backgroundColor: AssalColors.surfaceRaised,
+                            applicationName: 'عسلكم',
+                            applicationVersion: 'Customer App',
+                            children: [
+                              const Text(
+                                  'اكتشاف وتواصل وطلبات مباشرة، وليس Checkout تقليديًا.')
+                            ]))
+              ])),
         ]),
       );
 }
@@ -1663,7 +1611,7 @@ class _MerchantWorkspaceSetupScreenState
     if (loading) {
       return const Scaffold(
         appBar: AssalAppBar(title: 'فتح مساحة المتجر'),
-        body: AssalGlassLoading(),
+        body: AssalSkeletonList(count: 5),
       );
     }
     return Scaffold(
@@ -1681,11 +1629,11 @@ class _MerchantWorkspaceSetupScreenState
             Text(
               'مساحة متجرك تبدأ الآن',
               style: AssalTypography.heading1
-                  .copyWith(color: AssalColors.deepBrown),
+                  .copyWith(color: AssalColors.textPrimary),
             ),
             const SizedBox(height: AssalSpacing.sm),
             Text(
-              'أكمل الحد الأدنى من البيانات، ثم افتح مساحة المتجر فورًا. ستتمكن من إضافة المنتجات ومعاينتها، بينما يبقى النشر معلّقًا حتى تفعيل الإدارة.',
+              'أكمل الحد الأدنى من البيانات، ثم افتح مساحة المتجر فورًا.',
               style: AssalTypography.bodyLarge
                   .copyWith(color: AssalColors.textSecondary),
             ),
@@ -1693,7 +1641,7 @@ class _MerchantWorkspaceSetupScreenState
             Container(
               padding: const EdgeInsets.all(AssalSpacing.md),
               decoration: BoxDecoration(
-                color: AssalColors.cream,
+                color: AssalColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(AssalRadius.medium),
                 border: Border.all(color: AssalColors.border),
               ),
@@ -1701,7 +1649,7 @@ class _MerchantWorkspaceSetupScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(Icons.pending_actions_outlined,
-                      color: AssalColors.primaryDark),
+                      color: AssalColors.primaryLight),
                   SizedBox(width: AssalSpacing.sm),
                   Expanded(
                     child: Text(

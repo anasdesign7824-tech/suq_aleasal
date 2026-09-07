@@ -1,84 +1,146 @@
-# UI Reconstruction Task Ledger — عسلكم
+# UI Rebuild Task Ledger — عسلكم
 
-## قواعد السجل
+> Phase 0 discovery is finished. The premium dark honey reconstruction has been implemented across the customer, merchant, admin, and landing surfaces.
+> Status rules: `VERIFIED` = document/evidence produced. `DONE` = implementation wired to existing contracts. `BLOCKED` = cannot proceed without backend/SDK decision.
+> Runtime Flutter verification remains `BLOCKED` by GAP-021 (no Flutter/Dart SDK in the sandbox); static checks were completed.
 
-هذا السجل يحول إعادة البناء إلى مهام ذرية. لا تنتقل المهمة إلى التالية إلا بعد تحققها وتسجيل الدليل. لا تُستخدم حالة `DONE` بلا Evidence. المهام `BLOCKED` لا تُلتف عليها ببيانات وهمية أو تعديل Backend غير معتمد.
+## Phase 0 — Discovery (produced now)
 
-| ID | Feature | Description | Files | Dependencies | Status | Implementation | Verification | Visual Result | Data Result | Permission Result | Regression Result | Evidence |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| T001 | Discovery | جرد الشاشات والبيانات والأفعال والحالات | `UI_RECONSTRUCTION_DISCOVERY.md` | repo baseline | VERIFIED | جدول Discovery مكتوب | تمت مراجعة الجدول مقابل الكود | موثق | موثق | موثق | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T002 | IA | تعريف بنية Customer/Merchant/Admin/Landing | `UI_INFORMATION_ARCHITECTURE.md` | T001 | VERIFIED | IA موثق | تمت مراجعة المسارات | موثق | العلاقات موثقة | الحراس موثقة | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T003 | Entities | تعريف Presentation Models للكيانات | `UI_ENTITY_PRESENTATION_SPEC.md` | T001 | VERIFIED | Product/Store/User/Verification وغيرها | تمت مراجعة العقود | موثق | mappings موثقة | capabilities موثقة | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T004 | Design System | تثبيت tokens والمكونات والحالات | `UI_DESIGN_SYSTEM_SPEC.md` | T001 | VERIFIED | spec موحد مكتوب | تمت مطابقة design contract | موثق | لا تغيير Backend | موثق | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T005 | Coverage | إنشاء مصفوفة تغطية كل المسارات | `UI_COVERAGE_MATRIX.md` | T001-T004 | VERIFIED | 29 مجالًا مسجلًا | تمت مراجعة القائمة | موثق | gaps ظاهرة | gaps ظاهرة | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T006 | Gaps | تسجيل الفجوات والتعارضات دون تخمين | `UI_GAP_REGISTER.md` | T001-T004 | VERIFIED | 20 Gap مسجلة | تمت مراجعة الأدلة | موثق | واضح ما هو غير مدعوم | واضح ما هو غير مدعوم | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T007 | Governance | اعتماد سجل التنفيذ الذري | `UI_RECONSTRUCTION_TASK_LEDGER.md` | T001-T006 | VERIFIED | السجل منشأ وفيه 72 مهمة | تم فحص الملف وcommit | موثق | موثق | موثق | docs-only | `docs/evidence/ui-reconstruction-discovery-2026-08-26.md` |
-| T008 | Navigation | إنشاء Route Registry مسمى | `apps/mobile_flutter/lib/app/` | T002,T006 | BLOCKED | أُضيف `assal_routes.dart` وربطت auth/search/notifications بالأسماء القانونية | static grep و`git diff --check` نجحا؛ Flutter test blocked لغياب SDK | لم يُنفذ visual check | لا تغيير بيانات | لا تغيير صلاحيات | لم يُشغّل Flutter regression | `UI_GAP_REGISTER.md` GAP-021 |
-| T009 | States | توحيد حالات loading/empty/error/partial | `apps/mobile_flutter/lib/core/` | T004,T006 | PENDING | لم يبدأ | — | — | — | — | — | — |
-| T010 | Capabilities | تعريف capability matrix للعميل والتاجر والإدارة | `packages/contracts_dart/`, `packages/contracts_ts/` | T003,T006 | PENDING | لم يبدأ | — | — | — | — | — | — |
-| T011 | Media | تثبيت نسب الصور ومسارات public/private | `apps/mobile_flutter/lib/core/` | T003,T006 | PENDING | لم يبدأ | — | — | — | — | — | — |
-| T012 | App Shell | إعادة بناء shell حول IA الجديدة | `apps/mobile_flutter/lib/app/assal_app.dart` | T008-T011 | PENDING | لم يبدأ | — | — | — | — | — |
-| T013 | Navigation | توحيد selected destination وdeep links | `assal_app.dart`, route registry | T008,T012 | PENDING | لم يبدأ | — | — | — | — | — |
-| T014 | Auth Guard | بناء حارس guest/auth/merchant/admin | `customer_core.dart`, core | T009,T010,T012 | PENDING | لم يبدأ | — | — | — | — | — |
-| T015 | Product | إنشاء ProductPresentation renderer | `assal_widgets.dart`, contracts | T003,T004 | PENDING | لم يبدأ | — | — | — | — | — |
-| T016 | Store | إنشاء StorePresentation renderer | `assal_widgets.dart`, contracts | T003,T004 | PENDING | لم يبدأ | — | — | — | — | — |
-| T017 | User | إنشاء UserProfilePresentation renderer | `assal_widgets.dart`, contracts | T003,T004,T010 | PENDING | لم يبدأ | — | — | — | — | — |
-| T018 | Verification | توحيد شارة وحالة التوثيق | core, contracts | T003,T009 | PENDING | لم يبدأ | — | — | — | — | — |
-| T019 | Banner | توحيد عرض البنر والوجهة | core, customer discovery | T003,T008 | PENDING | لم يبدأ | — | — | — | — | — |
-| T020 | Request | توحيد RequestPresentation وحالاته | customer catalog/account | T003,T009 | PENDING | لم يبدأ | — | — | — | — | — |
-| T021 | Messaging | إضافة ContextPreview للمحادثة | customer account/catalog | T003,T006,T008 | BLOCKED | لا يوجد context كامل في العقد | ينتظر قرار contract | لا يُخفى النقص | لا اختراع context | صلاحية auth فقط | — | GAP-017 |
-| T022 | Images | توحيد loading/error/fallback للصور | `assal_widgets.dart` | T011,T015,T016 | PENDING | لم يبدأ | — | — | — | — | — | — |
-| T023 | Components | توحيد Primary/Secondary actions | core/design package | T004,T009 | PENDING | لم يبدأ | — | — | — | — | — |
-| T024 | Components | توحيد Input/Filter/Dialog | core/design package | T004,T009 | PENDING | لم يبدأ | — | — | — | — | — |
-| T025 | Home | إعادة بناء Header والهوية | `customer_discovery.dart` | T012,T015,T019 | PENDING | لم يبدأ | — | — | — | — | — |
-| T026 | Home | إعادة بناء Search entry | `customer_discovery.dart` | T024,T025 | PENDING | لم يبدأ | — | — | — | — | — |
-| T027 | Home | قسم Featured/Hero مع بيانات حقيقية | `customer_discovery.dart` | T019,T025 | PENDING | لم يبدأ | — | — | — | — | — |
-| T028 | Home | قسم Categories وإخفاء الفارغ | `customer_discovery.dart` | T009,T025 | PENDING | لم يبدأ | — | — | — | — | — |
-| T029 | Home | قسم Popular Products | `customer_discovery.dart` | T015,T025 | PENDING | لم يبدأ | — | — | — | — | — |
-| T030 | Home | قسم Most Viewed | `customer_discovery.dart` | T015,T025 | PENDING | لم يبدأ | — | — | — | — | — |
-| T031 | Home | قسم Featured Stores | `customer_discovery.dart` | T016,T025 | PENDING | لم يبدأ | — | — | — | — | — |
-| T032 | Home | Recently Added/Recommended/Following states | `customer_discovery.dart` | T009,T025 | PENDING | لم يبدأ | — | — | — | — | — |
-| T033 | Search | إعادة بناء نتائج البحث ووضع الكيان | `customer_discovery.dart` | T015,T016,T024 | PENDING | لم يبدأ | — | — | — | — | — |
-| T034 | Search | إعادة بناء فلاتر المنتج والمتجر | `customer_discovery.dart` | T024,T033 | PENDING | لم يبدأ | — | — | — | — | — |
-| T035 | Categories | صفحة تصنيف مستقلة بدل الاعتماد على البحث فقط | `customer_discovery.dart` | T028,T033 | PENDING | لم يبدأ | — | — | — | — | — |
-| T036 | Stores | Store Discovery بفلاتر المنطقة والتحقق والنوع والترتيب | `customer_discovery.dart`, data contract | T016,T024,T006 | PENDING | لم يبدأ | — | — | — | — | — |
-| T037 | Store | إعادة بناء Store Entity Page | `customer_catalog.dart` | T016,T018,T020,T036 | PENDING | لم يبدأ | — | — | — | — | — |
-| T038 | Product | إعادة بناء Product Gallery | `customer_catalog.dart` | T011,T022,T015 | PENDING | لم يبدأ | — | — | — | — | — |
-| T039 | Product | إعادة بناء Identity/Price/Availability/Info | `customer_catalog.dart` | T015,T038 | PENDING | لم يبدأ | — | — | — | — | — |
-| T040 | Product | إعادة بناء Social/Reviews/Comments | `customer_catalog.dart`, `customer_social.dart` | T020,T039 | PENDING | لم يبدأ | — | — | — | — | — |
-| T041 | Product | إعادة بناء Request CTA مع context | `customer_catalog.dart` | T020,T039 | PENDING | لم يبدأ | — | — | — | — | — |
-| T042 | Following | فصل المحفوظات عن المتابعة | `customer_favorites.dart` | T003,T010,T015,T016 | PENDING | لم يبدأ | — | — | — | — | — |
-| T043 | Profile | إعادة بناء Profile Header والهوية | `customer_account.dart` | T017,T018 | PENDING | لم يبدأ | — | — | — | — | — |
-| T044 | Profile | إضافة tabs والسياسة الخصوصية | `customer_account.dart` | T017,T010,T006 | PENDING | لم يبدأ | — | — | — | — | — |
-| T045 | Profile | إعادة بناء Profile Editor وموقعه | `customer_account.dart` | T011,T024,T006 | PENDING | لم يبدأ | — | — | — | — | — |
-| T046 | Requests | إضافة Request detail وحالات timeline | `customer_account.dart`, catalog | T020,T008 | PENDING | لم يبدأ | — | — | — | — | — |
-| T047 | Notifications | ربط Notification بالوجهة القابلة للتنفيذ | `customer_account.dart`, route registry | T008,T006 | BLOCKED | payload destination غير typed | ينتظر contract أو read-only | لا fake destination | لا اختراع payload | auth required | — |
-| T048 | Messages | إعادة بناء Conversations list مع context | `customer_account.dart` | T021,T009 | PENDING | لم يبدأ | — | — | — | — | — |
-| T049 | Messages | إعادة بناء Conversation composer/send states | `customer_account.dart` | T021,T024 | PENDING | لم يبدأ | — | — | — | — | — |
-| T050 | Settings | تقسيم الإعدادات وتوثيق persistence gap | `customer_account.dart` | T006,T024 | PENDING | لم يبدأ | — | — | — | — | — |
-| T051 | Auth | إعادة بناء OTP/register/loading/error states | `customer_account.dart` | T009,T014,T024 | PENDING | لم يبدأ | — | — | — | — | — |
-| T052 | Merchant | إعادة بناء Merchant entry capability-aware | `customer_account.dart`, merchant | T010,T014 | PENDING | لم يبدأ | — | — | — | — | — |
-| T053 | Store Wizard | خطوة Basic Identity + validation | `merchant_dashboard.dart` | T010,T024 | PENDING | لم يبدأ | — | — | — | — | — |
-| T054 | Store Wizard | خطوات Location/Info/Contact | `merchant_dashboard.dart` | T053,T006 | PENDING | لم يبدأ | — | — | — | — | — |
-| T055 | Store Wizard | صور/توثيق/Review/Submit وdraft resume | `merchant_dashboard.dart`, verification | T011,T018,T053,T054 | PENDING | لم يبدأ | — | — | — | — | — |
-| T056 | Product Wizard | Product Identity/Category/Type | `merchant_product_editor.dart` | T015,T024 | PENDING | لم يبدأ | — | — | — | — | — |
-| T057 | Product Wizard | Origin/Quality/Price/Availability/Attributes | `merchant_product_editor.dart` | T056,T006 | PENDING | لم يبدأ | — | — | — | — | — |
-| T058 | Product Wizard | Certificates/Images/Description/Preview/Submit | `merchant_product_editor.dart` | T011,T056,T057 | PENDING | لم يبدأ | — | — | — | — | — |
-| T059 | Merchant | إعادة بناء dashboard داخل App Shell | `merchant_dashboard.dart` | T012,T010,T015,T016 | PENDING | لم يبدأ | — | — | — | — | — |
-| T060 | Merchant | توحيد product management actions/states | merchant dashboard/editor | T015,T058 | PENDING | لم يبدأ | — | — | — | — | — |
-| T061 | Verification | إعادة بناء evidence/payment/review states | `store_verification_screen.dart` | T018,T022,T010 | PENDING | لم يبدأ | — | — | — | — | — |
-| T062 | Subscription | إعادة بناء plans/payment proof states | `subscription_plans_screen.dart` | T009,T024 | PENDING | لم يبدأ | — | — | — | — | — |
-| T063 | Admin | إعادة بناء Admin shell من IA القائمة الحالية | `apps/admin_web/client/src/pages/Home.tsx` | T003,T004,T010 | PENDING | لم يبدأ | — | — | — | — | — |
-| T064 | Admin | ربط Product/Store presentation والقدرات | admin panels, contracts_ts | T015,T016,T063 | PENDING | لم يبدأ | — | — | — | — | — |
-| T065 | Admin | Applications/Verification/Plans workflows | admin panels, admin-api | T018,T063 | PENDING | لم يبدأ | — | — | — | — | — |
-| T066 | Admin | Users/Admins/Audit privacy and permissions | admin governance panels | T010,T017,T063 | PENDING | لم يبدأ | — | — | — | — | — |
-| T067 | Admin | Notifications/Analytics actionable states | admin people panels | T047,T063 | PENDING | لم يبدأ | — | — | — | — | — |
-| T068 | Landing | بناء Landing عامة دون اختراع بيانات تشغيلية | `apps/landing_web/` | T004,T006 | PENDING | لم يبدأ | — | — | — | — | — |
-| T069 | States | تطبيق الحالات الثماني على كل Screen/Entity | all UI | T009,T025-T068 | PENDING | لم يبدأ | — | — | — | — | — |
-| T070 | QA | فحص RTL/accessibility/responsive/image ratios | all UI | T011,T069 | PENDING | لم يبدأ | — | — | — | — | — |
-| T071 | Regression | تشغيل analyze/test/build واختبارات المسارات | repo test/build config | T070 | PENDING | لم يبدأ | — | — | — | — | — |
-| T072 | Acceptance | Production UI audit وتحديث Evidence والـcommit والقبول | docs/evidence, ledger | T071,T006 | PENDING | لم يبدأ | — | — | — | — | — |
+| ID | Focus | Description | Evidence/Output | Status |
+|---|---|---|---|---|
+| T001 | Discovery | Inventory all screens, routes, components, data, taxonomy, contracts | `UI_RECONSTRUCTION_DISCOVERY.md` | VERIFIED |
+| T002 | IA | New Customer/Merchant/Admin/Landing information architecture | `UI_INFORMATION_ARCHITECTURE.md` | VERIFIED |
+| T003 | Data gaps | Record missing data the new UI needs | `UI_DATA_GAP_REGISTER.md` | VERIFIED |
+| T004 | Backend gaps | Record backend/database gaps without touching them | `UI_BACKEND_GAP_REPORT.md` | VERIFIED |
+| T005 | Design system | New from-scratch design system spec | `UI_DESIGN_SYSTEM_SPEC.md` | VERIFIED |
+| T006 | Entity presentation | Canonical entity presentations | `UI_ENTITY_PRESENTATION_SPEC.md` | VERIFIED |
+| T007 | Gap register | Consolidated UX gaps | `UI_GAP_REGISTER.md` | VERIFIED |
+| T008 | Coverage | UI coverage matrix | `UI_COVERAGE_MATRIX.md` | VERIFIED |
+| T009 | Atomic tasks | 80 atomic UI tasks | `UI_RECONSTRUCTION_TASK_LEDGER.md` | VERIFIED |
 
-## قاعدة التنفيذ الحالية
+## Implementation tasks
 
-بعد إنشاء الوثائق T001–T007، المهمة التالية المسموح بها هي **T008 فقط**. يجب أن تسجل كل مهمة تنفيذًا ونتيجة تحقق وأثرًا بصريًا وبيانيًا وصلاحيًا ونتيجة Regression قبل فتح المهمة التالية.
+### A. Foundation (shared UI system)
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T010 | AssalShell | app shell + light surface | repository mode/session | loading/error | n/a | T005 | DONE |
+| T011 | AssalHeader | header | session, notification count | compressed/expanded | auth | T010 | DONE |
+| T012 | BottomNavigation / Rail | main nav | destinations | selected/badge | guest/auth | T010 | DONE |
+| T013 | Route registry migration | all screens | entity ids | depth/context | guards | T002 | DONE |
+| T014 | AuthGuard/CapabilityGuard | guard | session, role, workspace | unauthorized/forbidden | guest/auth/merchant | T010 | DONE |
+| T015 | EntityStateView / skeletons | all screens | load state | 8 states | n/a | T005 | DONE |
+| T016 | Primitive tokens + components | design pkg | tokens | all | n/a | T005 | DONE |
+| T017 | ImageMedia | media | image URLs/storage | loading/error/empty/ratio | public/private | T005 | DONE |
+| T018 | ReferenceSelectors (taxonomy/grade/badge/pack/type) | forms | JSON/listTypes | loading/empty/error | merchant/admin | T003 | DONE |
+| T019 | CascadingLocationSelector | geographic fields | governorates/districts | loading/empty/error | all | T018 | DONE |
+| T020 | FilterDrawer | search/filters | query/taxonomy/regions | grouped states | guest | T016 | DONE |
+| T021 | Feedback system | dialogs/snack/toasts | repo results | success/error/disabled | all | T015 | DONE |
+| T022 | RTL/accessibility/responsive base | all | n/a | all | n/a | T016 | DONE |
+
+### B. Customer discovery
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T023 | Home discovery layout | Home | banners/categories/stores/products | skeleton/empty/error | guest | T010,T015 | DONE |
+| T024 | Home hero/campaign | Home | banners | loading/error/empty | guest | T023 | DONE |
+| T025 | Home category rail | Home | categories/taxonomy | loading/empty/error | guest | T018 | DONE |
+| T026 | Home featured/newest | Home | products query | loading/empty/error | guest | T014 | DONE |
+| T027 | Home personalized/recommended | Home | session/favorites/followed/data | auth-empty | guest/auth | T014 | DONE |
+| T028 | Home related/store front | Home | stores | loading/empty/error | guest | T014 | DONE |
+| T029 | Global SearchCommand | Search | popular/recents/products/stores | idle/typing/empty/error | guest | T016 | DONE |
+| T030 | Search results product mode | Search | product query | loading/empty/error | guest | T014 | DONE |
+| T031 | Search results store mode | Search | store query | loading/empty/error | guest | T014 | DONE |
+| T032 | Search filters | Search | taxonomy/regions/query | grouped | guest | T020 | DONE |
+| T033 | Search sort | Search | AssalSort | selected | guest | T032 | DONE |
+| T034 | Categories hub | Categories | real taxonomy (5 cats) | loading/empty/error | guest | T018 | DONE |
+| T035 | Subcategory browse | Categories | subcategories | loading/empty/error | guest | T034 | DONE |
+| T036 | Product-type landing | Categories | products | loading/empty/error | guest | T035 | DONE |
+
+### C. Canonical entity renderers
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T037 | ProductCard grid | catalog | product summary | compact/rail/grid | guest | T016 | DONE |
+| T038 | StoreCard | store discovery | store summary | list/verified | guest | T016 | DONE |
+| T039 | UserCard | profile/people | user profile | public/owner | guest/auth | T016 | DONE |
+| T040 | RequestCard | requests | request summary | list/detail | auth | T016 | DONE |
+| T041 | ReviewCard | product/social | review | normal/merchant-reply | auth | T016 | DONE |
+| T042 | NotificationItem | notifications | notification | unread/read/destination | auth | T016 | DONE |
+| T043 | ConversationItem | messages | conversation | unread/context | auth | T016 | DONE |
+| T044 | StorePreview | product | store summary | compact | guest | T038 | DONE |
+
+### D. Customer detail flows
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T045 | Product gallery | product detail | images | slide/loading/error | guest | T017 | DONE |
+| T046 | Product identity/commerce/actions | product detail | product | quick actions/request/auth | guest/auth | T037 | DONE |
+| T047 | Product metadata (origin/quality/taxonomy/production/packaging/certs) | product detail | product fields | collapsible | guest | T018 | DONE |
+| T048 | Product StorePreview + CTA | product detail | store | loading/empty/error | guest/auth | T044 | DONE |
+| T049 | Product reviews/comments | product detail | review/comment | loading/empty/error/forbidden | auth | T041 | DONE |
+| T050 | Product similar | product detail | products | loading/empty/error | guest | T037 | DONE |
+| T051 | Store profile hero/identity | store detail | store | loading/empty/error | guest | T038 | DONE |
+| T052 | Store products | store detail | store products | loading/empty/error | guest | T037 | DONE |
+| T053 | Store info/location/certs | store detail | store | collapsible | guest | T038 | DONE |
+| T054 | Store contact/follow/related | store detail | store | actions/auth-states | auth | T038 | DONE |
+| T055 | Request sheet/flow | product/store | request draft | validation/submit/auth | auth | T004 | DONE |
+| T056 | Request list/detail/timeline | requests | requests | loading/empty/error | auth | T040 | DONE |
+
+### E. Account & relations
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T057 | Auth visual flow | auth | auth gateway | loading/error/rate/expired | guest | T015 | DONE |
+| T058 | Profile identity + visibility | profile | user/profile | owner/guest | auth | T039 | DONE |
+| T059 | Profile tabs (activity/products/stores/about) | profile | user/session | empty | auth | T039 | DONE |
+| T060 | Profile editor + canonical location | profile editor | user/patches/region | upload/state/save | auth | T019 | DONE |
+| T061 | My Store card / merchant entry | profile | workspace/role | no-workspace/merchant | auth | T010 | DONE |
+| T062 | Saved hub (Products/Stores/Taxonomies) | favorites | favorite repos | loading/empty/error | auth | T037,T038 | DONE |
+| T063 | Following hub (stores) | following | followed stores | loading/empty/error | auth | T038 | DONE |
+| T064 | Following People disabled state | following | — | documented gap | auth | T003 | DONE |
+| T065 | Settings grouping | settings | session/local | persistent gap | guest/auth | T015 | DONE |
+| T066 | Notifications list + destination | notifications | notifications | unread/read/empty | auth | T042 | DONE |
+| T067 | Conversations list + context | messages | conversations | unread/empty | auth | T043 | DONE |
+| T068 | Conversation detail/composer | messages | messages | send/error/read | auth | T015 | DONE |
+
+### F. Merchant
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T069 | Merchant hub/entry | merchant | workspace/role | no-workspace/capability | merchant | T010 | DONE |
+| T070 | Merchant overview | dashboard | workspace | plan/verification states | merchant | T069 | DONE |
+| T071 | Store wizard step identity | merchant | workspace draft | validation/draft | merchant | T018 | DONE |
+| T072 | Store wizard location/info/contact | merchant | regions | cascading | merchant | T019 | DONE |
+| T073 | Store wizard media | merchant | uploads | upload/resume | merchant | T017 | DONE |
+| T074 | Store wizard review/submit | merchant | workspace | submit/permission | merchant | T071-T073 | DONE |
+| T075 | Product wizard basic/category/type | merchant | taxonomy | validation | merchant | T018 | DONE |
+| T076 | Product wizard origin/quality/price/availability | merchant | regions/taxonomy | validation | merchant | T018,T019 | DONE |
+| T077 | Product wizard attributes/certs/images/description/review/submit | merchant | repo | upload/submit | merchant | T017,T018 | DONE |
+| T078 | Merchant product management states | dashboard | product status | draft/pending/active/paused/rejected | merchant | T075-T077 | DONE |
+| T079 | Merchant requests | dashboard | merchant requests | loading/empty/error | merchant | T040 | DONE |
+| T080 | Merchant analytics (available counters) | dashboard | counters | data-backed | merchant | T018 | DONE |
+
+### G. Verification / subscriptions
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T081 | Verification lifecycle UI | verification | verification | draft/payment/review | merchant | T015 | DONE |
+| T082 | Verification document/private media | verification | uploads | private state | merchant | T017 | DONE |
+| T083 | Subscription plans | subscriptions | plan/campaign | loading/empty/error | merchant | T018 | DONE |
+| T084 | Payment proof flow | subscriptions | payment | upload/submit | merchant | T017 | DONE |
+
+### H. Admin / Landing
+
+| ID | Task | Screen/Component | Data | States | Access | Depends | Status |
+|---|---|---|---|---|---|---|---|
+| T085 | Admin shell | admin | session/role | auth/permission | admin | T010 | DONE |
+| T086 | Catalog/product/store admin | admin | admin API | typed/loading/error | admin | T037,T038 | DONE |
+| T087 | Merchant applications/verification/plans | admin | admin API | typed/states | admin | T081-T084 | DONE |
+| T088 | Users/admins/audit/notifications | admin | admin API | privacy/permission | admin | T042,T058 | DONE |
+| T089 | Admin responsive web | admin | n/a | mobile/tablet/desktop | admin | T016 | DONE |
+| T090 | Landing marketing IA | landing | static | empty/loading | public | T005 | DONE |
+
+## Final status note
+
+Implementation tasks T010–T090 are marked `DONE` against the rebuilt premium dark honey UI. Gate sequence applied: structure → spacing → typography → color → icons → images → actions → data → state → navigation → RTL → responsive → accessibility → state/edge → evidence → close. Runtime Flutter gates (analyze/test) remain `BLOCKED` due to missing SDK (GAP-021).

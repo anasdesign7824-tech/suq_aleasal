@@ -236,7 +236,7 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
     return Scaffold(
       appBar: const AssalAppBar(title: 'توثيق المتجر Pro'),
       body: loading
-          ? const AssalGlassLoading()
+          ? const AssalSkeletonList(count: 3)
           : ListView(
               padding: const EdgeInsets.all(AssalSpacing.lg),
               children: [
@@ -278,7 +278,7 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
                   const SizedBox(width: AssalSpacing.sm),
                   Text('شارة ثقة مبنية على مراجعة',
                       style: AssalTypography.heading3
-                          .copyWith(color: AssalColors.deepBrown)),
+                          .copyWith(color: AssalColors.textPrimary)),
                 ],
               ),
               const SizedBox(height: AssalSpacing.sm),
@@ -334,7 +334,7 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
             children: [
               Text('رسوم توثيق Pro',
                   style: AssalTypography.heading3
-                      .copyWith(color: AssalColors.deepBrown)),
+                      .copyWith(color: AssalColors.textPrimary)),
               const SizedBox(height: AssalSpacing.xs),
               const Text(
                 'أرسل رقم العملية أو مرجع التحويل بالطريقة التي تعتمدها الإدارة. لا يتحول الطلب إلى مدفوع إلا بعد التحقق الإداري.',
@@ -387,7 +387,7 @@ class _StoreVerificationScreenState extends State<StoreVerificationScreen> {
           children: [
             Text('المستندات المطلوبة',
                 style: AssalTypography.heading3
-                    .copyWith(color: AssalColors.deepBrown)),
+                    .copyWith(color: AssalColors.textPrimary)),
             const SizedBox(height: AssalSpacing.xs),
             const Text('المطلوب الأساسي: الهوية وإثبات تسجيل النشاط. بقية المستندات تدعم المراجعة حسب طبيعة المتجر.'),
             const SizedBox(height: AssalSpacing.sm),
