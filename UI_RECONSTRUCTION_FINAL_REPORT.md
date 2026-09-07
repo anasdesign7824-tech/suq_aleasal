@@ -14,13 +14,21 @@ The new identity is a warm dark marketplace: near-black coffee canvas (`#0D0906`
 
 | Layer | File | Role |
 |---|---|---|
-| Tokens (Flutter) | `packages/design_system/dart/lib/assal_tokens.dart` | single source of dark palette, radius, spacing, typography |
-| Tokens (Web) | `packages/design_system/web/tokens.ts` + `tokens.css` | mirrored dark tokens for admin/marketing web |
-| Theme builder | `apps/mobile_flutter/lib/app/assal_theme.dart` | Material 3 dark ThemeData for the Flutter app |
+| Tokens (Flutter) | `packages/design_system/dart/lib/assal_tokens.dart` | single source of **beige + dark** palettes, radius, spacing, typography |
+| Tokens (Web) | `packages/design_system/web/tokens.ts` + `tokens.css` | mirrored tokens for admin/marketing web |
+| Theme builder | `apps/mobile_flutter/lib/app/assal_theme.dart` | Material 3 ThemeData builder for both modes |
 | Shared widgets | `apps/mobile_flutter/lib/core/assal_widgets.dart` | brand mark, app bar, skeletons, state views, cards, chips, pills |
-| App shell | `apps/mobile_flutter/lib/app/assal_app.dart` | dark shell, BottomNav / NavigationRail, RTL, startup state |
+| App shell | `apps/mobile_flutter/lib/app/assal_app.dart` | theme scope, BottomNav / NavigationRail, RTL, startup state |
+| Theme controller | `packages/design_system/dart/lib/assal_tokens.dart` | `AssalThemeMode` + `AssalThemeController` + `AssalThemeScope` |
 
 The theme keeps **one** typographic family (`IBM Plex Sans Arabic`), one weight/size per level, one radius scale, one spacing scale, one button/input/search style, and consistent empty/loading/error states.
+
+### Theme modes (new note)
+
+- **Default = Beige (البيج):** near-white warm canvas `#FBF8F2`, white cards, honey amber `#D79A2B`, dark brown text `#342118`.
+- **Dark night (from Settings):** premium dark honey canvas `#0D0906`, warm brown surfaces `#1A120C/#24180F/#2B1D12`, golden accent `#F5A623`, cream text `#F7EDE2`.
+
+The preference is presentation-only (`AssalThemeController`) and lives for the app session. It does **not** touch backend, schema, RLS, auth, or business logic.
 
 ## 3. Rebuilt surfaces
 

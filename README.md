@@ -32,6 +32,36 @@ Supabase هو مصدر الإنتاج الرسمي للبيانات والمصا
 
 المرجع الأعلى للتنفيذ هو `docs/execution-authority.md`، وتفاصيل Phase 1 في `docs/phase-01-plan.md`. سجل الأصول المرجعية في `docs/reference-manifest.md`. لا تُستخدم الصور المرجعية كمصدر معماري، ولا تُستخدم بيانات Honey Master كمصدر تلقائي للأسعار أو المخزون أو الإحصاءات.
 
+## واجهة عسلكم الجديدة — Premium Beige & Dark Honey
+
+انسخ أحدث إعادة بناء للواجهة بالكامل على **Presentation/Frontend فقط**. الافتراضي هو **البيج الدافئ القريب من الأبيض**، والوضع **الليلي الداكن العسلي** اختياري من الإعدادات. لم يتم تغيير أي Backend أو قاعدة بيانات أو Schema أو RLS أو Auth أو منطق عمل.
+
+| الوضع | الخلفية | البطاقات | اللمسة | النص |
+|---|---|---|---|---|
+| الافتراضي — Beige | `#FBF8F2` | أبيض `#FFFFFF` | عسلي `#D79A2B` | بني داكن `#342118` |
+| ليلي — Dark | `#0D0906` | بني دافئ `#1A120C` | ذهبي `#F5A623` | كريمي `#F7EDE2` |
+
+### معرض الصور التوضيحية
+
+> [افتح معرض التصميم الكامل →](./docs/design-previews/README.md)
+
+| الصورة | المعاينة |
+|---|---|
+| عسلكم — الرئيسية (بيج) | ![Home Beige](./docs/design-previews/beige/mobile-home-beige-honey.png) |
+| عسلكم — المنتج (بيج) | ![Product Beige](./docs/design-previews/beige/mobile-product-beige-honey.png) |
+| عسلكم — التاجر (بيج) | ![Merchant Beige](./docs/design-previews/beige/merchant-dashboard-beige-honey.png) |
+| عسلكم — الرئيسية (داكن) | ![Home Dark](./docs/design-previews/mobile-home-dark-honey.png) |
+| عسلكم — المنتج (داكن) | ![Product Dark](./docs/design-previews/mobile-product-dark-honey.png) |
+| عسلكم — التاجر (داكن) | ![Merchant Dark](./docs/design-previews/merchant-dashboard-dark-honey.png) |
+| عسلكم — الهبوط/الويب (داكن) | ![Admin Landing](./docs/design-previews/admin-landing-dark-honey.png) |
+
+### أدلة الجودة والمراجعة
+
+- `UI_RECONSTRUCTION_FINAL_REPORT.md` — التقرير الختامي لإعادة البناء.
+- `UI_QA_AUDIT_REPORT.md` — مراجعة الجودة ومطابقة العقود/قواعد البيانات.
+- `UI_FINAL_ACCEPTANCE_MATRIX.md` — معايير القبول النهائية.
+- `UI_GAP_REGISTER.md` — سجل الفجوات (منها GAP-021: لا SDK لتحليل Flutter هنا).
+
 ## حالة التنفيذ
 
 المرحلة الحالية: **Phase 1 — تأسيس المشروع والحوكمة**.
